@@ -16,6 +16,10 @@ The full product requirements and technical plan live in **[`docs/`](docs/)**. S
 [`docs/README.md`](docs/README.md) for the index, or go straight to
 [`docs/00-prd.md`](docs/00-prd.md).
 
+**To start building:** [`docs/13-technical-plan.md`](docs/13-technical-plan.md) is the build
+order — workstreams, waves and what unblocks whom. Individual tasks are one file each in
+[`docs/tasks/`](docs/tasks/), indexed by [`docs/10-tasks.md`](docs/10-tasks.md).
+
 ## How it fits together
 
 | Repo | Role |
