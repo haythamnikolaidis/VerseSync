@@ -97,19 +97,36 @@ var seq = app.project.activeSequence;
 
 Notes and traps:
 
-- **Path normalisation** must handle forward/back slashes, UNC paths, and Windows
-  case-insensitivity. Compare normalised lowercase strings.
+- **Path normalisation** — **confirmed by spike T-04** against a real client project: replace
+  `\` with `/`, then lowercase the whole string, and compare. No UNC paths were observed;
+  drive letters came back uppercase from `getMediaPath()` (e.g. `E:\...`), so the
+  case-insensitive compare is required, not optional.
 - **Both video and audio tracks are walked.** The sermon's audio may be a detached audio-only
   clip while the picture comes from a different camera file. A match on either is a valid
-  mapping.
+  mapping. **Spike T-04 confirmed this is the common case, not an edge case**: in the real
+  project tested, the picture was a multicam edit (unresolvable — see below) and the sermon
+  audio was a fully detached `.wav`, unrelated by name to any camera file. The audio-track walk
+  is what makes mapping work at all for this client's workflow.
 - **`clip.getSpeed()`** — any segment with `speed !== 1.0` goes into `unsupported` with a
   reason, and the panel flags affected cues `speed_change_unsupported`
-  ([05](05-timing-and-placement.md) §5.3).
-- **Merged clips, multicam and nested sequences** have unverified `getMediaPath()` behaviour.
-  **Spike T-04** characterises them; whatever is not resolvable is reported in `unsupported`
-  so the panel can explain itself rather than silently returning nothing.
+  ([05](05-timing-and-placement.md) §5.3). Not yet exercised against a real speed-changed clip
+  (T-04 found none in the available client project) — verify against a synthetic test sequence
+  before relying on this.
+- **Multicam clips and nested sequences are the same failure mode.** Confirmed by spike T-04:
+  a multicam clip placed on a timeline reads to `getMediaPath()` exactly like a nested
+  sequence — `clip.projectItem` is present, but `getMediaPath()` returns an **empty string**,
+  never an exception, never `null`. One check (`!path` after normalisation) catches both;
+  each becomes one `unsupported` entry with a reason such as
+  `"nested_sequence_or_multicam"`. Adjustment Layer clips return the same empty string and are
+  filtered the same way, but silently — the editor never placed media there, so there is
+  nothing to explain.
+- **Some track items have no `projectItem` at all** (`clip.projectItem` itself is falsy) —
+  observed on native Premiere 2026 graphic/text objects that are not MOGRT instances. These
+  are not media clips; skip them without emitting an `unsupported` entry.
 - **`matched: false`** with an empty `segments` array means the media is not in this sequence at
   all — the panel then offers the manual-offset fallback ([05](05-timing-and-placement.md) §5.4).
+  This is the expected outcome if the editor selects the multicam/nested picture instead of the
+  audio file — see [05 §5.3](05-timing-and-placement.md).
 
 Performance: a long sequence can hold thousands of track items. Walk once, build the list,
 return. Do not call this per cue.

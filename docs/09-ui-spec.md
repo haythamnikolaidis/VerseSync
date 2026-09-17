@@ -76,7 +76,7 @@ so a weekly run is: pick media, click Analyse.
 
 | Control | Behaviour |
 |---------|-----------|
-| **Media file** | `window.cep.fs.showOpenDialog` filtered to audio/video extensions — **not** ExtendScript `File.openDialog`, which fails in Premiere 2026 (VerseFlow's finding). Shows basename, full path on hover. |
+| **Media file** | `window.cep.fs.showOpenDialog` filtered to audio/video extensions — **not** ExtendScript `File.openDialog`, which fails in Premiere 2026 (VerseFlow's finding). Shows basename, full path on hover. **Helper text below the field says to select the sermon audio file, not a multicam or nested-sequence picture edit** — spike T-04 confirmed the latter never resolves via `VS.getMediaSegments` ([05](05-timing-and-placement.md) §5.3), which is the common case, not an edge case, for multicam-based workflows. |
 | **Template** | `.mogrt` picker. On selection, calls `VS.getMogrtFields` with a *Reading template…* busy state. Zero fields → the VerseFlow warning about After Effects–authored templates (FR-1.4). |
 | **Reference / Scripture dropdowns** | Populated with group-qualified labels (`Description > Text`), values are field **indices**. VerseFlow's smart defaults apply: reference ← group matching `/descr\|caption\|sub\|credit\|author/i`, body ← `/title\|main\|quote\|body/i`. Same field for both is a validation error. Persisted per MOGRT path. |
 | **Translation** | From `GET /translations`. Shows the licence attribution beneath it in small type (FR-4.7). Disabled while the sidecar is unreachable. |
@@ -217,7 +217,7 @@ re-run on only the affected cues.
 |-------|----------------------|
 | Before any analysis | Setup only; review area shows *Select a media file and click Analyse.* |
 | Analysis found nothing | *No scripture references found. Check the audio has speech, or try a larger model.* with a link to the transcript |
-| Media not in the sequence | *SERMON_A001.MXF isn't in this sequence.* + **Enter a start timecode manually** ([05](05-timing-and-placement.md) §5.4) |
+| Media not in the sequence | *SERMON_A001.MXF isn't in this sequence.* + **Enter a start timecode manually** ([05](05-timing-and-placement.md) §5.4) — if the selected file looks like a multicam or nested-sequence name rather than a flat audio/video file, add: *If this is a multicam or nested sequence, select the sermon's audio file instead.* |
 | All cues disabled | Insert disabled, *Enable at least one scripture to insert.* |
 | Bible provider down | Cues listed with `text_unavailable`; a banner offers **Retry text fetch** |
 | Job failed | The sidecar's `message` verbatim plus its `hint`, and a **Retry** button |

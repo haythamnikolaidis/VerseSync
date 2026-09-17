@@ -239,11 +239,22 @@ produces two valid answers, and only the editor knows which they meant.
 - **Speed changes.** A segment with `speed != 1.0` breaks the linear mapping. v1 detects it,
   flags the cue `speed_change_unsupported`, and disables it. Supporting it means integrating a
   piecewise time-remap curve — not worth v1.
-- **Merged clips and multicam sequences.** `getMediaPath()` behaviour on these is unverified;
-  spike **T-04** characterises it. If they do not resolve, the panel says so and offers the
-  manual-offset fallback (§5.4).
-- **Nested sequences.** Not supported in v1; a media file inside a nested sequence will not be
-  found. Detected (segments empty despite the media being audibly present) and reported.
+- **Multicam clips and nested sequences do not resolve, and this is one failure mode, not
+  two.** Spike **T-04** confirmed against a real client edit: a multicam clip placed on a
+  timeline is, from `getMediaPath()`'s point of view, indistinguishable from a nested
+  sequence — `projectItem` exists but `getMediaPath()` returns an **empty string**, not an
+  exception and not `null`. `VS.getMediaSegments` treats both with one check (falsy/empty
+  path → not resolvable) and reports them into `unsupported` rather than silently returning
+  nothing. Adjustment Layer track items return the same empty string for the same underlying
+  reason (no backing media file) and are handled identically, though they are not themselves
+  something the panel needs to explain to the editor.
+- **This is why the editor must be pointed at the audio file, not the picture.** In every real
+  edit this pipeline will see, the picture side is multicam/nested and therefore unresolvable,
+  while the sermon audio is a plain, detached `.wav` that resolves normally. `VS.getMediaSegments`
+  already treats a match on either track type as valid (§5.1), but the practical implication
+  for T-27's setup UI is stronger than that: the editor's "select your media" action should be
+  steered toward the audio file specifically, or the panel will report `matched: false` for
+  what an editor naturally thinks of as "the sermon."
 
 ### 5.4 Fallback: manual offset
 
