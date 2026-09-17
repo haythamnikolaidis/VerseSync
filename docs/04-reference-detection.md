@@ -249,8 +249,8 @@ confidence = clamp01(
 ```
 
 Weights are constants in `detect/detector.py` and are **tuned against the fixture corpus, not
-guessed** — task T-31 owns the tuning pass. The default review threshold for the amber
-low-confidence flag is **0.55**.
+guessed** — task [T-34](tasks/T-34-threshold-tuning.md) owns the tuning pass. The default review
+threshold for the amber low-confidence flag is **0.55**.
 
 Two adjustments applied after scoring:
 

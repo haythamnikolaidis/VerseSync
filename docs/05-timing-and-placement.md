@@ -182,8 +182,8 @@ read_coverage = coverage                              (always reported)
 **Why 0.55 rather than something higher.** A speaker reading aloud is interrupted by their own
 commentary, skips words, substitutes synonyms from memory, and is transcribed imperfectly. In
 the fixture corpus, verbatim readings land between 0.6 and 0.9 coverage; genuine paraphrase
-rarely exceeds 0.35. The gap is wide and 0.55 sits in it. **T-31 confirms this against the
-corpus and adjusts.**
+rarely exceeds 0.35. The gap is wide and 0.55 sits in it.
+**[T-34](tasks/T-34-threshold-tuning.md) confirms this against the corpus and adjusts.**
 
 `read_coverage` is always shown in the expanded review row, so an editor can see *why* a cue
 was classified as it was — this is a G3 (trustworthy by being visible) requirement, not a

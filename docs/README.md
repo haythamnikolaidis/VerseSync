@@ -59,7 +59,8 @@ retained.
 
 ## How to read this package
 
-Read in order if you are new. The **Tasks** file is where day-to-day work lives.
+Read in order if you are new. Then go to [13-technical-plan.md](13-technical-plan.md) for the
+build order, and pick a task from [`tasks/`](tasks/).
 
 | File | Purpose |
 |------|---------|
@@ -73,9 +74,11 @@ Read in order if you are new. The **Tasks** file is where day-to-day work lives.
 | [07-sidecar-api.md](07-sidecar-api.md) | HTTP contract between the panel and the Python sidecar, plus the Cue Document schema. |
 | [08-premiere-host-api.md](08-premiere-host-api.md) | The `VS.*` ExtendScript contract — what the panel can ask Premiere to do. |
 | [09-ui-spec.md](09-ui-spec.md) | Panel layout, every control, and the review list. |
-| [10-tasks.md](10-tasks.md) | **The backlog.** Self-contained tasks with prereqs and done-when criteria. |
+| [10-tasks.md](10-tasks.md) | **The backlog index.** Every task, by wave and stream. |
+| [`tasks/`](tasks/) | **One file per task** — goal, context, steps, done-when, traps. Self-contained; this is where day-to-day work lives. |
 | [11-testing.md](11-testing.md) | Unit, integration and manual QA strategy, plus the fixture corpus. |
 | [12-decisions-and-risks.md](12-decisions-and-risks.md) | Decision log, risk register, and open questions still needing an answer. |
+| [13-technical-plan.md](13-technical-plan.md) | **The build order.** Workstreams, waves, what unblocks whom, staffing, and working agreements. |
 
 ---
 
