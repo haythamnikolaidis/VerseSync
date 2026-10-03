@@ -21,10 +21,23 @@ The behavioural difference is the whole product: VerseFlow laid clips contiguous
 playhead; VerseSync places each cue at an independent absolute time in the middle of a populated
 timeline.
 
-⚠️ **Do not start until T-03 has reported.** If `importMGT` ripples rather than overwrites, this
-task is written against a fallback instead ([08 §6.1](../08-premiere-host-api.md)): require an
-empty track, insert descending, or use VerseFlow's Option B (pre-render +
-`overwriteClip`). **Read T-03's `RESULTS.md` first and implement what it found.**
+✅ **T-03 has reported** — see
+[`spikes/absolute_insert/RESULTS.md`](../../spikes/absolute_insert/RESULTS.md).
+**Overwrite confirmed, proceed as specified in [08 §6](../08-premiere-host-api.md) as written —
+no fallback needed.** `importMGT` trims whichever existing clip it overlaps, from whichever edge
+is encroached on, order-independently; verified on a single overlap, an empty track, past the
+sequence end, and a 20-cue overlap stress test in two insertion orders plus a repeated
+double-overlap pass. No ripple was observed on the target track or any other track in any case.
+
+T-03 also surfaced two risks that are **not** about overwrite-vs-ripple and need handling here
+regardless:
+
+1. `_setClipDuration` does **not** self-resolve overlaps the way `importMGT` does — setting
+   `clip.end` past the next clip's start silently produces overlapping, corrupted track items,
+   with no error and no trim. See step 4 and the Traps section below.
+2. A fatal ExtendScript exception (confirmed trigger: an out-of-range track index) skips
+   `try`/`catch` entirely and aborts the whole script, which would leave `app.endUndoGroup()`
+   uncalled if it happens inside the undo group. See step 3.
 
 Note that `VF.insertOne` — which already takes an `atTicks` — is a closer starting point than
 `insertBatch`.
@@ -36,8 +49,14 @@ Note that `VF.insertOne` — which already takes an `atTicks` — is a closer st
 2. **Assert the input contract** — cues sorted ascending by `atTicks` — and return the
    [08 §9](../08-premiere-host-api.md) error rather than silently misbehaving. The panel sorts;
    the host verifies.
-3. Wrap the whole batch in **one** undo group: `app.beginUndoGroup("VerseSync: Insert
-   scriptures")` … `endUndoGroup()`, with each call individually try-wrapped as VerseFlow does.
+3. **Validate everything that can be validated — trackIndex against
+   `seq.videoTracks.numTracks`, every cue's `atTicks`/`durationTicks` are well-formed digit
+   strings — *before* `app.beginUndoGroup()` is called.** A fatal (uncatchable) ExtendScript
+   exception from an invalid argument will skip the per-cue `try`/`catch` and abort the whole
+   script, leaving `endUndoGroup()` never called and the undo group stuck open for the rest of
+   the Premiere session. Only once inputs are known-valid, wrap the batch in **one** undo group:
+   `app.beginUndoGroup("VerseSync: Insert scriptures")` … `endUndoGroup()`, with each call
+   individually try-wrapped as VerseFlow does.
 4. Per cue, reuse VerseFlow's proven sequence:
    ```javascript
    var clip = seq.importMGT(mogrtPath, cue.atTicks, trackIndex, 0);
@@ -79,8 +98,13 @@ Note that `VF.insertOne` — which already takes an `atTicks` — is a closer st
   `textEditValue`.
 - The host does **not** re-snap times. `atTicks` and `durationTicks` arrive already
   frame-snapped from `timemap.js` ([08 §6](../08-premiere-host-api.md)).
-- `_setClipDuration` writes `clip.end` without moving `clip.start` — when placing sparsely,
-  extending `end` may collide with the next existing clip
-  ([02 §1.3](../02-source-project-audit.md)). T-03 characterises this; handle what it found.
+- `_setClipDuration` writes `clip.end` without moving `clip.start`, and — confirmed by T-03 —
+  **does not trim or resolve a collision the way `importMGT` does.** If a cue's `durationTicks`
+  would push `end` past the next clip's start (another VerseSync cue, or an unrelated
+  pre-existing clip), the result is two silently overlapping, corrupted track items with no
+  error raised. `durationTicks` must already be clamped to fit before the next clip by the
+  overlap-resolution logic in `timemap.js` ([08 §10](../08-premiere-host-api.md)) — this cannot
+  be caught or fixed on the host side, so the guarantee has to hold before `VS.insertCues` is
+  ever called.
 - No time math, no scripture knowledge, no HTTP, no persistence in the host
   ([08 §10](../08-premiere-host-api.md)).

@@ -72,16 +72,22 @@ whole.
   Premiere-side re-platform**, which is a materially better position than VerseFlow was in.
 - **Watch item:** re-test UXP's MOGRT text read/write each Premiere release.
 
-### R-4 — `importMGT` may ripple rather than overwrite 🟠 Medium–High / technical
+### R-4 — `importMGT` may ripple rather than overwrite ✅ Resolved — overwrite confirmed
 
-VerseFlow only ever placed contiguously from the playhead and inserted its discovery scratch
-clip past the end of the sequence, so this was never exercised. VerseSync places into the middle
-of a populated timeline. If `importMGT` inserts-and-ripples, every insert shifts the edit.
+**Spike T-03 has reported** — see
+[`spikes/absolute_insert/RESULTS.md`](../spikes/absolute_insert/RESULTS.md).
+`importMGT` overwrites by trimming whichever clip it overlaps, from
+whichever edge is encroached, order-independently; verified on a single
+overlap, an empty track, past-sequence-end, and a 20-cue overlap stress test
+in two insertion orders plus a repeated double-overlap pass. No ripple
+observed, on the target track or any other. [08 §6](08-premiere-host-api.md)
+proceeds as specified, no fallback needed.
 
-- **Mitigation:** **spike T-03 is the M1 hard gate.** Fallbacks are pre-costed in
-  [08](08-premiere-host-api.md) §6.1 — require an empty track, insert descending, or fall back
-  to VerseFlow's Option B (pre-render + `overwriteClip`, which has unambiguous semantics and is
-  already fully investigated in VerseFlow's `11-alternative-approaches.md`).
+- **New risks surfaced by the spike, tracked separately:** `_setClipDuration`
+  does not self-resolve overlaps (silently corrupts the timeline — see
+  T-25's traps); a fatal ExtendScript exception (confirmed trigger:
+  out-of-range track index) skips `try`/`catch` and can leave an undo group
+  stuck open, breaking subsequent edits (see T-25 step 3).
 
 ### R-5 — Word-timestamp accuracy may not support ±0.5 s 🟠 Medium–High / technical
 
@@ -96,15 +102,23 @@ cross-attention alignment, whose accuracy varies by model — and the current de
   that arrives slightly early reads as intentional; one that arrives late reads as broken), or
   add a forced-alignment pass over the reference span only.
 
-### R-6 — Source→sequence mapping does not cover real edits 🟡 Medium / technical
+### R-6 — Source→sequence mapping does not cover real edits ✅ Resolved — characterised
 
-Speed changes, merged clips, multicam and nested sequences all threaten the linear mapping in
-[05](05-timing-and-placement.md) §5, and `getMediaPath()` behaviour on them is unverified.
+**Spike T-04 has reported** — see
+[`spikes/media_segments/RESULTS.md`](../spikes/media_segments/RESULTS.md).
+Straight cuts, trims, duplicate media, and detached audio all resolve
+cleanly. Speed changes are reliably **detectable** (`speed !== 1.0`) but
+their position data is unusable — confirmed, routes straight to
+`unsupported`. **Nested sequences and multicam clips produce an identical,
+unresolvable signature** (`mediaPath: ""`, `hasProjectItem: true`) with no
+way to tell them apart from each other, or from genuinely offline media —
+the implementation rule is simply to route any of them to `unsupported`
+without trying to distinguish which. Merged clips were not tested
+(confirmed with the editor: not used in the client's actual workflow — not
+blocking). Walk time: 85ms for 105 clips, no performance concern.
 
-- **Mitigation:** **spike T-04** characterises each case; whatever does not resolve is reported
-  in `unsupported` and flagged per cue rather than silently mis-mapped; the manual-offset
-  fallback covers the single-recording case.
 - **Accepted:** v1 does not support speed-changed segments. Documented, flagged, disabled.
+- **New risk surfaced by the spike, tracked separately as R-13.**
 
 ### R-7 — MOGRT text write on the real template 🟡 Medium / technical *(inherited)*
 
@@ -151,6 +165,29 @@ arithmetic loses precision. VerseFlow's risk R4.
   upgraded to string arithmetic. A 45-minute sermon is comfortably inside the safe range, but
   VerseSync computes far more tick values than VerseFlow did.
 
+### R-13 — `activeSequence` can silently change between panel calls 🟠 Medium / technical
+
+Discovered during T-04. `app.project.activeSequence` tracks Premiere's UI
+tab focus, not panel intent — and a script-side assignment to it does not
+persist past the `evalScript` call that made it (confirmed empirically: the
+very next, separate call reverts to whatever tab currently has focus). The
+panel calls `VS.getMediaSegments` and `VS.insertCues`
+([08](08-premiere-host-api.md) §4, §6) as **separate** round-trips, with the
+editor free to click a different sequence tab in between (reviewing cues,
+deciding whether to insert). If they do, `VS.insertCues` would resolve
+`app.project.activeSequence` to the now-focused tab — silently inserting
+into the wrong sequence, with no error. This is the same failure shape R-4's
+mitigation was built to avoid (a confidently wrong result with no warning),
+just at the sequence-identity level rather than the clip-placement level.
+
+- **Mitigation (not yet implemented):** re-verify the target sequence's
+  identity immediately before `VS.insertCues` runs (e.g. compare against
+  the sequence captured when cues were generated) and abort with a clear
+  error if it changed, rather than trusting `activeSequence` to still mean
+  what it meant earlier in the flow.
+- **Action:** needs a decision before T-25/T-30 ship — tracked against
+  those tasks.
+
 ### R-12 — Sermon audio privacy 🟢 Low / trust
 
 Sermon audio may be pastorally sensitive. Editors should not have to wonder where it goes.
@@ -188,12 +225,16 @@ resolve them by aligning the whole chapter against the transcript and using the 
 read. Worth building if chapter-only references turn out to be common in the corpus —
 **a question the corpus answers**, so it resolves itself during M2.
 
-### Q-D — Where does the sermon's audio actually live in the edit? 🟡 Non-blocking
+### Q-D — Where does the sermon's audio actually live in the edit? ✅ Answered by T-04
 
-D3 assumes the editor can point at one media file that contains the sermon audio. If the real
-workflow uses a separate audio recorder synced to camera, or a multicam clip, T-04 will say
-whether that resolves. **Ask the editor to describe their actual ingest before T-04**, so the
-spike tests the right cases.
+The sermon audio is a **separate lapel-mic recording**
+(`03-Pastor Lapel-260927_0935.wav`), detached from the camera footage — not
+embedded in a multicam clip or merged clip. Confirmed resolving cleanly as
+the "detached audio" construct in
+[`spikes/media_segments/RESULTS.md`](../spikes/media_segments/RESULTS.md).
+The real edit does also use nested sequences and multicam clips (for
+graphics/B-roll, not the primary audio), and speed changes — all
+characterised by the same spike; no merged clips in this workflow.
 
 ### Q-E — Confidence threshold for the amber flag 🟢 Resolves during tuning
 
