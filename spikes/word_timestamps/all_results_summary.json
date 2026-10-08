@@ -1,0 +1,338 @@
+{
+  "base_matrix": [
+    {
+      "name": "large-v3_vadon_promptnone_condtrue",
+      "summary": {
+        "transcript_config": {
+          "model": "large-v3",
+          "device": "cuda",
+          "compute_type": "float16",
+          "vad_filter": true,
+          "prompt": "none",
+          "condition_on_previous_text": true,
+          "language": "en",
+          "temperature": 0.0
+        },
+        "transcript_wall_s": 146.36598896980286,
+        "audio_duration_s": 7084.0296875,
+        "total_labels": 32,
+        "matched_count": 22,
+        "match_rate": 0.6875,
+        "matched_via_reference": 11,
+        "matched_via_body": 11,
+        "p50_abs_error_s": 0.4185000000002219,
+        "p90_abs_error_s": 6.631400000000305,
+        "max_abs_error_s": 7.736000000000786,
+        "mean_abs_error_s": 1.9165000000000212
+      }
+    },
+    {
+      "name": "large-v3_vadoff_promptnone_condtrue",
+      "summary": {
+        "transcript_config": {
+          "model": "large-v3",
+          "device": "cuda",
+          "compute_type": "float16",
+          "vad_filter": false,
+          "prompt": "none",
+          "condition_on_previous_text": true,
+          "language": "en",
+          "temperature": 0.0
+        },
+        "transcript_wall_s": 183.1809058189392,
+        "audio_duration_s": 7084.0296875,
+        "total_labels": 32,
+        "matched_count": 22,
+        "match_rate": 0.6875,
+        "matched_via_reference": 11,
+        "matched_via_body": 11,
+        "p50_abs_error_s": 0.4135000000001128,
+        "p90_abs_error_s": 6.6334000000002575,
+        "max_abs_error_s": 7.756000000000313,
+        "mean_abs_error_s": 1.914227272727203
+      }
+    },
+    {
+      "name": "large-v3-turbo_vadon_promptnone_condtrue",
+      "summary": {
+        "transcript_config": {
+          "model": "large-v3-turbo",
+          "device": "cuda",
+          "compute_type": "float16",
+          "vad_filter": true,
+          "prompt": "none",
+          "condition_on_previous_text": true,
+          "language": "en",
+          "temperature": 0.0
+        },
+        "transcript_wall_s": 66.50087523460388,
+        "audio_duration_s": 7084.0296875,
+        "total_labels": 32,
+        "matched_count": 22,
+        "match_rate": 0.6875,
+        "matched_via_reference": 11,
+        "matched_via_body": 11,
+        "p50_abs_error_s": 0.3914999999997235,
+        "p90_abs_error_s": 6.45139999999965,
+        "max_abs_error_s": 7.655999999999949,
+        "mean_abs_error_s": 1.8753181818182052
+      }
+    },
+    {
+      "name": "large-v3-turbo_vadoff_promptnone_condtrue",
+      "summary": {
+        "transcript_config": {
+          "model": "large-v3-turbo",
+          "device": "cuda",
+          "compute_type": "float16",
+          "vad_filter": false,
+          "prompt": "none",
+          "condition_on_previous_text": true,
+          "language": "en",
+          "temperature": 0.0
+        },
+        "transcript_wall_s": 413.94813871383667,
+        "audio_duration_s": 7084.0296875,
+        "total_labels": 32,
+        "matched_count": 0,
+        "match_rate": 0.0,
+        "matched_via_reference": 0,
+        "matched_via_body": 0,
+        "p50_abs_error_s": null,
+        "p90_abs_error_s": null,
+        "max_abs_error_s": null,
+        "mean_abs_error_s": null
+      }
+    },
+    {
+      "name": "distil-large-v3_vadon_promptnone_condtrue",
+      "summary": {
+        "transcript_config": {
+          "model": "distil-large-v3",
+          "device": "cuda",
+          "compute_type": "float16",
+          "vad_filter": true,
+          "prompt": "none",
+          "condition_on_previous_text": true,
+          "language": "en",
+          "temperature": 0.0
+        },
+        "transcript_wall_s": 42.23061561584473,
+        "audio_duration_s": 7084.0296875,
+        "total_labels": 32,
+        "matched_count": 21,
+        "match_rate": 0.65625,
+        "matched_via_reference": 9,
+        "matched_via_body": 12,
+        "p50_abs_error_s": 0.6199999999998909,
+        "p90_abs_error_s": 5.792000000000371,
+        "max_abs_error_s": 7.051000000000386,
+        "mean_abs_error_s": 1.707476190476189
+      }
+    },
+    {
+      "name": "distil-large-v3_vadoff_promptnone_condtrue",
+      "summary": {
+        "transcript_config": {
+          "model": "distil-large-v3",
+          "device": "cuda",
+          "compute_type": "float16",
+          "vad_filter": false,
+          "prompt": "none",
+          "condition_on_previous_text": true,
+          "language": "en",
+          "temperature": 0.0
+        },
+        "transcript_wall_s": 452.1817088127136,
+        "audio_duration_s": 7084.0296875,
+        "total_labels": 32,
+        "matched_count": 22,
+        "match_rate": 0.6875,
+        "matched_via_reference": 9,
+        "matched_via_body": 13,
+        "p50_abs_error_s": 0.5845000000003893,
+        "p90_abs_error_s": 5.851700000000258,
+        "max_abs_error_s": 7.121000000000095,
+        "mean_abs_error_s": 1.6692272727273534
+      }
+    }
+  ],
+  "winner": {
+    "name": "distil-large-v3_vadon_promptnone_condtrue",
+    "model": "distil-large-v3",
+    "vad": "on",
+    "summary": {
+      "transcript_config": {
+        "model": "distil-large-v3",
+        "device": "cuda",
+        "compute_type": "float16",
+        "vad_filter": true,
+        "prompt": "none",
+        "condition_on_previous_text": true,
+        "language": "en",
+        "temperature": 0.0
+      },
+      "transcript_wall_s": 42.23061561584473,
+      "audio_duration_s": 7084.0296875,
+      "total_labels": 32,
+      "matched_count": 21,
+      "match_rate": 0.65625,
+      "matched_via_reference": 9,
+      "matched_via_body": 12,
+      "p50_abs_error_s": 0.6199999999998909,
+      "p90_abs_error_s": 5.792000000000371,
+      "max_abs_error_s": 7.051000000000386,
+      "mean_abs_error_s": 1.707476190476189
+    }
+  },
+  "prompt_ab": {
+    "none": {
+      "name": "distil-large-v3_vadon_promptnone_condtrue",
+      "summary": {
+        "transcript_config": {
+          "model": "distil-large-v3",
+          "device": "cuda",
+          "compute_type": "float16",
+          "vad_filter": true,
+          "prompt": "none",
+          "condition_on_previous_text": true,
+          "language": "en",
+          "temperature": 0.0
+        },
+        "transcript_wall_s": 42.23061561584473,
+        "audio_duration_s": 7084.0296875,
+        "total_labels": 32,
+        "matched_count": 21,
+        "match_rate": 0.65625,
+        "matched_via_reference": 9,
+        "matched_via_body": 12,
+        "p50_abs_error_s": 0.6199999999998909,
+        "p90_abs_error_s": 5.792000000000371,
+        "max_abs_error_s": 7.051000000000386,
+        "mean_abs_error_s": 1.707476190476189
+      },
+      "mishearings": {
+        "Philippians": {
+          "correct": 0,
+          "misheard": 0
+        },
+        "Habakkuk": {
+          "correct": 0,
+          "misheard": 0
+        },
+        "Titus": {
+          "correct": 0,
+          "misheard": 0
+        },
+        "Colossians": {
+          "correct": 0,
+          "misheard": 0
+        }
+      }
+    },
+    "scripture": {
+      "name": "distil-large-v3_vadon_promptscripture_condtrue",
+      "summary": {
+        "transcript_config": {
+          "model": "distil-large-v3",
+          "device": "cuda",
+          "compute_type": "float16",
+          "vad_filter": true,
+          "prompt": "scripture",
+          "condition_on_previous_text": true,
+          "language": "en",
+          "temperature": 0.0
+        },
+        "transcript_wall_s": 41.31823921203613,
+        "audio_duration_s": 7084.0296875,
+        "total_labels": 32,
+        "matched_count": 22,
+        "match_rate": 0.6875,
+        "matched_via_reference": 8,
+        "matched_via_body": 14,
+        "p50_abs_error_s": 0.6630000000000109,
+        "p90_abs_error_s": 5.71169999999993,
+        "max_abs_error_s": 6.831000000000131,
+        "mean_abs_error_s": 1.6904999999999497
+      },
+      "mishearings": {
+        "Philippians": {
+          "correct": 0,
+          "misheard": 0
+        },
+        "Habakkuk": {
+          "correct": 0,
+          "misheard": 0
+        },
+        "Titus": {
+          "correct": 0,
+          "misheard": 0
+        },
+        "Colossians": {
+          "correct": 0,
+          "misheard": 0
+        }
+      }
+    }
+  },
+  "chosen_prompt": "scripture",
+  "condition_ab": {
+    "True": {
+      "name": "distil-large-v3_vadon_promptscripture_condtrue",
+      "summary": {
+        "transcript_config": {
+          "model": "distil-large-v3",
+          "device": "cuda",
+          "compute_type": "float16",
+          "vad_filter": true,
+          "prompt": "scripture",
+          "condition_on_previous_text": true,
+          "language": "en",
+          "temperature": 0.0
+        },
+        "transcript_wall_s": 41.31823921203613,
+        "audio_duration_s": 7084.0296875,
+        "total_labels": 32,
+        "matched_count": 22,
+        "match_rate": 0.6875,
+        "matched_via_reference": 8,
+        "matched_via_body": 14,
+        "p50_abs_error_s": 0.6630000000000109,
+        "p90_abs_error_s": 5.71169999999993,
+        "max_abs_error_s": 6.831000000000131,
+        "mean_abs_error_s": 1.6904999999999497
+      },
+      "repetition_loop_count": 0,
+      "repetition_loop_examples": []
+    },
+    "False": {
+      "name": "distil-large-v3_vadon_promptscripture_condfalse",
+      "summary": {
+        "transcript_config": {
+          "model": "distil-large-v3",
+          "device": "cuda",
+          "compute_type": "float16",
+          "vad_filter": true,
+          "prompt": "scripture",
+          "condition_on_previous_text": false,
+          "language": "en",
+          "temperature": 0.0
+        },
+        "transcript_wall_s": 39.63449716567993,
+        "audio_duration_s": 7084.0296875,
+        "total_labels": 32,
+        "matched_count": 22,
+        "match_rate": 0.6875,
+        "matched_via_reference": 9,
+        "matched_via_body": 13,
+        "p50_abs_error_s": 0.6325000000001637,
+        "p90_abs_error_s": 5.887700000000224,
+        "max_abs_error_s": 7.051000000000386,
+        "mean_abs_error_s": 1.63795454545458
+      },
+      "repetition_loop_count": 0,
+      "repetition_loop_examples": []
+    }
+  },
+  "chosen_condition_on_previous_text": true
+}

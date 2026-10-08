@@ -1,0 +1,1964 @@
+{
+    "graphics": [
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 0,
+            "clipName": "AV Quote 04",
+            "startTicks": "1249758720000",
+            "endTicks": "4673894400000",
+            "startSeconds": 4.92,
+            "endSeconds": 18.4,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[35],\"textEditValue\":\"The Light of His Favour Is upon You\"}",
+                    "guess": "The Light of His Favour Is upon You",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[true],\"fontFSBoldValue\":[false],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[13],\"textEditValue\":\"Message Title\"}",
+                    "guess": "Message Title",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 4585.16,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4580.24,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 1,
+            "clipName": "AV Quote 04",
+            "startTicks": "6502809600000",
+            "endTicks": "9926945280000",
+            "startSeconds": 25.6,
+            "endSeconds": 39.08,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[21],\"textEditValue\":\"Pastor Bernard Mulder\"}",
+                    "guess": "Pastor Bernard Mulder",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"AvenirLTPro-Black\"],\"fontFSAllCapsValue\":[true],\"fontFSBoldValue\":[false],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[13],\"textEditValue\":\"Message Title\"}",
+                    "guess": "Message Title",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 4605.84,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4580.24,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 2,
+            "clipName": "AV Quote 04",
+            "startTicks": "13879434240000",
+            "endTicks": "18522846720000",
+            "startSeconds": 54.64,
+            "endSeconds": 72.92,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[118],\"textEditValue\":\"8 Do not rejoice over me, my enemy; When I fall, I will arise; When I sit in\\ndarkness, The LORD will be a light to me.\"}",
+                    "guess": "8 Do not rejoice over me, my enemy; When I fall, I will arise; When I sit in\ndarkness, The LORD will be a light to me.",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[16],\"textEditValue\":\"Micah 7:8 (NKJV)\"}",
+                    "guess": "Micah 7:8 (NKJV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 4634.88,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4580.24,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 3,
+            "clipName": "AV Quote 04",
+            "startTicks": "27667422720000",
+            "endTicks": "31091558400000",
+            "startSeconds": 108.92,
+            "endSeconds": 122.4,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[19],\"textEditValue\":\"Household of Christ\"}",
+                    "guess": "Household of Christ",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"AvenirLTPro-Black\"],\"fontFSAllCapsValue\":[true],\"fontFSBoldValue\":[false],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[19],\"textEditValue\":\"Household of Christ\"}",
+                    "guess": "Household of Christ",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 4689.16,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4580.24,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 4,
+            "clipIndex": 1,
+            "clipName": "Social Icon - Clean 2",
+            "startTicks": "28053527040000",
+            "endTicks": "30979791360000",
+            "startSeconds": 110.44,
+            "endSeconds": 121.96,
+            "textFieldsError": null,
+            "textFields": [],
+            "sourceSeconds": 4690.68,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4580.24,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 4,
+            "clipName": "AV Quote 04",
+            "startTicks": "38143042560000",
+            "endTicks": "45062438400000",
+            "startSeconds": 150.16,
+            "endSeconds": 177.4,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[180],\"textEditValue\":\"6 For it is the God who commanded light to shine out of darkness, who has shone\\r\\nin our hearts to give the light of the knowledge of the glory of God in the face of\\r\\nJesus Christ. \"}",
+                    "guess": "6 For it is the God who commanded light to shine out of darkness, who has shone\r\nin our hearts to give the light of the knowledge of the glory of God in the face of\r\nJesus Christ. ",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[26],\"textEditValue\":\"2 Corinthians 4:6-9 (NKJV)\"}",
+                    "guess": "2 Corinthians 4:6-9 (NKJV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 4730.4,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4580.24,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 5,
+            "clipName": "AV Quote 04",
+            "startTicks": "45062438400000",
+            "endTicks": "46688140800000",
+            "startSeconds": 177.4,
+            "endSeconds": 183.8,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[109],\"textEditValue\":\"7 But we have this treasure in earthen vessels, that the excellence of the\\npower may be of God and not of us.\"}",
+                    "guess": "7 But we have this treasure in earthen vessels, that the excellence of the\npower may be of God and not of us.",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[26],\"textEditValue\":\"2 Corinthians 4:6-9 (NKJV)\"}",
+                    "guess": "2 Corinthians 4:6-9 (NKJV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 4758.8,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4581.4,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 6,
+            "clipName": "AV Quote 04",
+            "startTicks": "46688140800000",
+            "endTicks": "52693079040000",
+            "startSeconds": 183.8,
+            "endSeconds": 207.44,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[156],\"textEditValue\":\"8 We are hard-pressed on every side, yet not crushed; we are perplexed, but\\nnot in despair; 9 persecuted, but not forsaken; struck down, but not\\ndestroyed--\"}",
+                    "guess": "8 We are hard-pressed on every side, yet not crushed; we are perplexed, but\nnot in despair; 9 persecuted, but not forsaken; struck down, but not\ndestroyed--",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[26],\"textEditValue\":\"2 Corinthians 4:6-9 (NKJV)\"}",
+                    "guess": "2 Corinthians 4:6-9 (NKJV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 4765.84,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4582.04,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 7,
+            "clipName": "AV Quote 04",
+            "startTicks": "54471191040000",
+            "endTicks": "57824202240000",
+            "startSeconds": 214.44,
+            "endSeconds": 227.64,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[19],\"textEditValue\":\"Household of Christ\"}",
+                    "guess": "Household of Christ",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"AvenirLTPro-Black\"],\"fontFSAllCapsValue\":[true],\"fontFSBoldValue\":[false],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[19],\"textEditValue\":\"Household of Christ\"}",
+                    "guess": "Household of Christ",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 4796.48,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4582.04,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 4,
+            "clipIndex": 2,
+            "clipName": "Social Icon - Clean 1",
+            "startTicks": "54857295360000",
+            "endTicks": "57783559680000",
+            "startSeconds": 215.96,
+            "endSeconds": 227.48,
+            "textFieldsError": null,
+            "textFields": [],
+            "sourceSeconds": 4798,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4582.04,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 8,
+            "clipName": "AV Quote 04",
+            "startTicks": "62294883840000",
+            "endTicks": "66155927040000",
+            "startSeconds": 245.24,
+            "endSeconds": 260.44,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[99],\"textEditValue\":\"16 For a righteous man may fall seven times and rise again, but the wicked shall\\r\\nfall by calamity.\"}",
+                    "guess": "16 For a righteous man may fall seven times and rise again, but the wicked shall\r\nfall by calamity.",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[21],\"textEditValue\":\"Proverbs 24:16 (NKJV)\"}",
+                    "guess": "Proverbs 24:16 (NKJV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 4827.28,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4582.04,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 9,
+            "clipName": "AV Quote 04",
+            "startTicks": "73349660160000",
+            "endTicks": "81955722240000",
+            "startSeconds": 288.76,
+            "endSeconds": 322.64,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[120],\"textEditValue\":\"6 Many say that God will never help us. Prove them wrong, O Lord, by\\r\\nletting the light of your face shine down upon us.\"}",
+                    "guess": "6 Many say that God will never help us. Prove them wrong, O Lord, by\r\nletting the light of your face shine down upon us.",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[15],\"textEditValue\":\"Psalm 4:6 (TLB)\"}",
+                    "guess": "Psalm 4:6 (TLB)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 4870.8,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4582.04,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 10,
+            "clipName": "AV Quote 04",
+            "startTicks": "85684677120000",
+            "endTicks": "92441502720000",
+            "startSeconds": 337.32,
+            "endSeconds": 363.92,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[171],\"textEditValue\":\"24 \\\"The LORD bless you and keep you; 25 the LORD make His face shine upon\\r\\nyou, and be gracious to you; 26 the LORD lift up His countenance upon you, and\\r\\ngive you peace.\\\"\"}",
+                    "guess": "24 \"The LORD bless you and keep you; 25 the LORD make His face shine upon\r\nyou, and be gracious to you; 26 the LORD lift up His countenance upon you, and\r\ngive you peace.\"",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[22],\"textEditValue\":\"Numbers 6:24-26 (NKJV)\"}",
+                    "guess": "Numbers 6:24-26 (NKJV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 4919.36,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4582.04,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 11,
+            "clipName": "AV Quote 04",
+            "startTicks": "99056079360000",
+            "endTicks": "102409090560000",
+            "startSeconds": 389.96,
+            "endSeconds": 403.16,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[19],\"textEditValue\":\"+27 (0) 76 685 1090\"}",
+                    "guess": "+27 (0) 76 685 1090",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"AvenirLTPro-Black\"],\"fontFSAllCapsValue\":[true],\"fontFSBoldValue\":[false],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[19],\"textEditValue\":\"Household of Christ\"}",
+                    "guess": "Household of Christ",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 4972,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4582.04,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 4,
+            "clipIndex": 3,
+            "clipName": "Social Icon - Clean 7",
+            "startTicks": "99442183680000",
+            "endTicks": "102368448000000",
+            "startSeconds": 391.48,
+            "endSeconds": 403,
+            "textFieldsError": null,
+            "textFields": [],
+            "sourceSeconds": 4973.52,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4582.04,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 14,
+            "clipName": "AV Quote 04",
+            "startTicks": "110822100480000",
+            "endTicks": "119854909440000",
+            "startSeconds": 436.28,
+            "endSeconds": 471.84,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[83],\"textEditValue\":\"28 You have turned on my light! The Lord my God has made my darkness turn to\\nlight.\"}",
+                    "guess": "28 You have turned on my light! The Lord my God has made my darkness turn to\nlight.",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[17],\"textEditValue\":\"Psalm 18:28 (TLB)\"}",
+                    "guess": "Psalm 18:28 (TLB)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5081.88,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4645.6,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 15,
+            "clipName": "AV Quote 04",
+            "startTicks": "126357719040000",
+            "endTicks": "129781854720000",
+            "startSeconds": 497.44,
+            "endSeconds": 510.92,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[35],\"textEditValue\":\"The Light of His Favour Is upon You\"}",
+                    "guess": "The Light of His Favour Is upon You",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[true],\"fontFSBoldValue\":[false],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[13],\"textEditValue\":\"Message Title\"}",
+                    "guess": "Message Title",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5143.04,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4645.6,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 16,
+            "clipName": "AV Quote 04",
+            "startTicks": "131610769920000",
+            "endTicks": "135034905600000",
+            "startSeconds": 518.12,
+            "endSeconds": 531.6,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[21],\"textEditValue\":\"Pastor Bernard Mulder\"}",
+                    "guess": "Pastor Bernard Mulder",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"AvenirLTPro-Black\"],\"fontFSAllCapsValue\":[true],\"fontFSBoldValue\":[false],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[13],\"textEditValue\":\"Message Title\"}",
+                    "guess": "Message Title",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5163.72,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4645.6,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 17,
+            "clipName": "AV Quote 04",
+            "startTicks": "142553779200000",
+            "endTicks": "146983818240000",
+            "startSeconds": 561.2,
+            "endSeconds": 578.64,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[74],\"textEditValue\":\"16 Make Your face shine upon Your servant; save me for Your mercies' sake.\"}",
+                    "guess": "16 Make Your face shine upon Your servant; save me for Your mercies' sake.",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[18],\"textEditValue\":\"Psalm 31:16 (NKJV)\"}",
+                    "guess": "Psalm 31:16 (NKJV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5206.8,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4645.6,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 18,
+            "clipName": "AV Quote 04",
+            "startTicks": "152033656320000",
+            "endTicks": "155386667520000",
+            "startSeconds": 598.52,
+            "endSeconds": 611.72,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[19],\"textEditValue\":\"Household of Christ\"}",
+                    "guess": "Household of Christ",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"AvenirLTPro-Black\"],\"fontFSAllCapsValue\":[true],\"fontFSBoldValue\":[false],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[19],\"textEditValue\":\"Household of Christ\"}",
+                    "guess": "Household of Christ",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5244.12,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4645.6,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 4,
+            "clipIndex": 5,
+            "clipName": "Social Icon - Clean 32",
+            "startTicks": "152419760640000",
+            "endTicks": "155346024960000",
+            "startSeconds": 600.04,
+            "endSeconds": 611.56,
+            "textFieldsError": null,
+            "textFields": [],
+            "sourceSeconds": 5245.64,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4645.6,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 19,
+            "clipName": "AV Quote 04",
+            "startTicks": "159176586240000",
+            "endTicks": "166410961920000",
+            "startSeconds": 626.64,
+            "endSeconds": 655.12,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[74],\"textEditValue\":\"16 Make Your face shine upon Your servant; save me for Your mercies' sake.\"}",
+                    "guess": "16 Make Your face shine upon Your servant; save me for Your mercies' sake.",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[18],\"textEditValue\":\"Psalm 31:16 (NKJV)\"}",
+                    "guess": "Psalm 31:16 (NKJV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5272.24,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4645.6,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 20,
+            "clipName": "AV Quote 04",
+            "startTicks": "170627627520000",
+            "endTicks": "174315939840000",
+            "startSeconds": 671.72,
+            "endSeconds": 686.24,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[124],\"textEditValue\":\"1 The LORD is my light and my salvation; whom shall I fear? The LORD is the\\r\\nstrength of my life; of whom shall I be afraid?\"}",
+                    "guess": "1 The LORD is my light and my salvation; whom shall I fear? The LORD is the\r\nstrength of my life; of whom shall I be afraid?",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[17],\"textEditValue\":\"Psalm 27:1 (NKJV)\"}",
+                    "guess": "Psalm 27:1 (NKJV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5317.32,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4645.6,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 21,
+            "clipName": "AV Quote 04",
+            "startTicks": "176033088000000",
+            "endTicks": "180412323840000",
+            "startSeconds": 693,
+            "endSeconds": 710.24,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[124],\"textEditValue\":\"1 The LORD is my light and my salvation; whom shall I fear? The LORD is the\\r\\nstrength of my life; of whom shall I be afraid?\"}",
+                    "guess": "1 The LORD is my light and my salvation; whom shall I fear? The LORD is the\r\nstrength of my life; of whom shall I be afraid?",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[17],\"textEditValue\":\"Psalm 27:1 (NKJV)\"}",
+                    "guess": "Psalm 27:1 (NKJV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5338.6,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4645.6,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 22,
+            "clipName": "AV Quote 04",
+            "startTicks": "185766981120000",
+            "endTicks": "189119992320000",
+            "startSeconds": 731.32,
+            "endSeconds": 744.52,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[19],\"textEditValue\":\"Household of Christ\"}",
+                    "guess": "Household of Christ",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"AvenirLTPro-Black\"],\"fontFSAllCapsValue\":[true],\"fontFSBoldValue\":[false],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[19],\"textEditValue\":\"Household of Christ\"}",
+                    "guess": "Household of Christ",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5376.92,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4645.6,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 4,
+            "clipIndex": 6,
+            "clipName": "Social Icon - Clean 4",
+            "startTicks": "186173406720000",
+            "endTicks": "189079349760000",
+            "startSeconds": 732.92,
+            "endSeconds": 744.36,
+            "textFieldsError": null,
+            "textFields": [],
+            "sourceSeconds": 5378.52,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4645.6,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 23,
+            "clipName": "AV Quote 04",
+            "startTicks": "191355333120000",
+            "endTicks": "196110512640000",
+            "startSeconds": 753.32,
+            "endSeconds": 772.04,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[117],\"textEditValue\":\"21 But the LORD was with Joseph and showed him mercy, and He gave him favor in\\nthe sight of the keeper of the prison.\"}",
+                    "guess": "21 But the LORD was with Joseph and showed him mercy, and He gave him favor in\nthe sight of the keeper of the prison.",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[20],\"textEditValue\":\"Genesis 39:21 (NKJV)\"}",
+                    "guess": "Genesis 39:21 (NKJV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5398.92,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4645.6,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 24,
+            "clipName": "AV Quote 04",
+            "startTicks": "199941073920000",
+            "endTicks": "203263603200000",
+            "startSeconds": 787.12,
+            "endSeconds": 800.2,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[106],\"textEditValue\":\"33  But seek first the kingdom of God and His righteousness, and all these things \\r\\nshall be added to you.\"}",
+                    "guess": "33  But seek first the kingdom of God and His righteousness, and all these things \r\nshall be added to you.",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[20],\"textEditValue\":\"Genesis 39:23 (NKJV)\"}",
+                    "guess": "Genesis 39:23 (NKJV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5432.72,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4645.6,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 25,
+            "clipName": "AV Quote 04",
+            "startTicks": "204178060800000",
+            "endTicks": "213210869760000",
+            "startSeconds": 803.8,
+            "endSeconds": 839.36,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[167],\"textEditValue\":\"23 The keeper of the prison did not look into anything that was under Joseph's\\nauthority, because the LORD was with him; and whatever he did, the LORD made\\nit prosper.\"}",
+                    "guess": "23 The keeper of the prison did not look into anything that was under Joseph's\nauthority, because the LORD was with him; and whatever he did, the LORD made\nit prosper.",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[20],\"textEditValue\":\"Genesis 39:23 (NKJV)\"}",
+                    "guess": "Genesis 39:23 (NKJV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5449.4,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4645.6,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 26,
+            "clipName": "AV Quote 04",
+            "startTicks": "221695004160000",
+            "endTicks": "226612753920000",
+            "startSeconds": 872.76,
+            "endSeconds": 892.12,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[292],\"textEditValue\":\"15 Now when the turn came for Esther the daughter of Abihail the uncle of\\nMordecai, who had taken her as his daughter, to go in to the king, she\\nrequested nothing but what Hegai the king's eunuch, the custodian of the\\nwomen, advised. And Esther obtained favor in the sight of all who saw her.\"}",
+                    "guess": "15 Now when the turn came for Esther the daughter of Abihail the uncle of\nMordecai, who had taken her as his daughter, to go in to the king, she\nrequested nothing but what Hegai the king's eunuch, the custodian of the\nwomen, advised. And Esther obtained favor in the sight of all who saw her.",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[18],\"textEditValue\":\"Esther 2:15 (NKJV)\"}",
+                    "guess": "Esther 2:15 (NKJV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5518.36,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4645.6,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 27,
+            "clipName": "AV Quote 04",
+            "startTicks": "234070663680000",
+            "endTicks": "237423674880000",
+            "startSeconds": 921.48,
+            "endSeconds": 934.68,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[36],\"textEditValue\":\"691 Blesbok Str, Mooikloof, Pretoria\"}",
+                    "guess": "691 Blesbok Str, Mooikloof, Pretoria",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"AvenirLTPro-Black\"],\"fontFSAllCapsValue\":[true],\"fontFSBoldValue\":[false],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[13],\"textEditValue\":\"Message Title\"}",
+                    "guess": "Message Title",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5574.24,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4652.76,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 28,
+            "clipName": "AV Quote 04",
+            "startTicks": "244546283520000",
+            "endTicks": "252898329600000",
+            "startSeconds": 962.72,
+            "endSeconds": 995.6,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[191],\"textEditValue\":\"16 So the king gave the command, and they brought Daniel and cast him into the\\nden of lions. But the king spoke, saying to Daniel, \\\"Your God, whom you serve\\ncontinually, He will deliver you.\\\"\"}",
+                    "guess": "16 So the king gave the command, and they brought Daniel and cast him into the\nden of lions. But the king spoke, saying to Daniel, \"Your God, whom you serve\ncontinually, He will deliver you.\"",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[18],\"textEditValue\":\"Daniel 6:16 (NKJV)\"}",
+                    "guess": "Daniel 6:16 (NKJV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5615.48,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4652.76,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 29,
+            "clipName": "AV Quote 04",
+            "startTicks": "259157283840000",
+            "endTicks": "262581419520000",
+            "startSeconds": 1020.24,
+            "endSeconds": 1033.72,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[35],\"textEditValue\":\"The Light of His Favour Is upon You\"}",
+                    "guess": "The Light of His Favour Is upon You",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[true],\"fontFSBoldValue\":[false],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[13],\"textEditValue\":\"Message Title\"}",
+                    "guess": "Message Title",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5673,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4652.76,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 30,
+            "clipName": "AV Quote 04",
+            "startTicks": "264410334720000",
+            "endTicks": "267834470400000",
+            "startSeconds": 1040.92,
+            "endSeconds": 1054.4,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[21],\"textEditValue\":\"Pastor Bernard Mulder\"}",
+                    "guess": "Pastor Bernard Mulder",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"AvenirLTPro-Black\"],\"fontFSAllCapsValue\":[true],\"fontFSBoldValue\":[false],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[13],\"textEditValue\":\"Message Title\"}",
+                    "guess": "Message Title",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5693.68,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4652.76,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 31,
+            "clipName": "AV Quote 04",
+            "startTicks": "275495592960000",
+            "endTicks": "277913825280000",
+            "startSeconds": 1084.56,
+            "endSeconds": 1094.08,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[156],\"textEditValue\":\"25 “Look!” he answered, “I see four men loose, walking in the midst of the fire;\\r\\nand they are not hurt, and the form of the fourth is like the Son of God.”\"}",
+                    "guess": "25 “Look!” he answered, “I see four men loose, walking in the midst of the fire;\r\nand they are not hurt, and the form of the fourth is like the Son of God.”",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[18],\"textEditValue\":\"Daniel 6:25 (NKJV)\"}",
+                    "guess": "Daniel 6:25 (NKJV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5737.32,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4652.76,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 32,
+            "clipName": "AV Quote 04",
+            "startTicks": "277913825280000",
+            "endTicks": "281906956800000",
+            "startSeconds": 1094.08,
+            "endSeconds": 1109.8,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[267],\"textEditValue\":\"27 And the satraps, administrators, governors, and the king’s counselors gathered\\r\\ntogether, and they saw these men on whose bodies the fire had no power; the hair\\r\\nof their head was not singed nor were their garments affected, and the smell of fire\\r\\nwas not on them.\"}",
+                    "guess": "27 And the satraps, administrators, governors, and the king’s counselors gathered\r\ntogether, and they saw these men on whose bodies the fire had no power; the hair\r\nof their head was not singed nor were their garments affected, and the smell of fire\r\nwas not on them.",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[18],\"textEditValue\":\"Daniel 6:27 (NKJV)\"}",
+                    "guess": "Daniel 6:27 (NKJV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5746.84,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4652.76,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 33,
+            "clipName": "AV Quote 04",
+            "startTicks": "281906956800000",
+            "endTicks": "287231132160000",
+            "startSeconds": 1109.8,
+            "endSeconds": 1130.76,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[289],\"textEditValue\":\"17 If that is the case, our God whom we serve is able to deliver us from the burning\\r\\nfiery furnace, and He will deliver us from your hand, O king. 18 But if not, let it be \\r\\nknown to you, O king, that we do not serve your gods, nor will we worship the gold \\r\\nimage which you have set up.”\"}",
+                    "guess": "17 If that is the case, our God whom we serve is able to deliver us from the burning\r\nfiery furnace, and He will deliver us from your hand, O king. 18 But if not, let it be \r\nknown to you, O king, that we do not serve your gods, nor will we worship the gold \r\nimage which you have set up.”",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[21],\"textEditValue\":\"Daniel 3:17-18 (NKJV)\"}",
+                    "guess": "Daniel 3:17-18 (NKJV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5762.56,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4652.76,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 34,
+            "clipName": "AV Quote 04",
+            "startTicks": "287779806720000",
+            "endTicks": "293256391680000",
+            "startSeconds": 1132.92,
+            "endSeconds": 1154.48,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[287],\"textEditValue\":\"25 But at midnight Paul and Silas were praying and singing hymns to God, and the\\r\\nprisoners were listening to them. 26 Suddenly there was a great earthquake, so\\r\\nthat the foundations of the prison were shaken; and immediately all the doors were\\r\\nopened and everyone’s chains were loosed.\"}",
+                    "guess": "25 But at midnight Paul and Silas were praying and singing hymns to God, and the\r\nprisoners were listening to them. 26 Suddenly there was a great earthquake, so\r\nthat the foundations of the prison were shaken; and immediately all the doors were\r\nopened and everyone’s chains were loosed.",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[19],\"textEditValue\":\"Acts 16:25-26 (NIV)\"}",
+                    "guess": "Acts 16:25-26 (NIV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5785.68,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4652.76,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 35,
+            "clipName": "AV Quote 04",
+            "startTicks": "303498316800000",
+            "endTicks": "308731046400000",
+            "startSeconds": 1194.8,
+            "endSeconds": 1215.4,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[147],\"textEditValue\":\"12 Then Jesus spoke to them again, saying, \\\"I am the light of the world. He\\nwho follows Me shall not walk in darkness, but have the light of life.\\\"\"}",
+                    "guess": "12 Then Jesus spoke to them again, saying, \"I am the light of the world. He\nwho follows Me shall not walk in darkness, but have the light of life.\"",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[16],\"textEditValue\":\"John 8:12 (NKJV)\"}",
+                    "guess": "John 8:12 (NKJV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5849.04,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4654.24,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 36,
+            "clipName": "AV Quote 04",
+            "startTicks": "312317752320000",
+            "endTicks": "314309237760000",
+            "startSeconds": 1229.52,
+            "endSeconds": 1237.36,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[59],\"textEditValue\":\"17 But he who is joined to the Lord is one spirit with Him.\"}",
+                    "guess": "17 But he who is joined to the Lord is one spirit with Him.",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[24],\"textEditValue\":\"1 Corinthians 6:17 (TPT)\"}",
+                    "guess": "1 Corinthians 6:17 (TPT)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5883.76,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4654.24,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 37,
+            "clipName": "AV Quote 04",
+            "startTicks": "314309237760000",
+            "endTicks": "318403975680000",
+            "startSeconds": 1237.36,
+            "endSeconds": 1253.48,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[213],\"textEditValue\":\"6 For God, who said,“Let brilliant light shine out of darkness,” is the one\\nwho has cascaded his light into us the brilliant dawning light of the glorious\\nknowledge of God as we gaze into the face of Jesus Christ.\"}",
+                    "guess": "6 For God, who said,“Let brilliant light shine out of darkness,” is the one\nwho has cascaded his light into us the brilliant dawning light of the glorious\nknowledge of God as we gaze into the face of Jesus Christ.",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[23],\"textEditValue\":\"2 Corinthians 4:6 (TPT)\"}",
+                    "guess": "2 Corinthians 4:6 (TPT)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5891.6,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4654.24,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 38,
+            "clipName": "AV Quote 04",
+            "startTicks": "318403975680000",
+            "endTicks": "321116866560000",
+            "startSeconds": 1253.48,
+            "endSeconds": 1264.16,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[198],\"textEditValue\":\"2 looking unto Jesus, the author and finisher of our faith, who for the joy that was\\r\\nset before Him endured the cross, despising the shame, and has sat down at the\\r\\nright hand of the throne of God.\"}",
+                    "guess": "2 looking unto Jesus, the author and finisher of our faith, who for the joy that was\r\nset before Him endured the cross, despising the shame, and has sat down at the\r\nright hand of the throne of God.",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[19],\"textEditValue\":\"Hebrews 12:2 (NKJV)\"}",
+                    "guess": "Hebrews 12:2 (NKJV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5907.72,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4654.24,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 39,
+            "clipName": "AV Quote 04",
+            "startTicks": "339141841920000",
+            "endTicks": "344831800320000",
+            "startSeconds": 1335.12,
+            "endSeconds": 1357.52,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[83],\"textEditValue\":\"9 For the perfect Light of Truth was coming into the world and shine upon\\neveryone.\"}",
+                    "guess": "9 For the perfect Light of Truth was coming into the world and shine upon\neveryone.",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[14],\"textEditValue\":\"John 1:9 (TPT)\"}",
+                    "guess": "John 1:9 (TPT)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 5990.48,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4655.36,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 40,
+            "clipName": "AV Quote 04",
+            "startTicks": "346721679360000",
+            "endTicks": "354159267840000",
+            "startSeconds": 1364.96,
+            "endSeconds": 1394.24,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[140],\"textEditValue\":\"28 You shall also decide and decree a thing, and it shall be established for\\nyou; and the light [of God's favor] shall shine upon your ways.\"}",
+                    "guess": "28 You shall also decide and decree a thing, and it shall be established for\nyou; and the light [of God's favor] shall shine upon your ways.",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[16],\"textEditValue\":\"Job 22:28 (AMPC)\"}",
+                    "guess": "Job 22:28 (AMPC)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 6020.32,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4655.36,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 41,
+            "clipName": "AV Quote 04",
+            "startTicks": "360702720000000",
+            "endTicks": "364055731200000",
+            "startSeconds": 1420,
+            "endSeconds": 1433.2,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[14],\"textEditValue\":\"www.hoc.org.za\"}",
+                    "guess": "www.hoc.org.za",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"AvenirLTPro-Black\"],\"fontFSAllCapsValue\":[true],\"fontFSBoldValue\":[false],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[13],\"textEditValue\":\"Message Title\"}",
+                    "guess": "Message Title",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 6075.36,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4655.36,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 42,
+            "clipName": "AV Quote 04",
+            "startTicks": "370914163200000",
+            "endTicks": "377051189760000",
+            "startSeconds": 1460.2,
+            "endSeconds": 1484.36,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[128],\"textEditValue\":\"32 He who did not spare His own Son, but delivered Him up for us all, how shall He\\r\\nnot with Him also freely give us all things?\"}",
+                    "guess": "32 He who did not spare His own Son, but delivered Him up for us all, how shall He\r\nnot with Him also freely give us all things?",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[18],\"textEditValue\":\"Romans 8:32 (NKJV)\"}",
+                    "guess": "Romans 8:32 (NKJV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 6115.56,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4655.36,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 43,
+            "clipName": "AV Quote 04",
+            "startTicks": "382070545920000",
+            "endTicks": "391814599680000",
+            "startSeconds": 1504.12,
+            "endSeconds": 1542.48,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[233],\"textEditValue\":\"Arise, my people! Let your light shine for all the nations to see! For the\\nglory of the Lord is streaming from you. 2 Darkness as black as night shall\\ncover all the peoples of the earth, but the glory of the Lord will shine from\\nyou.\"}",
+                    "guess": "Arise, my people! Let your light shine for all the nations to see! For the\nglory of the Lord is streaming from you. 2 Darkness as black as night shall\ncover all the peoples of the earth, but the glory of the Lord will shine from\nyou.",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[19],\"textEditValue\":\"Isaiah 60:1-2 (TLB)\"}",
+                    "guess": "Isaiah 60:1-2 (TLB)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 6159.48,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4655.36,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 44,
+            "clipName": "AV Quote 04",
+            "startTicks": "391814599680000",
+            "endTicks": "396549457920000",
+            "startSeconds": 1542.48,
+            "endSeconds": 1561.12,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[104],\"textEditValue\":\"38 He who believes in Me, as the Scripture has said, out of his heart will flow rivers\\r\\nof living water.\"}",
+                    "guess": "38 He who believes in Me, as the Scripture has said, out of his heart will flow rivers\r\nof living water.",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[16],\"textEditValue\":\"John 7:38 (NKJV)\"}",
+                    "guess": "John 7:38 (NKJV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 6197.84,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4655.36,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 45,
+            "clipName": "AV Quote 04",
+            "startTicks": "408965760000000",
+            "endTicks": "415438087680000",
+            "startSeconds": 1610,
+            "endSeconds": 1635.48,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[125],\"textEditValue\":\"22 “The eyes of your spirit allow revelation-light to enter into your being.\\nIf your heart is unclouded, the light floods in!\"}",
+                    "guess": "22 “The eyes of your spirit allow revelation-light to enter into your being.\nIf your heart is unclouded, the light floods in!",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[18],\"textEditValue\":\"Matthew 6:22 (TPT)\"}",
+                    "guess": "Matthew 6:22 (TPT)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 6265.36,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4655.36,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 46,
+            "clipName": "AV Quote 04",
+            "startTicks": "424318487040000",
+            "endTicks": "427742622720000",
+            "startSeconds": 1670.44,
+            "endSeconds": 1683.92,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[35],\"textEditValue\":\"The Light of His Favour Is upon You\"}",
+                    "guess": "The Light of His Favour Is upon You",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[true],\"fontFSBoldValue\":[false],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[13],\"textEditValue\":\"Message Title\"}",
+                    "guess": "Message Title",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 6325.8,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4655.36,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 47,
+            "clipName": "AV Quote 04",
+            "startTicks": "429571537920000",
+            "endTicks": "432995673600000",
+            "startSeconds": 1691.12,
+            "endSeconds": 1704.6,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[21],\"textEditValue\":\"Pastor Bernard Mulder\"}",
+                    "guess": "Pastor Bernard Mulder",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"AvenirLTPro-Black\"],\"fontFSAllCapsValue\":[true],\"fontFSBoldValue\":[false],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[13],\"textEditValue\":\"Message Title\"}",
+                    "guess": "Message Title",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 6346.48,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4655.36,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 48,
+            "clipName": "AV Quote 04",
+            "startTicks": "440067479040000",
+            "endTicks": "445076674560000",
+            "startSeconds": 1732.44,
+            "endSeconds": 1752.16,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[233],\"textEditValue\":\"Arise, my people! Let your light shine for all the nations to see! For the\\nglory of the Lord is streaming from you. 2 Darkness as black as night shall\\ncover all the peoples of the earth, but the glory of the Lord will shine from\\nyou.\"}",
+                    "guess": "Arise, my people! Let your light shine for all the nations to see! For the\nglory of the Lord is streaming from you. 2 Darkness as black as night shall\ncover all the peoples of the earth, but the glory of the Lord will shine from\nyou.",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[19],\"textEditValue\":\"Isaiah 60:1-2 (TLB)\"}",
+                    "guess": "Isaiah 60:1-2 (TLB)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": 6390.2,
+            "sourceResolved": true,
+            "sourceResolutionNote": null,
+            "sequenceToSourceOffsetSeconds": 4657.76,
+            "sourceClipName": "03-Pastor Lapel-260927_0935.wav",
+            "sourceMediaPath": "E:\\Audio Sermon\\2026-09-27\\2026-09-27 - Bernard Mulder - The Light of His Favour is Upon You! - Unedited\\03-Pastor Lapel-260927_0935.wav"
+        },
+        {
+            "trackType": "video",
+            "trackIndex": 3,
+            "clipIndex": 53,
+            "clipName": "AV Quote 04",
+            "startTicks": "463101649920000",
+            "endTicks": "466464821760000",
+            "startSeconds": 1823.12,
+            "endSeconds": 1836.36,
+            "textFieldsError": null,
+            "textFields": [
+                {
+                    "index": 3,
+                    "name": "Text",
+                    "group": "Title Main",
+                    "label": "Title Main > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Light\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[38],\"fontTextRunLength\":[113],\"textEditValue\":\"12 even the darkness will not be dark to you; the night will shine like the\\nday, for darkness is as light to you.\"}",
+                    "guess": "12 even the darkness will not be dark to you; the night will shine like the\nday, for darkness is as light to you.",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                },
+                {
+                    "index": 7,
+                    "name": "Text",
+                    "group": "Description",
+                    "label": "Description > Text",
+                    "propertyType": null,
+                    "raw": "{\"capPropFontEdit\":true,\"capPropFontFauxStyleEdit\":true,\"capPropFontSizeEdit\":true,\"capPropTextRunCount\":1,\"fontEditValue\":[\"Avenir-Black\"],\"fontFSAllCapsValue\":[false],\"fontFSBoldValue\":[true],\"fontFSItalicValue\":[false],\"fontFSSmallCapsValue\":[false],\"fontSizeEditValue\":[40],\"fontTextRunLength\":[18],\"textEditValue\":\"Psalm 139:12 (NIV)\"}",
+                    "guess": "Psalm 139:12 (NIV)",
+                    "guessMethod": "JSON.parse(getValue()).textEditValue"
+                }
+            ],
+            "sourceSeconds": null,
+            "sourceResolved": false,
+            "sourceResolutionNote": "No clip on audio track 0 contains this sequence time — possible gap or cut boundary. Check wtWalkAudioClips and the right audioTrackIndex."
+        }
+    ],
+    "graphicCount": 53
+}

@@ -1,1 +1,4 @@
 assets/test/
+.venv/
+__pycache__/
+spikes/word_timestamps/*.wav
