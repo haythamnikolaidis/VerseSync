@@ -43,10 +43,12 @@ itself is small.
 
 ## Done when
 
-- [ ] VerseFlow inserts 10 scriptures into a real sequence on the dev machine.
-- [ ] The `.mogrt` exposes two `Text` fields, in groups `Title Main` and `Description`.
-- [ ] A sermon media file and its Premiere project are available.
-- [ ] Q-D is answered in writing.
+- [x] VerseFlow inserts 10 scriptures into a real sequence on the dev machine. *(implicitly
+  confirmed — T-03's `importMGT` calls against the real `.mogrt` worked throughout, see
+  `spikes/README.md`)*
+- [x] The `.mogrt` exposes two `Text` fields, in groups `Title Main` and `Description`.
+- [x] A sermon media file and its Premiere project are available.
+- [x] Q-D is answered in writing. *(see `spikes/README.md`)*
 
 ## Traps
 

@@ -32,6 +32,6 @@ each spike directory's `console-driver.md` for the exact steps.
 
 | | Question | Status |
 |---|---|---|
-| [T-02](../docs/tasks/T-02-spike-word-timestamps.md) | word-level timestamp accuracy | not started |
+| [T-02](../docs/tasks/T-02-spike-word-timestamps.md) | word-level timestamp accuracy | **done** — gate tripped, escalated and resolved as D19, see [RESULTS.md](word_timestamps/RESULTS.md) §9 |
 | [T-03](absolute_insert/) | `importMGT` overwrite vs. ripple | **done** — overwrite confirmed, see [RESULTS.md](absolute_insert/RESULTS.md) |
 | [T-04](media_segments/) | media segment resolution (merged/multicam/nested) | **done** — see [RESULTS.md](media_segments/RESULTS.md) |

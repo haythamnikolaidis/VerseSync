@@ -28,6 +28,7 @@ rediscovered.
 | D16 | Build `local.py` in v1 despite D1 | **Yes** | About a day of work against the project's largest risk, and it doubles as the offline test fixture | n/a |
 | D17 | Transcript caching key | **Content hash** (first 8 MB + last 8 MB + size) | Full-hashing a 4 GB MXF every run is unacceptable; this composite distinguishes edits of the same recording | Low |
 | D18 | Curation off for VerseSync jobs | **Yes** | `curate_text` rewrites the transcript after the fact, breaking the word-to-text correspondence every timestamp depends on | Trivial |
+| D19 | T-02 gate response (p90 > 0.5s, tripped) | **Accept a lower auto-detection rate on pure paraphrases** — no tolerance widening, no forced-alignment pass | `spikes/word_timestamps/RESULTS.md` §4.3 found ~31% of real mentions are narrative paraphrases with zero lexical overlap with the verse text — no ASR-side fix reaches them. The review list (D4) is the backstop. | Low — a forced-alignment pass or wider tolerance can still be added later without touching this decision |
 
 ---
 
@@ -89,18 +90,21 @@ proceeds as specified, no fallback needed.
   out-of-range track index) skips `try`/`catch` and can leave an undo group
   stuck open, breaking subsequent edits (see T-25 step 3).
 
-### R-5 — Word-timestamp accuracy may not support ±0.5 s 🟠 Medium–High / technical
+### R-5 — Word-timestamp accuracy may not support ±0.5 s ✅ Resolved — gate tripped, accepted
 
-M3 targets 90% of anchors within half a second. Faster-Whisper's word timestamps come from
-cross-attention alignment, whose accuracy varies by model — and the current default in
-`config.yaml` is a **distil** model whose alignment quality for this purpose is unverified.
+**Spike T-02 has reported** — see
+[`spikes/word_timestamps/RESULTS.md`](../spikes/word_timestamps/RESULTS.md). The ±0.5 s p90
+gate is tripped on every configuration tested. On unambiguous mention/reading matches, timestamp
+error is mostly well under 0.5 s — the gap is not ASR quality. Two product-level findings
+explain it instead: ~31% of real mentions are pure narrative paraphrases with no lexical overlap
+with the verse text (no amount of alignment tuning reaches these), and legitimate
+mention-vs-reading-vs-graphic timing variance of several seconds is common even on clean matches.
 
-- **Mitigation:** **spike T-02** measures the error distribution across models before anything
-  is built on it; `word_timestamp_quality` metadata lets the panel warn about a poor model
-  choice; VAD reduces drift through silence.
-- **Fallback if p90 exceeds 0.5 s:** widen the tolerance and increase the lead-in (a graphic
-  that arrives slightly early reads as intentional; one that arrives late reads as broken), or
-  add a forced-alignment pass over the reference span only.
+- **Resolved as D19:** accept a lower auto-detection rate on pure paraphrases; no tolerance
+  widening, no forced-alignment pass. The review list (D4) is the backstop for what detection
+  misses.
+- Defaults otherwise per the spike: `distil-large-v3`, `float16`, `vad_filter=True`, scripture
+  prompt on, `condition_on_previous_text=True` — these feed T-07.
 
 ### R-6 — Source→sequence mapping does not cover real edits ✅ Resolved — characterised
 

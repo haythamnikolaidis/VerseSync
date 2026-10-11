@@ -43,10 +43,11 @@ loaded by Premiere as plain files, so **do not add a bundler**.
 
 ## Done when
 
-- [ ] `pytest` and the JS test runner both pass on an empty suite, locally and in CI.
-- [ ] `ruff`, `mypy` and `eslint` run clean.
-- [ ] A deliberately failing test fails the PR check.
-- [ ] The tree matches [03 §5](../03-architecture.md).
+- [x] `pytest` and the JS test runner both pass on an empty suite, locally and in CI.
+- [x] `ruff`, `mypy` and `eslint` run clean.
+- [x] A deliberately failing test fails the PR check. *(verified locally for both runners, not
+  committed)*
+- [x] The tree matches [03 §5](../03-architecture.md).
 
 ## Traps
 

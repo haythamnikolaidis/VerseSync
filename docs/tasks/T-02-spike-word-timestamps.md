@@ -45,10 +45,10 @@ This spike is throwaway code. Its deliverable is a **written recommendation with
 
 ## Done when
 
-- [ ] `RESULTS.md` recommends a default model, quantization, VAD setting and prompt strategy.
-- [ ] It states the measured **p50 and p90 timestamp error** for each configuration.
-- [ ] It states wall-time per model for a 45-minute file.
-- [ ] Book-name mishearing counts with and without the prompt are recorded.
+- [x] `RESULTS.md` recommends a default model, quantization, VAD setting and prompt strategy.
+- [x] It states the measured **p50 and p90 timestamp error** for each configuration.
+- [x] It states wall-time per model for a 45-minute file.
+- [x] Book-name mishearing counts with and without the prompt are recorded.
 
 ## Gate
 
@@ -56,6 +56,10 @@ This spike is throwaway code. Its deliverable is a **written recommendation with
 promise is not deliverable as specified. The options — all product decisions, not engineering
 ones — are in [13 §9](../13-technical-plan.md): widen the tolerance, increase the lead-in, or
 add a forced-alignment pass over the read span only.
+
+**Tripped and escalated** — see `RESULTS.md` §9. **Resolved as D19** ([12](../12-decisions-and-risks.md)):
+accept a lower auto-detection rate on pure paraphrases (no tolerance widening, no forced
+alignment) and lean on the review-list UI for the editor to add those manually.
 
 ## Traps
 
