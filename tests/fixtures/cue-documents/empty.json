@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-09-14T15:32:08Z",
+  "job": {
+    "id": "job_01JATJQKT3N2XQZ8P5D4R6YV9M",
+    "media_path": "D:/Sermons/2026-09-14/SERMON_A014.MXF",
+    "media_hash": "sha256:9f2c7a1e4b6d8c3a0f5e2d9b7c4a1e8f3d6b9c2a5e8f1d4b7c0a3e6f9c2d5b8a",
+    "media_duration_s": 2850.36,
+    "model": "distil-large-v3",
+    "quantization": "float16",
+    "device": "cuda",
+    "language": "en",
+    "options": { "vad_filter": true, "initial_prompt": "scripture", "condition_on_previous_text": true }
+  },
+  "translation": {
+    "id": "de4e12af7f28f599-02",
+    "abbreviation": "KJV",
+    "name": "King James Version",
+    "attribution": "Public domain."
+  },
+  "transcript": {
+    "word_count": 0,
+    "words_ref": "transcript_01JATJQKT3N2XQZ8P5D4R6YV9M.json"
+  },
+  "cues": [],
+  "warnings": []
+}
