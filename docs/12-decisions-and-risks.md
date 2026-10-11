@@ -32,6 +32,18 @@ rediscovered.
 
 ---
 
+## Errata
+
+- **`timebase` example was off by 1000x.** [08](08-premiere-host-api.md) §3 and
+  [05](05-timing-and-placement.md) §9's worked example gave `8475667` as the 29.97fps
+  `sequence.timebase` value. Caught during **T-39** while deriving the 23.976/25fps host-stub
+  fixtures from `TICKS_PER_SECOND = 254016000000`: the arithmetic gives `8475667200`, not
+  `8475667`. All three values (`29.97 → 8475667200`, `23.976 → 10594584000`,
+  `25 → 10160640000`) were then confirmed live against real Premiere sequences, not just
+  derived, and both docs were corrected to match.
+
+---
+
 ## Risk register
 
 ### R-1 — The needed translations may not be licensable 🔴 High / contractual

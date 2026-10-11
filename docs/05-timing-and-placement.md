@@ -317,7 +317,7 @@ media lead's decision, not the tool's.
 
 ## 9. Worked example
 
-Sermon, 45 minutes, 29.97 fps sequence (`timebase = 8475667`), media starts at sequence tick 0
+Sermon, 45 minutes, 29.97 fps sequence (`timebase = 8475667200`), media starts at sequence tick 0
 with 12 s trimmed off the head (`inPoint = 3048192000000`).
 
 The speaker says, at **1425.8 s** into the file: *"Turn with me to First Corinthians six,
@@ -332,7 +332,7 @@ nineteen and twenty. Or do you not know that your body is the temple of the Holy
 | Anchor (source) | `min(1425.82, 1428.9) − 0.5` = **1425.32 s** |
 | Duration | READ: `(1451.4 − 1425.32) + 1.0` = **27.08 s** (under the 45 s ceiling) |
 | Map to sequence | in segment, `t_seq = 0 + (1425.32 − 12.0)` = **1413.32 s** = `359,033,... ticks` |
-| Frame snap | rounded to the nearest 8,475,667 ticks |
+| Frame snap | rounded to the nearest 8,475,667,200 ticks |
 | Overlap | next anchor is 96 s later — no conflict |
 | MOGRT fields | reference ← `1 Corinthians 6:19-20 (NKJV)` · body ← `19 Or do you not know… 20 For you were bought at a price…` |
 

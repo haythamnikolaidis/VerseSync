@@ -1,0 +1,36 @@
+{
+  "matched": true,
+  "segments": [
+    {
+      "trackType": "video",
+      "trackIndex": 0,
+      "seqStartTicks": "0",
+      "seqEndTicks": "228614400000000",
+      "inPointTicks": "0",
+      "durationTicks": "228614400000000",
+      "speed": 1.0,
+      "name": "SERMON_A014.MXF"
+    },
+    {
+      "trackType": "video",
+      "trackIndex": 0,
+      "seqStartTicks": "228614400000000",
+      "seqEndTicks": "457228800000000",
+      "inPointTicks": "304819200000000",
+      "durationTicks": "228614400000000",
+      "speed": 1.0,
+      "name": "SERMON_A014.MXF"
+    },
+    {
+      "trackType": "video",
+      "trackIndex": 0,
+      "seqStartTicks": "457228800000000",
+      "seqEndTicks": "647740800000000",
+      "inPointTicks": "533433600000000",
+      "durationTicks": "190512000000000",
+      "speed": 1.0,
+      "name": "SERMON_A014.MXF"
+    }
+  ],
+  "unsupported": []
+}

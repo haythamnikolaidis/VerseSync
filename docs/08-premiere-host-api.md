@@ -50,7 +50,7 @@ VS.getSequenceInfo("{}")
       videoTrackCount: 4,
       audioTrackCount: 6,
       playheadTicks: "355622400000000",
-      timebase: "8475667",            // ticks per frame — use this, never a float fps
+      timebase: "8475667200",         // ticks per frame — use this, never a float fps
       frameRate: 29.97,               // display only
       zeroPointTicks: "914457600000000",
       endTicks: "689538816000000"
