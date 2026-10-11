@@ -108,22 +108,36 @@ the contract is wrong (raise it, §8) or the task is in the wrong stream.
 
 Waves, not dates. A wave ends when its exit criteria are met.
 
-### Wave 0 — Foundations · ~4 days · 2–3 people
+### Wave 0 — Foundations · ~4 days · 2–3 people ✅ Complete — 2026-10-11
 
 Everything else waits on this and nothing else does. Keep it short and do not gold-plate it.
 
-- **T-40** repo scaffold, CI, lint, test runners for both languages
-- **T-37** Cue Document JSON Schema + golden fixtures
-- **T-38** mock sidecar
-- **T-39** host stub + `VS.*` fixtures
-- **T-41** fixture corpus bootstrap (word arrays + hand labels)
-- **T-01** obtain reference assets *(start day 1, external dependency)*
-- **T-02 / T-03 / T-04** spikes start as soon as T-01 lands
+- **T-40** repo scaffold, CI, lint, test runners for both languages — done, [PR #2](https://github.com/haythamnikolaidis/VerseSync/pull/2) (bundled with T-01/T-02 closeout)
+- **T-37** Cue Document JSON Schema + golden fixtures — done, [PR #3](https://github.com/haythamnikolaidis/VerseSync/pull/3)
+- **T-38** mock sidecar — done, [PR #4](https://github.com/haythamnikolaidis/VerseSync/pull/4)
+- **T-39** host stub + `VS.*` fixtures — done, [PR #5](https://github.com/haythamnikolaidis/VerseSync/pull/5)
+- **T-41** fixture corpus bootstrap (word arrays + hand labels) — done, [PR #6](https://github.com/haythamnikolaidis/VerseSync/pull/6)
+- **T-01** obtain reference assets — done, see `spikes/README.md`
+- **T-02 / T-03 / T-04** spikes — done; **T-02's gate tripped** and was resolved as **D19**
+  ([12](12-decisions-and-risks.md)): accept a lower auto-detection rate on pure paraphrases
 
-**Exit criteria:** `npm test` and `pytest` both run green on an empty suite in CI · the mock
-sidecar serves a golden Cue Document over HTTP + SSE and passes schema validation · the host
-stub loads in a browser and answers all eight `VS.*` calls · at least three fixture transcripts
-with hand-labelled reference times are committed.
+**Exit criteria:** `npm test` and `pytest` both run green on an empty suite in CI ✅ · the mock
+sidecar serves a golden Cue Document over HTTP + SSE and passes schema validation ✅ · the host
+stub loads in a browser and answers all eight `VS.*` calls — **met with two corrections**: the
+spec defines **seven** `VS.*` calls, not eight (T-39's task text was wrong), and "in a browser"
+specifically is unverified since `panel/index.html` doesn't exist until T-22 — verified
+behaviourally instead (31 passing `node:test` cases); re-check that specific sub-clause once
+T-22 lands · at least three fixture transcripts with hand-labelled reference times are
+committed ✅ (four, via T-41).
+
+Also fixed in passing: the `timebase` example in [08](08-premiere-host-api.md) §3 and
+[05](05-timing-and-placement.md) §9 was off by 1000x (`8475667` → `8475667200`), caught while
+building T-39's frame-rate fixtures and confirmed live against real Premiere sequences — see
+[12](12-decisions-and-risks.md)'s Errata section.
+
+**Outstanding, not a blocker:** the "End of Wave 0" integration checkpoint in §8 below
+("every stream confirms its fakes are sufficient to start") is a team conversation, not a
+task — hold it before Wave 1 work actually starts if it hasn't happened yet.
 
 ### Wave 1 — Parallel build · ~2.5 weeks · everyone
 
