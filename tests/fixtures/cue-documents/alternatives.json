@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-09-14T15:32:08Z",
+  "job": {
+    "id": "job_01JATJQKT3N2XQZ8P5D4R6YV9M",
+    "media_path": "D:/Sermons/2026-09-14/SERMON_A014.MXF",
+    "media_hash": "sha256:9f2c7a1e4b6d8c3a0f5e2d9b7c4a1e8f3d6b9c2a5e8f1d4b7c0a3e6f9c2d5b8a",
+    "media_duration_s": 2850.36,
+    "model": "distil-large-v3",
+    "quantization": "float16",
+    "device": "cuda",
+    "language": "en",
+    "options": { "vad_filter": true, "initial_prompt": "scripture", "condition_on_previous_text": true }
+  },
+  "translation": {
+    "id": "de4e12af7f28f599-02",
+    "abbreviation": "KJV",
+    "name": "King James Version",
+    "attribution": "Public domain."
+  },
+  "transcript": {
+    "word_count": 5200,
+    "words_ref": "transcript_01JATJQKT3N2XQZ8P5D4R6YV9M.json"
+  },
+  "cues": [
+    {
+      "id": "cue_a01",
+      "enabled": false,
+      "origin": "detected",
+      "reference": { "book": "Psalms", "osis": "Ps", "chapter": 122 },
+      "reference_display": "Psalm 122 (KJV)",
+      "body": "",
+      "body_word_count": 0,
+      "body_truncated": false,
+      "source_anchor_s": 319.50,
+      "source_duration_s": 3.00,
+      "mention_start_s": 320.00,
+      "mention_end_s": 322.10,
+      "classification": "paraphrase",
+      "confidence": 0.74,
+      "detection": {
+        "pattern": "P8", "contextual": false,
+        "book_match": { "tier": "alias", "distance": 0 },
+        "token_span": [1850, 1853], "word_span": [2050, 2053]
+      },
+      "snippet": "...turn to Psalm twelve two — could be Psalm 122, or Psalm 12 verse 2...",
+      "flags": ["chapter_only"],
+      "alternatives": [
+        {
+          "reference": { "book": "Psalms", "osis": "Ps", "chapter": 12, "verse": 2 },
+          "reference_display": "Psalm 12:2 (KJV)",
+          "body": "They speak vanity every one with his neighbour: with flattering lips and with a double heart do they speak.",
+          "confidence": 0.70,
+          "reason": "Split chapter:verse reading — the Psalms concatenation ambiguity (docs/04-reference-detection.md §3.1). 'Psalm twelve two' parses as either Psalm 122 (concatenated, preferred by default for Psalms) or Psalm 12:2 (split). Both are valid canon references, so both are surfaced; the editor picks."
+        }
+      ]
+    },
+    {
+      "id": "cue_a02",
+      "enabled": true,
+      "origin": "detected",
+      "reference": { "book": "Colossians", "osis": "Col", "chapter": 3, "verse": 2 },
+      "reference_display": "Colossians 3:2 (KJV)",
+      "body": "Set your affection on things above, not on things on the earth.",
+      "body_word_count": 12,
+      "body_truncated": false,
+      "source_anchor_s": 759.50,
+      "source_duration_s": 7.80,
+      "mention_start_s": 760.00,
+      "mention_end_s": 761.80,
+      "classification": "read",
+      "read_coverage": 0.93,
+      "read_start_s": 762.60,
+      "read_end_s": 769.40,
+      "confidence": 0.92,
+      "detection": {
+        "pattern": "P7", "contextual": false,
+        "book_match": { "tier": "exact", "distance": 0 },
+        "token_span": [4420, 4424], "word_span": [4910, 4915]
+      },
+      "snippet": "...Colossians 3, 2. Set your affection on things above, not on things on the earth...",
+      "flags": ["multiple_placements"],
+      "alternatives": []
+    }
+  ],
+  "warnings": []
+}

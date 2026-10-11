@@ -8,6 +8,7 @@
     "lint": "eslint --no-error-on-unmatched-pattern panel/js tests"
   },
   "devDependencies": {
+    "ajv": "^8.20.0",
     "eslint": "^10.12.0"
   }
 }

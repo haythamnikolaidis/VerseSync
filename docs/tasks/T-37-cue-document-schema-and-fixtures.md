@@ -52,10 +52,10 @@ The Cue Document is the sidecar's output, the panel's input, and the on-disk sav
 
 ## Done when
 
-- [ ] All four fixtures validate; a corrupted copy fails with a useful message.
-- [ ] The fixtures are realistic enough to render a review list from — real book names, real
+- [x] All four fixtures validate; a corrupted copy fails with a useful message.
+- [x] The fixtures are realistic enough to render a review list from — real book names, real
       verse text, plausible timings over a ~45-minute media duration.
-- [ ] `schema_version` is `"1.0"` and the major/minor rule from
+- [x] `schema_version` is `"1.0"` and the major/minor rule from
       [07 §5.2](../07-sidecar-api.md) is documented in the schema description.
 
 ## Traps
