@@ -31,7 +31,9 @@ difference.
 2. Activate it only when Premiere is absent (no `CSInterface`), or behind an explicit
    `?stub=1`. **It must never load inside Premiere.**
 3. Build fixtures in `tests/fixtures/host/` covering the cases stream F must handle:
-   - `sequence-2997.json` — 29.97 fps, `timebase: "8475667"`. Also 23.976 and 25.
+   - `sequence-2997.json` — 29.97 fps, `timebase: "8475667200"`. Also 23.976
+     (`timebase: "10594584000"`) and 25 (`timebase: "10160640000"`) — all three confirmed
+     live against real Premiere sequences, not derived.
    - `sequence-none.json` — `hasActiveSequence: false`.
    - `segments-single.json` — one straight placement.
    - `segments-split.json` — media cut into three pieces with a gap (drives `cut_from_edit`).
@@ -53,10 +55,14 @@ difference.
 ## Done when
 
 - [ ] Opening `panel/index.html` in Chrome loads the panel and every `VS.*` call resolves.
-- [ ] All eight calls return the shapes in [08](../08-premiere-host-api.md), including the
-      `{ok:false,error}` form.
-- [ ] The stub rejects unsorted `insertCues` input.
-- [ ] Loading the panel inside Premiere does **not** activate the stub.
+      *(`panel/index.html` doesn't exist until T-22 — verified instead with a `node:test` suite
+      exercising all 7 calls directly; `host-stub.js`'s ES5 syntax is also confirmed by ESLint.
+      Re-verify this specific bullet once T-22 lands.)*
+- [x] All seven calls (the spec defines seven, not eight — see [08](../08-premiere-host-api.md))
+      return the shapes there, including the `{ok:false,error}` form.
+- [x] The stub rejects unsorted `insertCues` input.
+- [x] Loading the panel inside Premiere does **not** activate the stub. *(verified: `window.VS`
+      stays unset whenever a `CSInterface` global is present, unless `?stub=1`)*
 
 ## Traps
 

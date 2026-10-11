@@ -1,0 +1,11 @@
+{
+  "hasActiveSequence": true,
+  "name": "UK Service 2026-09-27",
+  "videoTrackCount": 3,
+  "audioTrackCount": 4,
+  "playheadTicks": "228614400000000",
+  "timebase": "10160640000",
+  "frameRate": 25.0,
+  "zeroPointTicks": "914457600000000",
+  "endTicks": "457228800000000"
+}

@@ -1,0 +1,6 @@
+{
+  "fields": [
+    { "index": 3, "name": "Text", "group": "Title Main", "label": "Title Main > Text" },
+    { "index": 11, "name": "Text", "group": "Description", "label": "Description > Text" }
+  ]
+}

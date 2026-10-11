@@ -1,0 +1,17 @@
+{
+  "matched": true,
+  "segments": [],
+  "unsupported": [
+    {
+      "trackType": "video",
+      "trackIndex": 1,
+      "seqStartTicks": "457228800000000",
+      "seqEndTicks": "495837392000000",
+      "inPointTicks": "0",
+      "durationTicks": "38608592000000",
+      "speed": 2.0,
+      "name": "SERMON_A014.MXF",
+      "reason": "speed_change"
+    }
+  ]
+}
