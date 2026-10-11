@@ -1,0 +1,55 @@
+[
+  {
+    "reference": "Romans 8:28",
+    "expected_classification": "read",
+    "expected_anchor_s": 9.5,
+    "mention_span_s": [
+      10.0,
+      14.0
+    ],
+    "read_span_s": [
+      14.5,
+      25.0
+    ],
+    "note": "covers the spoken number 'twenty eight'."
+  },
+  {
+    "reference": "Romans 12:12",
+    "expected_classification": "paraphrase",
+    "expected_anchor_s": 84.7,
+    "mention_span_s": [
+      85.2,
+      90.5
+    ],
+    "note": "context-carried verse: book/chapter established at 65.0s (20.2s earlier, well inside the 120s context_window_s), only the verse number is given here."
+  },
+  {
+    "reference": null,
+    "negative": true,
+    "span_s": [
+      125.5,
+      129.4
+    ],
+    "note": "contains 'Mark' as an ordinary imperative, not the book of Mark; zero matches expected."
+  },
+  {
+    "reference": null,
+    "negative": true,
+    "span_s": [
+      149.4,
+      156.1
+    ],
+    "note": "keeps 'faith', 'works', 'acts' and 'dead' together as ordinary words \u2014 'acts' must not fire on the book of Acts; zero matches expected."
+  },
+  {
+    "reference": "Psalm 122",
+    "alternative_reference": "Psalm 12:2",
+    "expected_classification": null,
+    "expected_anchor_s": 177.6,
+    "mention_span_s": [
+      178.1,
+      180.2
+    ],
+    "note": "Psalms concatenation ambiguity (04 \u00a73.1): 'Psalm twelve two' parses as the concatenated Psalm 122 (chapter-only, preferred by default for Psalms) or the split Psalm 12:2 \u2014 both canon-valid, same pair used in T-37's alternatives.json."
+  }
+]

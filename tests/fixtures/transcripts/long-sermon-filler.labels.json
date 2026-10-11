@@ -1,0 +1,40 @@
+[
+  {
+    "reference": "John 3:16",
+    "expected_classification": "read",
+    "expected_anchor_s": 540.4,
+    "mention_span_s": [
+      540.9,
+      544.8
+    ],
+    "read_span_s": [
+      545.3,
+      556.1
+    ],
+    "note": "primary mention \u2014 the un-suppressed, canonical case."
+  },
+  {
+    "reference": "John 3:16",
+    "expected_classification": null,
+    "expected_anchor_s": null,
+    "mention_span_s": [
+      576.1,
+      578.3
+    ],
+    "note": "repeat mention 35.2s after the first (540.9s) \u2014 inside the 60s duplicate_cooldown_s (05 \u00a75 / 07 \u00a75.1's suppressed_duplicate flag). Expected: suppressed, not a second cue."
+  },
+  {
+    "reference": "John 3:16",
+    "expected_classification": "read",
+    "expected_anchor_s": 1279.9,
+    "mention_span_s": [
+      1280.4,
+      1285.2
+    ],
+    "read_span_s": [
+      1285.7,
+      1296.5
+    ],
+    "note": "repeat mention 739.5s after the first \u2014 well outside the 60s duplicate_cooldown_s. Expected: a fresh, un-suppressed cue, not merged with the first."
+  }
+]
