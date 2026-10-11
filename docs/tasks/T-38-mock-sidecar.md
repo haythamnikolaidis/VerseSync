@@ -49,11 +49,11 @@ same contract suite. Build it to be correct, not clever.
 
 ## Done when
 
-- [ ] `curl` against every endpoint returns responses matching [07](../07-sidecar-api.md),
+- [x] `curl` against every endpoint returns responses matching [07](../07-sidecar-api.md),
       including `401` without a token.
-- [ ] A simulated job streams progress and ends with a schema-valid Cue Document.
-- [ ] Every `--fail` scenario reproduces on demand.
-- [ ] `--drop-sse` causes the stream to close mid-job so the polling fallback can be tested.
+- [x] A simulated job streams progress and ends with a schema-valid Cue Document.
+- [x] Every `--fail` scenario reproduces on demand.
+- [x] `--drop-sse` causes the stream to close mid-job so the polling fallback can be tested.
 
 ## Traps
 
