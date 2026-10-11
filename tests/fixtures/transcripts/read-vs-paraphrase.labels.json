@@ -1,0 +1,40 @@
+[
+  {
+    "reference": "1 Corinthians 13:4-7",
+    "expected_classification": "read",
+    "expected_anchor_s": 9.5,
+    "mention_span_s": [
+      10.0,
+      12.9
+    ],
+    "read_span_s": [
+      13.4,
+      37.4
+    ],
+    "note": "verbatim reading, for read-span alignment (T-17) \u2014 high coverage expected."
+  },
+  {
+    "reference": "1 Corinthians 13:4-7",
+    "expected_classification": "paraphrase",
+    "expected_anchor_s": 81.9,
+    "mention_span_s": [
+      82.4,
+      95.0
+    ],
+    "note": "same passage as above, now paraphrased \u2014 the classification boundary case: low coverage against the real verse text, expected PARAPHRASE not READ."
+  },
+  {
+    "reference": "Joshua 1:9",
+    "expected_classification": "read",
+    "expected_anchor_s": 124.5,
+    "mention_span_s": [
+      125.0,
+      128.8
+    ],
+    "read_span_s": [
+      129.2,
+      141.9
+    ],
+    "note": null
+  }
+]

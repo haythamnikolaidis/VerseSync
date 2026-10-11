@@ -10,7 +10,7 @@ Python (`sidecar/`):
 ```
 python -m venv .venv && .venv/Scripts/activate   # or .venv/bin/activate on macOS/Linux
 pip install -e ".[dev]"
-ruff check sidecar tools
+ruff check sidecar tools tests
 mypy
 pytest
 ```

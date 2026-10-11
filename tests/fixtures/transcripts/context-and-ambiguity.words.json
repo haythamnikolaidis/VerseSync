@@ -1,0 +1,530 @@
+[
+  {
+    "text": "Let's",
+    "start": 10.0,
+    "end": 10.4,
+    "probability": 0.97
+  },
+  {
+    "text": "look",
+    "start": 10.44,
+    "end": 10.82,
+    "probability": 0.97
+  },
+  {
+    "text": "at",
+    "start": 10.86,
+    "end": 11.2,
+    "probability": 0.97
+  },
+  {
+    "text": "Romans",
+    "start": 11.24,
+    "end": 11.66,
+    "probability": 0.97
+  },
+  {
+    "text": "chapter",
+    "start": 11.7,
+    "end": 12.14,
+    "probability": 0.97
+  },
+  {
+    "text": "eight,",
+    "start": 12.18,
+    "end": 12.6,
+    "probability": 0.97
+  },
+  {
+    "text": "verse",
+    "start": 12.64,
+    "end": 13.04,
+    "probability": 0.97
+  },
+  {
+    "text": "twenty",
+    "start": 13.08,
+    "end": 13.5,
+    "probability": 0.97
+  },
+  {
+    "text": "eight.",
+    "start": 13.54,
+    "end": 13.96,
+    "probability": 0.97
+  },
+  {
+    "text": "And",
+    "start": 14.5,
+    "end": 14.86,
+    "probability": 0.97
+  },
+  {
+    "text": "we",
+    "start": 14.9,
+    "end": 15.24,
+    "probability": 0.97
+  },
+  {
+    "text": "know",
+    "start": 15.28,
+    "end": 15.66,
+    "probability": 0.97
+  },
+  {
+    "text": "that",
+    "start": 15.7,
+    "end": 16.08,
+    "probability": 0.97
+  },
+  {
+    "text": "all",
+    "start": 16.12,
+    "end": 16.48,
+    "probability": 0.97
+  },
+  {
+    "text": "things",
+    "start": 16.52,
+    "end": 16.94,
+    "probability": 0.97
+  },
+  {
+    "text": "work",
+    "start": 16.98,
+    "end": 17.36,
+    "probability": 0.97
+  },
+  {
+    "text": "together",
+    "start": 17.4,
+    "end": 17.86,
+    "probability": 0.97
+  },
+  {
+    "text": "for",
+    "start": 17.9,
+    "end": 18.26,
+    "probability": 0.97
+  },
+  {
+    "text": "good",
+    "start": 18.3,
+    "end": 18.68,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 18.72,
+    "end": 19.06,
+    "probability": 0.97
+  },
+  {
+    "text": "them",
+    "start": 19.1,
+    "end": 19.48,
+    "probability": 0.97
+  },
+  {
+    "text": "that",
+    "start": 19.52,
+    "end": 19.9,
+    "probability": 0.97
+  },
+  {
+    "text": "love",
+    "start": 19.94,
+    "end": 20.32,
+    "probability": 0.97
+  },
+  {
+    "text": "God,",
+    "start": 20.36,
+    "end": 20.74,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 20.78,
+    "end": 21.12,
+    "probability": 0.97
+  },
+  {
+    "text": "them",
+    "start": 21.16,
+    "end": 21.54,
+    "probability": 0.97
+  },
+  {
+    "text": "who",
+    "start": 21.58,
+    "end": 21.94,
+    "probability": 0.97
+  },
+  {
+    "text": "are",
+    "start": 21.98,
+    "end": 22.34,
+    "probability": 0.97
+  },
+  {
+    "text": "the",
+    "start": 22.38,
+    "end": 22.74,
+    "probability": 0.97
+  },
+  {
+    "text": "called",
+    "start": 22.78,
+    "end": 23.2,
+    "probability": 0.97
+  },
+  {
+    "text": "according",
+    "start": 23.24,
+    "end": 23.72,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 23.76,
+    "end": 24.1,
+    "probability": 0.97
+  },
+  {
+    "text": "his",
+    "start": 24.14,
+    "end": 24.5,
+    "probability": 0.97
+  },
+  {
+    "text": "purpose.",
+    "start": 24.54,
+    "end": 25.0,
+    "probability": 0.97
+  },
+  {
+    "text": "Now",
+    "start": 65.04,
+    "end": 65.4,
+    "probability": 0.97
+  },
+  {
+    "text": "in",
+    "start": 65.44,
+    "end": 65.78,
+    "probability": 0.97
+  },
+  {
+    "text": "Romans",
+    "start": 65.82,
+    "end": 66.24,
+    "probability": 0.97
+  },
+  {
+    "text": "chapter",
+    "start": 66.28,
+    "end": 66.72,
+    "probability": 0.97
+  },
+  {
+    "text": "twelve,",
+    "start": 66.76,
+    "end": 67.2,
+    "probability": 0.97
+  },
+  {
+    "text": "Paul",
+    "start": 67.24,
+    "end": 67.62,
+    "probability": 0.97
+  },
+  {
+    "text": "gives",
+    "start": 67.66,
+    "end": 68.06,
+    "probability": 0.97
+  },
+  {
+    "text": "a",
+    "start": 68.1,
+    "end": 68.42,
+    "probability": 0.97
+  },
+  {
+    "text": "whole",
+    "start": 68.46,
+    "end": 68.86,
+    "probability": 0.97
+  },
+  {
+    "text": "list",
+    "start": 68.9,
+    "end": 69.28,
+    "probability": 0.97
+  },
+  {
+    "text": "of",
+    "start": 69.32,
+    "end": 69.66,
+    "probability": 0.97
+  },
+  {
+    "text": "instructions.",
+    "start": 69.7,
+    "end": 70.2,
+    "probability": 0.97
+  },
+  {
+    "text": "And",
+    "start": 85.24,
+    "end": 85.6,
+    "probability": 0.97
+  },
+  {
+    "text": "in",
+    "start": 85.64,
+    "end": 85.98,
+    "probability": 0.97
+  },
+  {
+    "text": "verse",
+    "start": 86.02,
+    "end": 86.42,
+    "probability": 0.97
+  },
+  {
+    "text": "twelve",
+    "start": 86.46,
+    "end": 86.88,
+    "probability": 0.97
+  },
+  {
+    "text": "he",
+    "start": 86.92,
+    "end": 87.26,
+    "probability": 0.97
+  },
+  {
+    "text": "says",
+    "start": 87.3,
+    "end": 87.68,
+    "probability": 0.97
+  },
+  {
+    "text": "rejoicing",
+    "start": 87.72,
+    "end": 88.2,
+    "probability": 0.97
+  },
+  {
+    "text": "in",
+    "start": 88.24,
+    "end": 88.58,
+    "probability": 0.97
+  },
+  {
+    "text": "hope,",
+    "start": 88.62,
+    "end": 89.02,
+    "probability": 0.97
+  },
+  {
+    "text": "patient",
+    "start": 89.06,
+    "end": 89.5,
+    "probability": 0.97
+  },
+  {
+    "text": "in",
+    "start": 89.54,
+    "end": 89.88,
+    "probability": 0.97
+  },
+  {
+    "text": "tribulation.",
+    "start": 89.92,
+    "end": 90.42,
+    "probability": 0.97
+  },
+  {
+    "text": "Mark",
+    "start": 125.46,
+    "end": 125.84,
+    "probability": 0.97
+  },
+  {
+    "text": "my",
+    "start": 125.88,
+    "end": 126.22,
+    "probability": 0.97
+  },
+  {
+    "text": "words,",
+    "start": 126.26,
+    "end": 126.68,
+    "probability": 0.97
+  },
+  {
+    "text": "this",
+    "start": 126.72,
+    "end": 127.1,
+    "probability": 0.97
+  },
+  {
+    "text": "generation",
+    "start": 127.14,
+    "end": 127.64,
+    "probability": 0.97
+  },
+  {
+    "text": "will",
+    "start": 127.68,
+    "end": 128.06,
+    "probability": 0.97
+  },
+  {
+    "text": "see",
+    "start": 128.1,
+    "end": 128.46,
+    "probability": 0.97
+  },
+  {
+    "text": "it",
+    "start": 128.5,
+    "end": 128.84,
+    "probability": 0.97
+  },
+  {
+    "text": "happen.",
+    "start": 128.88,
+    "end": 129.32,
+    "probability": 0.97
+  },
+  {
+    "text": "Faith",
+    "start": 149.36,
+    "end": 149.76,
+    "probability": 0.97
+  },
+  {
+    "text": "without",
+    "start": 149.8,
+    "end": 150.24,
+    "probability": 0.97
+  },
+  {
+    "text": "works",
+    "start": 150.28,
+    "end": 150.68,
+    "probability": 0.97
+  },
+  {
+    "text": "is",
+    "start": 150.72,
+    "end": 151.06,
+    "probability": 0.97
+  },
+  {
+    "text": "as",
+    "start": 151.1,
+    "end": 151.44,
+    "probability": 0.97
+  },
+  {
+    "text": "dead",
+    "start": 151.48,
+    "end": 151.86,
+    "probability": 0.97
+  },
+  {
+    "text": "as",
+    "start": 151.9,
+    "end": 152.24,
+    "probability": 0.97
+  },
+  {
+    "text": "a",
+    "start": 152.28,
+    "end": 152.6,
+    "probability": 0.97
+  },
+  {
+    "text": "church",
+    "start": 152.64,
+    "end": 153.06,
+    "probability": 0.97
+  },
+  {
+    "text": "that",
+    "start": 153.1,
+    "end": 153.48,
+    "probability": 0.97
+  },
+  {
+    "text": "never",
+    "start": 153.52,
+    "end": 153.92,
+    "probability": 0.97
+  },
+  {
+    "text": "acts",
+    "start": 153.96,
+    "end": 154.34,
+    "probability": 0.97
+  },
+  {
+    "text": "on",
+    "start": 154.38,
+    "end": 154.72,
+    "probability": 0.97
+  },
+  {
+    "text": "what",
+    "start": 154.76,
+    "end": 155.14,
+    "probability": 0.97
+  },
+  {
+    "text": "it",
+    "start": 155.18,
+    "end": 155.52,
+    "probability": 0.97
+  },
+  {
+    "text": "believes.",
+    "start": 155.56,
+    "end": 156.04,
+    "probability": 0.97
+  },
+  {
+    "text": "Turn",
+    "start": 178.08,
+    "end": 178.46,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 178.5,
+    "end": 178.84,
+    "probability": 0.97
+  },
+  {
+    "text": "Psalm",
+    "start": 178.88,
+    "end": 179.28,
+    "probability": 0.97
+  },
+  {
+    "text": "twelve",
+    "start": 179.32,
+    "end": 179.74,
+    "probability": 0.97
+  },
+  {
+    "text": "two.",
+    "start": 179.78,
+    "end": 180.16,
+    "probability": 0.97
+  }
+]

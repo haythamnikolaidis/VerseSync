@@ -53,9 +53,12 @@ of transcription consumes exactly this, which is why faking it is enough.
 
 ## Done when
 
-- [ ] Three or more fixtures with labels are committed and load in a test.
-- [ ] Every bullet in step 2 is present in at least one fixture.
-- [ ] The format doc is clear enough that T-33 can extend the corpus without asking.
+- [x] Three or more fixtures with labels are committed and load in a test. *(four: three
+      hand-crafted plus the ~7,000-word one from step 4)*
+- [x] Every bullet in step 2 is present in at least one fixture. *(asserted directly in
+      `tests/test_transcript_fixtures.py::test_every_t41_step_2_bullet_is_covered_somewhere`,
+      not just claimed)*
+- [x] The format doc is clear enough that T-33 can extend the corpus without asking.
 
 ## Traps
 

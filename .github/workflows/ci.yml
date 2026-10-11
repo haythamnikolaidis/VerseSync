@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[dev]"
-      - run: ruff check sidecar tools
+      - run: ruff check sidecar tools tests
       - run: mypy
       - run: pytest
 

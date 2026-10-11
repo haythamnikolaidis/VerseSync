@@ -1,0 +1,91 @@
+[
+  {
+    "reference": "1 Corinthians 6:19-20",
+    "expected_classification": "read",
+    "expected_anchor_s": 9.5,
+    "mention_span_s": [
+      10.0,
+      14.4
+    ],
+    "read_span_s": [
+      15.0,
+      27.2
+    ],
+    "note": null
+  },
+  {
+    "reference": "2 Timothy 1:7",
+    "expected_classification": "read",
+    "expected_anchor_s": 51.7,
+    "mention_span_s": [
+      52.2,
+      56.5
+    ],
+    "read_span_s": [
+      56.9,
+      65.1
+    ],
+    "note": null
+  },
+  {
+    "reference": null,
+    "negative": true,
+    "span_s": [
+      95.1,
+      100.1
+    ],
+    "note": "contains 'job' as an ordinary word, not the book of Job; zero matches expected."
+  },
+  {
+    "reference": "Romans 8",
+    "expected_classification": null,
+    "expected_anchor_s": 119.6,
+    "mention_span_s": [
+      120.1,
+      124.4
+    ],
+    "note": "chapter-only reference: no verse spoken, flagged chapter_only, disabled by default (D12)."
+  },
+  {
+    "reference": "Psalm 119:176",
+    "expected_classification": "read",
+    "expected_anchor_s": 148.9,
+    "mention_span_s": [
+      149.4,
+      155.5
+    ],
+    "read_span_s": [
+      156.0,
+      163.6
+    ],
+    "note": "covers spoken numbers 'one hundred and nineteen' and 'one hundred and seventy six'."
+  },
+  {
+    "reference": "Philippians 4:13",
+    "expected_classification": "read",
+    "expected_anchor_s": 191.1,
+    "mention_span_s": [
+      191.6,
+      194.7
+    ],
+    "read_span_s": [
+      195.1,
+      199.4
+    ],
+    "note": "transcript says 'Philippines' (ASR error) for 'Philippians' \u2014 fuzzy book match gated on the following number pattern (04 \u00a74.1's gate)."
+  },
+  {
+    "reference": "3 John 2",
+    "expected_classification": "read",
+    "expected_anchor_s": 224.9,
+    "mention_span_s": [
+      225.4,
+      228.0
+    ],
+    "read_span_s": [
+      228.4,
+      236.5
+    ],
+    "note": "covers the ordinal book 'Third John'."
+  }
+]

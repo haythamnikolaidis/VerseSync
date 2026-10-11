@@ -1,0 +1,998 @@
+[
+  {
+    "text": "Turn",
+    "start": 10.0,
+    "end": 10.38,
+    "probability": 0.97
+  },
+  {
+    "text": "with",
+    "start": 10.42,
+    "end": 10.8,
+    "probability": 0.97
+  },
+  {
+    "text": "me",
+    "start": 10.84,
+    "end": 11.18,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 11.22,
+    "end": 11.56,
+    "probability": 0.97
+  },
+  {
+    "text": "First",
+    "start": 11.6,
+    "end": 12.0,
+    "probability": 0.97
+  },
+  {
+    "text": "Corinthians",
+    "start": 12.04,
+    "end": 12.54,
+    "probability": 0.97
+  },
+  {
+    "text": "six,",
+    "start": 12.58,
+    "end": 12.96,
+    "probability": 0.97
+  },
+  {
+    "text": "nineteen",
+    "start": 13.0,
+    "end": 13.46,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 13.5,
+    "end": 13.86,
+    "probability": 0.97
+  },
+  {
+    "text": "twenty.",
+    "start": 13.9,
+    "end": 14.34,
+    "probability": 0.97
+  },
+  {
+    "text": "Or",
+    "start": 14.98,
+    "end": 15.32,
+    "probability": 0.97
+  },
+  {
+    "text": "do",
+    "start": 15.36,
+    "end": 15.7,
+    "probability": 0.97
+  },
+  {
+    "text": "you",
+    "start": 15.74,
+    "end": 16.1,
+    "probability": 0.97
+  },
+  {
+    "text": "not",
+    "start": 16.14,
+    "end": 16.5,
+    "probability": 0.97
+  },
+  {
+    "text": "know",
+    "start": 16.54,
+    "end": 16.92,
+    "probability": 0.97
+  },
+  {
+    "text": "that",
+    "start": 16.96,
+    "end": 17.34,
+    "probability": 0.97
+  },
+  {
+    "text": "your",
+    "start": 17.38,
+    "end": 17.76,
+    "probability": 0.97
+  },
+  {
+    "text": "body",
+    "start": 17.8,
+    "end": 18.18,
+    "probability": 0.97
+  },
+  {
+    "text": "is",
+    "start": 18.22,
+    "end": 18.56,
+    "probability": 0.97
+  },
+  {
+    "text": "the",
+    "start": 18.6,
+    "end": 18.96,
+    "probability": 0.97
+  },
+  {
+    "text": "temple",
+    "start": 19.0,
+    "end": 19.42,
+    "probability": 0.97
+  },
+  {
+    "text": "of",
+    "start": 19.46,
+    "end": 19.8,
+    "probability": 0.97
+  },
+  {
+    "text": "the",
+    "start": 19.84,
+    "end": 20.2,
+    "probability": 0.97
+  },
+  {
+    "text": "Holy",
+    "start": 20.24,
+    "end": 20.62,
+    "probability": 0.97
+  },
+  {
+    "text": "Spirit",
+    "start": 20.66,
+    "end": 21.08,
+    "probability": 0.97
+  },
+  {
+    "text": "which",
+    "start": 21.12,
+    "end": 21.52,
+    "probability": 0.97
+  },
+  {
+    "text": "is",
+    "start": 21.56,
+    "end": 21.9,
+    "probability": 0.97
+  },
+  {
+    "text": "in",
+    "start": 21.94,
+    "end": 22.28,
+    "probability": 0.97
+  },
+  {
+    "text": "you,",
+    "start": 22.32,
+    "end": 22.7,
+    "probability": 0.97
+  },
+  {
+    "text": "which",
+    "start": 22.74,
+    "end": 23.14,
+    "probability": 0.97
+  },
+  {
+    "text": "ye",
+    "start": 23.18,
+    "end": 23.52,
+    "probability": 0.97
+  },
+  {
+    "text": "have",
+    "start": 23.56,
+    "end": 23.94,
+    "probability": 0.97
+  },
+  {
+    "text": "of",
+    "start": 23.98,
+    "end": 24.32,
+    "probability": 0.97
+  },
+  {
+    "text": "God,",
+    "start": 24.36,
+    "end": 24.74,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 24.78,
+    "end": 25.14,
+    "probability": 0.97
+  },
+  {
+    "text": "ye",
+    "start": 25.18,
+    "end": 25.52,
+    "probability": 0.97
+  },
+  {
+    "text": "are",
+    "start": 25.56,
+    "end": 25.92,
+    "probability": 0.97
+  },
+  {
+    "text": "not",
+    "start": 25.96,
+    "end": 26.32,
+    "probability": 0.97
+  },
+  {
+    "text": "your",
+    "start": 26.36,
+    "end": 26.74,
+    "probability": 0.97
+  },
+  {
+    "text": "own?",
+    "start": 26.78,
+    "end": 27.16,
+    "probability": 0.97
+  },
+  {
+    "text": "Now",
+    "start": 52.2,
+    "end": 52.56,
+    "probability": 0.97
+  },
+  {
+    "text": "Second",
+    "start": 52.6,
+    "end": 53.02,
+    "probability": 0.97
+  },
+  {
+    "text": "Timothy",
+    "start": 53.06,
+    "end": 53.5,
+    "probability": 0.97
+  },
+  {
+    "text": "chapter",
+    "start": 53.54,
+    "end": 53.98,
+    "probability": 0.97
+  },
+  {
+    "text": "one",
+    "start": 54.02,
+    "end": 54.38,
+    "probability": 0.97
+  },
+  {
+    "text": "verse",
+    "start": 54.42,
+    "end": 54.82,
+    "probability": 0.97
+  },
+  {
+    "text": "seven",
+    "start": 54.86,
+    "end": 55.26,
+    "probability": 0.97
+  },
+  {
+    "text": "tells",
+    "start": 55.3,
+    "end": 55.7,
+    "probability": 0.97
+  },
+  {
+    "text": "us",
+    "start": 55.74,
+    "end": 56.08,
+    "probability": 0.97
+  },
+  {
+    "text": "that",
+    "start": 56.12,
+    "end": 56.5,
+    "probability": 0.97
+  },
+  {
+    "text": "God",
+    "start": 56.94,
+    "end": 57.3,
+    "probability": 0.97
+  },
+  {
+    "text": "hath",
+    "start": 57.34,
+    "end": 57.72,
+    "probability": 0.97
+  },
+  {
+    "text": "not",
+    "start": 57.76,
+    "end": 58.12,
+    "probability": 0.97
+  },
+  {
+    "text": "given",
+    "start": 58.16,
+    "end": 58.56,
+    "probability": 0.97
+  },
+  {
+    "text": "us",
+    "start": 58.6,
+    "end": 58.94,
+    "probability": 0.97
+  },
+  {
+    "text": "the",
+    "start": 58.98,
+    "end": 59.34,
+    "probability": 0.97
+  },
+  {
+    "text": "spirit",
+    "start": 59.38,
+    "end": 59.8,
+    "probability": 0.97
+  },
+  {
+    "text": "of",
+    "start": 59.84,
+    "end": 60.18,
+    "probability": 0.97
+  },
+  {
+    "text": "fear;",
+    "start": 60.22,
+    "end": 60.62,
+    "probability": 0.97
+  },
+  {
+    "text": "but",
+    "start": 60.66,
+    "end": 61.02,
+    "probability": 0.97
+  },
+  {
+    "text": "of",
+    "start": 61.06,
+    "end": 61.4,
+    "probability": 0.97
+  },
+  {
+    "text": "power,",
+    "start": 61.44,
+    "end": 61.86,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 61.9,
+    "end": 62.26,
+    "probability": 0.97
+  },
+  {
+    "text": "of",
+    "start": 62.3,
+    "end": 62.64,
+    "probability": 0.97
+  },
+  {
+    "text": "love,",
+    "start": 62.68,
+    "end": 63.08,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 63.12,
+    "end": 63.48,
+    "probability": 0.97
+  },
+  {
+    "text": "of",
+    "start": 63.52,
+    "end": 63.86,
+    "probability": 0.97
+  },
+  {
+    "text": "a",
+    "start": 63.9,
+    "end": 64.22,
+    "probability": 0.97
+  },
+  {
+    "text": "sound",
+    "start": 64.26,
+    "end": 64.66,
+    "probability": 0.97
+  },
+  {
+    "text": "mind.",
+    "start": 64.7,
+    "end": 65.1,
+    "probability": 0.97
+  },
+  {
+    "text": "He",
+    "start": 95.14,
+    "end": 95.48,
+    "probability": 0.97
+  },
+  {
+    "text": "lost",
+    "start": 95.52,
+    "end": 95.9,
+    "probability": 0.97
+  },
+  {
+    "text": "his",
+    "start": 95.94,
+    "end": 96.3,
+    "probability": 0.97
+  },
+  {
+    "text": "job",
+    "start": 96.34,
+    "end": 96.7,
+    "probability": 0.97
+  },
+  {
+    "text": "last",
+    "start": 96.74,
+    "end": 97.12,
+    "probability": 0.97
+  },
+  {
+    "text": "year,",
+    "start": 97.16,
+    "end": 97.56,
+    "probability": 0.97
+  },
+  {
+    "text": "but",
+    "start": 97.6,
+    "end": 97.96,
+    "probability": 0.97
+  },
+  {
+    "text": "he",
+    "start": 98.0,
+    "end": 98.34,
+    "probability": 0.97
+  },
+  {
+    "text": "never",
+    "start": 98.38,
+    "end": 98.78,
+    "probability": 0.97
+  },
+  {
+    "text": "lost",
+    "start": 98.82,
+    "end": 99.2,
+    "probability": 0.97
+  },
+  {
+    "text": "his",
+    "start": 99.24,
+    "end": 99.6,
+    "probability": 0.97
+  },
+  {
+    "text": "faith.",
+    "start": 99.64,
+    "end": 100.06,
+    "probability": 0.97
+  },
+  {
+    "text": "If",
+    "start": 120.1,
+    "end": 120.44,
+    "probability": 0.97
+  },
+  {
+    "text": "you",
+    "start": 120.48,
+    "end": 120.84,
+    "probability": 0.97
+  },
+  {
+    "text": "have",
+    "start": 120.88,
+    "end": 121.26,
+    "probability": 0.97
+  },
+  {
+    "text": "your",
+    "start": 121.3,
+    "end": 121.68,
+    "probability": 0.97
+  },
+  {
+    "text": "Bibles,",
+    "start": 121.72,
+    "end": 122.16,
+    "probability": 0.97
+  },
+  {
+    "text": "turn",
+    "start": 122.2,
+    "end": 122.58,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 122.62,
+    "end": 122.96,
+    "probability": 0.97
+  },
+  {
+    "text": "Romans",
+    "start": 123.0,
+    "end": 123.42,
+    "probability": 0.97
+  },
+  {
+    "text": "chapter",
+    "start": 123.46,
+    "end": 123.9,
+    "probability": 0.97
+  },
+  {
+    "text": "eight.",
+    "start": 123.94,
+    "end": 124.36,
+    "probability": 0.97
+  },
+  {
+    "text": "Turn",
+    "start": 149.4,
+    "end": 149.78,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 149.82,
+    "end": 150.16,
+    "probability": 0.97
+  },
+  {
+    "text": "Psalm",
+    "start": 150.2,
+    "end": 150.6,
+    "probability": 0.97
+  },
+  {
+    "text": "chapter",
+    "start": 150.64,
+    "end": 151.08,
+    "probability": 0.97
+  },
+  {
+    "text": "one",
+    "start": 151.12,
+    "end": 151.48,
+    "probability": 0.97
+  },
+  {
+    "text": "hundred",
+    "start": 151.52,
+    "end": 151.96,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 152.0,
+    "end": 152.36,
+    "probability": 0.97
+  },
+  {
+    "text": "nineteen,",
+    "start": 152.4,
+    "end": 152.88,
+    "probability": 0.97
+  },
+  {
+    "text": "verse",
+    "start": 152.92,
+    "end": 153.32,
+    "probability": 0.97
+  },
+  {
+    "text": "one",
+    "start": 153.36,
+    "end": 153.72,
+    "probability": 0.97
+  },
+  {
+    "text": "hundred",
+    "start": 153.76,
+    "end": 154.2,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 154.24,
+    "end": 154.6,
+    "probability": 0.97
+  },
+  {
+    "text": "seventy",
+    "start": 154.64,
+    "end": 155.08,
+    "probability": 0.97
+  },
+  {
+    "text": "six.",
+    "start": 155.12,
+    "end": 155.5,
+    "probability": 0.97
+  },
+  {
+    "text": "I",
+    "start": 156.04,
+    "end": 156.36,
+    "probability": 0.97
+  },
+  {
+    "text": "have",
+    "start": 156.4,
+    "end": 156.78,
+    "probability": 0.97
+  },
+  {
+    "text": "gone",
+    "start": 156.82,
+    "end": 157.2,
+    "probability": 0.97
+  },
+  {
+    "text": "astray",
+    "start": 157.24,
+    "end": 157.66,
+    "probability": 0.97
+  },
+  {
+    "text": "like",
+    "start": 157.7,
+    "end": 158.08,
+    "probability": 0.97
+  },
+  {
+    "text": "a",
+    "start": 158.12,
+    "end": 158.44,
+    "probability": 0.97
+  },
+  {
+    "text": "lost",
+    "start": 158.48,
+    "end": 158.86,
+    "probability": 0.97
+  },
+  {
+    "text": "sheep;",
+    "start": 158.9,
+    "end": 159.32,
+    "probability": 0.97
+  },
+  {
+    "text": "seek",
+    "start": 159.36,
+    "end": 159.74,
+    "probability": 0.97
+  },
+  {
+    "text": "thy",
+    "start": 159.78,
+    "end": 160.14,
+    "probability": 0.97
+  },
+  {
+    "text": "servant;",
+    "start": 160.18,
+    "end": 160.64,
+    "probability": 0.97
+  },
+  {
+    "text": "for",
+    "start": 160.68,
+    "end": 161.04,
+    "probability": 0.97
+  },
+  {
+    "text": "I",
+    "start": 161.08,
+    "end": 161.4,
+    "probability": 0.97
+  },
+  {
+    "text": "do",
+    "start": 161.44,
+    "end": 161.78,
+    "probability": 0.97
+  },
+  {
+    "text": "not",
+    "start": 161.82,
+    "end": 162.18,
+    "probability": 0.97
+  },
+  {
+    "text": "forget",
+    "start": 162.22,
+    "end": 162.64,
+    "probability": 0.97
+  },
+  {
+    "text": "thy",
+    "start": 162.68,
+    "end": 163.04,
+    "probability": 0.97
+  },
+  {
+    "text": "commandments.",
+    "start": 163.08,
+    "end": 163.58,
+    "probability": 0.97
+  },
+  {
+    "text": "Turn",
+    "start": 191.62,
+    "end": 192.0,
+    "probability": 0.97
+  },
+  {
+    "text": "with",
+    "start": 192.04,
+    "end": 192.42,
+    "probability": 0.97
+  },
+  {
+    "text": "me",
+    "start": 192.46,
+    "end": 192.8,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 192.84,
+    "end": 193.18,
+    "probability": 0.52
+  },
+  {
+    "text": "Philippines",
+    "start": 193.22,
+    "end": 193.72,
+    "probability": 0.97
+  },
+  {
+    "text": "four",
+    "start": 193.76,
+    "end": 194.14,
+    "probability": 0.97
+  },
+  {
+    "text": "thirteen.",
+    "start": 194.18,
+    "end": 194.66,
+    "probability": 0.97
+  },
+  {
+    "text": "I",
+    "start": 195.1,
+    "end": 195.42,
+    "probability": 0.97
+  },
+  {
+    "text": "can",
+    "start": 195.46,
+    "end": 195.82,
+    "probability": 0.97
+  },
+  {
+    "text": "do",
+    "start": 195.86,
+    "end": 196.2,
+    "probability": 0.97
+  },
+  {
+    "text": "all",
+    "start": 196.24,
+    "end": 196.6,
+    "probability": 0.97
+  },
+  {
+    "text": "things",
+    "start": 196.64,
+    "end": 197.06,
+    "probability": 0.97
+  },
+  {
+    "text": "through",
+    "start": 197.1,
+    "end": 197.54,
+    "probability": 0.97
+  },
+  {
+    "text": "Christ",
+    "start": 197.58,
+    "end": 198.0,
+    "probability": 0.97
+  },
+  {
+    "text": "which",
+    "start": 198.04,
+    "end": 198.44,
+    "probability": 0.97
+  },
+  {
+    "text": "strengtheneth",
+    "start": 198.48,
+    "end": 198.98,
+    "probability": 0.97
+  },
+  {
+    "text": "me.",
+    "start": 199.02,
+    "end": 199.38,
+    "probability": 0.97
+  },
+  {
+    "text": "Turn",
+    "start": 225.42,
+    "end": 225.8,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 225.84,
+    "end": 226.18,
+    "probability": 0.97
+  },
+  {
+    "text": "Third",
+    "start": 226.22,
+    "end": 226.62,
+    "probability": 0.97
+  },
+  {
+    "text": "John,",
+    "start": 226.66,
+    "end": 227.06,
+    "probability": 0.97
+  },
+  {
+    "text": "verse",
+    "start": 227.1,
+    "end": 227.5,
+    "probability": 0.97
+  },
+  {
+    "text": "two.",
+    "start": 227.54,
+    "end": 227.92,
+    "probability": 0.97
+  },
+  {
+    "text": "Beloved,",
+    "start": 228.36,
+    "end": 228.82,
+    "probability": 0.97
+  },
+  {
+    "text": "I",
+    "start": 228.86,
+    "end": 229.18,
+    "probability": 0.97
+  },
+  {
+    "text": "wish",
+    "start": 229.22,
+    "end": 229.6,
+    "probability": 0.97
+  },
+  {
+    "text": "above",
+    "start": 229.64,
+    "end": 230.04,
+    "probability": 0.97
+  },
+  {
+    "text": "all",
+    "start": 230.08,
+    "end": 230.44,
+    "probability": 0.97
+  },
+  {
+    "text": "things",
+    "start": 230.48,
+    "end": 230.9,
+    "probability": 0.97
+  },
+  {
+    "text": "that",
+    "start": 230.94,
+    "end": 231.32,
+    "probability": 0.97
+  },
+  {
+    "text": "thou",
+    "start": 231.36,
+    "end": 231.74,
+    "probability": 0.97
+  },
+  {
+    "text": "mayest",
+    "start": 231.78,
+    "end": 232.2,
+    "probability": 0.97
+  },
+  {
+    "text": "prosper",
+    "start": 232.24,
+    "end": 232.68,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 232.72,
+    "end": 233.08,
+    "probability": 0.97
+  },
+  {
+    "text": "be",
+    "start": 233.12,
+    "end": 233.46,
+    "probability": 0.97
+  },
+  {
+    "text": "in",
+    "start": 233.5,
+    "end": 233.84,
+    "probability": 0.97
+  },
+  {
+    "text": "health,",
+    "start": 233.88,
+    "end": 234.32,
+    "probability": 0.97
+  },
+  {
+    "text": "even",
+    "start": 234.36,
+    "end": 234.74,
+    "probability": 0.97
+  },
+  {
+    "text": "as",
+    "start": 234.78,
+    "end": 235.12,
+    "probability": 0.97
+  },
+  {
+    "text": "thy",
+    "start": 235.16,
+    "end": 235.52,
+    "probability": 0.97
+  },
+  {
+    "text": "soul",
+    "start": 235.56,
+    "end": 235.94,
+    "probability": 0.97
+  },
+  {
+    "text": "prospereth.",
+    "start": 235.98,
+    "end": 236.48,
+    "probability": 0.97
+  }
+]

@@ -3,7 +3,6 @@ import json
 from pathlib import Path
 
 import pytest
-
 from validate_cue_document import validate, validate_file
 
 FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures" / "cue-documents"
