@@ -77,3 +77,47 @@ Cue Document in source time is what makes Journey B a pure recomputation.
   try to be clever there.
 - Alternate-track spillover is **deliberately not v1** (D14). Do not add it.
 - Ticks are strings across the host boundary; convert deliberately and centrally.
+
+## Status
+
+Implemented in `panel/js/timemap.js` (loaded by `panel/index.html`); tests in
+`tests/timemap.test.js` (named to match the `npm test` glob `tests/**/*.test.js`). Run with
+`npm test`; the suite is pure Node, no Premiere.
+
+- **Unit tests cover every case in 05 §5 and §8** — **Met.** §5: zero, one and many candidates,
+  a time before `inPoint`, exactly at the end of a window (half-open), trimmed head and tail,
+  linked video+audio counted as one placement, audio-only match, `matched: false`, speed-changed
+  segments, manual offset (§5.4). §8: silent truncation, refusal at exactly and just below
+  `min_visible_s`, two- and three-way overlaps, abutting cues, identical anchors, disabled cues
+  skipped, configurable gap and minimum, repeatable sweep.
+- **Worked example in 05 §9 reproduces exactly** — **Met.** Test "worked example": anchor
+  `359003835590400` (frame 42,357), end `365886077356800` (frame 43,169), duration 812 frames,
+  the next cue 96 s later unflagged. The doc's elided "359,033,..." tick prefix does not match
+  its own arithmetic (1413.32 s is `359,005,893,120,000` before snapping); the test pins the
+  recomputed values.
+- **Snapping correct at 23.976, 25 and 29.97 using the real `timebase`** — **Met.** Tests
+  "snapToFrame rounds…" (23.976, 24, 25, 29.97, 30, 50, 59.94), "anchors and ends land on whole
+  frames…" (the three T-39 sequence fixtures), "frameRate is ignored…". Expected values come
+  from an independent BigInt oracle.
+- **A 40-cue batch shows no cumulative drift** — **Met.** Test "40 cues in one batch…" at 29.97,
+  23.976 and 25: every anchor and end is within half a frame of its exact time.
+- **All three panel-owned flags assigned correctly from the T-39 fixtures** — **Met.** Tests
+  `segments-split` (`cut_from_edit`), `segments-duplicate` (`multiple_placements` plus
+  alternatives), `segments-speed` (`speed_change_unsupported`), `segments-none`.
+- **Manual-offset mode maps and flags correctly** — **Met.** Tests "manual offset: …" and
+  "offsetFromTimecode: …": every cue gets `approximate: true`; times before the sequence or past
+  its end are `cut_from_edit`.
+
+Behaviour the spec leaves open, as built:
+
+- `approximate` is a separate result field, not a flag, because the Cue Document flag enum is
+  closed.
+- `overlap` and `truncated` are recomputed from scratch each call along with the three mapping
+  flags; any of the five already on an input cue is discarded. Sidecar-owned flags are kept.
+- Disabled cues (including cut ones) do not take part in the overlap sweep.
+- The overlap gap is rounded up to whole frames so the truncated end stays on the frame grid and
+  the gap is never shorter than `overlap_gap_s`.
+- A cue with no usable window is `speed_change_unsupported` rather than `cut_from_edit` when the
+  host reported a speed-changed use of the media, since that segment's in-point cannot say
+  whether it contains the moment.
+- A typed timecode is a display timecode, so `offsetFromTimecode` subtracts `zeroPointTicks`.
