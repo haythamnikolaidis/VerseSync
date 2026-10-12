@@ -389,7 +389,7 @@ nineteen and twenty. Or do you not know that your body is the temple of the Holy
 | Corroboration | confidence 0.91 → **1.00** (capped) |
 | Anchor (source) | `min(1425.82, 1428.9) − 0.5` = **1425.32 s** |
 | Duration | READ: `(1451.4 − 1425.32) + 1.0` = **27.08 s** (under the 45 s ceiling) |
-| Map to sequence | in segment, `t_seq = 0 + (1425.32 − 12.0)` = **1413.32 s** = `359,005,893,120,000` ticks (1413.32 × 254,016,000,000) = frame 42,356.64 |
+| Map to sequence | in segment, `t_seq = 0 + (1425.32 − 12.0)` = **1413.32 s** = `359,005,893,120,000` ticks (1413.32 × 254,016,000,000) = frame 42,357.24 |
 | Frame snap, anchor | rounded to the nearest 8,475,667,200 ticks: frame **42,357** = `359,003,835,590,400` ticks |
 | Frame snap, end | unsnapped end `1413.32 + 27.08` = 1440.40 s = `365,884,646,400,000` ticks = frame 43,168.8, snapped to frame **43,169** = `365,886,077,356,800` ticks |
 | Placed duration | 43,169 − 42,357 = **812 frames** = `6,882,241,766,400` ticks ≈ 27.09 s |
