@@ -168,7 +168,7 @@ requirement they carry over; they still apply and still need testing, but no new
 ### NFR-2 — Performance
 
 - Transcription of a 45-minute sermon completes in **≤ 4 minutes** on the reference GPU
-  workstation with `large-v3-turbo` and batched inference. CPU-only is supported but
+  workstation with `distil-large-v3` and batched inference. CPU-only is supported but
   unbounded; the panel warns before starting a CPU run over 10 minutes of audio.
 - Detection, verse resolution and timing together complete in **≤ 15 s** for a 45-minute
   transcript, excluding network time for uncached verse fetches.

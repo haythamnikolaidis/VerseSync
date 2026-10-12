@@ -21,7 +21,7 @@ that the editor has not seen in the review list, and anything that does is remov
 Ctrl+Z.** A failure must never leave the timeline half-modified and unexplained.
 
 Error messages here are read by **video editors, not developers**. "Could not load
-large-v3-turbo on cuda: out of memory (9.1 GB free, ~10.4 GB required)" is right; a stack trace
+large-v3 on cuda: out of memory (9.1 GB free, ~10.4 GB required)" is right; a stack trace
 is not.
 
 ## Steps

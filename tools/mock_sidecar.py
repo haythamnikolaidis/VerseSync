@@ -59,16 +59,16 @@ PHASE_MESSAGES = {
 
 MODELS = [
     {
-        "name": "large-v3-turbo",
+        "name": "distil-large-v3",
         "word_timestamp_quality": "good",
         "supported_quantizations": {"cuda": ["float16", "bfloat16", "float32"], "cpu": ["float32"]},
         "downloaded": True,
         "recommended": True,
     },
     {
-        "name": "distil-large-v3",
-        "word_timestamp_quality": "medium",
-        "supported_quantizations": {"cuda": ["float16"], "cpu": ["float32"]},
+        "name": "large-v3-turbo",
+        "word_timestamp_quality": "good",
+        "supported_quantizations": {"cuda": ["float16", "bfloat16", "float32"], "cpu": ["float32"]},
         "downloaded": True,
         "recommended": False,
     },
@@ -95,12 +95,12 @@ ERROR_EXAMPLES: dict[str, dict[str, Any]] = {
     "model_load_failed": {
         "code": "model_load_failed",
         "message": (
-            "Could not load large-v3-turbo on cuda: out of memory "
+            "Could not load large-v3 on cuda: out of memory "
             "(9.1 GB free, ~10.4 GB required)."
         ),
         "detail": "CUDA error: CUBLAS_STATUS_ALLOC_FAILED",
         "retryable": True,
-        "hint": "Try large-v3-turbo with float16, or switch to CPU.",
+        "hint": "Try distil-large-v3 with float16, or switch to CPU.",
     },
 }
 

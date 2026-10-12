@@ -58,7 +58,7 @@ Always visible, one line, the first thing an editor looks at when something is w
 | State | Shows | Insert/Analyse |
 |-------|-------|----------------|
 | Sidecar starting | `◌ starting transcription service…` | Analyse disabled |
-| Ready, sequence open | `● ready · cuda · large-v3-turbo` | both enabled per validation |
+| Ready, sequence open | `● ready · cuda · distil-large-v3` | both enabled per validation |
 | No sequence | `▲ no sequence open` | both disabled |
 | Sidecar unreachable | `✕ transcription service unavailable` + **Details** | Analyse disabled; **Insert still works** from a loaded Cue Document |
 | Degraded | `▲ ready (CPU only)` or `▲ ready (Bible API unreachable)` | enabled, with the caveat visible |

@@ -184,15 +184,18 @@ musical intro.
 **Required:** `vad_filter=True` with tuned `vad_parameters`, and `language="en"` pinned for
 VerseSync jobs (configurable).
 
-> **Gap 5 — the default model is the wrong one for this job.** *(quality)*
+> **Gap 5 — the upstream default model was unmeasured for this job.** *(quality)*
 
 `config.yaml` ships `model_name: distil-whisper-large-v3`. Distil models have a reduced decoder
 and their cross-attention alignment — which is what produces word timestamps — is not the same
-as the full models'. Timestamp quality must be measured before trusting it.
+as the full models'. Timestamp quality had to be measured before trusting it.
 
-**Required:** default VerseSync jobs to `large-v3-turbo` (or `large-v3`), keep distil available
-as opt-in, and add a `word_timestamp_quality` field to `ModelMetadata` so the panel can warn
-when a model is a poor fit. Spike **T-02** measures this against hand-labelled audio.
+**Required:** default VerseSync jobs to **`distil-large-v3`** (float16) — the model spike **T-02**
+measured best on hand-labelled audio (owner decision 3; [12](12-decisions-and-risks.md) R-5,
+[`spikes/word_timestamps/RESULTS.md`](../spikes/word_timestamps/RESULTS.md)). Keep `large-v3` and
+`large-v3-turbo` selectable, and add a `word_timestamp_quality` field to `ModelMetadata` so the
+panel can warn when a model is a poor fit. The upstream `distil-whisper-large-v3` conversion stays
+`unverified`; the default is the `distil-large-v3` model faster-whisper resolves itself.
 
 > **Gap 6 — no long-audio handling strategy.** *(performance)*
 

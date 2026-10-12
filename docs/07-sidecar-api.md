@@ -51,7 +51,7 @@ Unauthenticated, cheap, safe to poll.
 
 ```json
 { "status": "ready", "api_version": "1.0", "sidecar_version": "1.0.0",
-  "device": "cuda", "model_loaded": "large-v3-turbo",
+  "device": "cuda", "model_loaded": "distil-large-v3",
   "gpu": { "name": "NVIDIA RTX 4070", "vram_total_mb": 12282, "vram_free_mb": 9104 },
   "provider": { "id": "api_bible", "reachable": true },
   "active_jobs": 0 }
@@ -67,11 +67,12 @@ Available models with the metadata VerseSync adds on top of Faster-Whisper-Trans
 
 ```json
 { "models": [
-    { "name": "large-v3-turbo", "word_timestamp_quality": "good",
+    { "name": "distil-large-v3", "word_timestamp_quality": "good",
       "supported_quantizations": { "cuda": ["float16","bfloat16","float32"], "cpu": ["float32"] },
       "downloaded": true, "recommended": true },
-    { "name": "distil-whisper-large-v3", "word_timestamp_quality": "unverified",
-      "downloaded": true, "recommended": false }
+    { "name": "large-v3-turbo", "word_timestamp_quality": "good",
+      "supported_quantizations": { "cuda": ["float16","bfloat16","float32"], "cpu": ["float32"] },
+      "downloaded": false, "recommended": false }
 ] }
 ```
 
@@ -97,7 +98,7 @@ Start an analysis. Returns immediately.
   "media_path": "D:/Sermons/2026-08-09/SERMON_A001.MXF",
   "translation_id": "de4e12af7f28f599-02",
   "options": {
-    "model": "large-v3-turbo",
+    "model": "distil-large-v3",
     "device": "cuda",
     "quantization": "float16",
     "batch_size": 8,
@@ -186,9 +187,9 @@ Every non-2xx carries the same body:
 
 ```json
 { "error": { "code": "model_load_failed",
-             "message": "Could not load large-v3-turbo on cuda: out of memory (9.1 GB free, ~10.4 GB required)",
+             "message": "Could not load large-v3 on cuda: out of memory (9.1 GB free, ~10.4 GB required)",
              "detail": "…", "retryable": true,
-             "hint": "Try large-v3-turbo with float16, or switch to CPU." } }
+             "hint": "Try distil-large-v3 with float16, or switch to CPU." } }
 ```
 
 `code` is a stable machine-readable string; `message` is shown to the editor as-is, so it is
@@ -231,7 +232,7 @@ The sidecar's output, the panel's input, and the save format. **Versioned.**
     "media_path": "D:/Sermons/2026-08-09/SERMON_A001.MXF",
     "media_hash": "sha256:9f2c…",
     "media_duration_s": 2714.36,
-    "model": "large-v3-turbo",
+    "model": "distil-large-v3",
     "quantization": "float16",
     "device": "cuda",
     "language": "en",
