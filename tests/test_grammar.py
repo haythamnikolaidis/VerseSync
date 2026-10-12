@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import jsonschema
 import pytest
@@ -99,6 +100,7 @@ TABLE = [
     ("P8", "john 3 16", ref("John", "John", 3, 16)),
     ("P9", "romans 8", ref("Romans", "Rom", 8)),
     ("P10", "the third chapter of john , verse 16", ref("John", "John", 3, 16)),
+    ("P13", "3 john , verse 2", ref("3 John", "3John", 1, 2)),
 ]
 
 
@@ -124,9 +126,15 @@ def test_table_example_p11_and_p12_carry_from_a_full_reference() -> None:
 
 
 def test_every_pattern_id_is_covered_by_a_table_row_or_fragment() -> None:
-    assert PATTERN_IDS == tuple(f"P{i}" for i in range(1, 13))
-    assert FULL_PATTERN_IDS + FRAGMENT_PATTERN_IDS == PATTERN_IDS
+    assert PATTERN_IDS == tuple(f"P{i}" for i in range(1, 14))
+    assert FRAGMENT_PATTERN_IDS == ("P11", "P12")
+    assert set(FULL_PATTERN_IDS) | set(FRAGMENT_PATTERN_IDS) == set(PATTERN_IDS)
     assert {t[0] for t in TABLE} == set(FULL_PATTERN_IDS)
+
+
+def test_p13_is_tried_between_p10_and_p11() -> None:
+    order = (*FULL_PATTERN_IDS, *FRAGMENT_PATTERN_IDS)
+    assert order == (*(f"P{i}" for i in range(1, 11)), "P13", "P11", "P12")
 
 
 # Three phrasings per pattern (docs/11 section 1): spoken, digit and Whisper-punctuated.
@@ -181,6 +189,16 @@ PHRASINGS = [
     ("P10", "the third chapter of John", ref("John", "John", 3)),
     ("P10", "the first chapter of Genesis , verses 1", ref("Genesis", "Gen", 1, 1)),
     ("P10", "the second chapter of First John, verse four", ref("1 John", "1John", 2, 4)),
+    # P13
+    ("P13", "Third John, verse two", ref("3 John", "3John", 1, 2)),
+    ("P13", "Jude verse three", ref("Jude", "Jude", 1, 3)),
+    ("P13", "Obadiah verses fifteen to seventeen", ref("Obadiah", "Obad", 1, 15, 17)),
+    ("P13", "Philemon verse ten through twelve", ref("Philemon", "Phlm", 1, 10, 12)),
+    ("P13", "Second John verses 5 and 6", ref("2 John", "2John", 1, 5, 6)),
+    ("P13", "Jude verses 3 - 4", ref("Jude", "Jude", 1, 3, 4)),
+    ("P13", "Philemon , verse 18", ref("Philemon", "Phlm", 1, 18)),
+    ("P13", "look at 3 John verse 4 now", ref("3 John", "3John", 1, 4)),
+    ("P13", "Jude, verses twenty four and twenty five", ref("Jude", "Jude", 1, 24, 25)),
 ]
 
 
@@ -193,6 +211,7 @@ def test_phrasings(pattern: str, text: str, expected: Reference) -> None:
 
 
 def test_every_full_pattern_has_at_least_three_phrasings() -> None:
+    assert {p for p, _, _ in PHRASINGS} == set(FULL_PATTERN_IDS)
     for pid in FULL_PATTERN_IDS:
         assert sum(1 for p, _, _ in PHRASINGS if p == pid) >= 3, pid
 
@@ -308,6 +327,188 @@ def test_detections_are_ordered_by_position() -> None:
     found = run("romans 8", 1.0, "john 3 : 16", 1.0, "genesis chapter 1").detections
     assert [d.reference.osis for d in found] == ["Rom", "John", "Gen"]
     assert list(found) == sorted(found, key=lambda d: d.token_span)
+
+
+# -- P13: a verse in a single-chapter book (docs/04 section 4) -------------------
+
+
+# The spoken / normalised rows of the P13 table in docs/04 section 4.
+P13_TABLE = [
+    ("Third John, verse two", "3 john , verse 2", ref("3 John", "3John", 1, 2)),
+    ("Jude verse three", "jude verse 3", ref("Jude", "Jude", 1, 3)),
+    (
+        "Obadiah verses fifteen to seventeen",
+        "obadiah verses 15 to 17",
+        ref("Obadiah", "Obad", 1, 15, 17),
+    ),
+    (
+        "Philemon verse ten through twelve",
+        "philemon verse 10 through 12",
+        ref("Philemon", "Phlm", 1, 10, 12),
+    ),
+]
+
+
+@pytest.mark.parametrize(("spoken", "normalised", "expected"), P13_TABLE)
+def test_p13_table_rows_spoken_and_normalised(
+    spoken: str, normalised: str, expected: Reference
+) -> None:
+    for text in (spoken, normalised):
+        d = one(text)
+        assert (d.pattern, d.reference, d.contextual, d.alternatives) == (
+            "P13",
+            expected,
+            False,
+            (),
+        )
+        assert d.carried_from is None
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("jude verses 3 and 4", ref("Jude", "Jude", 1, 3, 4)),
+        ("jude verse 3 - 4", ref("Jude", "Jude", 1, 3, 4)),
+        ("jude verse 3 to 4", ref("Jude", "Jude", 1, 3, 4)),
+        ("jude , verses 3 through 4", ref("Jude", "Jude", 1, 3, 4)),
+        ("jude , verses 3 , 4 and 5", ref("Jude", "Jude", 1, 3, 5)),
+        ("2 john verse 5", ref("2 John", "2John", 1, 5)),
+        ("second john , verse five", ref("2 John", "2John", 1, 5)),
+        ("two john verse 5", ref("2 John", "2John", 1, 5)),
+        ("3 john verses 2 to 4", ref("3 John", "3John", 1, 2, 4)),
+        ("obadiah , verse 21", ref("Obadiah", "Obad", 1, 21)),
+        ("Philemon verse 1", ref("Philemon", "Phlm", 1, 1)),
+        ("so in Jude verse twenty-four we read", ref("Jude", "Jude", 1, 24)),
+    ],
+)
+def test_p13_extra_phrasings(text: str, expected: Reference) -> None:
+    d = one(text)
+    assert d.pattern == "P13"
+    assert d.reference == expected
+    assert d.contextual is False and d.alternatives == ()
+
+
+def test_p13_chapter_is_one_not_chapter_only() -> None:
+    d = one("jude verse 3")
+    assert d.reference.chapter == 1 and not d.chapter_only
+
+
+def test_p13_non_consecutive_list_takes_the_first_verse_only() -> None:
+    found = detect("jude verses 3 , 5 and 8")
+    assert found[0].pattern == "P13"
+    assert found[0].reference == ref("Jude", "Jude", 1, 3)
+
+
+def test_p13_consumes_its_words_so_p12_cannot_attach_them_to_the_previous_passage() -> None:
+    found = run("john 3 : 16 and then", 1.0, "jude verse 3").detections
+    assert [(d.pattern, d.reference.display, d.contextual) for d in found] == [
+        ("P2", "John 3:16", False),
+        ("P13", "Jude 1:3", False),
+    ]
+
+
+def test_p13_names_its_own_book_and_borrows_nothing() -> None:
+    d = run("romans 8 : 28 and then", 1.0, "third john , verse two").detections[1]
+    assert (d.pattern, d.contextual, d.carried_from) == ("P13", False, None)
+    assert d.book_match == BookMatchInfo("exact", 0)
+    assert d.token_span[1] - d.token_span[0] == 4  # "3 john , verse 2"
+
+
+def test_p13_becomes_the_context_for_later_fragments() -> None:
+    found = run("jude verse 3 and then", 1.0, "verse 5 and verses 7 through 8").detections
+    assert [(d.pattern, d.reference.display) for d in found] == [
+        ("P13", "Jude 1:3"),
+        ("P12", "Jude 1:5"),
+        ("P11", "Jude 1:7-8"),
+    ]
+    assert found[1].carried_from == found[0].token_span
+
+
+def test_p13_replaces_the_earlier_reference_as_the_context_for_a_fragment() -> None:
+    found = run("john 3 : 16 jude verse 3 and", 1.0, "verse 5").detections
+    assert [(d.pattern, d.reference.display) for d in found] == [
+        ("P2", "John 3:16"),
+        ("P13", "Jude 1:3"),
+        ("P12", "Jude 1:5"),
+    ]
+
+
+def test_p13_spans_timing_and_probabilities_cover_the_whole_match() -> None:
+    ws = words("so jude", 0.2, "verses fifteen to seventeen", 1.0, "amen")
+    ws[2].probability = 0.5
+    result = match_grammar(ws)
+    (d,) = result.detections
+    assert d.pattern == "P13"
+    assert d.word_span == (1, 5)
+    assert d.source_start == ws[1].start and d.source_end == ws[5].end
+    assert d.min_word_prob == 0.5 and len(d.word_probs) == 5
+
+
+def test_p13_detection_block_matches_the_cue_document_schema() -> None:
+    d = one("third john , verse two")
+    _validate("detection", d.detection_block())
+    _validate("reference", d.reference.to_dict())
+    assert d.detection_block()["pattern"] == "P13"
+
+
+def test_p13_fuzzy_book_still_requires_the_verse_keyword_and_a_number() -> None:
+    d = one("filemon verse 3")
+    assert (d.pattern, d.reference.display, d.book_match.tier) == ("P13", "Philemon 1:3", "fuzzy")
+    assert detect("filemon verse") == ()
+    assert detect("filemon") == ()
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "john verse two",  # John has 21 chapters: not P13, gate closed, nothing to carry from
+        "romans verse 8",
+        "genesis verses 1 to 3",
+        "psalm verse 23",
+        "1 john verse 4",  # 1 John has five chapters
+        "jude verse",  # no number
+        "jude verses and",
+        "he read jude verse",
+        "jude and verse 3",
+        "jude , the verse 3",
+        "the book of jude",
+    ],
+)
+def test_p13_does_not_match(text: str) -> None:
+    assert [d for d in detect(text) if d.pattern == "P13"] == []
+    assert detect(text) == ()
+
+
+def test_multi_chapter_book_with_verse_keyword_still_falls_through_to_p12() -> None:
+    found = run("romans 8 : 28 and then", 1.0, "john verse two").detections
+    assert [(d.pattern, d.reference.display, d.contextual) for d in found] == [
+        ("P2", "Romans 8:28", False),
+        ("P12", "Romans 8:2", True),
+    ]
+
+
+def test_jude_three_is_p9_chapter_three_not_a_verse() -> None:
+    d = one("jude three")
+    assert (d.pattern, d.reference) == ("P9", ref("Jude", "Jude", 3))
+    assert [(d.pattern, d.reference) for d in detect("jude 3")] == [("P9", ref("Jude", "Jude", 3))]
+
+
+@pytest.mark.parametrize(
+    ("text", "pattern", "expected"),
+    [
+        ("jude 1 : 3", "P2", ref("Jude", "Jude", 1, 3)),
+        ("jude chapter one verse three", "P4", ref("Jude", "Jude", 1, 3)),
+        ("jude chapter 1 verses 3 to 4", "P3", ref("Jude", "Jude", 1, 3, 4)),
+        ("jude 1 , 3", "P7", ref("Jude", "Jude", 1, 3)),
+        ("the first chapter of jude , verse 3", "P10", ref("Jude", "Jude", 1, 3)),
+        ("jude chapter one", "P5", ref("Jude", "Jude", 1)),
+    ],
+)
+def test_single_chapter_books_with_a_chapter_number_keep_their_earlier_pattern(
+    text: str, pattern: str, expected: Reference
+) -> None:
+    d = one(text)
+    assert (d.pattern, d.reference) == (pattern, expected)
 
 
 # -- context carry (P11, P12) ----------------------------------
@@ -951,10 +1152,9 @@ EXPECTED_FIXTURE_DETECTIONS = {
         ("P5", "Romans 8", False),
         ("P4", "Psalm 119:176", False),
         ("P8", "Philippians 4:13", False),
-        # "Third John, verse two": the grammar has no pattern for a verse in a single-chapter
-        # book (P1-P12 all need a chapter number or a prior reference), so "verse two" is
-        # carried from the nearest earlier reference. Pinned so any change is deliberate.
-        ("P12", "Philippians 4:2", True),
+        # "Third John, verse two" names its own single-chapter book: a full P13 reference,
+        # chapter 1, not a verse carried onto the Philippians passage before it.
+        ("P13", "3 John 1:2", False),
     ],
     "context-and-ambiguity": [
         ("P4", "Romans 8:28", False),
@@ -975,9 +1175,16 @@ EXPECTED_FIXTURE_DETECTIONS = {
     ],
 }
 
-# Labelled references the grammar cannot reach, with the reason. Asserted to stay unreachable
-# so that closing the gap forces this table to be updated.
-UNREACHABLE_LABELS = {("numbers-and-ordinals", "3 John 2")}
+
+def _label_reference(label: dict[str, Any]) -> str:
+    """The label's reference as the grammar prints it: a single-chapter book's ``3 John 2`` is
+    ``3 John 1:2`` (the fixtures omit the chapter the way the preacher does)."""
+    text: str = label["reference"]
+    book, _, rest = text.rpartition(" ")
+    found = load_canon().resolve(book)
+    if ":" not in rest and found is not None and found.chapter_count == 1:
+        return f"{found.name} 1:{rest}"
+    return text
 
 
 @pytest.mark.parametrize("name", FIXTURE_NAMES)
@@ -992,13 +1199,9 @@ def test_fixture_labels_are_all_found_with_matching_times(name: str) -> None:
     for label in load_labels(name):
         if label.get("negative"):
             continue
-        key = (name, label["reference"])
         hits = [d for d in result.detections if _overlaps(d, label["mention_span_s"])]
-        if key in UNREACHABLE_LABELS:
-            assert not any(label["reference"] in _ref_texts(d) for d in result.detections)
-            continue
         assert hits, label
-        book_chapter = label["reference"].split(":")[0]
+        book_chapter = _label_reference(label).split(":")[0]
         assert any(any(r.split(":")[0] == book_chapter for r in _ref_texts(d)) for d in hits), (
             label,
             [_ref_texts(d) for d in hits],
@@ -1057,7 +1260,7 @@ def test_long_fixture_runs_quickly() -> None:
 _VOCAB = (
     "john romans psalm psalms 1 corinthians first second third job mark acts chapter verse verses "
     "the of and through to , : - 3 8 16 19 20 119 one two twelve nineteen twenty eight hundred "
-    "blah philippines fourth".split()
+    "blah philippines fourth jude philemon obadiah".split()
 )
 
 
@@ -1087,3 +1290,17 @@ def test_random_word_streams_keep_every_invariant() -> None:
             assert d.reference.verse_end is None or d.reference.verse is not None
             for a in d.alternatives:
                 assert a.reference.osis == d.reference.osis
+
+
+def test_fixture_third_john_is_detected_and_does_not_carry_onto_philippians() -> None:
+    result = _fixture("numbers-and-ordinals")
+    (label,) = [x for x in load_labels("numbers-and-ordinals") if x["reference"] == "3 John 2"]
+    assert _label_reference(label) == "3 John 1:2"
+    (d,) = [d for d in result.detections if d.reference.osis == "3John"]
+    assert (d.pattern, d.reference, d.contextual) == ("P13", ref("3 John", "3John", 1, 2), False)
+    assert _overlaps(d, label["mention_span_s"], slack=0.0)
+    # "verse two" belongs to 3 John, so nothing is left to attach to Philippians 4.
+    assert not [d for d in result.detections if d.pattern in FRAGMENT_PATTERN_IDS]
+    assert [d.reference.display for d in result.detections if d.reference.osis == "Phil"] == [
+        "Philippians 4:13"
+    ]

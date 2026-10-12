@@ -6,6 +6,11 @@ pattern (``N`` or ``chapter N``, the openings of P1-P9) or is preceded by ``chap
 That gate is what keeps "he lost his job" from becoming the book of Job. The gate is applied to
 every tier, not only tiers 2 and 3: a book name with no number attached is never a reference.
 
+One further opening exists, for the five single-chapter books only (Obadiah, Philemon, 2 John,
+3 John, Jude): ``,? verse[s] N`` (P13), because a verse in those books is spoken with no chapter
+number ("Jude verse three"). Any other book followed by ``verse N`` ("John verse three") is
+still gated out.
+
 Tiers (named as in the Cue Document schema's ``book_match.tier``):
 
 1. ``exact``: canonical name or curated alias from the canon table (distance 0)
@@ -117,6 +122,12 @@ def number_follows(tokens: Sequence[str], end: int) -> bool:
     if _is_number(tokens[end]):
         return True
     return tokens[end] == "chapter" and end + 1 < len(tokens) and _is_number(tokens[end + 1])
+
+
+def verse_follows(tokens: Sequence[str], end: int) -> bool:
+    """True when ``,? verse[s] N`` starts at ``tokens[end]``: the opening of P13."""
+    i = end + 1 if end < len(tokens) and tokens[end] == "," else end
+    return i + 1 < len(tokens) and tokens[i] in ("verse", "verses") and _is_number(tokens[i + 1])
 
 
 def _chapter_of_precedes(tokens: Sequence[str], start: int) -> bool:
@@ -269,12 +280,19 @@ class BookMatcher:
         last_end = 0
         for e in range(1, len(tokens) + 1):
             follows = number_follows(tokens, e)
+            verse_gate = verse_follows(tokens, e)
             best: _Cand | None = None
             for s in range(max(last_end, e - _MAX_SPAN), e):
-                if not (follows or _chapter_of_precedes(tokens, s)):
+                open_to_any_book = follows or _chapter_of_precedes(tokens, s)
+                if not (open_to_any_book or verse_gate):
                     continue
                 cand = self._candidate(tokens, s, e)
-                if cand is not None and (best is None or _better(cand, best)):
+                if cand is None:
+                    continue
+                # `verse N` alone opens the gate for single-chapter books only.
+                if not open_to_any_book and cand.book.chapter_count != 1:
+                    continue
+                if best is None or _better(cand, best):
                     best = cand
             if best is not None:
                 out.append(BookMatch(best.book, best.tier, best.distance, best.start, best.end))

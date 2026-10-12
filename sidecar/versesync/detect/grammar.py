@@ -1,6 +1,6 @@
 """Stage 2 of reference detection: the grammar (docs/04-reference-detection.md section 4).
 
-Patterns P1-P12 run, in priority order, as regexes over T-10's search string. The first match
+Patterns P1-P13 run, in priority order, as regexes over T-10's search string. The first match
 wins and *consumes* its tokens, so a later and looser pattern can never re-match the same words:
 ``1 corinthians 6 : 19 - 20`` is one P1 range, not a P9 chapter plus stray numbers.
 
@@ -49,6 +49,8 @@ Documented tolerances beyond the section 4 table, each covered by tests:
 * P10's verse part accepts a range (``, verses 16 through 18``) and an optional comma.
 * P10's ordinal covers every ordinal chapter number, not only first to third
   (``the fourth chapter of ephesians``, ``the twenty third chapter of luke``).
+* P13 (``jude verse 3``, ``3 john , verses 2 to 4``) is a full reference to a single-chapter
+  book with the chapter read as 1. Its verse part takes the same comma list collapse as P3.
 """
 
 from __future__ import annotations
@@ -65,11 +67,13 @@ from versesync.detect.normalize import Normalized, WordLike, normalize_words
 DEFAULT_CONTEXT_WINDOW_S = 120.0
 DEFAULT_CONTEXT_WINDOW_TOKENS = 400
 
-PATTERN_IDS = tuple(f"P{i}" for i in range(1, 13))
-#: Patterns that name their own book and chapter. These are what P11/P12 can borrow from.
-FULL_PATTERN_IDS = PATTERN_IDS[:10]
+PATTERN_IDS = tuple(f"P{i}" for i in range(1, 14))
+#: Patterns that name their own book (and chapter, or for P13 the single chapter). These are
+#: what P11/P12 can borrow from. In priority order: P13 sits between P10 and P11 so that
+#: ``jude verse 3`` is consumed whole before P12 can take the bare ``verse 3``.
+FULL_PATTERN_IDS = (*PATTERN_IDS[:10], "P13")
 #: Verse-only fragments that need a preceding full reference to mean anything.
-FRAGMENT_PATTERN_IDS = PATTERN_IDS[10:]
+FRAGMENT_PATTERN_IDS = PATTERN_IDS[10:12]
 
 #: ``Alternative.reason`` for the Psalms concatenation ambiguity (docs/04 section 3.1).
 REASON_PSALMS_SPLIT = (
@@ -144,7 +148,7 @@ class Alternative:
 class Detection:
     """One grammar match: the unit T-13, T-17 and T-19 build on."""
 
-    pattern: str  # "P1" .. "P12"
+    pattern: str  # "P1" .. "P13"
     reference: Reference  # the first reading in the grammar's preference order
     alternatives: tuple[Alternative, ...]  # other readings of the same words; usually empty
     contextual: bool  # True for P11/P12: book and chapter were carried from an earlier mention
@@ -234,6 +238,11 @@ _TAILS: dict[str, tuple[re.Pattern[str], ...]] = {
         _tail(rf"(?: ,)? verses? {_verse_run(_RANGE_CONN)}"),
         _tail(rf"(?: ,)? verses? {_n('v')}"),
         _tail(""),
+    ),
+    # A verse in a single-chapter book: a verse range (or comma list), then a single verse.
+    "P13": (
+        _tail(rf"(?: ,)? verses? {_verse_run(_RANGE_CONN)}"),
+        _tail(rf"(?: ,)? verses? {_n('v')}"),
     ),
 }
 
@@ -357,6 +366,8 @@ class _Run:
         return v, e
 
     def _try(self, pid: str, bm: BookMatch) -> _Hit | None:
+        if pid == "P13" and bm.book.chapter_count != 1:
+            return None
         book_first, book_last = bm.start, bm.end - 1
         head_first = book_first
         if pid == "P10":
@@ -374,7 +385,12 @@ class _Run:
             if not self._numbers_only(book_last + 1, last):
                 continue
             groups = m.groupdict()
-            chapter = p10_chapter if pid == "P10" else int(groups["c"])
+            if pid == "P10":
+                chapter = p10_chapter
+            elif pid == "P13":
+                chapter = 1  # the book has one chapter, never spoken
+            else:
+                chapter = int(groups["c"])
             verse: int | None = None
             verse_end: int | None = None
             if "e" in groups:
@@ -524,7 +540,7 @@ def match_grammar(
     canon: Canon | None = None,
     matcher: BookMatcher | None = None,
 ) -> GrammarResult:
-    """Run P1-P12 over a transcript word array.
+    """Run P1-P13 over a transcript word array.
 
     Normalises with T-10, resolves books with T-11 (gated), matches the grammar with span
     consumption and priority, then carries book and chapter onto P11/P12 fragments that sit

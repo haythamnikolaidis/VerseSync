@@ -9,6 +9,7 @@ from versesync.detect.fuzzy import (
     levenshtein,
     load_matcher,
     number_follows,
+    verse_follows,
 )
 
 
@@ -67,6 +68,76 @@ def test_number_in_the_middle_of_prose_gates_only_adjacent_word() -> None:
     # "job" is exact and adjacent to a number; "acts" is not adjacent to one.
     matches = find_books(toks("acts of kindness job 3"))
     assert [m.book.name for m in matches] == ["Job"]
+
+
+# -- the single-chapter gate (P13) ---------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("text", "name"),
+    [
+        ("jude verse 3", "Jude"),
+        ("jude , verse 3", "Jude"),
+        ("jude verses 3 to 4", "Jude"),
+        ("3 john , verse 2", "3 John"),
+        ("third john , verse 2", "3 John"),
+        ("2 john verse 5", "2 John"),
+        ("obadiah verses 15 to 17", "Obadiah"),
+        ("philemon verse 10 through 12", "Philemon"),
+        ("he read philemon verse 4", "Philemon"),
+    ],
+)
+def test_gate_opens_for_single_chapter_books_followed_by_verse_and_a_number(
+    text: str, name: str
+) -> None:
+    assert only(text).book.name == name
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "john verse 3",
+        "john , verse 3",
+        "1 john verse 4",
+        "romans verses 1 to 3",
+        "philippines verse 4",  # fuzzy candidate for a multi-chapter book
+        "job verse 3",
+        "he read jude verse",
+        "jude , verse and",
+        "jude verses",
+        "jude , ,",
+        "obadiah and verse 3",
+    ],
+)
+def test_gate_stays_closed_for_other_books_and_for_verse_without_a_number(text: str) -> None:
+    assert find_books(toks(text)) == []
+
+
+def test_fuzzy_single_chapter_book_needs_the_verse_gate_too() -> None:
+    m = only("filemon verse 3")
+    assert (m.book.name, m.tier) == ("Philemon", "fuzzy")
+    assert find_books(toks("filemon")) == []
+
+
+def test_single_chapter_book_followed_by_a_plain_number_is_unchanged() -> None:
+    assert only("jude 3").book.name == "Jude"
+    assert only("jude chapter 1").book.name == "Jude"
+
+
+def test_verse_gate_does_not_widen_the_chapter_of_form() -> None:
+    assert only("the first chapter of john").book.name == "John"
+
+
+def test_verse_follows() -> None:
+    assert verse_follows(toks("jude verse 3"), 1)
+    assert verse_follows(toks("jude verses 3"), 1)
+    assert verse_follows(toks("jude , verse 3"), 1)
+    assert not verse_follows(toks("jude verse"), 1)
+    assert not verse_follows(toks("jude , verse"), 1)
+    assert not verse_follows(toks("jude , 3"), 1)
+    assert not verse_follows(toks("jude verse three"), 1)
+    assert not verse_follows(toks("jude"), 1)
+    assert not verse_follows(toks("jude ,"), 1)
 
 
 # -- tier 1 -----------------------------------------------------------------------------
