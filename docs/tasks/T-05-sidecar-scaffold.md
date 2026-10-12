@@ -64,3 +64,25 @@ T-38's mock already implements this contract — read it, and keep the two consi
 - The token must be regenerated per launch, never persisted across runs.
 - `status: degraded` is a real state, not an error — no GPU or an unreachable provider means
   "will serve, but tell the editor why" ([09 §2](../09-ui-spec.md)).
+
+## Status
+
+- **Met** — `curl` gets a health response with the token, `401` without it: `tests/test_server_auth.py`
+  (`test_health_is_unauthenticated_and_has_the_contract_shape`, `test_protected_route_without_token_is_401_with_no_body`,
+  `test_wrong_token_is_401_with_no_body`, `test_subprocess_end_to_end` against `python -m versesync.sidecar`).
+  `/health` is the unauthenticated route; every other route needs the bearer token and an allowlisted `Origin`.
+- **Met** (POSIX) / **Deferred** (Windows ACL) — Two sidecars cannot both claim the lock; a stale lock (dead PID) is cleared:
+  `tests/test_lockfile.py` (`test_second_sidecar_cannot_claim_a_live_lock`, `test_stale_lock_with_a_dead_pid_is_cleared`,
+  `test_concurrent_processes_race_for_the_lock`). **Deferred — needs a Windows machine** for the user-only ACL
+  and the Windows PID-liveness probe (the `icacls` command line is unit-tested with a stub). Steps:
+  1. `python -m versesync.sidecar --print-token`.
+  2. `icacls %APPDATA%\VerseSync\sidecar.json` shows only the current user with `(F)` and no inherited entries.
+  3. In a second terminal run the same command: it exits with code 3 and "already running".
+  4. Kill the first with `taskkill /F /PID <pid>` (the lock stays behind), start again: it starts and replaces the lock.
+- **Met** — The bound socket is loopback-only: `test_socket_is_bound_to_loopback_only`,
+  `test_server_has_no_way_to_choose_a_host`.
+- **Met** — Idle self-exit fires: `test_idle_self_exit_fires`, `test_idle_exit_waits_for_active_jobs_and_clients`,
+  `test_requests_reset_the_idle_clock`, and the subprocess exits 0 and releases its lock in `test_subprocess_end_to_end`.
+- **Deferred — needs T-42** (`tests/contract/` does not exist yet). Steps once it lands: run
+  `pytest tests/contract` against `python -m versesync.sidecar --print-token` and confirm the `/health`, `401`,
+  `Origin` rejection and `X-VerseSync-Api` assertions pass.
