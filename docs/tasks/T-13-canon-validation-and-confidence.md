@@ -65,3 +65,13 @@ human in the loop, and a low-confidence true positive is far cheaper to surface 
 - Suppression must survive into the Cue Document as flagged rows, not vanish.
 - The tuning pass is **T-34**, not T-31. (Doc [04 §6](../04-reference-detection.md) previously
   cited the wrong ID.)
+
+## Status
+
+- [x] "Jude 5:1", "Psalm 151:1" and "John 3:100" are all rejected. **Met** — `tests/test_validation.py::test_impossible_references_are_rejected` (parametrised over all three and more).
+- [x] A reversed range swaps when valid and drops the end when not. **Met** — `test_reversed_range_swaps_when_the_swap_validates`, `test_reversed_range_drops_the_end_when_the_swap_is_invalid`.
+- [x] Confidence is deterministic and every weight is a named constant. **Met** — `tests/test_confidence.py::test_scores_are_deterministic` and `test_weights_are_named_constants_summing_to_one`; the constants are `WEIGHT_*`, `BOOK_SCORE_*`, `STRUCTURE_*`, `VALIDATION_*` in `detector.py`. They are specified-initial values from docs/04 section 6, not tuned; T-34 tunes them.
+- [x] Duplicate suppression collapses repeats within the window and retains them flagged. **Met** — `test_repeat_inside_the_window_is_retained_and_suppressed`, `test_three_repeats_give_one_cue_and_two_suppressed_rows` (rows carry `suppressed=True` and the `suppressed_duplicate` flag).
+- [x] Structure scores match docs/04 section 6 (1.0 / 0.75 / 0.55 / 0.45). **Met** — `test_structure_scores_match_the_spec` and the per-structure tests in `tests/test_confidence.py`.
+
+Notes: the amber threshold stays at the documented 0.55 (open question Q-E, resolved by T-34); the fuzzy-distance penalty (`FUZZY_DISTANCE_STEP`) is an initial form for "scaled by distance", which the spec leaves undefined. `apply_corroboration` is the hook T-18 calls for the +0.10 bonus.
