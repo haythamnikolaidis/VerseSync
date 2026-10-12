@@ -23,7 +23,7 @@ do not quietly emit something different.
 
 ## Steps
 
-1. Build the document per [07 §5](../07-sidecar-api.md): `schema_version` (`"1.0"`),
+1. Build the document per [07 §5](../07-sidecar-api.md): `schema_version` (`"1.1"`),
    `generated_at`, `job`, `translation`, `transcript`, `cues[]`, `warnings[]`.
 2. Populate every cue field: reference object and `reference_display`, `body`,
    `body_word_count`, `body_truncated`, the four timing fields, `classification`,

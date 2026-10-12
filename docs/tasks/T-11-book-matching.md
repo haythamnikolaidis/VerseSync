@@ -34,7 +34,9 @@ The mechanism that makes fuzzy matching safe is **the number-follows gate**. Rea
 3. **Tier 3 — fuzzy.** Levenshtein ≤ 2 for candidates of length ≥ 6, ≤ 1 for shorter, against
    canonical names and aliases. Double Metaphone as a secondary phonetic signal.
 4. **The gate:** tiers 2 and 3 fire **only** when the candidate is immediately followed by a
-   number pattern matching P1–P10. Without a following number they must not match at all.
+   number pattern matching P1–P10 — or, for the single-chapter books (Obadiah, Philemon,
+   2 John, 3 John, Jude) only, by `,? verse[s] N` (pattern P13, "jude verse three"). Without
+   a following number they must not match at all.
 5. **The short-name restriction:** *Job, Mark, Acts, Numbers, Judges, Ruth, James, Amos* match
    at **tier 1 only**, never fuzzy. Their edit neighbourhoods in English are too dense.
 6. Return the matched book **and the tier and distance** — [04 §6](../04-reference-detection.md)
@@ -53,6 +55,9 @@ The mechanism that makes fuzzy matching safe is **the number-follows gate**. Rea
       acts dead"*, *"mark my words"*.
 - [ ] Every seed confusion entry resolves to the right book.
 - [ ] Short high-frequency names never resolve via fuzzy.
+- [ ] The gate opens for a single-chapter book followed by `verse[s] N` ("jude verse three",
+      "third john , verse two") and stays closed for other books ("john verse three" and
+      "he read jude verse" produce no tier 2/3 match).
 - [ ] Tier and distance are returned and correct.
 
 ## Traps

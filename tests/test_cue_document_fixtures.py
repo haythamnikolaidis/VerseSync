@@ -20,6 +20,17 @@ def test_fixture_validates(name: str) -> None:
     assert errors == []
 
 
+def test_p13_pattern_is_accepted() -> None:
+    with (FIXTURES_DIR / "happy-18-cues.json").open("r", encoding="utf-8") as f:
+        document = json.load(f)
+
+    document["cues"][0]["detection"]["pattern"] = "P13"
+    assert validate(document) == []
+
+    document["cues"][0]["detection"]["pattern"] = "P14"
+    assert any("pattern" in e for e in validate(document))
+
+
 def test_corrupted_copy_fails_with_a_useful_message() -> None:
     with (FIXTURES_DIR / "happy-18-cues.json").open("r", encoding="utf-8") as f:
         document = json.load(f)

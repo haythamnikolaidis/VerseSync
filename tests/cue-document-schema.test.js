@@ -17,6 +17,17 @@ FIXTURES.forEach(function (name) {
   });
 });
 
+test('pattern P13 is accepted and an unknown pattern is rejected', function () {
+  var document = JSON.parse(
+    fs.readFileSync(path.join(FIXTURES_DIR, 'happy-18-cues.json'), 'utf8')
+  );
+  document.cues[0].detection.pattern = 'P13';
+  assert.deepStrictEqual(validateCueDocument.validate(document), []);
+
+  document.cues[0].detection.pattern = 'P14';
+  assert.ok(validateCueDocument.validate(document).some(function (e) { return e.indexOf('pattern') !== -1; }));
+});
+
 test('a corrupted copy fails with a useful message', function () {
   var document = JSON.parse(
     fs.readFileSync(path.join(FIXTURES_DIR, 'happy-18-cues.json'), 'utf8')
