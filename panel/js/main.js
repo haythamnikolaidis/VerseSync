@@ -32,7 +32,32 @@
     });
   }
 
+  // Sidecar status strip (docs/09 §2). Outside CEP there is no process API, so it stays idle.
+  function initSidecar() {
+    var el = document.getElementById('sidecar-status');
+    if (!window.__adobe_cep__ || !window.cep) {
+      el.textContent = 'Transcription service: not available outside Premiere';
+      return;
+    }
+    var cs = new CSInterface();
+    var client = VSSidecar.create(VSSidecar.cepPlatform({
+      cep: window.cep,
+      appData: cs.getSystemPath(SystemPath.USER_DATA)
+    }));
+    function render(status) {
+      var strip = VSSidecar.computeStrip(status, true);
+      el.textContent = strip.text + (strip.detail ? ' \u2014 ' + strip.detail.message +
+        ' Log: ' + strip.detail.logPath : '');
+    }
+    client.onStatus(render);
+    client.connect().then(function () {
+      return client.resumeJob({});
+    });
+    window.VSSidecarClient = client;
+  }
+
   function init() {
+    initSidecar();
     btnPing.addEventListener('click', ping);
 
     // Load the host script explicitly before any other call; bypasses the ScriptPath cache.
