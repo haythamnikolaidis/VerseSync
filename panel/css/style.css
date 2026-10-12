@@ -1,0 +1,85 @@
+/* VerseSync panel styles — dark theme matching Premiere Pro */
+
+:root {
+  --bg:          #1a1a1a;
+  --bg-raised:   #2a2a2a;
+  --border:      #444444;
+  --accent:      #21ACE2;
+  --text:        #e0e0e0;
+  --text-dim:    #999999;
+  --text-error:  #f05050;
+  --text-ok:     #6dba6d;
+  --btn-bg:      #3d3d3d;
+  --btn-hover:   #4a4a4a;
+  --radius:      4px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Adobe Clean', 'Segoe UI', Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-x: hidden;
+  min-width: 0;
+}
+
+.vs-panel {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.vs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+
+.vs-header h1 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+}
+
+.vs-btn {
+  background: var(--btn-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px 10px;
+  font: inherit;
+  cursor: pointer;
+}
+.vs-btn:hover:not(:disabled) { background: var(--btn-hover); }
+.vs-btn:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.vs-btn:disabled { opacity: 0.4; cursor: default; }
+
+.vs-status {
+  color: var(--text-dim);
+  min-height: 1.5em;
+}
+.vs-status--ok { color: var(--text-ok); }
+.vs-status--error { color: var(--text-error); }
+
+.vs-diag {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-family: Consolas, monospace;
+  font-size: 11px;
+}
