@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "description": "Curated ASR mishearings of book names (docs/04 section 4.1, tier 2). 'heard' is matched against normalised tokens; 'book' is a canonical book name, or a numbered-book family name (Samuel, Kings, Chronicles, Corinthians, Thessalonians, Timothy, Peter, John) which then needs a spoken ordinal prefix to resolve. Grow this file from observed mishearings in the fixture corpus.",
+  "entries": [
+    { "heard": "philippines", "book": "Philippians" },
+    { "heard": "philippi ans", "book": "Philippians" },
+    { "heard": "collations", "book": "Colossians" },
+    { "heard": "colossions", "book": "Colossians" },
+    { "heard": "tight us", "book": "Titus" },
+    { "heard": "titus's", "book": "Titus" },
+    { "heard": "have a cook", "book": "Habakkuk" },
+    { "heard": "habakuk", "book": "Habakkuk" },
+    { "heard": "habbakuk", "book": "Habakkuk" },
+    { "heard": "ecclesiasties", "book": "Ecclesiastes" },
+    { "heard": "ecclesiastes'", "book": "Ecclesiastes" },
+    { "heard": "thessalonica ns", "book": "Thessalonians" },
+    { "heard": "thessalonian", "book": "Thessalonians" },
+    { "heard": "thesalonians", "book": "Thessalonians" },
+    { "heard": "deuter onomy", "book": "Deuteronomy" },
+    { "heard": "deuteronomy's", "book": "Deuteronomy" },
+    { "heard": "zachariah", "book": "Zechariah" },
+    { "heard": "zecharia", "book": "Zechariah" },
+    { "heard": "nehemia", "book": "Nehemiah" },
+    { "heard": "nehamiah", "book": "Nehemiah" }
+  ]
+}
