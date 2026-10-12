@@ -181,7 +181,7 @@ arithmetic loses precision. VerseFlow's risk R4.
   upgraded to string arithmetic. A 45-minute sermon is comfortably inside the safe range, but
   VerseSync computes far more tick values than VerseFlow did.
 
-### R-13 — `activeSequence` can silently change between panel calls 🟠 Medium / technical
+### R-13 — `activeSequence` can silently change between panel calls 🟡 Mitigation specified
 
 Discovered during T-04. `app.project.activeSequence` tracks Premiere's UI
 tab focus, not panel intent — and a script-side assignment to it does not
@@ -196,13 +196,21 @@ into the wrong sequence, with no error. This is the same failure shape R-4's
 mitigation was built to avoid (a confidently wrong result with no warning),
 just at the sequence-identity level rather than the clip-placement level.
 
-- **Mitigation (not yet implemented):** re-verify the target sequence's
-  identity immediately before `VS.insertCues` runs (e.g. compare against
-  the sequence captured when cues were generated) and abort with a clear
-  error if it changed, rather than trusting `activeSequence` to still mean
-  what it meant earlier in the flow.
-- **Action:** needs a decision before T-25/T-30 ship — tracked against
-  those tasks.
+- **Decision (project owner): verify and abort.** The panel captures the
+  target sequence's `sequenceID` (from `VS.getMediaSegments`, which
+  `VS.getSequenceInfo` also reports) when cues are mapped to sequence time.
+  `VS.insertCues` receives it and, before inserting anything, compares it to
+  `app.project.activeSequence.sequenceID`. On mismatch it inserts nothing,
+  opens no undo group, and returns the typed error `sequence_changed` with
+  an editor-facing message telling them to switch back to the original
+  sequence tab. The panel keeps the review state so a second click on Insert
+  succeeds once they have. Specified in [08](08-premiere-host-api.md) §6.2
+  (`hostApi` 1.1); surfaced in [09](09-ui-spec.md) §6.
+- **Status:** mitigation specified, not yet implemented or verified in
+  Premiere. The host side is built by [T-25](tasks/T-25-host-insert-cues.md)
+  (with `sequenceID` reporting in T-23 / T-24), the panel side by
+  [T-30](tasks/T-30-panel-insert-orchestration.md). The host stub and
+  fixtures already implement the contract.
 
 ### R-12 — Sermon audio privacy 🟢 Low / trust
 

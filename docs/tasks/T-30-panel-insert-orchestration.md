@@ -7,7 +7,7 @@
 | **Estimate** | M |
 | **Prereqs** | T-25, T-29 |
 | **Unblocks** | T-31 |
-| **Spec** | [09-ui-spec.md §6](../09-ui-spec.md) · [03 §4](../03-architecture.md) · [08 §6, §8](../08-premiere-host-api.md) |
+| **Spec** | [09-ui-spec.md §6](../09-ui-spec.md) · [03 §4](../03-architecture.md) · [08 §6, §6.2, §8](../08-premiere-host-api.md) · risk R-13 in [12](../12-decisions-and-risks.md) |
 
 ## Goal
 
@@ -21,8 +21,12 @@ landed. **This is where Journey A completes.**
    carrying a blocking flag.
 2. Call **`VS.validateTrack`** with the ranges about to be written. If existing clips would be
    overwritten, confirm first: *"3 of your cues will overwrite existing clips on V3. Continue?"*
-3. Build the payload — `{atTicks, durationTicks, reference, body}` per enabled cue — and **sort
-   ascending by `atTicks`**. The host asserts this; the panel guarantees it.
+3. Build the payload — the captured `sequenceID` plus `{atTicks, durationTicks, reference,
+   body}` per enabled cue — and **sort ascending by `atTicks`**. The host asserts this; the panel
+   guarantees it. The `sequenceID` is the one returned by the `VS.getMediaSegments` call that
+   mapped these cues to sequence time (T-28), held in panel state next to the mapped cues; it is
+   not read afresh at click time, which would defeat the guard. If none was captured (cues never
+   mapped), refuse with a stated reason rather than sending an empty one.
 4. Call **`VS.insertCues` once**. Not once per cue — the single call is what keeps the whole
    batch inside one undo group.
 5. Render progress from `com.versesync.progress` CSXS events; disable setup and review controls
@@ -31,8 +35,13 @@ landed. **This is where Journey A completes.**
    failures expandable. **Retain review state** so a partial failure can be fixed and re-run on
    only the affected cues.
 7. Say **"One Ctrl+Z reverts the whole batch"** in the summary the first time it happens.
-8. Handle the edge states in [09 §7](../09-ui-spec.md): all cues disabled, job failed, provider
-   down.
+8. Handle a `VS.insertCues` error with `code: "sequence_changed"`
+   ([08 §6.2](../08-premiere-host-api.md)): show the host's `error` text verbatim in the summary
+   area ([09 §6](../09-ui-spec.md)), report no `Placed N of M` line (nothing was attempted), keep
+   the review state, re-enable Insert, and do not retry or re-map automatically. Branch on `code`,
+   never on the message text.
+9. Handle the edge states in [09 §7](../09-ui-spec.md): all cues disabled, job failed, provider
+   down, active sequence changed.
 
 ## Files
 
@@ -46,11 +55,19 @@ landed. **This is where Journey A completes.**
 - [ ] A deliberately failing cue produces a partial summary and the rest still land.
 - [ ] `validateTrack` confirmation appears when a populated track is targeted.
 - [ ] Every validation refusal states its reason.
+- [ ] The insert payload carries the `sequenceID` captured when the cues were mapped, not one read
+      at click time (unit test with the host stub: map on one sequence, switch the stub scenario,
+      insert).
+- [ ] Switching to another sequence tab after Analyse and clicking Insert shows the
+      `sequence_changed` message, inserts nothing, keeps the review list intact, and a second click
+      after switching back places the cues.
 
 ## Traps
 
 - Sort before sending. An unsorted payload is rejected by the host with *"Internal error: cues
   must be sorted by time"* — which is a bug in this task, not in the host.
 - Times must already be frame-snapped by `timemap.js` (T-28). The host does not re-snap.
+- Do not fetch `sequenceID` from `VS.getSequenceInfo` at insert time to fill in the payload —
+  that reads whichever tab is focused now and makes the guard always pass.
 - Do not disable the review list after a failed insert — retaining state is what makes a partial
   failure recoverable.

@@ -56,10 +56,11 @@ persist across separate `evalScript` calls. Since the panel calls
 `VS.getMediaSegments` and `VS.insertCues` ([T-25](T-25-host-insert-cues.md))
 as separate round-trips with editor interaction in between, the editor
 switching sequence tabs in that window could cause `VS.insertCues` to
-silently target the wrong sequence. This needs a decision — re-verify the
-target sequence's identity immediately before inserting and abort if it
-changed, at minimum — tracked in
-[12-decisions-and-risks.md](../12-decisions-and-risks.md).
+silently target the wrong sequence. Resolved as risk R-13 (verify and abort):
+this function reports `sequenceID` (step 3), the panel captures it, and
+`VS.insertCues` refuses to insert if it no longer matches — see
+[12-decisions-and-risks.md](../12-decisions-and-risks.md) and
+[08 §6.2](../08-premiere-host-api.md).
 
 The failure mode this guards against: silently mis-mapping a cue puts a graphic at a
 confidently wrong time. **Reporting nothing is better than reporting something wrong** — the
@@ -74,7 +75,10 @@ against bad data.
 2. For each clip, compare `clip.projectItem.getMediaPath()` to the target using the
    **normalisation rule T-04 established**: forward/back slashes, UNC paths, Windows
    case-insensitivity. Compare normalised lowercase strings.
-3. Emit per matching segment: `trackType`, `trackIndex`, `seqStartTicks`, `seqEndTicks`,
+3. Include `sequenceID` (the walked sequence's `sequenceID`) at the top of `data`, alongside
+   `matched`, `segments` and `unsupported`, on every successful response including
+   `matched: false`. The panel keeps it as the insert target
+   ([08 §4, §6.2](../08-premiere-host-api.md)). Emit per matching segment: `trackType`, `trackIndex`, `seqStartTicks`, `seqEndTicks`,
    `inPointTicks`, `durationTicks`, `speed`, `name` — all ticks as **strings**.
 4. Any segment with `speed !== 1.0` goes into **`unsupported`** with a reason. v1 does not
    support speed-changed segments (accepted, risk R-6); the panel flags affected cues
@@ -96,6 +100,8 @@ against bad data.
 - [ ] Both video and audio tracks are walked.
 - [ ] Speed-changed segments appear in `unsupported`, not in `segments`.
 - [ ] Media absent from the sequence returns `matched: false`.
+- [ ] Every response carries `sequenceID`, equal to what `getSequenceInfo` reports for the same
+      sequence.
 - [ ] One walk on the longest available sequence completes in acceptable time.
 - [ ] Output matches the T-39 fixture shapes exactly, so swapping stub for real is a no-op.
 

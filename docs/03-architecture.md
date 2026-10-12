@@ -112,15 +112,18 @@ broken sidecar never blocks a review-and-insert pass.
 11. Panel calls `VS.getMediaSegments({mediaPath})` → the media's placements in the current
     sequence.
 12. Panel maps every cue's source anchor to **sequence time**, applies frame snapping, resolves
-    overlaps, marks cut-from-edit cues, and renders the **review list**.
+    overlaps, marks cut-from-edit cues, and renders the **review list**. The `sequenceID`
+    returned by `VS.getMediaSegments` is kept in panel state as the insert target (risk R-13).
 
 ### Journey B — insert
 
 1. Panel validates: sequence open, both fields mapped and distinct, ≥1 enabled cue, target
    track selected, no enabled cue still flagged blocking.
-2. Panel builds the insert payload — for each enabled cue, `{atTicks, durationTicks,
-   reference, body}` — sorted by `atTicks`.
-3. Panel calls `VS.insertCues` **once**. The host, inside one undo group, loops:
+2. Panel builds the insert payload — the captured `sequenceID` plus, for each enabled cue,
+   `{atTicks, durationTicks, reference, body}` — sorted by `atTicks`.
+3. Panel calls `VS.insertCues` **once**. The host first compares `sequenceID` with the active
+   sequence and, if they differ, inserts nothing and returns a `sequence_changed` error. Otherwise,
+   inside one undo group, it loops:
    `importMGT(path, atTicks, trackIndex, 0)` → `getMGTComponent()` → write both fields by index
    → set duration → dispatch a progress event.
 4. Host returns a per-cue success/failure summary; the panel reports what landed.
