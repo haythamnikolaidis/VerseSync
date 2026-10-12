@@ -14,6 +14,8 @@ from versesync.detect.detector import (
     DetectorConfig,
     ScoredDetection,
     detect_references,
+    score_detection,
+    suppress_duplicates,
     validate_detection,
     validate_reference,
 )
@@ -236,3 +238,60 @@ def test_suppressed_rows_survive_in_transcript_order() -> None:
     rows = found("john 3 : 16", 5.0, "romans 8 : 28", 5.0, "john 3 : 16")
     assert [r.reference.display for r in rows] == ["John 3:16", "Romans 8:28", "John 3:16"]
     assert [r.suppressed for r in rows] == [False, False, True]
+
+
+# -- exact boundaries -----------------------------------------------------------------------
+
+
+def _at(start: float) -> ScoredDetection:
+    det = Detection(
+        pattern="P8",
+        reference=ref("John", 3, 16),
+        alternatives=(),
+        contextual=False,
+        book_match=BookMatchInfo("exact", 0),
+        token_span=(0, 3),
+        word_span=(0, 3),
+        source_start=start,
+        source_end=start + 1.0,
+        word_probs=(0.9,),
+    )
+    return score_detection(det)
+
+
+def test_cooldown_boundary_is_inclusive() -> None:
+    exactly = suppress_duplicates([_at(0.0), _at(60.0)])
+    just_over = suppress_duplicates([_at(0.0), _at(60.5)])
+    assert [r.suppressed for r in exactly] == [False, True]
+    assert [r.suppressed for r in just_over] == [False, False]
+
+
+def test_suppression_keeps_every_row_and_the_scores() -> None:
+    rows = suppress_duplicates([_at(0.0), _at(10.0)])
+    assert len(rows) == 2
+    assert rows[1].confidence == rows[0].confidence == 0.975
+    assert rows[1].reference == rows[0].reference
+
+
+def test_reversed_range_wider_than_max_range_drops_the_end_and_keeps_the_written_start() -> None:
+    assert validate_reference(ref("Ps", 119, 60, 1), CANON, 30) == ref("Ps", 119, 60)
+
+
+def test_chapter_only_reference_has_no_end() -> None:
+    assert validate_reference(ref("John", 3), CANON, 30) == ref("John", 3)
+
+
+def test_chapter_and_verse_boundaries() -> None:
+    assert validate_reference(ref("John", 3, 37), CANON, 30) is None
+    assert validate_reference(ref("John", 3, 36), CANON, 30) == ref("John", 3, 36)
+    assert validate_reference(ref("John", 22), CANON, 30) is None
+    assert validate_reference(ref("John", 21), CANON, 30) == ref("John", 21)
+    assert validate_reference(ref("John", 0, 1), CANON, 30) is None
+
+
+def test_duplicate_readings_after_repair_collapse() -> None:
+    det = match_grammar(words("john 3 : 16")).detections[0]
+    twin = replace(det, alternatives=(Alternative(ref("John", 3, 16), "same"),))
+    result = validate_detection(twin, CANON)
+    assert result is not None
+    assert result[0].alternatives == ()
