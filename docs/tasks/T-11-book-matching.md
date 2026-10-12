@@ -62,3 +62,10 @@ The mechanism that makes fuzzy matching safe is **the number-follows gate**. Rea
   raise recall in tier 2 by adding observed mishearings instead.
 - Match against **normalised** tokens from T-10, not raw text, or "have a cook" (three tokens)
   will never be tried against "Habakkuk".
+
+## Status
+
+- **Met** — negative fixtures ("he lost his job", "faith without works acts dead", "mark my words") produce zero matches: `tests/test_book_matching.py::test_no_following_number_means_no_match`.
+- **Met** — every seed confusion entry resolves to the right book: `test_every_seed_confusion_resolves_to_its_book` (all entries in `confusions.json`; Thessalonians entries are exercised with an ordinal prefix).
+- **Met** — short high-frequency names never resolve via fuzzy: `test_short_names_never_resolve_via_fuzzy`, `test_short_names_match_at_tier_one`, `test_no_fuzzy_match_may_land_on_an_exact_only_book`.
+- **Met** — tier and distance are returned and correct: `test_exact_tier_and_distance`, `test_curated_tier_reports_alias_with_zero_distance`, `test_fuzzy_reports_tier_and_distance`, `test_phonetic_key_widens_long_candidates_by_one_edit`.
