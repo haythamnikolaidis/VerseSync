@@ -29,3 +29,6 @@ select = ["E", "F", "I"]
 files = ["sidecar"]
 python_version = "3.11"
 ignore_missing_imports = true
+
+[tool.setuptools.package-data]
+"versesync.detect" = ["data/*.json"]

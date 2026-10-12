@@ -1,0 +1,544 @@
+{
+  "schema_version": 1,
+  "versification": "KJV",
+  "source": {
+    "name": "scrollmapper/bible_databases KJV.json (King James Version, public domain)",
+    "url": "https://raw.githubusercontent.com/scrollmapper/bible_databases/master/formats/json/KJV.json",
+    "sha256": "f0b09dc49dfb97bb84f03aae1fbf026485048c3cab31a7a41017e2d86ac1d11c"
+  },
+  "totals": {
+    "books": 66,
+    "chapters": 1189,
+    "verses": 31102
+  },
+  "books": [
+    {
+      "order": 1,
+      "name": "Genesis",
+      "osis": "Gen",
+      "aliases": ["Genesis", "Gen", "Ge", "Gn"],
+      "chapter_count": 50,
+      "verse_counts": [31, 25, 24, 26, 32, 22, 24, 22, 29, 32, 32, 20, 18, 24, 21, 16, 27, 33, 38, 18, 34, 24, 20, 67, 34, 35, 46, 22, 35, 43, 55, 32, 20, 31, 29, 43, 36, 30, 23, 23, 57, 38, 34, 34, 28, 34, 31, 22, 33, 26]
+    },
+    {
+      "order": 2,
+      "name": "Exodus",
+      "osis": "Exod",
+      "aliases": ["Exodus", "Exod", "Exo", "Ex", "Exd"],
+      "chapter_count": 40,
+      "verse_counts": [22, 25, 22, 31, 23, 30, 25, 32, 35, 29, 10, 51, 22, 31, 27, 36, 16, 27, 25, 26, 36, 31, 33, 18, 40, 37, 21, 43, 46, 38, 18, 35, 23, 35, 35, 38, 29, 31, 43, 38]
+    },
+    {
+      "order": 3,
+      "name": "Leviticus",
+      "osis": "Lev",
+      "aliases": ["Leviticus", "Lev", "Le", "Lv"],
+      "chapter_count": 27,
+      "verse_counts": [17, 16, 17, 35, 19, 30, 38, 36, 24, 20, 47, 8, 59, 57, 33, 34, 16, 30, 37, 27, 24, 33, 44, 23, 55, 46, 34]
+    },
+    {
+      "order": 4,
+      "name": "Numbers",
+      "osis": "Num",
+      "aliases": ["Numbers", "Num", "Nu", "Nm", "Nb"],
+      "chapter_count": 36,
+      "verse_counts": [54, 34, 51, 49, 31, 27, 89, 26, 23, 36, 35, 16, 33, 45, 41, 50, 13, 32, 22, 29, 35, 41, 30, 25, 18, 65, 23, 31, 40, 16, 54, 42, 56, 29, 34, 13]
+    },
+    {
+      "order": 5,
+      "name": "Deuteronomy",
+      "osis": "Deut",
+      "aliases": ["Deuteronomy", "Deut", "Deu", "Dt"],
+      "chapter_count": 34,
+      "verse_counts": [46, 37, 29, 49, 33, 25, 26, 20, 29, 22, 32, 32, 18, 29, 23, 22, 20, 22, 21, 20, 23, 30, 25, 22, 19, 19, 26, 68, 29, 20, 30, 52, 29, 12]
+    },
+    {
+      "order": 6,
+      "name": "Joshua",
+      "osis": "Josh",
+      "aliases": ["Joshua", "Josh", "Jos", "Jsh"],
+      "chapter_count": 24,
+      "verse_counts": [18, 24, 17, 24, 15, 27, 26, 35, 27, 43, 23, 24, 33, 15, 63, 10, 18, 28, 51, 9, 45, 34, 16, 33]
+    },
+    {
+      "order": 7,
+      "name": "Judges",
+      "osis": "Judg",
+      "aliases": ["Judges", "Judg", "Jdg", "Jg", "Jdgs"],
+      "chapter_count": 21,
+      "verse_counts": [36, 23, 31, 24, 31, 40, 25, 35, 57, 18, 40, 15, 25, 20, 20, 31, 13, 31, 30, 48, 25]
+    },
+    {
+      "order": 8,
+      "name": "Ruth",
+      "osis": "Ruth",
+      "aliases": ["Ruth", "Ru", "Rth"],
+      "chapter_count": 4,
+      "verse_counts": [22, 23, 18, 22]
+    },
+    {
+      "order": 9,
+      "name": "1 Samuel",
+      "osis": "1Sam",
+      "aliases": ["1 Samuel", "First Samuel", "1st Samuel", "I Samuel", "1 Sam", "First Sam", "1st Sam", "I Sam", "1 Sa", "First Sa", "1st Sa", "I Sa", "1 Sm", "First Sm", "1st Sm", "I Sm"],
+      "chapter_count": 31,
+      "verse_counts": [28, 36, 21, 22, 12, 21, 17, 22, 27, 27, 15, 25, 23, 52, 35, 23, 58, 30, 24, 42, 15, 23, 29, 22, 44, 25, 12, 25, 11, 31, 13]
+    },
+    {
+      "order": 10,
+      "name": "2 Samuel",
+      "osis": "2Sam",
+      "aliases": ["2 Samuel", "Second Samuel", "2nd Samuel", "II Samuel", "2 Sam", "Second Sam", "2nd Sam", "II Sam", "2 Sa", "Second Sa", "2nd Sa", "II Sa", "2 Sm", "Second Sm", "2nd Sm", "II Sm"],
+      "chapter_count": 24,
+      "verse_counts": [27, 32, 39, 12, 25, 23, 29, 18, 13, 19, 27, 31, 39, 33, 37, 23, 29, 33, 43, 26, 22, 51, 39, 25]
+    },
+    {
+      "order": 11,
+      "name": "1 Kings",
+      "osis": "1Kgs",
+      "aliases": ["1 Kings", "First Kings", "1st Kings", "I Kings", "1 Kgs", "First Kgs", "1st Kgs", "I Kgs", "1 Ki", "First Ki", "1st Ki", "I Ki", "1 Kin", "First Kin", "1st Kin", "I Kin", "1 King", "First King", "1st King", "I King"],
+      "chapter_count": 22,
+      "verse_counts": [53, 46, 28, 34, 18, 38, 51, 66, 28, 29, 43, 33, 34, 31, 34, 34, 24, 46, 21, 43, 29, 53]
+    },
+    {
+      "order": 12,
+      "name": "2 Kings",
+      "osis": "2Kgs",
+      "aliases": ["2 Kings", "Second Kings", "2nd Kings", "II Kings", "2 Kgs", "Second Kgs", "2nd Kgs", "II Kgs", "2 Ki", "Second Ki", "2nd Ki", "II Ki", "2 Kin", "Second Kin", "2nd Kin", "II Kin", "2 King", "Second King", "2nd King", "II King"],
+      "chapter_count": 25,
+      "verse_counts": [18, 25, 27, 44, 27, 33, 20, 29, 37, 36, 21, 21, 25, 29, 38, 20, 41, 37, 37, 21, 26, 20, 37, 20, 30]
+    },
+    {
+      "order": 13,
+      "name": "1 Chronicles",
+      "osis": "1Chr",
+      "aliases": ["1 Chronicles", "First Chronicles", "1st Chronicles", "I Chronicles", "1 Chr", "First Chr", "1st Chr", "I Chr", "1 Chron", "First Chron", "1st Chron", "I Chron", "1 Ch", "First Ch", "1st Ch", "I Ch"],
+      "chapter_count": 29,
+      "verse_counts": [54, 55, 24, 43, 26, 81, 40, 40, 44, 14, 47, 40, 14, 17, 29, 43, 27, 17, 19, 8, 30, 19, 32, 31, 31, 32, 34, 21, 30]
+    },
+    {
+      "order": 14,
+      "name": "2 Chronicles",
+      "osis": "2Chr",
+      "aliases": ["2 Chronicles", "Second Chronicles", "2nd Chronicles", "II Chronicles", "2 Chr", "Second Chr", "2nd Chr", "II Chr", "2 Chron", "Second Chron", "2nd Chron", "II Chron", "2 Ch", "Second Ch", "2nd Ch", "II Ch"],
+      "chapter_count": 36,
+      "verse_counts": [17, 18, 17, 22, 14, 42, 22, 18, 31, 19, 23, 16, 22, 15, 19, 14, 19, 34, 11, 37, 20, 12, 21, 27, 28, 23, 9, 27, 36, 27, 21, 33, 25, 33, 27, 23]
+    },
+    {
+      "order": 15,
+      "name": "Ezra",
+      "osis": "Ezra",
+      "aliases": ["Ezra", "Ezr", "Ez"],
+      "chapter_count": 10,
+      "verse_counts": [11, 70, 13, 24, 17, 22, 28, 36, 15, 44]
+    },
+    {
+      "order": 16,
+      "name": "Nehemiah",
+      "osis": "Neh",
+      "aliases": ["Nehemiah", "Neh", "Ne"],
+      "chapter_count": 13,
+      "verse_counts": [11, 20, 32, 23, 19, 19, 73, 18, 38, 39, 36, 47, 31]
+    },
+    {
+      "order": 17,
+      "name": "Esther",
+      "osis": "Esth",
+      "aliases": ["Esther", "Esth", "Est", "Es"],
+      "chapter_count": 10,
+      "verse_counts": [22, 23, 15, 17, 14, 14, 10, 17, 32, 3]
+    },
+    {
+      "order": 18,
+      "name": "Job",
+      "osis": "Job",
+      "aliases": ["Job", "Jb"],
+      "chapter_count": 42,
+      "verse_counts": [22, 13, 26, 21, 27, 30, 21, 22, 35, 22, 20, 25, 28, 22, 35, 22, 16, 21, 29, 29, 34, 30, 17, 25, 6, 14, 23, 28, 25, 31, 40, 22, 33, 37, 16, 33, 24, 41, 30, 24, 34, 17]
+    },
+    {
+      "order": 19,
+      "name": "Psalms",
+      "osis": "Ps",
+      "aliases": ["Psalms", "Psalm", "Ps", "Psa", "Psl", "Pslm", "Pss", "Psalter", "The Psalms", "The Psalm"],
+      "chapter_count": 150,
+      "verse_counts": [6, 12, 8, 8, 12, 10, 17, 9, 20, 18, 7, 8, 6, 7, 5, 11, 15, 50, 14, 9, 13, 31, 6, 10, 22, 12, 14, 9, 11, 12, 24, 11, 22, 22, 28, 12, 40, 22, 13, 17, 13, 11, 5, 26, 17, 11, 9, 14, 20, 23, 19, 9, 6, 7, 23, 13, 11, 11, 17, 12, 8, 12, 11, 10, 13, 20, 7, 35, 36, 5, 24, 20, 28, 23, 10, 12, 20, 72, 13, 19, 16, 8, 18, 12, 13, 17, 7, 18, 52, 17, 16, 15, 5, 23, 11, 13, 12, 9, 9, 5, 8, 28, 22, 35, 45, 48, 43, 13, 31, 7, 10, 10, 9, 8, 18, 19, 2, 29, 176, 7, 8, 9, 4, 8, 5, 6, 5, 6, 8, 8, 3, 18, 3, 3, 21, 26, 9, 8, 24, 13, 10, 7, 12, 15, 21, 10, 20, 14, 9, 6]
+    },
+    {
+      "order": 20,
+      "name": "Proverbs",
+      "osis": "Prov",
+      "aliases": ["Proverbs", "Prov", "Pro", "Prv", "Pr", "Proverb"],
+      "chapter_count": 31,
+      "verse_counts": [33, 22, 35, 27, 23, 35, 27, 36, 18, 32, 31, 28, 25, 35, 33, 33, 28, 24, 29, 30, 31, 29, 35, 34, 28, 28, 27, 28, 27, 33, 31]
+    },
+    {
+      "order": 21,
+      "name": "Ecclesiastes",
+      "osis": "Eccl",
+      "aliases": ["Ecclesiastes", "Eccl", "Eccles", "Ecc", "Ec", "Qoheleth", "Koheleth"],
+      "chapter_count": 12,
+      "verse_counts": [18, 26, 22, 16, 20, 12, 29, 17, 18, 20, 10, 14]
+    },
+    {
+      "order": 22,
+      "name": "Song of Solomon",
+      "osis": "Song",
+      "aliases": ["Song of Solomon", "Song of Songs", "Song of Soloman", "Songs of Solomon", "Song of Sol", "Songs of Songs", "Song", "Songs", "SOS", "SS", "Canticles", "Canticle", "Canticle of Canticles", "Cant", "Sg"],
+      "chapter_count": 8,
+      "verse_counts": [17, 17, 11, 16, 16, 13, 13, 14]
+    },
+    {
+      "order": 23,
+      "name": "Isaiah",
+      "osis": "Isa",
+      "aliases": ["Isaiah", "Isa"],
+      "chapter_count": 66,
+      "verse_counts": [31, 22, 26, 6, 30, 13, 25, 22, 21, 34, 16, 6, 22, 32, 9, 14, 14, 7, 25, 6, 17, 25, 18, 23, 12, 21, 13, 29, 24, 33, 9, 20, 24, 17, 10, 22, 38, 22, 8, 31, 29, 25, 28, 28, 25, 13, 15, 22, 26, 11, 23, 15, 12, 17, 13, 12, 21, 14, 21, 22, 11, 12, 19, 12, 25, 24]
+    },
+    {
+      "order": 24,
+      "name": "Jeremiah",
+      "osis": "Jer",
+      "aliases": ["Jeremiah", "Jer", "Je", "Jr"],
+      "chapter_count": 52,
+      "verse_counts": [19, 37, 25, 31, 31, 30, 34, 22, 26, 25, 23, 17, 27, 22, 21, 21, 27, 23, 15, 18, 14, 30, 40, 10, 38, 24, 22, 17, 32, 24, 40, 44, 26, 22, 19, 32, 21, 28, 18, 16, 18, 22, 13, 30, 5, 28, 7, 47, 39, 46, 64, 34]
+    },
+    {
+      "order": 25,
+      "name": "Lamentations",
+      "osis": "Lam",
+      "aliases": ["Lamentations", "Lam", "La", "Lamentation"],
+      "chapter_count": 5,
+      "verse_counts": [22, 22, 66, 22, 22]
+    },
+    {
+      "order": 26,
+      "name": "Ezekiel",
+      "osis": "Ezek",
+      "aliases": ["Ezekiel", "Ezek", "Eze", "Ezk"],
+      "chapter_count": 48,
+      "verse_counts": [28, 10, 27, 17, 17, 14, 27, 18, 11, 22, 25, 28, 23, 23, 8, 63, 24, 32, 14, 49, 32, 31, 49, 27, 17, 21, 36, 26, 21, 26, 18, 32, 33, 31, 15, 38, 28, 23, 29, 49, 26, 20, 27, 31, 25, 24, 23, 35]
+    },
+    {
+      "order": 27,
+      "name": "Daniel",
+      "osis": "Dan",
+      "aliases": ["Daniel", "Dan", "Da", "Dn"],
+      "chapter_count": 12,
+      "verse_counts": [21, 49, 30, 37, 31, 28, 28, 27, 27, 21, 45, 13]
+    },
+    {
+      "order": 28,
+      "name": "Hosea",
+      "osis": "Hos",
+      "aliases": ["Hosea", "Hos", "Ho"],
+      "chapter_count": 14,
+      "verse_counts": [11, 23, 5, 19, 15, 11, 16, 14, 17, 15, 12, 14, 16, 9]
+    },
+    {
+      "order": 29,
+      "name": "Joel",
+      "osis": "Joel",
+      "aliases": ["Joel", "Joe", "Jl"],
+      "chapter_count": 3,
+      "verse_counts": [20, 32, 21]
+    },
+    {
+      "order": 30,
+      "name": "Amos",
+      "osis": "Amos",
+      "aliases": ["Amos", "Amo"],
+      "chapter_count": 9,
+      "verse_counts": [15, 16, 15, 13, 27, 14, 17, 14, 15]
+    },
+    {
+      "order": 31,
+      "name": "Obadiah",
+      "osis": "Obad",
+      "aliases": ["Obadiah", "Obad", "Oba", "Ob"],
+      "chapter_count": 1,
+      "verse_counts": [21]
+    },
+    {
+      "order": 32,
+      "name": "Jonah",
+      "osis": "Jonah",
+      "aliases": ["Jonah", "Jon", "Jnh"],
+      "chapter_count": 4,
+      "verse_counts": [17, 10, 10, 11]
+    },
+    {
+      "order": 33,
+      "name": "Micah",
+      "osis": "Mic",
+      "aliases": ["Micah", "Mic", "Mi"],
+      "chapter_count": 7,
+      "verse_counts": [16, 13, 12, 13, 15, 16, 20]
+    },
+    {
+      "order": 34,
+      "name": "Nahum",
+      "osis": "Nah",
+      "aliases": ["Nahum", "Nah", "Na"],
+      "chapter_count": 3,
+      "verse_counts": [15, 13, 19]
+    },
+    {
+      "order": 35,
+      "name": "Habakkuk",
+      "osis": "Hab",
+      "aliases": ["Habakkuk", "Hab", "Hb"],
+      "chapter_count": 3,
+      "verse_counts": [17, 20, 19]
+    },
+    {
+      "order": 36,
+      "name": "Zephaniah",
+      "osis": "Zeph",
+      "aliases": ["Zephaniah", "Zeph", "Zep", "Zp"],
+      "chapter_count": 3,
+      "verse_counts": [18, 15, 20]
+    },
+    {
+      "order": 37,
+      "name": "Haggai",
+      "osis": "Hag",
+      "aliases": ["Haggai", "Hag", "Hg"],
+      "chapter_count": 2,
+      "verse_counts": [15, 23]
+    },
+    {
+      "order": 38,
+      "name": "Zechariah",
+      "osis": "Zech",
+      "aliases": ["Zechariah", "Zech", "Zec", "Zc"],
+      "chapter_count": 14,
+      "verse_counts": [21, 13, 10, 14, 11, 15, 14, 23, 17, 12, 17, 14, 9, 21]
+    },
+    {
+      "order": 39,
+      "name": "Malachi",
+      "osis": "Mal",
+      "aliases": ["Malachi", "Mal", "Ml"],
+      "chapter_count": 4,
+      "verse_counts": [14, 17, 18, 6]
+    },
+    {
+      "order": 40,
+      "name": "Matthew",
+      "osis": "Matt",
+      "aliases": ["Matthew", "Matt", "Mat", "Mt"],
+      "chapter_count": 28,
+      "verse_counts": [25, 23, 17, 25, 48, 34, 29, 34, 38, 42, 30, 50, 58, 36, 39, 28, 27, 35, 30, 34, 46, 46, 39, 51, 46, 75, 66, 20]
+    },
+    {
+      "order": 41,
+      "name": "Mark",
+      "osis": "Mark",
+      "aliases": ["Mark", "Mrk", "Mar", "Mk", "Mr"],
+      "chapter_count": 16,
+      "verse_counts": [45, 28, 35, 41, 43, 56, 37, 38, 50, 52, 33, 44, 37, 72, 47, 20]
+    },
+    {
+      "order": 42,
+      "name": "Luke",
+      "osis": "Luke",
+      "aliases": ["Luke", "Luk", "Lk"],
+      "chapter_count": 24,
+      "verse_counts": [80, 52, 38, 44, 39, 49, 50, 56, 62, 42, 54, 59, 35, 35, 32, 31, 37, 43, 48, 47, 38, 71, 56, 53]
+    },
+    {
+      "order": 43,
+      "name": "John",
+      "osis": "John",
+      "aliases": ["John", "Joh", "Jhn", "Jn"],
+      "chapter_count": 21,
+      "verse_counts": [51, 25, 36, 54, 47, 71, 53, 59, 41, 42, 57, 50, 38, 31, 27, 33, 26, 40, 42, 31, 25]
+    },
+    {
+      "order": 44,
+      "name": "Acts",
+      "osis": "Acts",
+      "aliases": ["Acts", "Act", "Ac", "Acts of the Apostles", "The Acts"],
+      "chapter_count": 28,
+      "verse_counts": [26, 47, 26, 37, 42, 15, 60, 40, 43, 48, 30, 25, 52, 28, 41, 40, 34, 28, 41, 38, 40, 30, 35, 27, 27, 32, 44, 31]
+    },
+    {
+      "order": 45,
+      "name": "Romans",
+      "osis": "Rom",
+      "aliases": ["Romans", "Rom", "Ro", "Rm"],
+      "chapter_count": 16,
+      "verse_counts": [32, 29, 31, 25, 21, 23, 25, 39, 33, 21, 36, 21, 14, 23, 33, 27]
+    },
+    {
+      "order": 46,
+      "name": "1 Corinthians",
+      "osis": "1Cor",
+      "aliases": ["1 Corinthians", "First Corinthians", "1st Corinthians", "I Corinthians", "1 Cor", "First Cor", "1st Cor", "I Cor", "1 Co", "First Co", "1st Co", "I Co"],
+      "chapter_count": 16,
+      "verse_counts": [31, 16, 23, 21, 13, 20, 40, 13, 27, 33, 34, 31, 13, 40, 58, 24]
+    },
+    {
+      "order": 47,
+      "name": "2 Corinthians",
+      "osis": "2Cor",
+      "aliases": ["2 Corinthians", "Second Corinthians", "2nd Corinthians", "II Corinthians", "2 Cor", "Second Cor", "2nd Cor", "II Cor", "2 Co", "Second Co", "2nd Co", "II Co"],
+      "chapter_count": 13,
+      "verse_counts": [24, 17, 18, 18, 21, 18, 16, 24, 15, 18, 33, 21, 14]
+    },
+    {
+      "order": 48,
+      "name": "Galatians",
+      "osis": "Gal",
+      "aliases": ["Galatians", "Gal", "Ga"],
+      "chapter_count": 6,
+      "verse_counts": [24, 21, 29, 31, 26, 18]
+    },
+    {
+      "order": 49,
+      "name": "Ephesians",
+      "osis": "Eph",
+      "aliases": ["Ephesians", "Eph", "Ephes"],
+      "chapter_count": 6,
+      "verse_counts": [23, 22, 21, 32, 33, 24]
+    },
+    {
+      "order": 50,
+      "name": "Philippians",
+      "osis": "Phil",
+      "aliases": ["Philippians", "Phil", "Php", "Pp"],
+      "chapter_count": 4,
+      "verse_counts": [30, 30, 21, 23]
+    },
+    {
+      "order": 51,
+      "name": "Colossians",
+      "osis": "Col",
+      "aliases": ["Colossians", "Col", "Co"],
+      "chapter_count": 4,
+      "verse_counts": [29, 23, 25, 18]
+    },
+    {
+      "order": 52,
+      "name": "1 Thessalonians",
+      "osis": "1Thess",
+      "aliases": ["1 Thessalonians", "First Thessalonians", "1st Thessalonians", "I Thessalonians", "1 Thess", "First Thess", "1st Thess", "I Thess", "1 Thes", "First Thes", "1st Thes", "I Thes", "1 Th", "First Th", "1st Th", "I Th"],
+      "chapter_count": 5,
+      "verse_counts": [10, 20, 13, 18, 28]
+    },
+    {
+      "order": 53,
+      "name": "2 Thessalonians",
+      "osis": "2Thess",
+      "aliases": ["2 Thessalonians", "Second Thessalonians", "2nd Thessalonians", "II Thessalonians", "2 Thess", "Second Thess", "2nd Thess", "II Thess", "2 Thes", "Second Thes", "2nd Thes", "II Thes", "2 Th", "Second Th", "2nd Th", "II Th"],
+      "chapter_count": 3,
+      "verse_counts": [12, 17, 18]
+    },
+    {
+      "order": 54,
+      "name": "1 Timothy",
+      "osis": "1Tim",
+      "aliases": ["1 Timothy", "First Timothy", "1st Timothy", "I Timothy", "1 Tim", "First Tim", "1st Tim", "I Tim", "1 Ti", "First Ti", "1st Ti", "I Ti", "1 Tm", "First Tm", "1st Tm", "I Tm"],
+      "chapter_count": 6,
+      "verse_counts": [20, 15, 16, 16, 25, 21]
+    },
+    {
+      "order": 55,
+      "name": "2 Timothy",
+      "osis": "2Tim",
+      "aliases": ["2 Timothy", "Second Timothy", "2nd Timothy", "II Timothy", "2 Tim", "Second Tim", "2nd Tim", "II Tim", "2 Ti", "Second Ti", "2nd Ti", "II Ti", "2 Tm", "Second Tm", "2nd Tm", "II Tm"],
+      "chapter_count": 4,
+      "verse_counts": [18, 26, 17, 22]
+    },
+    {
+      "order": 56,
+      "name": "Titus",
+      "osis": "Titus",
+      "aliases": ["Titus", "Tit", "Ti"],
+      "chapter_count": 3,
+      "verse_counts": [16, 15, 15]
+    },
+    {
+      "order": 57,
+      "name": "Philemon",
+      "osis": "Phlm",
+      "aliases": ["Philemon", "Phlm", "Philem", "Phm", "Pm"],
+      "chapter_count": 1,
+      "verse_counts": [25]
+    },
+    {
+      "order": 58,
+      "name": "Hebrews",
+      "osis": "Heb",
+      "aliases": ["Hebrews", "Heb", "He"],
+      "chapter_count": 13,
+      "verse_counts": [14, 18, 19, 16, 14, 20, 28, 13, 28, 39, 40, 29, 25]
+    },
+    {
+      "order": 59,
+      "name": "James",
+      "osis": "Jas",
+      "aliases": ["James", "Jas", "Jm", "Jam"],
+      "chapter_count": 5,
+      "verse_counts": [27, 26, 18, 17, 20]
+    },
+    {
+      "order": 60,
+      "name": "1 Peter",
+      "osis": "1Pet",
+      "aliases": ["1 Peter", "First Peter", "1st Peter", "I Peter", "1 Pet", "First Pet", "1st Pet", "I Pet", "1 Pe", "First Pe", "1st Pe", "I Pe", "1 Pt", "First Pt", "1st Pt", "I Pt"],
+      "chapter_count": 5,
+      "verse_counts": [25, 25, 22, 19, 14]
+    },
+    {
+      "order": 61,
+      "name": "2 Peter",
+      "osis": "2Pet",
+      "aliases": ["2 Peter", "Second Peter", "2nd Peter", "II Peter", "2 Pet", "Second Pet", "2nd Pet", "II Pet", "2 Pe", "Second Pe", "2nd Pe", "II Pe", "2 Pt", "Second Pt", "2nd Pt", "II Pt"],
+      "chapter_count": 3,
+      "verse_counts": [21, 22, 18]
+    },
+    {
+      "order": 62,
+      "name": "1 John",
+      "osis": "1John",
+      "aliases": ["1 John", "First John", "1st John", "I John", "1 Jn", "First Jn", "1st Jn", "I Jn", "1 Jhn", "First Jhn", "1st Jhn", "I Jhn", "1 Joh", "First Joh", "1st Joh", "I Joh"],
+      "chapter_count": 5,
+      "verse_counts": [10, 29, 24, 21, 21]
+    },
+    {
+      "order": 63,
+      "name": "2 John",
+      "osis": "2John",
+      "aliases": ["2 John", "Second John", "2nd John", "II John", "2 Jn", "Second Jn", "2nd Jn", "II Jn", "2 Jhn", "Second Jhn", "2nd Jhn", "II Jhn", "2 Joh", "Second Joh", "2nd Joh", "II Joh"],
+      "chapter_count": 1,
+      "verse_counts": [13]
+    },
+    {
+      "order": 64,
+      "name": "3 John",
+      "osis": "3John",
+      "aliases": ["3 John", "Third John", "3rd John", "III John", "3 Jn", "Third Jn", "3rd Jn", "III Jn", "3 Jhn", "Third Jhn", "3rd Jhn", "III Jhn", "3 Joh", "Third Joh", "3rd Joh", "III Joh"],
+      "chapter_count": 1,
+      "verse_counts": [14]
+    },
+    {
+      "order": 65,
+      "name": "Jude",
+      "osis": "Jude",
+      "aliases": ["Jude", "Jud", "Jd"],
+      "chapter_count": 1,
+      "verse_counts": [25]
+    },
+    {
+      "order": 66,
+      "name": "Revelation",
+      "osis": "Rev",
+      "aliases": ["Revelation", "Rev", "Re", "Revelations", "The Revelation", "Revelation of John", "Revelation of Jesus Christ", "Apocalypse"],
+      "chapter_count": 22,
+      "verse_counts": [20, 29, 22, 11, 14, 17, 17, 13, 21, 11, 19, 17, 18, 20, 8, 21, 18, 24, 21, 15, 27, 21]
+    }
+  ]
+}

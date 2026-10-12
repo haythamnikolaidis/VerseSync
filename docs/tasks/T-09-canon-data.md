@@ -57,3 +57,20 @@ It is also the OSIS-id source for Bible API lookups ([06 §3](../06-bible-text-s
   valid references.
 - Aliases must be matched case- and punctuation-insensitively; normalise at load, not at every
   lookup.
+
+## Status
+
+- **Met** — 66 books, 1,189 chapters: `tests/test_canon.py::test_totals` (also 31,102 verses, and the
+  independent OT 929 / NT 260 chapter and 23,145 / 7,957 verse split in
+  `test_testament_split_cross_check`).
+- **Met** — Psalm 119 = 176 verses, Jude = 1 chapter, Obadiah = 21 verses, 3 John = 14 verses:
+  `test_known_counts`.
+- **Met** — every book resolves from its ordinal, abbreviated and spoken aliases:
+  `test_every_book_resolves_from_canonical_osis_and_aliases`,
+  `test_numbered_books_resolve_from_every_ordinal_form`, `test_spoken_and_abbreviated_forms`
+  (Psalm/Psalms and the Song of Solomon/Songs/Canticles family included).
+- **Met** — table loads in under 50 ms: `test_loads_in_under_50ms` (cold load, cache cleared).
+
+Source of verse counts (recorded in `tools/generate_canon.py` and in `canon.json`): KJV (1769,
+public domain) from the scrollmapper bible_databases `KJV.json`; only chapter/verse counts are
+used, no text is bundled.
