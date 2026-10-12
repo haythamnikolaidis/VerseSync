@@ -31,9 +31,11 @@ that was already paid for:
 ## Steps
 
 1. Port `VerseFlow.jsx` → `VerseSync.jsx`, namespace `VS`, keeping the polyfill and conventions.
-2. `VS.ping` → `{pong, version, hostApi}` for the health check and version handshake.
+2. `VS.ping` → `{pong, version, hostApi}` for the health check and version handshake;
+   `hostApi` is `"1.1"` ([08 §11](../08-premiere-host-api.md)).
 3. `VS.getSequenceInfo` — VerseFlow's version **extended** with `timebase`, `frameRate`,
-   `zeroPointTicks` and `endTicks` ([08 §3](../08-premiere-host-api.md)).
+   `zeroPointTicks`, `endTicks` and `sequenceID` (`app.project.activeSequence.sequenceID`; the
+   identity the insert guard compares, risk R-13) ([08 §3](../08-premiere-host-api.md)).
 4. `VS.getMogrtFields` — VerseFlow's logic **unchanged**. Keep all three detection strategies
    (`propertyType === 6`, then `=== 5`, then a `getValue()` probe for the substring
    `textEditValue`), the group-node handling for types `10` and `4`, the scratch-insert-past-
@@ -52,6 +54,9 @@ that was already paid for:
 - [ ] Field discovery returns **both** `Text` fields of `AV_Quote_04.mogrt` with **distinct
       indices** and group-qualified labels (`Title Main > Text`, `Description > Text`).
 - [ ] `getSequenceInfo` returns `timebase` as the real ticks-per-frame integer.
+- [ ] `getSequenceInfo` returns `sequenceID` as a non-empty string that differs between two open
+      sequences and is unchanged after renaming a sequence.
+- [ ] `ping` reports `hostApi: "1.1"`.
 - [ ] `setPlayhead` moves the playhead.
 - [ ] With no sequence open, every function returns the specified message, not an exception.
 

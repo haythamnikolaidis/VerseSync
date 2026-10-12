@@ -209,6 +209,19 @@ re-run on only the affected cues.
 
 **One Ctrl+Z reverts the whole batch.** Say so in the summary line the first time it happens.
 
+**Wrong sequence tab.** The sequence the cues were mapped against is captured when the panel
+calls `VS.getMediaSegments` ([08](08-premiere-host-api.md) §4) and sent with the insert. If the
+editor has clicked a different sequence tab in the meantime, the host inserts nothing and returns
+`sequence_changed` ([08](08-premiere-host-api.md) §6.2). The panel shows the host's message
+inline in the summary area, in the error style used for a failed insert:
+
+> *The active sequence in Premiere changed after these cues were generated. Switch back to the
+> original sequence tab, then click Insert again. Nothing was inserted.*
+
+There is no `Placed 0 of N` summary (nothing was attempted), no automatic retry, and no re-mapping
+to the new sequence. The review list and every edit stay intact; the Insert button re-enables so
+the editor can switch tabs and click it again.
+
 ---
 
 ## 7. Empty and edge states
@@ -221,6 +234,7 @@ re-run on only the affected cues.
 | All cues disabled | Insert disabled, *Enable at least one scripture to insert.* |
 | Bible provider down | Cues listed with `text_unavailable`; a banner offers **Retry text fetch** |
 | Job failed | The sidecar's `message` verbatim plus its `hint`, and a **Retry** button |
+| Active sequence changed since analysis | The `sequence_changed` message above, shown on Insert; review state retained, nothing inserted |
 
 ---
 

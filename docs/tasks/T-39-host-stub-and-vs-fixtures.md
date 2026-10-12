@@ -44,7 +44,10 @@ difference.
      indices** and group-qualified labels (see [08 §5](../08-premiere-host-api.md)).
 4. `insertCues` in the stub must **assert its input contract** — sorted ascending by `atTicks`,
    ticks as strings — and return the per-cue results shape. It should fail loudly when the
-   panel gets it wrong, since the real host does.
+   panel gets it wrong, since the real host does. Per risk R-13 it also requires `sequenceID`
+   and returns the `sequence_changed` error (fixture `insert-cues-sequence-changed.json`) when it
+   differs from the active scenario's sequence; the sequence and segments fixtures carry
+   `sequenceID` ([08 §6.2](../08-premiere-host-api.md)).
 5. Add a scenario switcher so tests and manual demos can pick a fixture set.
 
 ## Files

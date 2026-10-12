@@ -7,7 +7,7 @@
 | **Estimate** | L |
 | **Prereqs** | **T-03 (hard gate)**, T-23 |
 | **Unblocks** | T-30 |
-| **Spec** | [08-premiere-host-api.md §6, §8](../08-premiere-host-api.md) |
+| **Spec** | [08-premiere-host-api.md §6, §6.2, §8](../08-premiere-host-api.md) · risk R-13 in [12](../12-decisions-and-risks.md) |
 
 ## Goal
 
@@ -44,8 +44,16 @@ Note that `VF.insertOne` — which already takes an `atTicks` — is a closer st
 
 ## Steps
 
-1. Implement `VS.insertCues` per [08 §6](../08-premiere-host-api.md), taking `mogrtPath`,
-   `trackIndex`, `mapping` and a sorted `cues[]`.
+1. Implement `VS.insertCues` per [08 §6](../08-premiere-host-api.md), taking `sequenceID`,
+   `mogrtPath`, `trackIndex`, `mapping` and a sorted `cues[]`.
+   **First, verify the sequence** ([08 §6.2](../08-premiere-host-api.md), risk R-13): after
+   confirming a sequence is open, compare the request's `sequenceID` to
+   `app.project.activeSequence.sequenceID` by string equality. On mismatch return
+   `{"ok":false,"code":"sequence_changed","error":"…"}` with the exact
+   [08 §9](../08-premiere-host-api.md) message, having inserted nothing and without opening an
+   undo group. A missing or empty `sequenceID` returns the §9 internal-error message (no
+   `code`). This runs before the track check in step 3 — a track count read from the wrong
+   sequence is meaningless.
 2. **Assert the input contract** — cues sorted ascending by `atTicks` — and return the
    [08 §9](../08-premiere-host-api.md) error rather than silently misbehaving. The panel sorts;
    the host verifies.
@@ -88,6 +96,11 @@ Note that `VF.insertOne` — which already takes an `atTicks` — is a closer st
 - [ ] **One Ctrl+Z removes all of them.**
 - [ ] A deliberately broken cue is reported in `results` and the rest still land.
 - [ ] Unsorted input is rejected with the specified message.
+- [ ] With a different sequence tab focused than the one `sequenceID` names, the call returns
+      `code: "sequence_changed"` with the specified message, **nothing is inserted on either
+      sequence, and Edit > Undo does not show a VerseSync step**. Switching back and re-sending the
+      same payload succeeds.
+- [ ] A request with no `sequenceID` is rejected with the specified internal-error message.
 - [ ] `actualStartTicks` is read back and matches the request (or the mismatch is reported).
 - [ ] `validateTrack` correctly reports conflicts on a populated track.
 
@@ -106,5 +119,8 @@ Note that `VF.insertOne` — which already takes an `atTicks` — is a closer st
   overlap-resolution logic in `timemap.js` ([08 §10](../08-premiere-host-api.md)) — this cannot
   be caught or fixed on the host side, so the guarantee has to hold before `VS.insertCues` is
   ever called.
+- `app.project.activeSequence` follows UI tab focus and cannot be pinned from script (risk R-13).
+  Do not "fix" a mismatch by assigning `app.project.activeSequence` or calling `openSequence()` —
+  the assignment does not survive past the call. Verify and abort.
 - No time math, no scripture knowledge, no HTTP, no persistence in the host
   ([08 §10](../08-premiere-host-api.md)).

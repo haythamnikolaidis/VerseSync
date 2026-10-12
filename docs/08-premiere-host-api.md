@@ -13,7 +13,11 @@ document builds on rather than repeats.
 ## 1. Conventions (inherited, non-negotiable)
 
 1. Every function returns a **JSON string**: `{"ok":true,"data":…}` or
-   `{"ok":false,"error":"message"}`. **The host never throws across the bridge.**
+   `{"ok":false,"error":"message"}`. **The host never throws across the bridge.** An error
+   may also carry an optional machine-readable `code` (`{"ok":false,"error":"message",
+   "code":"sequence_changed"}`) when the panel must branch on the failure rather than just
+   display it. `error` is always present and always editor-readable; `code` is
+   lower_snake_case and listed in §9. Errors without a `code` are shown verbatim.
 2. Arguments arrive as a **single JSON string**, parsed inside the host.
 3. Everything hangs off one global `VS`.
 4. Helpers are `var fn = function(){}`, never `function fn(){}` — `$.evalFile()` does not hoist
@@ -31,7 +35,7 @@ document builds on rather than repeats.
 
 ```
 VS.ping("{}")
-→ { ok: true, data: { pong: true, version: "1.0.0", hostApi: "1.0" } }
+→ { ok: true, data: { pong: true, version: "1.0.0", hostApi: "1.1" } }
 ```
 
 Used for the health check and the version handshake.
@@ -46,6 +50,7 @@ Extends VerseFlow's version with everything the timing layer needs.
 VS.getSequenceInfo("{}")
 → { ok: true, data: {
       hasActiveSequence: true,
+      sequenceID: "6f1c2b7e-3a54-4d0e-9b6a-2c8d1e5f7a90",
       name: "Sermon 2026-08-09",
       videoTrackCount: 4,
       audioTrackCount: 6,
@@ -63,6 +68,11 @@ will produce cumulative drift across a 40-cue batch.
 
 `zeroPointTicks` is for **display timecode only** — see [05](05-timing-and-placement.md) §1.
 
+**`sequenceID`** is the active sequence's `sequence.sequenceID` — an opaque string that is stable
+for the life of the sequence (it survives renames and project save/reopen). It is the identity
+the panel captures for the insert guard in [§6](#6-vsinsertcues); compare it for equality only,
+never parse it. It is present whenever `hasActiveSequence` is `true`, and absent otherwise.
+
 ---
 
 ## 4. `VS.getMediaSegments`
@@ -73,6 +83,7 @@ mapping possible (FR-5.5).
 ```
 VS.getMediaSegments('{"mediaPath":"D:/Sermons/SERMON_A001.MXF"}')
 → { ok: true, data: {
+      sequenceID: "6f1c2b7e-3a54-4d0e-9b6a-2c8d1e5f7a90",
       matched: true,
       segments: [
         { trackType: "video", trackIndex: 2,
@@ -84,6 +95,12 @@ VS.getMediaSegments('{"mediaPath":"D:/Sermons/SERMON_A001.MXF"}')
       unsupported: []
    } }
 ```
+
+`sequenceID` identifies the sequence the walk was performed on (same value `VS.getSequenceInfo`
+reports for it). Every segment time in the response is relative to that sequence, so the panel
+captures this value alongside the segments when it maps cues to sequence time, and sends it back
+unchanged to `VS.insertCues` ([§6](#6-vsinsertcues)). It is present on every successful
+response, including `matched: false`.
 
 **Implementation:**
 
@@ -143,6 +160,7 @@ absolute times instead of being laid end to end from the playhead.
 
 ```json
 {
+  "sequenceID": "6f1c2b7e-3a54-4d0e-9b6a-2c8d1e5f7a90",
   "mogrtPath": "D:/Templates/AV_Quote_04.mogrt",
   "trackIndex": 2,
   "mapping": { "referenceIndex": 11, "bodyIndex": 3 },
@@ -162,6 +180,14 @@ absolute times instead of being laid end to end from the playhead.
 
 **Contract:**
 
+- **`sequenceID` is required** — the ID of the sequence the cue times were computed against, as
+  reported by `VS.getMediaSegments` (or `VS.getSequenceInfo`) when the panel mapped the cues.
+  Before it does anything else that touches the timeline — before validating the track, before
+  `beginUndoGroup` — the host compares it, by string equality, to
+  `app.project.activeSequence.sequenceID`. If they differ it **inserts nothing**, opens no undo
+  group, and returns the `sequence_changed` error (see [§6.2](#62-the-sequence-identity-guard)
+  and [§9](#9-error-strings)). A missing or empty `sequenceID` is a panel bug and is rejected
+  the same way, without a `code`.
 - `cues` **must** arrive sorted ascending by `atTicks`. The panel sorts; the host asserts and
   errors rather than silently misbehaving.
 - `atTicks` and `durationTicks` are already **frame-snapped** by the panel. The host does not
@@ -209,6 +235,38 @@ of a populated timeline, so the answer decides the design.
 **This is spike T-03 and it is the M1 hard gate.** Nothing else in the Premiere layer should be
 built until it has an answer.
 
+### 6.2 The sequence identity guard
+
+`app.project.activeSequence` follows Premiere's UI tab focus, not the panel's intent, and a
+script-side assignment to it does not survive past the `evalScript` call that made it (risk
+[R-13](12-decisions-and-risks.md)). The panel maps cues in one round-trip and inserts in a later
+one, with the editor free to click another sequence tab in between. The host therefore never
+trusts `activeSequence` to still mean what it meant earlier; it verifies and aborts.
+
+```
+VS.insertCues('{"sequenceID":"6f1c…7a90", …}')      // active sequence is now a different one
+→ { ok: false,
+    code: "sequence_changed",
+    error: "The active sequence in Premiere changed after these cues were generated. Switch back to the original sequence tab, then click Insert again. Nothing was inserted." }
+```
+
+Behaviour:
+
+- Order of checks in `VS.insertCues`: arguments well-formed, then an active sequence exists
+  (`Open a sequence in Premiere first.`), then **the identity guard**, then track and per-cue
+  validation, then the undo group. The guard sits before track validation because a track count
+  from the wrong sequence is meaningless.
+- On mismatch the timeline is untouched: no clips, no undo group, no progress events.
+- The panel keeps its review state, shows `error` verbatim, and does not retry or re-map on its
+  own. Once the editor has switched back, clicking Insert again succeeds with the same payload.
+  If they want the cues on the other sequence they must map against it first (a new
+  `VS.getMediaSegments` call, which captures that sequence's ID).
+- The ID is panel session state, not part of the Cue Document: the Cue Document schema
+  ([07](07-sidecar-api.md) §5) is unchanged.
+- `VS.validateTrack` is advisory and reads whichever sequence is active; it carries no
+  `sequenceID`. A stale validation can only produce a misleading warning, never a wrong insert,
+  because `VS.insertCues` re-checks.
+
 ---
 
 ## 7. `VS.setPlayhead`
@@ -250,6 +308,14 @@ Host errors are read by editors, not developers. Keep VerseFlow's tone:
 | `getMGTComponent()` null | `This template has no Motion Graphics component — it may not be an After Effects template.` |
 | Track index out of range | `Track V{n} no longer exists in this sequence. Click Refresh.` |
 | Unsorted cues | `Internal error: cues must be sorted by time. Please report this.` |
+| `sequenceID` does not match the active sequence | `The active sequence in Premiere changed after these cues were generated. Switch back to the original sequence tab, then click Insert again. Nothing was inserted.` — `code: "sequence_changed"` |
+| `sequenceID` missing or empty | `Internal error: insert request is missing the sequence ID. Please report this.` |
+
+Error codes defined so far (the only ones the panel branches on):
+
+| `code` | Returned by | Panel behaviour |
+|--------|-------------|-----------------|
+| `sequence_changed` | `VS.insertCues` | Show `error`; keep review state; nothing was inserted, so re-clicking Insert after switching back is safe. |
 
 ---
 
@@ -263,3 +329,17 @@ end-of-support clock on it (risk R-3), and the one that cannot be unit-tested.
 - No scripture knowledge whatsoever. The host receives two strings per cue and writes them.
 - No HTTP. The host never talks to the sidecar.
 - No persistence. `localStorage` lives in the panel.
+
+---
+
+## 11. Versioning
+
+`VS.ping` reports `hostApi` as `"MAJOR.MINOR"`. The panel warns on a mismatch
+([03](03-architecture.md) §6). Bump **MINOR** for a change a panel written against the previous
+minor still works with (new optional field, new function). Bump **MAJOR** when it does not
+(removed or renamed field, changed meaning of an existing field).
+
+| `hostApi` | Change |
+|-----------|--------|
+| `1.0` | Initial contract. |
+| `1.1` | R-13: `sequenceID` added to `VS.getSequenceInfo` and `VS.getMediaSegments` responses; `VS.insertCues` requires `sequenceID` and may return the `sequence_changed` error; error envelope gains optional `code`. `sequenceID` is a new required argument, which a strict reading would call breaking; it is bumped as a minor because the host and panel in this repository ship together and no `1.0` host has been released, so no existing consumer can send the old shape. |
