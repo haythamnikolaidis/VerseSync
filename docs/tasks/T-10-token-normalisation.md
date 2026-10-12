@@ -62,3 +62,17 @@ timestamp.
 - Do not resolve the "Psalm one nineteen" ambiguity here — this module emits both number
   tokens; [04 §3.1](../04-reference-detection.md)'s concatenation rule belongs to the grammar
   (T-12), which knows the book.
+
+## Status
+
+- **Met** — Every 04 §3.1 form passes, including "one hundred and nineteen", "twenty eight",
+  "first Corinthians", "twenty-eight": `test_spec_table_numbers`,
+  `test_every_number_to_176_spoken_and_digit` (every value 1-176 as words, words without "and",
+  hyphenated, and digits), `test_ordinal_prefix_forms_before_numbered_book`.
+- **Met** — Timestamps round-trip: `test_round_trip_regex_match_to_seconds`,
+  `test_round_trip_through_compound_number`, `test_token_fields_come_from_first_and_last_word_and_min_prob`,
+  `test_numbers_fixture_first_corinthians` (fixture corpus).
+- **Met** — Digits normalise identically to spoken forms:
+  `test_digits_and_spoken_forms_normalise_identically`.
+- **Met** — Offset map is exact: `test_offset_map_fuzz` (400 random token arrays; every character
+  offset maps to its token, separators map to -1).
