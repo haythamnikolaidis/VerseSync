@@ -37,9 +37,15 @@ prints the assigned port and bearer token, then blocks serving requests until Ct
 | `--die-mid-job` | **Kills the mock's own process** (`os._exit`) once a running job crosses 50% weighted progress, simulating a sidecar crash. The process is gone afterward — restart it for further testing. |
 | `--drop-sse` | The SSE stream for a job closes after 2 `progress` events, before `done`, regardless of the job's real progress — so the panel's polling fallback (NFR-3) can be exercised. The job itself keeps running and finishes normally; poll `GET /jobs/{id}` to see that. |
 | `--cache-hit` | Every job reports `cache_hit: true`, skips the `transcribing` phase, and the remaining phase weights are renormalised (so the job finishes in a few seconds — the "re-run visibly races through the bar" behaviour from [07 §4](../docs/07-sidecar-api.md)). |
-| `--api-version X.Y` | Overrides the `X-VerseSync-Api` response header and the lock file's `api_version`, to exercise the panel's version-mismatch path. Default `1.0`. |
+| `--api-version X.Y` | Overrides the `X-VerseSync-Api` response header and the lock file's `api_version`, to exercise the panel's version-mismatch path. Default `1.1`. |
 | `--allow-origin ORIGIN` (repeatable) | Restrict the Origin allowlist to specific values. Default: accept any *present* `Origin` header, reject a request with none. **The real CEP origin string isn't pinned down yet (T-22's job)** — tighten this once it is. |
 | `--no-lock-file` | Don't read/write `%APPDATA%\VerseSync\sidecar.json`. Useful for running more than one mock at a time, or in automated tests. |
+
+### Job options
+
+`POST /jobs` validates `options.timing` as in [07 §2](../docs/07-sidecar-api.md) (`duration_mode`
+`auto`|`fixed`, `fixed_duration_s` > 0 when fixed; otherwise `400 bad_request`) and echoes the
+resolved values in the result's `job.options.timing`. Fixture cue durations are not recomputed.
 
 ### The lock file and auth
 

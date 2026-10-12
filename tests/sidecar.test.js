@@ -189,7 +189,7 @@ test('cold start launches the sidecar and reaches ready', { skip: NO_PY }, async
   assert.strictEqual(client.getStatus().state, 'ready');
   assert.strictEqual(seen[0], 'starting', 'starting is shown before ready');
   assert.strictEqual(seen[seen.length - 1], 'ready');
-  assert.strictEqual(client.getStatus().health.api_version, '1.0');
+  assert.strictEqual(client.getStatus().health.api_version, '1.1');
 });
 
 test('reopening the panel reattaches instead of launching a second sidecar', { skip: NO_PY }, async function () {
@@ -297,6 +297,52 @@ test('--drop-sse switches to the polling fallback transparently', { skip: NO_PY 
   assert.strictEqual(rec.done.job_id, job.job_id);
   assert.ok(rec.progress.length > 2, 'progress kept flowing after the stream dropped');
   assert.strictEqual((await c.getResult(job.job_id)).ok, true);
+});
+
+test('POST /jobs accepts the fixed-duration override and the result echoes the resolved timing', { skip: NO_PY }, async function () {
+  var p = makePlatform({ flags: ['--duration', '1'] });
+  var c = VSSidecar.create(p);
+  await c.connect();
+  var body = Object.assign({}, JOB_BODY, {
+    options: { timing: { lead_in_s: 1, duration_mode: 'fixed', fixed_duration_s: 6 } }
+  });
+  var job = (await c.startJob(body)).data;
+  var rec = watch(c, job.job_id);
+  await until(function () { return rec.done || rec.failed; });
+  var doc = (await c.getResult(job.job_id)).data;
+  assert.deepStrictEqual(doc.job.options.timing, {
+    read_coverage_threshold: 0.55, lead_in_s: 1, tail_pad_s: 1.0, duration_mode: 'fixed', fixed_duration_s: 6
+  });
+});
+
+test('POST /jobs without timing options resolves the documented defaults', { skip: NO_PY }, async function () {
+  var p = makePlatform({ flags: ['--duration', '1'] });
+  var c = VSSidecar.create(p);
+  await c.connect();
+  var job = (await c.startJob(JOB_BODY)).data;
+  var rec = watch(c, job.job_id);
+  await until(function () { return rec.done || rec.failed; });
+  var doc = (await c.getResult(job.job_id)).data;
+  assert.deepStrictEqual(doc.job.options.timing, {
+    read_coverage_threshold: 0.55, lead_in_s: 0.5, tail_pad_s: 1.0, duration_mode: 'auto'
+  });
+});
+
+test('POST /jobs rejects an unknown duration_mode and a fixed mode without a positive duration', { skip: NO_PY }, async function () {
+  var p = makePlatform();
+  var c = VSSidecar.create(p);
+  await c.connect();
+  var bad = [
+    { duration_mode: 'sometimes' },
+    { duration_mode: 'fixed' },
+    { duration_mode: 'fixed', fixed_duration_s: 0 },
+    { duration_mode: 'fixed', fixed_duration_s: '6' }
+  ];
+  for (var i = 0; i < bad.length; i++) {
+    var r = await c.startJob(Object.assign({}, JOB_BODY, { options: { timing: bad[i] } }));
+    assert.strictEqual(r.ok, false, JSON.stringify(bad[i]));
+    assert.strictEqual(r.error.code, 'bad_request');
+  }
 });
 
 test('--fail model_load_failed: the sidecar message and hint come through verbatim', { skip: NO_PY }, async function () {

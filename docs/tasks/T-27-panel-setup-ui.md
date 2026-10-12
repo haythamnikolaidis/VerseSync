@@ -104,3 +104,8 @@ reason when absent. Outside Premiere the panel connects to a running mock when o
 is preselected if listed; a licensed translation is never chosen silently. Analyse sends the
 lead-in and duration mode as `options.timing.lead_in_s`, `duration_mode` and
 `fixed_duration_s`.
+The sidecar owns the fixed-duration override (it computes durations, D5), so this task made it a
+contract change per doc 13 section 8: `duration_mode` and `fixed_duration_s` were added to
+`options.timing` in doc 07 section 2, `api_version` moved to 1.1 (additive), the mock sidecar
+validates the options and echoes the resolved timing in the Cue Document's `job.options.timing`
+(golden fixtures updated), and doc 12 Errata records it. Tested in `tests/sidecar.test.js`.

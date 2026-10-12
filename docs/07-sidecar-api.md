@@ -16,7 +16,7 @@ Document** schema, which is both this API's payload and the on-disk save format 
 `%APPDATA%\VerseSync\sidecar.json`, written at startup with user-only ACLs:
 
 ```json
-{ "pid": 24880, "port": 51733, "token": "b7f3…", "api_version": "1.0",
+{ "pid": 24880, "port": 51733, "token": "b7f3…", "api_version": "1.1",
   "sidecar_version": "1.0.0", "started_at": "2026-08-09T10:14:22Z" }
 ```
 
@@ -38,7 +38,7 @@ an `Origin` allowlist is the minimum bar (NFR-4).
 | Header | Direction | Purpose |
 |--------|-----------|---------|
 | `Authorization: Bearer …` | request | Required on everything except `/health` |
-| `X-VerseSync-Api: 1.0` | response | API version; panel refuses a major mismatch |
+| `X-VerseSync-Api: 1.1` | response | API version (`major.minor`); panel refuses a major mismatch and accepts any newer minor. A minor bump is additive only (new optional request fields, new response fields); anything that removes or reinterprets a field is a major bump |
 | `Origin` | request | Allowlisted to the panel's CEP origin; others rejected |
 
 ---
@@ -50,7 +50,7 @@ an `Origin` allowlist is the minimum bar (NFR-4).
 Unauthenticated, cheap, safe to poll.
 
 ```json
-{ "status": "ready", "api_version": "1.0", "sidecar_version": "1.0.0",
+{ "status": "ready", "api_version": "1.1", "sidecar_version": "1.0.0",
   "device": "cuda", "model_loaded": "large-v3-turbo",
   "gpu": { "name": "NVIDIA RTX 4070", "vram_total_mb": 12282, "vram_free_mb": 9104 },
   "provider": { "id": "api_bible", "reachable": true },
@@ -104,10 +104,20 @@ Start an analysis. Returns immediately.
     "language": "en",
     "use_cache": true,
     "detection": { "context_window_s": 120, "duplicate_cooldown_s": 60 },
-    "timing":    { "read_coverage_threshold": 0.55, "lead_in_s": 0.5, "tail_pad_s": 1.0 }
+    "timing":    { "read_coverage_threshold": 0.55, "lead_in_s": 0.5, "tail_pad_s": 1.0,
+                   "duration_mode": "auto", "fixed_duration_s": 8.0 }
   }
 }
 ```
+
+Every `options` field is optional; omitted fields take the `config.yaml` value. In `timing`,
+`duration_mode` (`auto` | `fixed`) and `fixed_duration_s` carry the editor's global
+fixed-duration override (FR-5.4): the sidecar computes every cue's duration
+([05](05-timing-and-placement.md) §3.3), so with `duration_mode: "fixed"` each cue's
+`duration_s` is `fixed_duration_s` instead of the per-cue model. `fixed_duration_s` is
+required and must be a number greater than 0 when the mode is `fixed`, and is ignored when it
+is `auto`. An unknown `duration_mode` or an invalid `fixed_duration_s` is `400 bad_request`.
+The resolved timing options are echoed in the Cue Document's `job.options.timing` (§5).
 
 → `202 Accepted`
 
@@ -235,7 +245,7 @@ The sidecar's output, the panel's input, and the save format. **Versioned.**
     "quantization": "float16",
     "device": "cuda",
     "language": "en",
-    "options": { "…": "the resolved options actually used" }
+    "options": { "timing": { "duration_mode": "auto", "…": "the resolved options actually used" } }
   },
   "translation": {
     "id": "de4e12af7f28f599-02", "abbreviation": "KJV", "name": "King James Version",

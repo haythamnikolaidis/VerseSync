@@ -10,7 +10,8 @@
     "quantization": "float16",
     "device": "cuda",
     "language": "en",
-    "options": { "vad_filter": true, "initial_prompt": "scripture", "condition_on_previous_text": true }
+    "options": { "vad_filter": true, "initial_prompt": "scripture", "condition_on_previous_text": true,
+      "timing": { "read_coverage_threshold": 0.55, "lead_in_s": 0.5, "tail_pad_s": 1.0, "duration_mode": "auto" } }
   },
   "translation": {
     "id": "de4e12af7f28f599-02",

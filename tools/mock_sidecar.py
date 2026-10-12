@@ -155,6 +155,39 @@ def build_book_lookup(index: dict[tuple[str, int, int | None], dict[str, Any]]) 
     return lookup
 
 
+# docs/07 section 2 (POST /jobs) and docs/05 section 2: the timing options and their defaults.
+DEFAULT_TIMING: dict[str, Any] = {
+    "read_coverage_threshold": 0.55,
+    "lead_in_s": 0.5,
+    "tail_pad_s": 1.0,
+    "duration_mode": "auto",
+}
+
+
+def resolve_timing(options: Any) -> tuple[dict[str, Any] | None, str | None]:
+    """Validate options.timing from a POST /jobs body; return (resolved, error message)."""
+    timing = options.get("timing", {}) if isinstance(options, dict) else None
+    if not isinstance(timing, dict):
+        return None, "options.timing must be an object."
+    resolved = dict(DEFAULT_TIMING)
+    for key in ("read_coverage_threshold", "lead_in_s", "tail_pad_s"):
+        if key in timing:
+            value = timing[key]
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or value < 0:
+                return None, f"options.timing.{key} must be a number >= 0."
+            resolved[key] = value
+    mode = timing.get("duration_mode", "auto")
+    if mode not in ("auto", "fixed"):
+        return None, 'options.timing.duration_mode must be "auto" or "fixed".'
+    resolved["duration_mode"] = mode
+    if mode == "fixed":
+        fixed = timing.get("fixed_duration_s")
+        if isinstance(fixed, bool) or not isinstance(fixed, (int, float)) or fixed <= 0:
+            return None, "options.timing.fixed_duration_s must be a number > 0 in fixed mode."
+        resolved["fixed_duration_s"] = fixed
+    return resolved, None
+
+
 class Job:
     def __init__(self, job_id: str, scenario: str, cache_hit: bool, duration_s: float) -> None:
         self.id = job_id
@@ -165,6 +198,7 @@ class Job:
         self.phase = "hashing"
         self.progress = 0.0
         self.message = "Queued"
+        self.timing: dict[str, Any] = dict(DEFAULT_TIMING)
         self.error: dict[str, Any] | None = None
         self.result: dict[str, Any] | None = None
         self.created_at = time.time()
@@ -233,7 +267,7 @@ class State:
             "active_jobs": sum(1 for j in self.jobs.values() if j.status == "running"),
         }
 
-    def new_job(self) -> Job:
+    def new_job(self, timing: dict[str, Any] | None = None) -> Job:
         cache_hit = self.args.cache_hit
         duration = self.args.duration
         if self.args.slow:
@@ -242,6 +276,8 @@ class State:
             duration = min(duration, 4.0)
         job_id = "job_" + uuid.uuid4().hex[:20]
         job = Job(job_id, self.args.scenario, cache_hit, duration)
+        if timing is not None:
+            job.timing = timing
         with self.jobs_lock:
             self.jobs[job_id] = job
         threading.Thread(target=run_job, args=(job, self.args), daemon=True).start()
@@ -312,6 +348,7 @@ def run_job(job: Job, args: argparse.Namespace) -> None:
     scenario = "flagged" if args.fail == "provider_unavailable" else job.scenario
     result = copy.deepcopy(load_fixture(scenario))
     result["job"]["id"] = job.id
+    result["job"]["options"]["timing"] = dict(job.timing)
     result["generated_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
     job.result = result
@@ -533,7 +570,11 @@ class Handler(BaseHTTPRequestHandler):
                     ),
                 )
                 return
-            job = self.state.new_job()
+            timing, timing_error = resolve_timing(body.get("options", {}))
+            if timing is None:
+                self._send_json(400, error_body("bad_request", str(timing_error), retryable=False))
+                return
+            job = self.state.new_job(timing)
             self._send_json(
                 202,
                 {
@@ -701,7 +742,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         help="Every job reports cache_hit=true and skips the transcribing phase.",
     )
     parser.add_argument(
-        "--api-version", default="1.0", dest="api_version",
+        "--api-version", default="1.1", dest="api_version",
         help="Value for X-VerseSync-Api and the lock file, to test the version-mismatch path.",
     )
     parser.add_argument(

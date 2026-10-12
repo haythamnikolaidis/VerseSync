@@ -34,6 +34,14 @@ rediscovered.
 
 ## Errata
 
+- **`POST /jobs` could not carry the fixed-duration override.** [05](05-timing-and-placement.md)
+  §2 defines `duration_mode` / `fixed_duration_s` and FR-5.4 requires a global override, and
+  the sidecar computes durations (D5), but [07](07-sidecar-api.md) §2 listed only
+  `read_coverage_threshold`, `lead_in_s` and `tail_pad_s` under `options.timing`. Found during
+  **T-27**. Resolved as a contract change per [13](13-technical-plan.md) §8: both keys were added
+  to the request, `api_version` moved `1.0` -> `1.1` (additive, so a `1.0` panel and a `1.1`
+  sidecar still interoperate), and the mock sidecar validates and echoes them.
+
 - **`timebase` example was off by 1000x.** [08](08-premiere-host-api.md) §3 and
   [05](05-timing-and-placement.md) §9's worked example gave `8475667` as the 29.97fps
   `sequence.timebase` value. Caught during **T-39** while deriving the 23.976/25fps host-stub
