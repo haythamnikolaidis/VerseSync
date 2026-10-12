@@ -139,12 +139,32 @@ The core screen. Sorted by sequence timecode.
 | `passage_not_found` | red | Provider has no such passage | **disabled** |
 | `chapter_only` | amber | No verse specified, so no body text | **disabled** |
 | `suppressed_duplicate` | grey | Repeat of an earlier cue inside the cooldown | **disabled** |
-| `cut_from_edit` | grey | This moment is not in the current edit | **disabled** |
+| `cut_from_edit` | grey | This moment is not in the current edit (in manual-offset mode: it falls outside the sequence) | **disabled** |
 | `multiple_placements` | amber | The media appears more than once; anchored to the earliest | enabled |
 | `speed_change_unsupported` | red | Segment has a speed change; mapping is unreliable | **disabled** |
 
 Every red or amber default-disabled flag is *recoverable by the editor in one click* — nothing
 is hidden, it just starts off.
+
+Rules for the five flags the panel computes (`cut_from_edit`, `speed_change_unsupported`,
+`multiple_placements`, `overlap`, `truncated`; see
+[05](05-timing-and-placement.md) §5.2, §8):
+
+- A cue never shows both `cut_from_edit` and `speed_change_unsupported`. When the media has a
+  speed-changed use that the panel cannot map, a cue that fits no usable segment shows
+  `speed_change_unsupported` (red), not `cut_from_edit`.
+- `multiple_placements` appears only when the media is used at two or more distinct moments of
+  the edit. A linked video and audio clip is one placement and shows no flag.
+- The flags are recomputed on every mapping run and on every overlap re-run, so they can appear
+  or clear without the editor touching the row. Only enabled cues count for `overlap` and
+  `truncated`: ticking a disabled cue can truncate or flag its neighbours, and unticking one can
+  clear them.
+
+**Approximate marker.** In manual-offset mode ([05](05-timing-and-placement.md) §5.4) every
+row carries an `approx` badge (grey, text label) next to its timecode, and the review header
+says the positions are an approximation from a typed start timecode. This is not a flag: it is
+not in the Cue Document, does not count toward the ⚑ total, and does not default-disable the
+row. Rows outside the sequence in this mode show `cut_from_edit` as usual.
 
 ### 5.3 Expanded row
 
@@ -177,7 +197,8 @@ Clicking the row body expands it:
   span was found, its extent is underlined — so the editor can see exactly what the classifier
   matched, which is the honest way to present a 78% coverage number.
 - **`[-1f] [+1f]`** nudge the anchor a frame at a time; **`⌖`** sets it to the current playhead
-  (FR-6.3). Both re-run overlap resolution across the list.
+  (FR-6.3). Both re-run overlap resolution across the list, as do enabling and disabling a row
+  (disabled rows are skipped by the sweep).
 - **Duration** override, per cue.
 - **Delete** removes the cue. Undo is via re-analysing or reloading a saved document — cheap
   enough not to need an undo stack.
@@ -217,7 +238,7 @@ re-run on only the affected cues.
 |-------|----------------------|
 | Before any analysis | Setup only; review area shows *Select a media file and click Analyse.* |
 | Analysis found nothing | *No scripture references found. Check the audio has speech, or try a larger model.* with a link to the transcript |
-| Media not in the sequence | *SERMON_A001.MXF isn't in this sequence.* + **Enter a start timecode manually** ([05](05-timing-and-placement.md) §5.4) |
+| Media not in the sequence | *SERMON_A001.MXF isn't in this sequence.* + **Enter a start timecode manually** ([05](05-timing-and-placement.md) §5.4); the resulting rows carry the `approx` badge (§5.2) |
 | All cues disabled | Insert disabled, *Enable at least one scripture to insert.* |
 | Bible provider down | Cues listed with `text_unavailable`; a banner offers **Retry text fetch** |
 | Job failed | The sidecar's `message` verbatim plus its `hint`, and a **Retry** button |

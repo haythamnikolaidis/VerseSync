@@ -49,14 +49,14 @@ Cue Document in source time is what makes Journey B a pure recomputation.
    `speed_change_unsupported` (from the host's `unsupported` list).
 6. **Manual-offset fallback** ([05 §5.4](../05-timing-and-placement.md)): when no segments
    matched, accept a typed sequence timecode for the media's frame 0 and map
-   `t_seq = offset + t_src`. Label it clearly as an approximation and flag every cue produced
-   this way.
+   `t_seq = offset + t_src`. Label it clearly as an approximation and mark every cue produced
+   this way (`approximate`, not a Cue Document flag).
 7. Centralise all tick arithmetic here so it can be upgraded to string math later (risk R-11).
 
 ## Files
 
 - `panel/js/timemap.js`
-- `tests/js/test_timemap.js`
+- `tests/timemap.test.js`
 
 ## Done when
 
@@ -92,9 +92,8 @@ Implemented in `panel/js/timemap.js` (loaded by `panel/index.html`); tests in
   skipped, configurable gap and minimum, repeatable sweep.
 - **Worked example in 05 §9 reproduces exactly** — **Met.** Test "worked example": anchor
   `359003835590400` (frame 42,357), end `365886077356800` (frame 43,169), duration 812 frames,
-  the next cue 96 s later unflagged. The doc's elided "359,033,..." tick prefix does not match
-  its own arithmetic (1413.32 s is `359,005,893,120,000` before snapping); the test pins the
-  recomputed values.
+  the next cue 96 s later unflagged. Doc 05 §9 states the same values (1413.32 s is
+  `359,005,893,120,000` ticks before snapping).
 - **Snapping correct at 23.976, 25 and 29.97 using the real `timebase`** — **Met.** Tests
   "snapToFrame rounds…" (23.976, 24, 25, 29.97, 30, 50, 59.94), "anchors and ends land on whole
   frames…" (the three T-39 sequence fixtures), "frameRate is ignored…". Expected values come
@@ -108,16 +107,10 @@ Implemented in `panel/js/timemap.js` (loaded by `panel/index.html`); tests in
   "offsetFromTimecode: …": every cue gets `approximate: true`; times before the sequence or past
   its end are `cut_from_edit`.
 
-Behaviour the spec leaves open, as built:
-
-- `approximate` is a separate result field, not a flag, because the Cue Document flag enum is
-  closed.
-- `overlap` and `truncated` are recomputed from scratch each call along with the three mapping
-  flags; any of the five already on an input cue is discarded. Sidecar-owned flags are kept.
-- Disabled cues (including cut ones) do not take part in the overlap sweep.
-- The overlap gap is rounded up to whole frames so the truncated end stays on the frame grid and
-  the gap is never shorter than `overlap_gap_s`.
-- A cue with no usable window is `speed_change_unsupported` rather than `cut_from_edit` when the
-  host reported a speed-changed use of the media, since that segment's in-point cannot say
-  whether it contains the moment.
-- A typed timecode is a display timecode, so `offsetFromTimecode` subtracts `zeroPointTicks`.
+Behaviour the spec left open is now written into
+[05 §5.2, §5.4, §7, §8](../05-timing-and-placement.md) and [09 §5.2](../09-ui-spec.md), and is
+covered by the tests listed above: the separate `approximate` marker, the overlap gap rounded up
+to whole frames, disabled cues skipped by the sweep, manual-offset cues outside the sequence
+flagged `cut_from_edit`, `speed_change_unsupported` taking precedence over `cut_from_edit`,
+linked video/audio halves counted as one placement, the five panel-owned flags recomputed on
+every call, and the typed timecode treated as a display timecode (`zeroPointTicks` subtracted).

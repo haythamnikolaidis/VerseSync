@@ -234,6 +234,24 @@ n candidates → map to the earliest seqStart, flag `multiple_placements`,
 The multi-candidate case is real: a sermon clip used once in the body and again in a recap
 produces two valid answers, and only the editor knows which they meant.
 
+Rules the resolver applies where the cases above leave room:
+
+- **Placements are counted per moment in the edit, not per track.** A clip whose video and
+  audio halves are linked appears as two segments (one per track) that map to the same
+  sequence time. Candidates are de-duplicated by their frame-snapped anchor, so the pair is
+  *one* placement and does not raise `multiple_placements`. Of the candidates that remain, the
+  earliest `seqStart` wins; a tie at the same time prefers a video segment over an audio one,
+  then the lower track index.
+- **The window is half-open.** A source time exactly at `inPoint + length` belongs to the next
+  segment (or to none), never to the one that ends there.
+- **`speed_change_unsupported` takes precedence over `cut_from_edit`.** A speed-changed segment
+  is excluded from the map because its in-point is not source time (§5.3), so it cannot say
+  whether it contains the moment. When no usable segment contains the time *and* the host
+  reported at least one speed-changed use of the media, the cue gets `speed_change_unsupported`
+  and not `cut_from_edit`: "not in the edit" would be a claim the panel cannot support. A cue
+  that does fall inside a usable segment maps normally, whatever other uses of the media are
+  speed-changed. A cue never carries both flags. Both are disabled by default.
+
 ### 5.3 Limitations, stated plainly
 
 - **Speed changes.** A segment with `speed != 1.0` breaks the linear mapping. v1 detects it,
@@ -251,7 +269,23 @@ If `getMediaSegments` returns nothing and the editor insists the media is in the
 panel offers a single-offset mode: the editor types the sequence timecode where the media's
 frame 0 sits, and mapping becomes `t_seq = offset + t_src` for everything. Correct for one
 unbroken recording, wrong the moment the audio is cut — so the panel labels it clearly as an
-approximation and flags every cue produced this way.
+approximation and marks every cue produced this way.
+
+Rules for the mode:
+
+- **The marker is `approximate`, not a flag.** The Cue Document `flags` enum is closed
+  ([07](07-sidecar-api.md) §5), and a flag would be persisted with the document while the
+  approximation belongs to one mapping run. Mapping returns `approximate: true` on every cue it
+  places this way (`false` in segment mode); it is never written into the Cue Document, and the
+  review list shows it as a badge on the row's timecode ([09](09-ui-spec.md) §5.2).
+- **The typed timecode is a display timecode.** The editor reads it off Premiere, so it includes
+  `zeroPoint`; the panel subtracts `zeroPoint` to get the sequence tick used as `offset`
+  (§1). A timecode before the sequence start gives a negative offset, which is valid when the
+  media's head is trimmed.
+- **Cues outside the sequence are `cut_from_edit`.** With the offset applied, a cue whose
+  anchor lands before sequence tick 0, or at or after the sequence end (when the end is known),
+  is not in the edit: it is flagged `cut_from_edit`, disabled, and given no position. It still
+  carries `approximate: true`.
 
 ---
 
@@ -283,9 +317,13 @@ function snapToFrame(ticks, ticksPerFrame) {
 }
 ```
 
-Applied to both the anchor and the end (`anchor + duration`), so a graphic never starts or ends
-mid-frame. Durations are therefore whole frames, which also stops sub-frame rounding drift
-accumulating across a 40-cue batch.
+Applied to both the anchor and the end, so a graphic never starts or ends mid-frame. Durations
+are therefore whole frames, which also stops sub-frame rounding drift accumulating across a
+40-cue batch.
+
+The end is snapped from the *unsnapped* mapped anchor plus the duration, not from the snapped
+anchor plus the duration: each boundary is then within half a frame of its exact time, and
+errors never accumulate. The result is never shorter than one frame.
 
 ---
 
@@ -302,6 +340,26 @@ for each consecutive pair (a, b):
         else:
             flag both `overlap`             # editor resolves (FR-5.8)
 ```
+
+Rules the sweep follows:
+
+- **Only cues that will be inserted take part.** A cue is swept only if it has a position and is
+  enabled. A disabled cue (for example `cut_from_edit`, `chapter_only`, or one the editor
+  unticked) neither shortens nor flags a neighbour, since it will not be on the timeline.
+  Enabling a cue therefore changes the result for its neighbours, so the sweep is re-run
+  whenever a cue is enabled, disabled or nudged ([09](09-ui-spec.md) §5.3).
+- **The gap is rounded up to whole frames.** `overlap_gap_ticks` is `overlap_gap_s` converted
+  to ticks and rounded *up* to a multiple of `timebase`. A truncated end therefore stays on the
+  frame grid, and the gap left is never shorter than `overlap_gap_s` (0.25 s is 8 frames at
+  29.97 fps, 7 frames at 25 fps).
+- **Abutting cues do not overlap.** `a.end == b.anchor` is left alone; only `a.end > b.anchor`
+  triggers the rule.
+- **`min_visible_ticks`** is `min_visible_s` in ticks, compared against the truncated length
+  (`proposed_end - a.anchor`).
+- **`overlap` and `truncated` are recomputed from scratch on every run** and start from each
+  cue's untruncated end, so repeating the sweep gives the same answer. The same holds for the
+  three mapping flags in §5: the panel owns all five and discards any of them already present
+  on an incoming cue, while sidecar-owned flags are kept.
 
 Silent truncation is safe and usually right: a graphic that would run into the next scripture
 should end before it. The flagged case — two references within ~2 seconds of each other — is
@@ -331,8 +389,10 @@ nineteen and twenty. Or do you not know that your body is the temple of the Holy
 | Corroboration | confidence 0.91 → **1.00** (capped) |
 | Anchor (source) | `min(1425.82, 1428.9) − 0.5` = **1425.32 s** |
 | Duration | READ: `(1451.4 − 1425.32) + 1.0` = **27.08 s** (under the 45 s ceiling) |
-| Map to sequence | in segment, `t_seq = 0 + (1425.32 − 12.0)` = **1413.32 s** = `359,033,... ticks` |
-| Frame snap | rounded to the nearest 8,475,667,200 ticks |
+| Map to sequence | in segment, `t_seq = 0 + (1425.32 − 12.0)` = **1413.32 s** = `359,005,893,120,000` ticks (1413.32 × 254,016,000,000) = frame 42,356.64 |
+| Frame snap, anchor | rounded to the nearest 8,475,667,200 ticks: frame **42,357** = `359,003,835,590,400` ticks |
+| Frame snap, end | unsnapped end `1413.32 + 27.08` = 1440.40 s = `365,884,646,400,000` ticks = frame 43,168.8, snapped to frame **43,169** = `365,886,077,356,800` ticks |
+| Placed duration | 43,169 − 42,357 = **812 frames** = `6,882,241,766,400` ticks ≈ 27.09 s |
 | Overlap | next anchor is 96 s later — no conflict |
 | MOGRT fields | reference ← `1 Corinthians 6:19-20 (NKJV)` · body ← `19 Or do you not know… 20 For you were bought at a price…` |
 
