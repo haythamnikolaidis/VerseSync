@@ -53,3 +53,19 @@ edits of the same recording.
   the **last** 8 MB and the size are what disambiguate them. Include all three.
 - Do not cache to a temp directory that gets cleaned between runs; the whole point is
   persistence across sessions.
+
+## Status
+
+- [x] **Met** — second run on the same file returns in < 2 s with `cache_hit: true`:
+  `tests/test_cache.py::test_second_run_hits_without_loading_a_model` (model factory raises if
+  loaded; asserts elapsed < 2 s and `cache_hit`). `cache.peek()` supplies the `cache_hit`
+  value for the `POST /jobs` response; the HTTP route itself belongs to the jobs task.
+- [x] **Met** — changing the model misses; changing `context_window_s` hits:
+  `test_changing_the_model_misses`, `test_detection_only_options_still_hit`, and the
+  per-option key tests `test_every_transcript_option_changes_the_key`.
+- [x] **Met** — `use_cache: false` forces a re-transcription: `test_use_cache_false_forces_retranscription`.
+- [x] **Met** — hashing a 4 GB file takes well under a second: `test_hashing_a_4gb_file_is_fast`
+  (sparse 4 GB file, asserts < 1 s). Cold-disk timing on a real MXF is Deferred — needs the
+  reference workstation: run `python -c "import time; from versesync.cache import hash_media; t=time.time(); print(hash_media(r'D:\\Sermons\\x.MXF'), time.time()-t)"`.
+- Cache-hit progress renormalisation (step 5) is covered by
+  `test_progress_ends_at_one_on_a_hit_with_renormalised_weights`.

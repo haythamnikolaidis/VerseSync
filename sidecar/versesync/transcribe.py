@@ -158,6 +158,13 @@ def resolve_device(device: str) -> str:
     return "cuda" if _quantization.has_cuda_device() else "cpu"
 
 
+def effective_quantization(device: str, quantization: str) -> str:
+    """The compute type actually used: half precision falls back to float32 on the CPU."""
+    if device == "cpu" and quantization in ("float16", "bfloat16"):
+        return "float32"
+    return quantization
+
+
 def probe_free_vram_gb() -> float | None:
     """Free memory on the first NVIDIA GPU in GB, or ``None`` when it cannot be read."""
     try:
@@ -256,10 +263,9 @@ def transcribe_media(
     seed_everything(cfg.seed)
 
     device = resolve_device(cfg.device)
-    quant = cfg.quantization
-    if device == "cpu" and quant in ("float16", "bfloat16"):
-        warnings.append(f"{quant} is not available on CPU; using float32.")
-        quant = "float32"
+    quant = effective_quantization(device, cfg.quantization)
+    if quant != cfg.quantization:
+        warnings.append(f"{cfg.quantization} is not available on CPU; using {quant}.")
 
     if device == "cpu":
         duration = (duration_probe or probe_media_duration_s)(path)
