@@ -66,3 +66,10 @@ Two reasons this comes before the real API adapter:
   optional and it is not a nice-to-have.
 - Verse numbers stay in the body. That was a client decision in VerseFlow — do not "clean it up".
 - Do not use the ASR's heard book name in the reference field. Always the canon spelling.
+
+## Status
+
+- **Round-trip test passes** — **Met.** `tests/test_format_roundtrip.py` renders passages (a sample set and all 1,189 chapters) as VerseFlow `.txt` blocks and parses them with a verbatim copy of VerseFlow's `scripture-parser.js` executed under Node; reference, translation, body and word count are identical. The test also extracts the regex from that file and checks it equals the one quoted above, and compares the copy against a VerseFlow checkout when `VERSEFLOW_DIR` points at one. Where Node is absent the Node-executed tests skip and the regex-only tests still run.
+- **Full suite runs with no network access** — **Met.** The Bible tests use the `no_network` fixture (`tests/conftest.py`), which fails any socket connect or DNS lookup.
+- **Every adapter error path raises a typed error** — **Met.** `tests/test_bible_local.py` covers unknown translation, unknown book, bad chapter or verse, reversed and over-long ranges, omitted verses, and unreadable or misaligned stores; all raise `ProviderError` subclasses.
+- **Single verse, range and chapter format correctly** — **Met.** `test_single_verse_range_and_chapter_format` (John 3:16, 1 Corinthians 6:19-20, Jude 1).

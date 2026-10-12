@@ -80,3 +80,11 @@ labels = load_labels("numbers-and-ordinals")  # list[dict]
 See `tests/transcript_fixtures.py`. T-33 (growing this to the full-size corpus) should add new
 `<name>.words.json` / `<name>.labels.json` pairs in this same shape — nothing else needs to
 change.
+
+## VerseFlow parser (T-14)
+
+`verseflow/scripture-parser.js` is a verbatim copy of VerseFlow's `js/scripture-parser.js`
+(VerseFlow commit `e586b3d`), the parser whose reference regex defines the passage format
+(`docs/06-bible-text-service.md` §2). `tests/test_format_roundtrip.py` runs it, so the round-trip
+test needs no VerseFlow checkout; when one is present at `../verseflow` or `$VERSEFLOW_DIR`, the
+test also fails if the copy has drifted from it.

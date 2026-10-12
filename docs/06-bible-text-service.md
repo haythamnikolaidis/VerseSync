@@ -130,6 +130,28 @@ The resolver never lets a provider failure fail a job (FR-4.5). Every error maps
 | `PassageNotFound` | `passage_not_found` | Usually a detection error that survived canon validation; disabled, flagged for editor correction |
 | `TranslationNotLicensed` | job-level error | Fails fast at job start, not per cue — the panel should never have offered the translation |
 
+### 3.3 The bundled local text (WEB) and its versification
+
+`local.py` serves the **World English Bible**, public domain, from
+`sidecar/versesync/bible/data/web.json.gz`. `tools/generate_web.py` builds it and records the
+source (npm `world-english-bible` 1.0.1, a conversion of the eBible.org WEB HTML), its SHA-256
+and registry integrity string; it verifies both before reading anything. eBible.org itself was
+not reachable from the build environment, which is why the pinned npm tarball is the source.
+The generator refuses to write a store that is not exactly the canon table's shape: 66 books,
+1,189 chapters, 31,102 verse slots, KJV versification. At load time the provider re-checks the
+same alignment and treats a mismatch as `ProviderUnavailable`.
+
+WEB differs from KJV numbering in these places, all handled at generation time:
+
+| Where | WEB prints | Handling |
+|-------|-----------|----------|
+| Romans doxology | 14:24-26 (Majority Text position), 16:25 empty, no 16:26-27 | Text moved verbatim to 16:25-27, as in the KJV and the canon; chapter 14 ends at 23 |
+| Luke 17:36, Acts 8:37, Acts 15:34, Acts 24:7 | verse number with no text (omitted by the Majority Text) | Stored as `null`. Skipped inside a range or chapter; a request for exactly that verse raises `PassageNotFound` |
+| Psalm titles, section headings | unnumbered headers | Not stored; they are not verses in KJV versification |
+
+No other verse differs: every other chapter has the canon's verse count. Wording differs from the
+KJV throughout, as expected of a different translation; only numbering is aligned.
+
 ---
 
 ## 4. Caching

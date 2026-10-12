@@ -1,6 +1,8 @@
 'use strict';
 
 module.exports = [
+  // Verbatim copy of VerseFlow's parser, used as a Python test fixture; not our code to lint.
+  { ignores: ['tests/fixtures/verseflow/**'] },
   {
     files: ['panel/js/**/*.js'],
     languageOptions: {
