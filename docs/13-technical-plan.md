@@ -125,9 +125,11 @@ Everything else waits on this and nothing else does. Keep it short and do not go
 sidecar serves a golden Cue Document over HTTP + SSE and passes schema validation ✅ · the host
 stub loads in a browser and answers all eight `VS.*` calls — **met with two corrections**: the
 spec defines **seven** `VS.*` calls, not eight (T-39's task text was wrong), and "in a browser"
-specifically is unverified since `panel/index.html` doesn't exist until T-22 — verified
-behaviourally instead (31 passing `node:test` cases); re-check that specific sub-clause once
-T-22 lands · at least three fixture transcripts with hand-labelled reference times are
+was unverifiable until `panel/index.html` existed; re-checked with T-22: headless Chromium
+opening `panel/index.html` over `file://` activates the stub, `VS.ping` returns, and all seven
+calls answer through the bridge (a first run found the stub never activated there, because the
+vendored `CSInterface.js` defines a global in a plain browser; the stub now keys on Premiere's
+`__adobe_cep__` instead) · at least three fixture transcripts with hand-labelled reference times are
 committed ✅ (four, via T-41).
 
 Also fixed in passing: the `timebase` example in [08](08-premiere-host-api.md) §3 and

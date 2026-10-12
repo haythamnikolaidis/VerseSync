@@ -58,3 +58,21 @@ VerseFlow's `js/bridge.js` already solves the hard parts. Port it; do not re-der
   vanilla approach is what keeps the two panels mutually readable.
 - Panel JS must stay **ES5-compatible** — CEP's Chromium is old. ESLint enforces this (T-40).
 - Use a different debug port from VerseFlow, or the two panels will fight.
+
+## Status
+
+- **Deferred — needs Premiere.** The panel loads in Premiere (Window ▸ Extensions ▸ VerseSync) and
+  `VS.ping` returns. Steps: copy `panel/` to `%APPDATA%\Adobe\CEP\extensions\com.versesync.panel`
+  with `PlayerDebugMode` enabled for CSXS 11, restart Premiere, open the panel. The panel shows
+  "Host connected (host, v…)" once `jsx/VerseSync.jsx` exists (delivered by T-23; until then the
+  status line reports the `$.evalFile` failure). Remote debugging is on port 7779.
+- **Met** — The panel loads in Chrome against the stub and `VS.ping` returns. Headless Chromium
+  opening `panel/index.html` shows "Host connected (stub, v1.0.0)"; all seven `VS.*` calls
+  answer through `VSBridge`. Covered in code by `tests/bridge.test.js` (stub routing) and
+  `tests/host-stub.test.js` (activation).
+- **Met** — `loadJSX()` is called at init and a stale-script scenario is handled.
+  `panel/js/bridge.js`, `panel/js/main.js`; `tests/bridge.test.js` ("stale script", "called
+  once", "failing $.evalFile ... retried").
+- **Met** — A host error surfaces as `{ok:false,error}`, never an exception.
+  `tests/bridge.test.js` (host error, `EvalScript error.` sentinel, non-JSON, empty reply,
+  unserialisable arguments).
