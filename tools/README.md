@@ -111,3 +111,14 @@ curl -X POST -H "Authorization: Bearer <token>" -H "Origin: http://localhost" \
   example only shows `progress` and `done`, and inventing an undocumented event type for a
   frozen contract isn't this task's call to make. A client learns the outcome from
   `GET /jobs/{id}` or `/result`.
+
+## `generate_web.py` (T-14)
+
+Builds `sidecar/versesync/bible/data/web.json.gz`, the bundled World English Bible, from a pinned,
+checksum-verified source and aligns it to the canon table. See the module docstring and
+[06](../docs/06-bible-text-service.md) §3.3 for the source and the versification differences.
+
+```
+python tools/generate_web.py                  # downloads the pinned source
+python tools/generate_web.py --source PKG.tgz # use a local copy of it
+```
