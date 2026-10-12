@@ -39,6 +39,19 @@ SEGMENTS_NAMES.forEach(function (name) {
   });
 });
 
+test('insertCues sequence_changed error matches tests/fixtures/host/insert-cues-sequence-changed.json', function () {
+  VS.__setScenario({ sequence: 'sequence-25' });
+  try {
+    var response = JSON.parse(VS.insertCues(JSON.stringify({
+      sequenceID: JSON.parse(fs.readFileSync(path.join(FIXTURES_DIR, 'sequence-2997.json'), 'utf8')).sequenceID,
+      mogrtPath: 'x', trackIndex: 0, mapping: {}, cues: []
+    })));
+    assert.deepStrictEqual(response, readFixture('insert-cues-sequence-changed'));
+  } finally {
+    VS.__setScenario({ sequence: 'sequence-2997' });
+  }
+});
+
 test('getMogrtFields success matches tests/fixtures/host/mogrt-fields.json', function () {
   VS.__setScenario({ sequence: 'sequence-2997' });
   var response = JSON.parse(VS.getMogrtFields('{"path":"D:/Templates/AV_Quote_04.mogrt"}'));

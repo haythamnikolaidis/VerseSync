@@ -22,6 +22,7 @@
   var SEQUENCES = {
     'sequence-2997': {
       hasActiveSequence: true,
+      sequenceID: '6f1c2b7e-3a54-4d0e-9b6a-2c8d1e5f7a90',
       name: 'Sermon 2026-09-14',
       videoTrackCount: 4,
       audioTrackCount: 6,
@@ -33,6 +34,7 @@
     },
     'sequence-23976': {
       hasActiveSequence: true,
+      sequenceID: 'b8e4d9a1-7c62-4f35-8a1d-0e93b6c2f471',
       name: 'Promo 2026-09-20',
       videoTrackCount: 2,
       audioTrackCount: 2,
@@ -44,6 +46,7 @@
     },
     'sequence-25': {
       hasActiveSequence: true,
+      sequenceID: 'd27a05c3-91be-4e68-b3f0-5a4c8e6d1127',
       name: 'UK Service 2026-09-27',
       videoTrackCount: 3,
       audioTrackCount: 4,
@@ -159,7 +162,15 @@
 
   function ok(data) { return JSON.stringify({ ok: true, data: data }); }
 
-  function fail(message) { return JSON.stringify({ ok: false, error: message }); }
+  function fail(message, code) {
+    var envelope = { ok: false, error: message };
+    if (code) { envelope.code = code; }
+    return JSON.stringify(envelope);
+  }
+
+  var SEQUENCE_CHANGED_MESSAGE =
+    'The active sequence in Premiere changed after these cues were generated. Switch back to ' +
+    'the original sequence tab, then click Insert again. Nothing was inserted.';
 
   function requireActiveSequence() {
     if (!SEQUENCES[scenario.sequence].hasActiveSequence) {
@@ -185,15 +196,20 @@
   var VS = {};
 
   VS.ping = function () {
-    return ok({ pong: true, version: '1.0.0', hostApi: '1.0' });
+    return ok({ pong: true, version: '1.0.0', hostApi: '1.1' });
   };
 
   VS.getSequenceInfo = function () {
     return ok(clone(SEQUENCES[scenario.sequence]));
   };
 
+  // The segment fixtures describe placements in the sermon sequence; like the real host, the
+  // response is stamped with the ID of whichever sequence is active when it is called.
   VS.getMediaSegments = function () {
-    return ok(clone(SEGMENTS[scenario.segments]));
+    var data = clone(SEGMENTS[scenario.segments]);
+    var seq = SEQUENCES[scenario.sequence];
+    if (seq.hasActiveSequence) { data.sequenceID = seq.sequenceID; }
+    return ok(data);
   };
 
   VS.getMogrtFields = function (argJson) {
@@ -223,6 +239,16 @@
 
     var activeErr = requireActiveSequence();
     if (activeErr) { return fail(activeErr); }
+
+    // R-13: activeSequence follows UI tab focus, so verify it is still the sequence the cues
+    // were mapped against, and abort before touching anything if not. Runs before the track
+    // check, since a track count from the wrong sequence is meaningless.
+    if (typeof args.sequenceID !== 'string' || args.sequenceID === '') {
+      return fail('Internal error: insert request is missing the sequence ID. Please report this.');
+    }
+    if (args.sequenceID !== SEQUENCES[scenario.sequence].sequenceID) {
+      return fail(SEQUENCE_CHANGED_MESSAGE, 'sequence_changed');
+    }
 
     var trackErr = checkTrackIndex(args.trackIndex);
     if (trackErr) { return fail(trackErr); }

@@ -1,0 +1,5 @@
+{
+  "ok": false,
+  "code": "sequence_changed",
+  "error": "The active sequence in Premiere changed after these cues were generated. Switch back to the original sequence tab, then click Insert again. Nothing was inserted."
+}
