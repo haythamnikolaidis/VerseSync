@@ -63,7 +63,7 @@ function cleanup() {
 
 function okVs() {
   return {
-    ping: function () { return JSON.stringify({ ok: true, data: { pong: true, version: '1.0.0', hostApi: '1.0' } }); },
+    ping: function () { return JSON.stringify({ ok: true, data: { pong: true, version: '1.0.0', hostApi: '1.1' } }); },
     fail: function () { return JSON.stringify({ ok: false, error: 'No active sequence' }); },
     echo: function (arg) { return JSON.stringify({ ok: true, data: JSON.parse(arg) }); },
     garbage: function () { return 'not json'; },
@@ -82,7 +82,7 @@ test('loadJSX evaluates the host from the URL-derived extension root, then VS.pi
       '$.evalFile("C:/Users/me/AppData/Roaming/Adobe/CEP/extensions/VerseSync/jsx/VerseSync.jsx")'
     );
     var res = await bridge.api.ping();
-    assert.deepStrictEqual(res, { ok: true, data: { pong: true, version: '1.0.0', hostApi: '1.0' } });
+    assert.deepStrictEqual(res, { ok: true, data: { pong: true, version: '1.0.0', hostApi: '1.1' } });
     assert.strictEqual(bridge.mode(), 'host');
   } finally { cleanup(); }
 });
@@ -196,7 +196,7 @@ test('stub: used when not inside Premiere and window.VS is installed', async fun
   try {
     assert.strictEqual(bridge.mode(), 'stub');
     var res = await bridge.api.ping();
-    assert.deepStrictEqual(res, { ok: true, data: { pong: true, version: '1.0.0', hostApi: '1.0' } });
+    assert.deepStrictEqual(res, { ok: true, data: { pong: true, version: '1.0.0', hostApi: '1.1' } });
     assert.strictEqual(engine.scripts.length, 0, 'the stub path never touches evalScript');
     var unknown = await bridge.call('nope');
     assert.strictEqual(unknown.ok, false);
