@@ -265,7 +265,8 @@ Rejections:
   promotes the first valid alternative; with no valid reading the detection is discarded.
   Example: "psalm nine two … verse eighteen" is Psalm 92 with the alternative Psalm 9:2; the
   carried verse gives Psalm 92:18 (Psalm 92 has 15 verses, impossible) and Psalm 9:18 (valid),
-  so Psalm 9:18 is promoted.
+  so Psalm 9:18 is promoted. The impossible primary is not kept as an alternative, and
+  readings that become identical once repaired (below) collapse into the first.
 - `verse_end < verse_start` → swap if the swap validates, otherwise drop the end.
 - `verse_end - verse_start > max_range` (default 30) → treat as a mis-parse, drop the end.
 
@@ -273,6 +274,9 @@ Where the list above is silent, the rules are:
 
 - A range of zero length (`verse_end == verse_start`) or running past the end of the chapter
   also drops the end; the start verse stands.
+- Dropping the end keeps the start verse exactly as the grammar read it. For a reversed range
+  that is too wide once swapped ("Psalm 119:60-1"), the start stays 60, not 1.
+- A chapter-only reference never carries an end; any end it arrives with is dropped.
 - A repaired range (swapped, or its end dropped) keeps full validation credit
   (`validation_score` 1.0, §6). Only a **promoted alternative** is scored as validating after
   an alternative reading.
@@ -304,7 +308,9 @@ confidence = clamp01(
 
 Weights are constants in `detect/detector.py` and are **tuned against the fixture corpus, not
 guessed** — task [T-34](tasks/T-34-threshold-tuning.md) owns the tuning pass. The default review
-threshold for the amber low-confidence flag is **0.55**.
+threshold for the amber low-confidence flag is **0.55**; the flag is raised only when the
+confidence is **strictly below** the threshold, so a cue scoring exactly 0.55 is not flagged
+(§6.1 lists every flag assigned at this stage).
 
 **Specified-initial values awaiting T-34.** Until that pass runs, every number in this section
 is an initial value taken from this document, not a tuned one: the four weights
@@ -318,6 +324,16 @@ Choices made where the formula is silent:
 - **Fuzzy scaling.** "Scaled by distance" is `0.65 × (1 − 0.10 × (d − 1))` for edit distance
   `d ≥ 1` (`FUZZY_DISTANCE_STEP = 0.10` per edit beyond the first), floored at 0. Initial form,
   awaiting T-34.
+- **Rounding.** `confidence` is rounded to **4 decimal places** after the clamp, and so is every
+  alternative's confidence and the result of the corroboration bonus. Every emitted confidence
+  (Cue Document `confidence`, `alternatives[].confidence`) therefore has at most 4 decimals,
+  and the threshold comparison below is made on the rounded value.
+- **`asr_score`** is the mean word probability, clamped to `[0,1]`.
+- **Structure precedence.** `structure_score` is chosen in this order: context-carried (0.45)
+  first, then chapter-only (0.55), then range (0.75), then single verse (1.0). A reading carried
+  from an earlier mention (P11/P12) scores 0.45 **even when it is a range or has a verse**; the
+  range/verse values apply only to readings the speaker spelled out. This holds for the
+  alternatives of a context-carried detection too.
 - **Alternatives' confidence** is computed with the same formula (validation 0.5) and capped at
   the primary's confidence, and at the previous alternative's, so an alternative never outranks
   the reading the grammar preferred.
@@ -328,13 +344,46 @@ Two adjustments applied after scoring:
 
 - **Corroboration bonus (+0.10).** If a read span is later detected for this reference
   ([05](05-timing-and-placement.md) §4), the speaker demonstrably quoted it, which is strong
-  independent evidence the reference was heard correctly. Applied by the timing stage.
+  independent evidence the reference was heard correctly. Applied by the timing stage through
+  `apply_corroboration`, which:
+  - adds 0.10 to the cue's confidence, clamps at **1.0** and rounds to 4 decimals (0.95 becomes
+    1.0, not 1.05);
+  - is **idempotent**: the cue is marked corroborated, and a second call returns it unchanged,
+    so the bonus is never added twice;
+  - re-evaluates the `low_confidence` flag on the new confidence, so a cue lifted to the
+    threshold or above loses the flag, and keeps every other flag it had;
+  - leaves the score breakdown and the alternatives' confidences untouched; only the primary
+    reading is corroborated.
 - **Duplicate suppression.** Identical references within the cooldown window (default 60 s) are
   collapsed to the first, with the rest retained as `suppressed: true` rows (FR-3.6). A speaker
   circling back to the same verse three times in a minute wants one graphic, not three.
-  The window is measured from the start of the last **kept** mention of that reference.
-  A suppressed repeat does not extend it, so a speaker who keeps circling back gets a fresh
-  cue once 60 s have passed since the last kept one.
+  The window is measured from the start (`source_start`) of the last **kept** mention of that
+  reference, and its boundary is **inclusive**: a repeat exactly 60 s after the last kept
+  mention is suppressed, one 60.5 s after is a new cue. A suppressed repeat does not extend
+  the window, so a speaker who keeps circling back gets a fresh cue once more than 60 s have
+  passed since the last kept one. "Identical" means the same book, chapter, verse and verse end
+  of the validated primary reading, so `John 3:16`, `John 3:16-17` and `John 3` are three
+  different references. Suppression never removes a row or changes its confidence, and the
+  output stays in transcript order (`source_start`, then token span).
+
+### 6.1 Flags assigned at this stage
+
+Detection and validation assign exactly three of the Cue Document `flags`
+([07](07-sidecar-api.md) §5.1), always in this order when more than one applies:
+
+| Flag | Assigned here when | Notes |
+|------|--------------------|-------|
+| `low_confidence` | confidence is **strictly below** the threshold (default 0.55) | Compared on the rounded confidence. Re-evaluated after the corroboration bonus. Applies to suppressed rows too. |
+| `chapter_only` | the validated primary reading has no verse | Independent of confidence; a chapter-only cue can be unflagged for low confidence. |
+| `suppressed_duplicate` | the row is a repeat inside the cooldown | Set together with `suppressed: true`; kept when the row is later corroborated. |
+
+Alternatives carry a confidence but no flags. Every other flag is added by a later stage:
+`overlap` and `truncated` by timing and placement ([05](05-timing-and-placement.md) §7),
+`long_passage`, `text_unavailable` and `passage_not_found` by the passage resolver
+([06](06-bible-text-service.md)), and `cut_from_edit`, `multiple_placements` and
+`speed_change_unsupported` by the panel after source-to-sequence mapping. This stage does not
+decide whether a flagged cue is enabled by default; that is the table in
+[09](09-ui-spec.md) §5.2.
 
 ---
 

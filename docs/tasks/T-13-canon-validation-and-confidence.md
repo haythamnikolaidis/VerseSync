@@ -86,3 +86,15 @@ Second revision after validation: exact-value tests added for the rules docs/04 
 - Remaining audit: weighted sum and rounding (`test_each_term_contributes_with_its_documented_weight`, `test_confidence_is_rounded_to_four_decimals`), asr clamp, ceiling of 1.0 and the unflagged-discard floor, context-carried alternatives, exact corroboration bonus, exact flag threshold, inclusive cooldown boundary (`tests/test_validation.py::test_cooldown_boundary_is_inclusive`), chapter and verse boundaries, reversed-and-wide range, and duplicate-reading collapse.
 
 All five items above remain **Met**.
+
+Third revision after validation: the implementation details that change emitted confidences and flags are now stated in docs/04 sections 5, 6 and 6.1 (rounding, structure precedence, strict threshold, inclusive cooldown boundary, corroboration semantics, the flags assigned at this stage) and each is pinned by an exact test.
+
+- Scores rounded to 4 decimals: `tests/test_confidence.py::test_confidence_is_rounded_to_four_decimals`, `test_corroboration_result_is_rounded_to_four_decimals`.
+- Cooldown boundary inclusive: `tests/test_validation.py::test_cooldown_boundary_is_inclusive` (60.0 s suppressed, 60.5 s kept); identity is the full reference, `test_references_that_differ_only_in_the_verse_end_are_not_duplicates`.
+- Context-carried precedence: `test_a_context_carried_reading_scores_the_context_structure_exactly` (verse, range and chapter-only all 0.8375) against `test_the_same_readings_spelled_out_score_their_own_structure`.
+- Strict threshold: `test_a_confidence_of_exactly_the_threshold_is_not_flagged` (0.55 unflagged), `test_a_confidence_just_below_the_threshold_is_flagged` (0.5475), `test_the_flag_threshold_is_compared_to_the_exact_confidence`.
+- Corroboration idempotent and clamped: `test_a_second_corroboration_adds_nothing`, `test_corroboration_clamps_at_one`, `test_corroboration_to_exactly_the_threshold_clears_the_flag`, `test_corroboration_keeps_the_duplicate_flag`.
+- Flags owned by this stage and their order: `test_flags_come_in_a_fixed_order`, `test_a_chapter_only_reading_with_good_confidence_gets_only_chapter_only`, `test_a_clean_verse_reference_has_no_flags`, `test_the_pipeline_only_emits_the_flags_this_stage_owns`.
+- Also pinned from the line-by-line read of section 5: a chapter-only reference drops any end (`test_chapter_only_reference_has_no_end`), and an impossible primary is not kept as an alternative (`test_a_promoted_primary_is_not_kept_as_an_alternative`).
+
+All five items above remain **Met**.

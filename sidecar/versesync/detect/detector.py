@@ -307,8 +307,9 @@ def suppress_duplicates(
 ) -> tuple[ScoredDetection, ...]:
     """Mark repeats of a reference inside the cooldown as suppressed.
 
-    Input order is preserved and nothing is removed. A mention is a repeat when the *last kept*
-    mention of the same reference started no more than the cooldown earlier; a suppressed
+    Nothing is removed; rows come back in transcript order (start time, then token span). A
+    mention is a repeat when the *last kept* mention of the same reference started no more than
+    the cooldown earlier (inclusive: exactly the cooldown is still a repeat); a suppressed
     mention does not extend the window, so a speaker who keeps circling back gets a fresh cue
     once the window has passed.
     """

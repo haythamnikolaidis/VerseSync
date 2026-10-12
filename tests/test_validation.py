@@ -243,10 +243,10 @@ def test_suppressed_rows_survive_in_transcript_order() -> None:
 # -- exact boundaries -----------------------------------------------------------------------
 
 
-def _at(start: float) -> ScoredDetection:
+def _at(start: float, end: int | None = None) -> ScoredDetection:
     det = Detection(
         pattern="P8",
-        reference=ref("John", 3, 16),
+        reference=ref("John", 3, 16, end),
         alternatives=(),
         contextual=False,
         book_match=BookMatchInfo("exact", 0),
@@ -279,6 +279,7 @@ def test_reversed_range_wider_than_max_range_drops_the_end_and_keeps_the_written
 
 def test_chapter_only_reference_has_no_end() -> None:
     assert validate_reference(ref("John", 3), CANON, 30) == ref("John", 3)
+    assert validate_reference(ref("John", 3, None, 5), CANON, 30) == ref("John", 3)
 
 
 def test_chapter_and_verse_boundaries() -> None:
@@ -295,3 +296,23 @@ def test_duplicate_readings_after_repair_collapse() -> None:
     result = validate_detection(twin, CANON)
     assert result is not None
     assert result[0].alternatives == ()
+
+
+def test_a_promoted_primary_is_not_kept_as_an_alternative() -> None:
+    det = match_grammar(words("john 3 : 16")).detections[0]
+    broken = replace(
+        det,
+        reference=ref("John", 3, 100),
+        alternatives=(Alternative(ref("John", 3, 10), "alt"),),
+    )
+    result = validate_detection(broken, CANON)
+    assert result is not None
+    valid, promoted = result
+    assert promoted
+    assert valid.reference == ref("John", 3, 10)
+    assert valid.alternatives == ()
+
+
+def test_references_that_differ_only_in_the_verse_end_are_not_duplicates() -> None:
+    rows = suppress_duplicates([_at(0.0), _at(5.0, end=18)])
+    assert [r.suppressed for r in rows] == [False, False]

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 import pytest
 from word_helpers import words
 
@@ -20,6 +22,7 @@ from versesync.detect.detector import (
     book_score,
     detect_references,
     score_detection,
+    suppress_duplicates,
     validate_detection,
     validate_reference,
 )
@@ -418,3 +421,129 @@ def test_the_flag_threshold_is_compared_to_the_exact_confidence() -> None:
     assert "low_confidence" not in score_detection(det, config=at).flags
     above = DetectorConfig(low_confidence_threshold=0.2376)
     assert "low_confidence" in score_detection(det, config=above).flags
+
+
+# -- structure precedence: context-carried wins (docs/04 section 6) --------------------------
+
+
+@pytest.mark.parametrize(
+    "carried",
+    [
+        pytest.param(ref("John", 3, 17), id="verse"),
+        pytest.param(ref("John", 3, 17, 19), id="range"),
+        pytest.param(ref("John", 3), id="chapter-only"),
+    ],
+)
+def test_a_context_carried_reading_scores_the_context_structure_exactly(carried: Reference) -> None:
+    s = score_detection(make_det(carried, contextual=True))
+    assert s.breakdown.structure == STRUCTURE_CONTEXT
+    assert s.confidence == 0.8375  # 0.40 + 0.225 + 0.1125 + 0.10
+
+
+def test_the_same_readings_spelled_out_score_their_own_structure() -> None:
+    assert score_detection(make_det(ref("John", 3, 17, 19))).confidence == 0.9125
+    assert score_detection(make_det(ref("John", 3, 17))).confidence == 0.975
+    assert score_detection(make_det(ref("John", 3))).confidence == 0.8625
+
+
+# -- the flag threshold is strict (docs/04 section 6.1) --------------------------------------
+
+
+def at_threshold(probs: tuple[float, ...]) -> ScoredDetection:
+    # Chapter-only (0.55), validation 1.0, fuzzy book at distance 1 (0.65).
+    return score_detection(make_det(ref("John", 3), tier="fuzzy", distance=1, probs=probs))
+
+
+def test_a_confidence_of_exactly_the_threshold_is_not_flagged() -> None:
+    s = at_threshold((0.21,))
+    assert s.confidence == 0.55  # 0.40 * 0.65 + 0.25 * 0.21 + 0.25 * 0.55 + 0.10
+    assert s.confidence == DEFAULT_LOW_CONFIDENCE_THRESHOLD
+    assert s.flags == ("chapter_only",)
+
+
+def test_a_confidence_just_below_the_threshold_is_flagged() -> None:
+    s = at_threshold((0.2,))
+    assert s.confidence == 0.5475
+    assert s.flags == ("low_confidence", "chapter_only")
+
+
+# -- corroboration: idempotent, clamped, rounded ----------------------------------------------
+
+
+def test_a_second_corroboration_adds_nothing() -> None:
+    s = score_detection(make_det(ref("John", 3), probs=(0.5,)))
+    once = apply_corroboration(s)
+    twice = apply_corroboration(once)
+    assert (s.confidence, once.confidence, twice.confidence) == (0.7625, 0.8625, 0.8625)
+    assert twice == once
+    assert not s.corroborated
+    assert once.corroborated
+
+
+def test_corroboration_clamps_at_one() -> None:
+    s = score_detection(make_det(ref("John", 3, 16)))
+    assert s.confidence == 0.975
+    once = apply_corroboration(s)
+    assert once.confidence == 1.0
+    assert apply_corroboration(once).confidence == 1.0
+
+
+def test_corroboration_result_is_rounded_to_four_decimals() -> None:
+    s = score_detection(make_det(ref("John", 3, 16), probs=(0.123456789,)))
+    assert s.confidence == 0.7809
+    assert apply_corroboration(s).confidence == 0.8809  # not 0.8809000000000001
+
+
+def test_corroboration_to_exactly_the_threshold_clears_the_flag() -> None:
+    s = score_detection(make_det(ref("John", 3), tier="fuzzy", distance=4, probs=(0.122,)))
+    assert s.confidence == 0.45
+    assert s.flags == ("low_confidence", "chapter_only")
+    assert apply_corroboration(s).confidence == 0.55
+    assert apply_corroboration(s).flags == ("chapter_only",)
+
+
+def test_corroboration_keeps_the_duplicate_flag() -> None:
+    first = score_detection(make_det(ref("John", 3, 16)))
+    repeat = score_detection(replace(make_det(ref("John", 3, 16)), source_start=10.0))
+    kept, dropped = suppress_duplicates([first, repeat])
+    assert dropped.flags == ("suppressed_duplicate",)
+    bumped = apply_corroboration(dropped)
+    assert bumped.suppressed
+    assert bumped.flags == ("suppressed_duplicate",)
+    assert kept.flags == ()
+
+
+# -- which flags this stage assigns (docs/04 section 6.1) ------------------------------------
+
+
+def test_flags_come_in_a_fixed_order() -> None:
+    low = make_det(ref("John", 3), tier="fuzzy", distance=50, probs=(0.0,))
+    first = score_detection(low)
+    repeat = score_detection(replace(low, source_start=10.0))
+    kept, dropped = suppress_duplicates([first, repeat])
+    assert kept.flags == ("low_confidence", "chapter_only")
+    assert dropped.flags == ("low_confidence", "chapter_only", "suppressed_duplicate")
+
+
+def test_a_chapter_only_reading_with_good_confidence_gets_only_chapter_only() -> None:
+    s = score_detection(make_det(ref("John", 3)))
+    assert s.confidence == 0.8625
+    assert s.flags == ("chapter_only",)
+
+
+def test_a_clean_verse_reference_has_no_flags() -> None:
+    assert score_detection(make_det(ref("John", 3, 16))).flags == ()
+
+
+def test_alternatives_carry_no_flags() -> None:
+    s = score_detection(make_det(ref("John", 3, 16), alts(ALT_CHAPTER)))
+    assert all(not hasattr(a, "flags") for a in s.alternatives)
+
+
+def test_the_pipeline_only_emits_the_flags_this_stage_owns() -> None:
+    owned = {"low_confidence", "chapter_only", "suppressed_duplicate"}
+    rows = detect_references(
+        words("john 3 : 16", 5.0, "john 3 : 16", 5.0, "romans 8", 5.0, "colosians 3", prob=0.1)
+    ).detections
+    assert rows
+    assert {flag for row in rows for flag in row.flags} <= owned
