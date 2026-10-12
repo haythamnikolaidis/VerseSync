@@ -11,8 +11,8 @@
 // file:// page with no server, where fetch() of a local JSON file is unreliable in Chrome.
 //
 // Activation: window.VS is set only when CSInterface is absent, or behind an explicit
-// ?stub=1 (even inside Premiere, for a developer who wants to force stub data). It must never
-// activate inside Premiere by default.
+// ?stub=1 (for a developer who wants to force stub data in a browser that has CSInterface
+// loaded). It never activates inside Premiere (window.__adobe_cep__ present), ?stub=1 or not.
 
 (function () {
   'use strict';
@@ -281,8 +281,12 @@
   if (hasWindow) {
     applyQueryScenario();
     var hasCSInterface = typeof window.CSInterface !== 'undefined';
+    // Premiere injects __adobe_cep__ before any page script runs. Checking it lets the stub be
+    // loaded ahead of the vendored CSInterface.js (which defines a CSInterface global in a
+    // plain browser too) while still never activating inside Premiere, even with ?stub=1.
+    var insidePremiere = !!window.__adobe_cep__;
     var explicitStub = queryParam('stub') === '1';
-    if (!hasCSInterface || explicitStub) {
+    if (!insidePremiere && (!hasCSInterface || explicitStub)) {
       window.VS = VS;
     }
   }

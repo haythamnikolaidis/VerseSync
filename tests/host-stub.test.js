@@ -183,6 +183,16 @@ test('activation: ?stub=1 forces activation even with CSInterface present', func
   }
 });
 
+test('activation: window.VS is NOT set inside Premiere (__adobe_cep__), even with ?stub=1', function () {
+  global.window = { location: { search: '?stub=1' }, __adobe_cep__: {} };
+  try {
+    freshStub();
+    assert.strictEqual(global.window.VS, undefined);
+  } finally {
+    delete global.window;
+  }
+});
+
 test('activation: ?hostSequence and ?hostSegments query params select a scenario', function () {
   global.window = { location: { search: '?hostSequence=sequence-25&hostSegments=segments-duplicate' } };
   try {
