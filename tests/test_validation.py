@@ -160,6 +160,22 @@ def test_impossible_primary_promotes_the_valid_alternative() -> None:
     assert fixed.alternatives == ()
 
 
+def test_grammar_alternative_is_promoted_end_to_end_for_an_impossible_verse() -> None:
+    # "psalm nine two" is read as Psalm 92 (preferred) with Psalm 9:2 as the grammar's
+    # alternative. The carried "verse 18" gives Psalm 92:18 (Psalm 92 has 15 verses, so
+    # impossible) and, on the alternative, Psalm 9:18 (Psalm 9 has 20 verses). The grammar
+    # builds both readings; validation only promotes the one that is canon-valid.
+    grammar = match_grammar(words("psalm nine two", 5.0, "and verse 18"))
+    carried = grammar.detections[1]
+    assert carried.reference == ref("Ps", 92, 18)
+    assert [a.reference for a in carried.alternatives] == [ref("Ps", 9, 18)]
+    first, second = found("psalm nine two", 5.0, "and verse 18")
+    assert first.reference == ref("Ps", 92)
+    assert second.reference == ref("Ps", 9, 18)
+    assert second.alternatives == ()
+    assert second.breakdown.validation == 0.5
+
+
 def test_alternatives_that_are_impossible_are_dropped() -> None:
     det = match_grammar(words("psalm twelve two")).detections[0]
     bad = replace(det, alternatives=(Alternative(ref("Ps", 12, 99), "bad"),))

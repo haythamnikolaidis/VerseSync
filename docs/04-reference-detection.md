@@ -255,8 +255,27 @@ Rejections:
 - `chapter > book.chapter_count` → discard. (Kills "Jude 5:1" — Jude has one chapter; "Jude verse 5" is P13 and is read as 1:5.)
 - `verse > book.verse_counts[chapter]` → discard, **unless** the number is a plausible
   concatenation (see the Psalms rule) in which case try the alternative reading.
+
+  **Who builds the alternative reading.** The grammar (stage 2, §3.1) owns it: it is the only
+  stage that sees the bare number tokens and so the only one that can form a concatenation.
+  It attaches every other reading to the detection as `alternatives`, including the
+  alternative of a context-carried verse (the carried verse is applied to both readings of the
+  preceding reference). Validation never constructs a reading. It checks the primary and each
+  alternative against the canon, drops the impossible ones, and when the primary is impossible
+  promotes the first valid alternative; with no valid reading the detection is discarded.
+  Example: "psalm nine two … verse eighteen" is Psalm 92 with the alternative Psalm 9:2; the
+  carried verse gives Psalm 92:18 (Psalm 92 has 15 verses, impossible) and Psalm 9:18 (valid),
+  so Psalm 9:18 is promoted.
 - `verse_end < verse_start` → swap if the swap validates, otherwise drop the end.
 - `verse_end - verse_start > max_range` (default 30) → treat as a mis-parse, drop the end.
+
+Where the list above is silent, the rules are:
+
+- A range of zero length (`verse_end == verse_start`) or running past the end of the chapter
+  also drops the end; the start verse stands.
+- A repaired range (swapped, or its end dropped) keeps full validation credit
+  (`validation_score` 1.0, §6). Only a **promoted alternative** is scored as validating after
+  an alternative reading.
 
 This single stage removes a large share of false positives at effectively zero cost, because
 number mishearings usually produce impossible references rather than merely wrong ones.
@@ -287,6 +306,24 @@ Weights are constants in `detect/detector.py` and are **tuned against the fixtur
 guessed** — task [T-34](tasks/T-34-threshold-tuning.md) owns the tuning pass. The default review
 threshold for the amber low-confidence flag is **0.55**.
 
+**Specified-initial values awaiting T-34.** Until that pass runs, every number in this section
+is an initial value taken from this document, not a tuned one: the four weights
+(0.40 / 0.25 / 0.25 / 0.10), the book scores (1.0 / 0.85 / 0.65), the structure scores
+(1.0 / 0.75 / 0.55 / 0.45), the validation scores (1.0 / 0.5), the corroboration bonus (+0.10),
+the 0.55 threshold (open question Q-E) and the fuzzy per-edit step below. T-34 changes them in
+`detector.py` and updates this section in the same change.
+
+Choices made where the formula is silent:
+
+- **Fuzzy scaling.** "Scaled by distance" is `0.65 × (1 − 0.10 × (d − 1))` for edit distance
+  `d ≥ 1` (`FUZZY_DISTANCE_STEP = 0.10` per edit beyond the first), floored at 0. Initial form,
+  awaiting T-34.
+- **Alternatives' confidence** is computed with the same formula (validation 0.5) and capped at
+  the primary's confidence, and at the previous alternative's, so an alternative never outranks
+  the reading the grammar preferred.
+- **Repaired ranges** (swapped, or end dropped, §5) keep `validation_score` 1.0; only a
+  promoted alternative scores 0.5.
+
 Two adjustments applied after scoring:
 
 - **Corroboration bonus (+0.10).** If a read span is later detected for this reference
@@ -295,6 +332,9 @@ Two adjustments applied after scoring:
 - **Duplicate suppression.** Identical references within the cooldown window (default 60 s) are
   collapsed to the first, with the rest retained as `suppressed: true` rows (FR-3.6). A speaker
   circling back to the same verse three times in a minute wants one graphic, not three.
+  The window is measured from the start of the last **kept** mention of that reference.
+  A suppressed repeat does not extend it, so a speaker who keeps circling back gets a fresh
+  cue once 60 s have passed since the last kept one.
 
 ---
 
