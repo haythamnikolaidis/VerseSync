@@ -5,7 +5,7 @@
   "description": "VerseSync CEP panel — vanilla ES5-compatible JS, no bundler",
   "scripts": {
     "test": "node --test \"tests/**/*.test.js\"",
-    "lint": "eslint --no-error-on-unmatched-pattern panel/js tests"
+    "lint": "eslint --no-error-on-unmatched-pattern panel/js panel/jsx tests"
   },
   "devDependencies": {
     "ajv": "^8.20.0",
