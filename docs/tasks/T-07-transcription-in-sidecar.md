@@ -16,8 +16,8 @@ word, reporting progress and cancellable mid-run.
 
 ## Context you need
 
-You are wiring the upstream engine (T-06) into the sidecar, plus the four quality gaps upstream
-deliberately left to us: decoder biasing (Gap 3), VAD and pinned language (Gap 4), the right
+You are wiring the in-repo engine (T-06, `versesync.engine`) into the sidecar, plus the four quality gaps the ported
+engine deliberately leaves to us: decoder biasing (Gap 3), VAD and pinned language (Gap 4), the right
 default model (Gap 5), and long-audio handling (Gap 6).
 
 **Everything downstream consumes only the word array** — which is why streams C and E can work

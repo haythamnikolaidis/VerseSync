@@ -46,7 +46,7 @@ Six streams, none depending on another in this wave.
 | ID | Task | Est | Prereqs |
 |----|------|-----|---------|
 | [T-05](tasks/T-05-sidecar-scaffold.md) | Sidecar scaffold | M | T-40 |
-| [T-06](tasks/T-06-upstream-qt-free-engine.md) | Upstream refactor: Qt-free engine ⚠️ *other repo* | M | — |
+| [T-06](tasks/T-06-upstream-qt-free-engine.md) | Qt-free transcription engine (ported into the sidecar) | M | — |
 | [T-07](tasks/T-07-transcription-in-sidecar.md) | Transcription in the sidecar | M | T-05, T-06 |
 | [T-08](tasks/T-08-content-hashing-and-transcript-cache.md) | Content hashing + transcript cache | S | T-07 |
 

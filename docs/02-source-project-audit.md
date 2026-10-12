@@ -161,9 +161,9 @@ def transcribe_with_words(model, audio_path, *, batch_size=None,
                           progress=None) -> Transcript
 ```
 
-into `core/transcription/engine.py`, and have **both** the existing `TranscriptionService` and
-the new sidecar call it. The GUI keeps working; the sidecar gains a dependency-light path.
-This is a refactor, not a rewrite, and it is the cleanest possible change to the upstream repo.
+and put it in the sidecar's own `versesync.engine` package (**owner decision 5**: the Qt-free
+engine is ported into this repo rather than upstreamed). The upstream GUI is left untouched;
+the sidecar gains a dependency-light path with no Qt import anywhere.
 
 > **Gap 3 — decoder is not biased toward scripture vocabulary.** *(quality)*
 
@@ -209,8 +209,8 @@ segment end-time against total duration, and support cancellation mid-run.
 `batch_size` parameter and is the one actually imported by `core/controller.py`.
 `core/service.py` is dead code.
 
-**Required:** delete `core/service.py` as part of the Gap-2 refactor, so there is one code path
-to keep correct.
+**Required:** do not port `core/service.py`; the sidecar has one code path
+(`versesync.engine.transcribe`). Upstream's copy is left as it is.
 
 > **Gap 8 — `curate_text` would corrupt word alignment.** *(correctness)*
 
@@ -221,19 +221,20 @@ after the fact, so the string no longer corresponds one-to-one with the word lis
 **Required:** curation is **off** for VerseSync jobs. The pipeline consumes the word array, and
 any display text is reconstructed from it.
 
-### 2.3 Summary of upstream changes
+### 2.3 Summary of changes (ported into the sidecar)
 
-Changes VerseSync needs in `Faster-Whisper-Transcriber`, all of them additive or clean-up:
+Per owner decision 5 nothing is changed in `Faster-Whisper-Transcriber`; the following is
+built in `sidecar/versesync/engine/` (T-06), porting from the pinned commit:
 
-1. New `core/transcription/engine.py` with a Qt-free `transcribe_with_words()`.
-2. `TranscriptionService` refactored to call it (GUI behaviour unchanged).
-3. `core/service.py` deleted.
-4. `ModelMetadata` gains `word_timestamp_quality`.
-5. Transcribe options extended: `word_timestamps`, `vad_filter`, `vad_parameters`,
-   `initial_prompt`, `language`, and a progress callback.
+1. `transcribe.py`: a Qt-free `transcribe_with_words()` that keeps word timing.
+2. `loader.py`, `cuda_setup.py`, `quantization.py`: ported without Qt or config-manager coupling.
+3. `metadata.py`: the model table, with `word_timestamp_quality` added.
+4. Transcribe options: `word_timestamps`, `vad_filter`, `vad_parameters`, `initial_prompt`,
+   `language`, `temperature`, a progress callback and a cancellation check.
+5. `core/service.py` (Gap 7) and the Qt `TranscriptionService` are not ported.
 
-Everything else VerseSync needs lives in the sidecar in this repo, so upstream stays a
-dictation tool that happens to expose a good engine.
+Authorship of the ported modules is credited in their headers. The upstream project ships no
+licence file.
 
 ---
 
