@@ -11,7 +11,7 @@
 
 ## Goal
 
-Match patterns **P1–P12** over the normalised search string and emit candidate references with
+Match patterns **P1–P13** over the normalised search string and emit candidate references with
 their token spans.
 
 ## Context you need
@@ -26,8 +26,10 @@ this is the mid-Wave-1 integration checkpoint in [13 §8](../13-technical-plan.m
 
 ## Steps
 
-1. Implement P1–P12 exactly as tabulated in [04 §4](../04-reference-detection.md), in priority
-   order, as regexes over T-10's search string.
+1. Implement P1–P13 exactly as tabulated in [04 §4](../04-reference-detection.md), in priority
+   order, as regexes over T-10's search string. P13 (a verse in a single-chapter book with no
+   chapter number, read as chapter 1) is tried between P10 and P11 and is restricted to
+   Obadiah, Philemon, 2 John, 3 John and Jude.
 2. Implement **span consumption** — a matched span is unavailable to later patterns.
 3. Convert every match's character span back to a token span, then to `(start, end)` seconds and
    word probabilities, via T-10's offset map.
@@ -51,10 +53,13 @@ this is the mid-Wave-1 integration checkpoint in [13 §8](../13-technical-plan.m
 
 ## Done when
 
-- [ ] Every row of the [04 §4](../04-reference-detection.md) P1–P12 table has a passing test
+- [ ] Every row of the [04 §4](../04-reference-detection.md) P1–P13 table has a passing test
       using its tabulated example.
+- [ ] P13 yields chapter 1 for "third john , verse two" and "jude verse three", takes
+      priority over P12 (no context carry), and does not match for multi-chapter books.
 - [ ] Context carry works, and a fragment beyond the window is discarded.
-- [ ] The Psalms ambiguity emits two alternatives.
+- [ ] The Psalms ambiguity emits two alternatives ("psalm twelve two" → 122 / 12:2); "psalm
+      one nineteen" yields Psalm 119 only, since Psalm 1:19 is not canon-valid.
 - [ ] Priority and span consumption are tested — a P1 match prevents a P9 match on the same
       words.
 - [ ] Chapter-only forms emit `verse = None`.

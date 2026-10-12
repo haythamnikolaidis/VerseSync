@@ -224,7 +224,7 @@ The sidecar's output, the panel's input, and the save format. **Versioned.**
 
 ```json
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "generated_at": "2026-08-09T10:21:47Z",
   "job": {
     "id": "job_01J9…",
@@ -307,7 +307,8 @@ The sidecar's output, the panel's input, and the save format. **Versioned.**
 ### 5.2 Versioning
 
 `schema_version` is `major.minor`. The panel accepts any matching major and warns on a newer
-minor. A major mismatch is refused with an explanation rather than a parse error — a Cue
+minor. Version history: `1.1` added grammar pattern `P13` to the `detection.pattern`
+enum ([04](04-reference-detection.md) §4); `1.0` was the initial release. A major mismatch is refused with an explanation rather than a parse error — a Cue
 Document saved months ago should fail clearly, not silently place graphics wrongly.
 
 ---

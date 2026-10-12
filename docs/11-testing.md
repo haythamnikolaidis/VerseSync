@@ -53,12 +53,16 @@ algorithmic change.
 - Short high-frequency names never fuzzy-match.
 
 **Grammar** (T-12)
-- Every pattern P1–P12 with at least three phrasings each.
+- Every pattern P1–P13 with at least three phrasings each.
 - Priority: `john 3 : 16 - 18` matches P1, not P2 then a stray number.
 - Context carry: works inside the window, expires outside it, and does not leak across a
   different intervening book.
-- Psalms ambiguity: `psalm one nineteen` yields both readings with the concatenated form
-  preferred.
+- P13: `third john verse two` → 3 John 1:2; `jude verse three` → Jude 1:3; `obadiah verses
+  fifteen to seventeen` → Obadiah 1:15-17; takes priority over P12 (no context carry from a
+  preceding passage); `john verse two` is not P13; `jude three` is not P13.
+- Psalms ambiguity: `psalm twelve two` yields both readings (Psalm 122 / Psalm 12:2) with the
+  concatenated form preferred. `psalm one nineteen` yields Psalm 119 only — Psalm 1 has six
+  verses, so only canon-valid readings are emitted ([04](04-reference-detection.md) §3.1).
 
 **Canon validation** (T-13)
 - `Jude 5:1` rejected (one chapter). `Psalm 151:1` rejected. `Psalm 119:176` accepted.

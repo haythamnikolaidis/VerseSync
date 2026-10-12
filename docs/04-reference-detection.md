@@ -128,11 +128,15 @@ hundreds   unit + "hundred"             → "one hundred" = 100
 
 Two ambiguities that matter, both from real sermons:
 
-- **"Psalm one nineteen"** means Psalm 119, not Psalm 1 verse 19. Rule: when a book is followed
-  by two bare number tokens with no `:`, no comma, and no `chapter`/`verse` keyword, and the
-  book is **Psalms**, and `concat(n1, n2)` is a valid chapter while `n1:n2` is *also* valid,
-  emit **both** candidates and let §6 rank them — with the concatenated reading preferred for
+- **"Psalm one nineteen"** means Psalm 119, not Psalm 1 verse 19 — and canon validation (§5)
+  agrees: Psalm 1 has six verses, so `1:19` is not a reading at all and only Psalm 119 is
+  emitted. Only canon-valid readings are ever emitted. Rule: when a book is followed by two
+  bare number tokens with no `:`, no comma, and no `chapter`/`verse` keyword, and the book is
+  **Psalms**, and `concat(n1, n2)` is a valid chapter while `n1:n2` is *also* valid, emit
+  **both** candidates and let §6 rank them — with the concatenated reading preferred for
   Psalms and the split reading preferred elsewhere. Surface the alternative in the review row.
+  Example of a genuine dual reading: "psalm twelve two" → Psalm 122 (preferred) / Psalm 12:2
+  (Psalm 12 has eight verses, Psalm 122 exists).
 - **"one Corinthians"** is the book, not the number one. Resolved by the ordinal rule in
   step 4: a unit number immediately preceding a book name that *has* a numbered form
   (Samuel, Kings, Chronicles, Corinthians, Thessalonians, Timothy, Peter, John) is an ordinal
@@ -158,8 +162,37 @@ name, `ORD` an ordinal prefix.
 | **P8** | `[ORD] B N N` | `john 3 16` | book, ch, v (see Psalms rule §3.1) |
 | **P9** | `[ORD] B N` | `romans 8` | book, ch |
 | **P10** | `the ORD chapter of [ORD] B (, verse[s] N)?` | `the third chapter of john , verse 16` | book, ch, v? |
+| **P13** | `[ORD] B1 ,? verse[s] N ((through\|to\|and\|-) N)?` | `3 john , verse 2` | book, ch = 1, v, vEnd? |
 | **P11** | `verse[s] N (through\|to\|and\|-) N` | `verses 19 through 20` | **context**: v, vEnd |
 | **P12** | `verse N` | `verse 5` | **context**: v |
+
+**Single-chapter books (P13).** `B1` is restricted to the five single-chapter books of the
+canon — Obadiah, Philemon, 2 John, 3 John, Jude. A verse in one of them is routinely spoken
+with no chapter number, so P13 reads the chapter as 1. It names its own book, so it is a full
+reference, not a context-carried one (`contextual: false`, no §6 penalty), and it becomes the
+context for later P11/P12 fragments. Variants it covers: "verse N", "verses N to M",
+"verses N through M", "verses N and M", "verses N - M". Verse and range validation is the
+ordinary §5 check against chapter 1.
+
+| Spoken | Normalised | Yields |
+|--------|-----------|--------|
+| "Third John, verse two" | `3 john , verse 2` | 3 John 1:2 |
+| "Jude verse three" | `jude verse 3` | Jude 1:3 |
+| "Obadiah verses fifteen to seventeen" | `obadiah verses 15 to 17` | Obadiah 1:15-17 |
+| "Philemon verse ten through twelve" | `philemon verse 10 through 12` | Philemon 1:10-12 |
+
+**P13 priority.** Numbered P13 for stability of the pattern IDs already in the Cue Document,
+but tried **between P10 and P11**: it must consume `jude verse 3` whole, otherwise P12 would
+match the bare `verse 3` and attach it to the previous passage. It cannot shadow P1–P10
+because those all require a number (or `chapter`) immediately after the book, and P13
+requires the keyword `verse`/`verses` there. "Jude chapter one verse three" is P4; "Jude 1:3"
+is P2.
+
+**Bare-number forms are not P13.** "Jude three" matches P9 as chapter 3, which §5 rejects
+(Jude has one chapter) — it is deliberately not reinterpreted as verse 3. Without the
+`verse` keyword nothing distinguishes a verse from a stray number, and the §4.1 gate stays
+closed for it. P13 also applies only to the five single-chapter books: "John verse two"
+is not P13 (John has 21 chapters) and falls through to P12.
 
 **Context carry (P11, P12).** A bare verse reference inherits the book and chapter from the
 most recent full reference, provided that reference is within a **context window** — default
@@ -198,7 +231,9 @@ are **not** silently expanded to verse 1.
    secondary signal.
 
 **The gate that makes this safe:** tiers 2 and 3 only fire when the candidate is **immediately
-followed by a number pattern** matching P1–P10. Without that gate, "job" in "he lost his job"
+followed by a number pattern** matching P1–P10, or — for the five single-chapter books only —
+by `,? verse[s] N` (P13). The gate therefore opens for "jude verse three" but not for "jude
+verse" or for "John verse three". Without that gate, "job" in "he lost his job"
 and "acts" in "faith without works acts dead" would each produce a reference. With it, they
 cannot: no number follows.
 
@@ -217,7 +252,7 @@ aliases, chapter count, and **verses per chapter**.
 Rejections:
 
 - Book not in the canon → discard.
-- `chapter > book.chapter_count` → discard. (Kills "Jude 5:1" — Jude has one chapter.)
+- `chapter > book.chapter_count` → discard. (Kills "Jude 5:1" — Jude has one chapter; "Jude verse 5" is P13 and is read as 1:5.)
 - `verse > book.verse_counts[chapter]` → discard, **unless** the number is a plausible
   concatenation (see the Psalms rule) in which case try the alternative reading.
 - `verse_end < verse_start` → swap if the swap validates, otherwise drop the end.
