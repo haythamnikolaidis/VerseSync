@@ -43,6 +43,12 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "vad_filter": True,
         "scripture_prompt": True,
         "condition_on_previous_text": True,
+        # Pinned for VerseSync jobs; null re-detects the language per run (docs/02 Gap 4).
+        "language": "en",
+        "batch_size": 8,
+        # null keeps faster-whisper's Silero defaults, the settings spike T-02 measured with.
+        "vad_parameters": None,
+        "seed": 0,
     },
     "provider": {"id": "api_bible"},
     "credentials": {"api_bible_key": "", "esv_api_key": ""},
