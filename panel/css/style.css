@@ -83,3 +83,87 @@ body {
   font-family: Consolas, monospace;
   font-size: 11px;
 }
+
+/* ---- Setup, status strip and progress (docs/09 §2-4) ---- */
+
+:root {
+  --amber: #E8A33D;
+  --red:   #D9534F;
+}
+
+.vs-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  color: var(--text-dim);
+}
+.vs-strip--ready { color: var(--text-ok); }
+.vs-strip--degraded, .vs-strip--no_sequence { color: var(--amber); }
+.vs-strip--unreachable, .vs-strip--version_mismatch { color: var(--red); }
+.vs-btn--small { padding: 0 6px; font-size: 11px; }
+.vs-btn--primary { background: var(--accent); color: #0b0b0b; border-color: var(--accent); font-weight: 600; padding: 6px 18px; }
+.vs-btn--primary:hover:not(:disabled) { background: #4cc0ee; }
+
+.vs-section-title { font-size: 11px; letter-spacing: 0.08em; color: var(--text-dim); margin-bottom: 6px; }
+.vs-fields { border: 0; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.vs-fields:disabled { opacity: 0.5; }
+.vs-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; min-width: 0; }
+.vs-row--indent { padding-left: 14px; }
+.vs-label { width: 84px; flex: none; color: var(--text-dim); }
+.vs-value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vs-row select { flex: 1; min-width: 0; }
+select, input[type="text"] {
+  background: var(--bg-raised);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font: inherit;
+  padding: 3px 4px;
+}
+select:focus, input[type="text"]:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+select:disabled, input:disabled { opacity: 0.5; }
+.vs-num { width: 52px; text-align: right; }
+
+.vs-note { color: var(--text-dim); padding-left: 90px; }
+.vs-note[hidden] { display: none; }
+.vs-note--small { font-size: 10px; }
+.vs-note--warn { color: var(--amber); }
+.vs-note--error { color: var(--red); }
+
+.vs-analyse { margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.vs-reason { color: var(--amber); text-align: center; min-height: 1.5em; }
+.vs-reason[hidden] { display: none; }
+
+.vs-summary {
+  width: 100%;
+  text-align: left;
+  background: var(--bg-raised);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px 8px;
+  font: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.vs-summary:hover { background: var(--btn-hover); }
+.vs-summary[hidden], #setup-body[hidden] { display: none; }
+
+.vs-progress { display: flex; flex-direction: column; gap: 4px; border-top: 1px solid var(--border); padding-top: 8px; }
+.vs-progress[hidden] { display: none; }
+.vs-progress-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.vs-bar { flex: 1; height: 8px; background: var(--bg-raised); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+.vs-bar-fill { height: 100%; width: 0; background: var(--accent); transition: width 0.4s linear; }
+.vs-progress-pct { width: 36px; text-align: right; }
+.vs-progress-time { color: var(--text-dim); }
+/* A cache hit (Journey B) looks different from a cold run: green, with a quick fill. */
+.vs-progress--cached .vs-bar-fill { background: var(--text-ok); transition-duration: 0.12s; }
+.vs-progress--cached .vs-progress-label { color: var(--text-ok); font-weight: 600; }
+
+.vs-job-error { border: 1px solid var(--red); border-radius: var(--radius); padding: 8px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.vs-job-error[hidden] { display: none; }
+.vs-job-error .vs-note { padding-left: 0; }
+.vs-review { color: var(--text-dim); }

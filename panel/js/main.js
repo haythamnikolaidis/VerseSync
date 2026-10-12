@@ -32,32 +32,48 @@
     });
   }
 
-  // Sidecar status strip (docs/09 §2). Outside CEP there is no process API, so it stays idle.
-  function initSidecar() {
-    var el = document.getElementById('sidecar-status');
-    if (!window.__adobe_cep__ || !window.cep) {
-      el.textContent = 'Transcription service: not available outside Premiere';
-      return;
+  // Sidecar client. Inside Premiere it launches and attaches to the real sidecar. In a plain
+  // browser a developer can point the panel at a running mock with
+  //   ?sidecarPort=NNNN&sidecarToken=TOKEN
+  // otherwise the strip reports the service as unavailable (docs/09 §2).
+  function createClient() {
+    if (window.__adobe_cep__ && window.cep) {
+      var cs = new CSInterface();
+      return VSSidecar.create(VSSidecar.cepPlatform({
+        cep: window.cep,
+        appData: cs.getSystemPath(SystemPath.USER_DATA)
+      }));
     }
-    var cs = new CSInterface();
-    var client = VSSidecar.create(VSSidecar.cepPlatform({
-      cep: window.cep,
-      appData: cs.getSystemPath(SystemPath.USER_DATA)
-    }));
-    function render(status) {
-      var strip = VSSidecar.computeStrip(status, true);
-      el.textContent = strip.text + (strip.detail ? ' \u2014 ' + strip.detail.message +
-        ' Log: ' + strip.detail.logPath : '');
-    }
-    client.onStatus(render);
-    client.connect().then(function () {
-      return client.resumeJob({});
+    var m = /[?&]sidecarPort=(\d+)&sidecarToken=([^&]+)/.exec(window.location.search || '');
+    if (!m) { return null; }
+    var lock = { pid: 1, port: Number(m[1]), token: decodeURIComponent(m[2]) };
+    return VSSidecar.create({
+      logPath: '',
+      fetch: function (url, init) { return window.fetch(url, init); },
+      storage: {
+        get: function (k) { return window.localStorage.getItem(k); },
+        set: function (k, v) { window.localStorage.setItem(k, v); },
+        remove: function (k) { window.localStorage.removeItem(k); }
+      },
+      sleep: function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); },
+      readLock: function () { return Promise.resolve(lock); },
+      deleteLock: function () { return Promise.resolve(); },
+      isPidAlive: function () { return Promise.resolve(true); },
+      launch: function () {
+        return Promise.resolve({ ok: false, error: 'Launching is not available outside Premiere.' });
+      }
     });
+  }
+
+  function initSetup() {
+    var client = createClient();
     window.VSSidecarClient = client;
+    window.VSSetupUI = VSSetup.mount({ client: client });
+    if (client) { client.connect(); }
   }
 
   function init() {
-    initSidecar();
+    initSetup();
     btnPing.addEventListener('click', ping);
 
     // Load the host script explicitly before any other call; bypasses the ScriptPath cache.

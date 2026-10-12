@@ -15,7 +15,91 @@
 
     <div class="vs-status" id="status-line" role="status" aria-live="polite">Starting…</div>
     <pre id="diag-output" class="vs-diag" hidden></pre>
-    <div class="vs-status" id="sidecar-status" role="status" aria-live="polite"></div>
+    <div class="vs-strip" id="sidecar-status" role="status" aria-live="polite"></div>
+    <pre id="strip-details" class="vs-diag" hidden></pre>
+
+    <section class="vs-setup" id="setup-section">
+      <button class="vs-summary" id="setup-summary" type="button" hidden></button>
+      <div id="setup-body">
+        <h2 class="vs-section-title">SETUP</h2>
+        <fieldset class="vs-fields" id="setup-fields">
+          <div class="vs-row">
+            <span class="vs-label">Media file</span>
+            <button class="vs-btn" id="btn-media" type="button">Select&hellip;</button>
+            <span class="vs-value" id="media-name">No media selected</span>
+          </div>
+          <p class="vs-note vs-note--error" id="media-note" hidden></p>
+
+          <div class="vs-row">
+            <span class="vs-label">Template</span>
+            <button class="vs-btn" id="btn-mogrt" type="button">Select&hellip;</button>
+            <span class="vs-value" id="mogrt-name">No template selected</span>
+          </div>
+          <p class="vs-note vs-note--warn" id="mogrt-warning" hidden></p>
+          <div class="vs-row vs-row--indent">
+            <label class="vs-label" for="sel-ref">Reference</label>
+            <select id="sel-ref" disabled></select>
+          </div>
+          <div class="vs-row vs-row--indent">
+            <label class="vs-label" for="sel-body">Scripture</label>
+            <select id="sel-body" disabled></select>
+          </div>
+          <p class="vs-note vs-note--error" id="mapping-error" hidden></p>
+
+          <div class="vs-row">
+            <label class="vs-label" for="sel-translation">Translation</label>
+            <select id="sel-translation" disabled></select>
+          </div>
+          <p class="vs-note vs-note--small" id="translation-attr"></p>
+
+          <div class="vs-row">
+            <label class="vs-label" for="sel-track">Target track</label>
+            <select id="sel-track" disabled></select>
+            <button class="vs-btn" id="btn-refresh-track" type="button">Refresh</button>
+          </div>
+          <p class="vs-note vs-note--error" id="track-note" hidden></p>
+
+          <div class="vs-row">
+            <span class="vs-label">Duration</span>
+            <label><input type="radio" name="duration-mode" id="dur-auto" checked> Auto</label>
+            <label><input type="radio" name="duration-mode" id="dur-fixed"> Fixed</label>
+            <input type="text" id="input-fixed" class="vs-num" inputmode="decimal" aria-label="Fixed duration in seconds" disabled> s
+          </div>
+
+          <div class="vs-row">
+            <label class="vs-label" for="input-leadin">Lead-in</label>
+            <input type="text" id="input-leadin" class="vs-num" inputmode="decimal"> s
+          </div>
+        </fieldset>
+
+        <div class="vs-analyse">
+          <button class="vs-btn vs-btn--primary" id="btn-analyse" type="button" disabled>Analyse</button>
+          <p class="vs-reason" id="analyse-reason" role="status"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="vs-progress" id="progress-section" hidden>
+      <div class="vs-progress-label" id="progress-label"></div>
+      <div class="vs-progress-line">
+        <div class="vs-bar" id="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="vs-bar-fill" id="progress-fill"></div>
+        </div>
+        <span class="vs-progress-pct" id="progress-pct">0%</span>
+      </div>
+      <div class="vs-progress-line">
+        <span class="vs-progress-time" id="progress-time"></span>
+        <button class="vs-btn" id="btn-cancel" type="button">Cancel</button>
+      </div>
+    </section>
+
+    <section class="vs-job-error" id="job-error" hidden>
+      <p id="job-error-message"></p>
+      <p class="vs-note" id="job-error-hint" hidden></p>
+      <button class="vs-btn" id="btn-retry" type="button">Retry</button>
+    </section>
+
+    <section class="vs-review" id="review-area">Select a media file and click Analyse.</section>
   </div>
 
   <!-- host-stub.js must precede CSInterface.js: CSInterface.js defines a global of its own, so
@@ -24,6 +108,8 @@
   <script src="js/lib/CSInterface.js"></script>
   <script src="js/bridge.js"></script>
   <script src="js/sidecar.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/setup.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

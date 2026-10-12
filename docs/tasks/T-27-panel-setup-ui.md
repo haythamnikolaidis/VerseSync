@@ -64,3 +64,43 @@ between sessions (FR-1.7). Getting persistence right is most of this task's valu
 - Store field **indices**, not display names (risk R-8 — two fields are both called `Text`).
 - Keep VerseFlow's `state.js` persistence pattern; it works and it is already proven in this
   environment.
+
+## Status
+
+- **Every persisted setting survives a Premiere restart.** Met in a browser profile:
+  `tests/state.test.js` (store round-trip, per-MOGRT mappings, corrupt storage) and
+  `tests/setup-ui.test.js` "setup flow" (closes and reopens the browser profile; template,
+  per-template mapping by index, translation, track, duration mode, fixed seconds and lead-in
+  all return, the media file does not). **Deferred — needs Premiere:** select a template,
+  translation, track, Fixed duration and lead-in, map the two fields non-default, quit and
+  relaunch Premiere, reopen the panel and confirm all of them are restored with only the media
+  file empty. (CEP keeps `localStorage` per extension; this has not been observed there.)
+- **Analyse enables exactly per the stated conditions, and the disabled reason is always
+  shown.** Met: `analyseGate` is tested by removing each condition in turn from a valid state
+  (`tests/state.test.js`, 14 rows plus the sidecar and sequence states), and the UI test shows
+  the reason beside the button at each step and hides it once enabled.
+- **Smart defaults select the right two fields for `AV_Quote_04.mogrt`.** Met against the
+  stub's field list (`Description > Text` index 11 as reference, `Title Main > Text` index 3
+  as scripture) in `tests/state.test.js` and the UI test. **Deferred — needs Premiere and the
+  real `AV_Quote_04.mogrt`:** select it and confirm the same two fields are chosen.
+- **Mapping both dropdowns to the same field is rejected.** Met: validation error shown,
+  Analyse disabled with that reason, and the invalid mapping is not persisted (state test and
+  UI test).
+- **Progress renders correctly against the mock, including a cache-hit run.** Met
+  (`tests/setup-ui.test.js`): cold run shows the weighted bar, phase label, elapsed/ETA only
+  after 10%, Cancel, and completion; `--cache-hit` shows *Using cached transcript* with the
+  distinct styling and finishes in seconds; a failed job shows the message, hint and Retry; a
+  panel reload rejoins a running job.
+
+Not exercised here, **Deferred — needs Premiere:** the real CEP file dialog (media and
+`.mogrt`); `pickFileCEP` is tested against a fake `window.cep.fs` (`tests/file-picker.test.js`).
+Reading a template with the real host (`VS.getMogrtFields`) and the real sequence's tracks
+(`VS.getSequenceInfo`) also need Premiere; both run against the host stub here.
+
+Notes: `tests/setup-ui.test.js` needs Playwright and Chromium, which are not npm dependencies;
+it locates them through `PLAYWRIGHT_NODE_PATH` / `PLAYWRIGHT_BROWSERS_PATH` and skips with a
+reason when absent. Outside Premiere the panel connects to a running mock when opened with
+`?sidecarPort=N&sidecarToken=T`. When no translation was saved, the bundled public-domain WEB
+is preselected if listed; a licensed translation is never chosen silently. Analyse sends the
+lead-in and duration mode as `options.timing.lead_in_s`, `duration_mode` and
+`fixed_duration_s`.
