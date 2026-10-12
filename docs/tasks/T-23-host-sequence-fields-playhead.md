@@ -84,7 +84,9 @@ declarations and no `#include`.
   with distinct indices and group-qualified labels. Logic is covered against a mock modelled on
   that template (`tests/host-jsx.test.js`: "both Text fields of AV_Quote_04 ...", all three
   detection strategies, group types 10 and 4, scratch insert past the end, undo-group balance).
-  Steps for a human: open a sequence in Premiere, load the panel, select
+  The mock reproduces the recorded real behaviour (propertyType undefined for every property,
+  group headers whose getValue() is a ';'-joined GUID list, text leaves detected by
+  textEditValue). Steps for a human: open a sequence in Premiere, load the panel, select
   `assets/test/AV_Quote_04.mogrt`, and confirm the field list shows `Title Main > Text` (index 3)
   and `Description > Text` (index 11) and that no scratch clip is left on the timeline.
 - **Deferred — needs Premiere.** `getSequenceInfo` returns `timebase` as the real ticks-per-frame
@@ -103,3 +105,12 @@ declarations and no `#include`.
   sequence in Premiere first.`, `getSequenceInfo` returns `hasActiveSequence: false`, and `ping`
   still answers (`tests/host-jsx.test.js`, "with no sequence open no function throws ...", plus
   an exact-string test for each).
+- **Deferred — needs Premiere.** `getSequenceInfo` returns `sequenceID` as a non-empty string that
+  differs between two open sequences and is unchanged after renaming a sequence. The host passes
+  `seq.sequenceID` through as a string (`tests/host-jsx.test.js`, "getSequenceInfo follows
+  whichever sequence is active and stamps its ID", plus the missing-ID error test). Steps: open
+  two sequences, run `VS.getSequenceInfo('{}')` from the panel DevTools console in each and
+  confirm the two `sequenceID` values are non-empty and different; rename one sequence in the
+  Project panel and confirm its `sequenceID` is unchanged.
+- **Met** — `ping` reports `hostApi: "1.1"` (`tests/host-jsx.test.js`, ping tests assert the
+  `{pong, version, hostApi}` payload with `hostApi` `"1.1"`).

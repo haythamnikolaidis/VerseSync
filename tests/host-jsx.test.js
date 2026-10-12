@@ -318,6 +318,27 @@ test('group nodes of type 10 and type 4 set the group of the fields that follow 
   ]);
 });
 
+test('AV_Quote_04 as Premiere really reports it: no propertyType anywhere, groups found by GUID-list value', function () {
+  var specs = mock.avQuote04Specs();
+  specs.forEach(function (spec) { assert.strictEqual(spec.propertyType, undefined); });
+  assert.ok(/^[0-9a-f-]{36}(;[0-9a-f-]{36})*$/.test(specs[0].value));
+  var env = mogrtEnv();
+  var fields = env.host.call('getMogrtFields', { path: MOGRT }).data.fields;
+  assert.deepStrictEqual(fields.map(function (f) { return f.group; }), ['Title Main', 'Description']);
+  assert.deepStrictEqual(fields.map(function (f) { return f.index; }), [3, 11]);
+});
+
+test('a GUID-list header sets the group even when propertyType is undefined, and is not a field', function () {
+  var env = mogrtEnv(null, { specs: function () {
+    return [
+      { displayName: 'Grp', value: 'aaaaaaaa-1111-2222-3333-444444444444' },
+      { displayName: 'Body', value: mock.textValue('x') }
+    ];
+  } });
+  var fields = env.host.call('getMogrtFields', { path: MOGRT }).data.fields;
+  assert.deepStrictEqual(fields, [{ index: 1, name: 'Body', group: 'Grp', label: 'Grp > Body' }]);
+});
+
 test('a template with no groups gets numbered labels so identical names stay distinguishable', function () {
   var env = mogrtEnv(null, { specs: function () {
     return [

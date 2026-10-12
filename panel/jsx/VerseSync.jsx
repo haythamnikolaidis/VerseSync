@@ -162,10 +162,15 @@ var vsSecondsToTicksStr = function (sec) {
 //   3. getValue() contains "textEditValue" -- reliable cross-version probe;
 //      Premiere stores text properties as a JSON blob with this key
 //
-// Group detection: type 10 (spec) or type 4 (seen in some Premiere builds).
+// Group detection: on the real reference template propertyType is undefined for every
+// property (spikes/word_timestamps), and a group header's getValue() is a ';'-joined list of
+// GUIDs. A GUID-list value is therefore the primary signal; type 10 (spec) or type 4 (seen in
+// some Premiere builds) remain as secondary signals for builds that do report propertyType.
 //
 // Fields are identified by their index in the collection and never by display name: the
 // reference template has two fields both called "Text".
+var VS_GUID_LIST_RE = /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12};?)+$/i;
+
 var vsIterateProperties = function (mgt) {
     var props = mgt.properties;
     var count = 0;
@@ -185,7 +190,14 @@ var vsIterateProperties = function (mgt) {
         try { pName = p.displayName; } catch (e) {}
 
         // Group / folder nodes -- track current group context, don't add to results
-        if (pType === 10 || pType === 4) {
+        var isGroup = (pType === 10 || pType === 4);
+        if (!isGroup) {
+            try {
+                var gv = p.getValue();
+                if (typeof gv === 'string' && VS_GUID_LIST_RE.test(gv)) isGroup = true;
+            } catch (e) {}
+        }
+        if (isGroup) {
             currentGroup = pName;
             continue;
         }

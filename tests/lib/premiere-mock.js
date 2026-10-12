@@ -46,23 +46,27 @@ function textValue(text) {
   return JSON.stringify({ textEditValue: text, fontTextRunLength: [text.length] });
 }
 
-// Property specs modelled on AV_Quote_04.mogrt: two groups, each holding one text field, and
-// both fields display as "Text". Group nodes use type 10 in one place and type 4 in the
-// other; the two text fields are matched by type 6 and type 5 respectively.
+// Property specs modelled on AV_Quote_04.mogrt as recorded in spikes/word_timestamps: Premiere
+// reports propertyType as undefined for every property, a group header's getValue() is a
+// ';'-joined list of GUIDs, and a text leaf's getValue() is a JSON blob with textEditValue.
+// Two groups each hold one text field, and both fields display as "Text".
+var GUID_TITLE = '31a1fe9e-5ef8-4a8e-80e3-f666166d3536;0b7c1a52-93d4-4c1e-8a57-5d2e6f0c9b11';
+var GUID_DESC = '9e4d27c0-1b6a-4f3e-b2d8-7a5c3e918f40';
+
 function avQuote04Specs() {
   return [
-    { displayName: 'Title Main', propertyType: 10 },                                   // 0
-    { displayName: 'Position', propertyType: 1, value: [0.5, 0.5] },                   // 1
-    { displayName: 'Scale', propertyType: 1, value: 100 },                             // 2
-    { displayName: 'Text', propertyType: 6, value: textValue('Title') },               // 3
-    { displayName: 'Fill', propertyType: 1, value: [1, 1, 1, 1] },                     // 4
-    { displayName: 'Opacity', propertyType: 1, value: 100 },                           // 5
-    { displayName: 'Description', propertyType: 4 },                                   // 6
-    { displayName: 'Position', propertyType: 1, value: [0.5, 0.8] },                   // 7
-    { displayName: 'Scale', propertyType: 1, value: 100 },                             // 8
-    { displayName: 'Fill', propertyType: 1, value: [1, 1, 1, 1] },                     // 9
-    { displayName: 'Opacity', propertyType: 1, value: 100 },                           // 10
-    { displayName: 'Text', propertyType: 5, value: textValue('Description') }          // 11
+    { displayName: 'Title Main', value: GUID_TITLE },                      // 0
+    { displayName: 'Position', value: [0.5, 0.5] },                        // 1
+    { displayName: 'Scale', value: 100 },                                  // 2
+    { displayName: 'Text', value: textValue('Title') },                    // 3
+    { displayName: 'Fill', value: [1, 1, 1, 1] },                          // 4
+    { displayName: 'Opacity', value: 100 },                                // 5
+    { displayName: 'Description', value: GUID_DESC },                      // 6
+    { displayName: 'Position', value: [0.5, 0.8] },                        // 7
+    { displayName: 'Scale', value: 100 },                                  // 8
+    { displayName: 'Fill', value: [1, 1, 1, 1] },                          // 9
+    { displayName: 'Opacity', value: 100 },                                // 10
+    { displayName: 'Text', value: textValue('Description') }               // 11
   ];
 }
 
