@@ -15,9 +15,12 @@ Estimates: **S** ≤ half a day · **M** ~1 day · **L** 2–3 days · **XL** ~1
 
 ---
 
-## Wave 0 — Foundations and spikes
+## Wave 0 — Foundations and spikes ✅ Complete — 2026-10-11
 
 Everything else waits on this wave and nothing else does. Keep it short.
+
+See [13 §5](13-technical-plan.md#5-wave-plan) for PR links and the two corrections found
+while closing it out (the `VS.*` call count, and a 1000x `timebase` typo).
 
 | ID | Task | Stream | Est | Prereqs |
 |----|------|--------|-----|---------|
