@@ -41,6 +41,13 @@ rediscovered.
   `8475667`. All three values (`29.97 → 8475667200`, `23.976 → 10594584000`,
   `25 → 10160640000`) were then confirmed live against real Premiere sequences, not just
   derived, and both docs were corrected to match.
+- **`Description > Text` index was 11, the real index is 7.** [08](08-premiere-host-api.md) §5 and §6
+  (and the host-stub fixture, the panel host stub and their tests) gave the `AV_Quote_04`
+  Description field as index 11, from a template layout assumed before the T-02 spike. The
+  recorded real dump (`spikes/word_timestamps/graphic_raw.json`) shows `Title Main > Text` at
+  index 3 and `Description > Text` at index 7, each group header immediately followed by its
+  `Text` field. The response shape is unchanged, so `hostApi` is not bumped; only the data was
+  corrected.
 
 ---
 

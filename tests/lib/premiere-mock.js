@@ -46,28 +46,46 @@ function textValue(text) {
   return JSON.stringify({ textEditValue: text, fontTextRunLength: [text.length] });
 }
 
-// Property specs modelled on AV_Quote_04.mogrt as recorded in spikes/word_timestamps: Premiere
-// reports propertyType as undefined for every property, a group header's getValue() is a
-// ';'-joined list of GUIDs, and a text leaf's getValue() is a JSON blob with textEditValue.
-// Two groups each hold one text field, and both fields display as "Text".
+// Property specs for AV_Quote_04.mogrt (clips named "AV Quote 04", 45 properties), taken from the
+// real dump recorded in spikes/word_timestamps/graphic_raw.json: `Title Main` is a group header at
+// index 2 immediately followed by its `Text` field at 3, `Description` is a group header at 6
+// immediately followed by its `Text` field at 7. Premiere reports propertyType as undefined for
+// every property, a group header's getValue() is a ';'-joined list of GUIDs, and a text leaf's
+// getValue() is a JSON blob with textEditValue and the font-run keys. The dump records only the
+// two text fields, so the other slots are non-text, non-group properties with placeholder names
+// and plain numeric values; none of them is a header or holds textEditValue.
 var GUID_TITLE = '31a1fe9e-5ef8-4a8e-80e3-f666166d3536;0b7c1a52-93d4-4c1e-8a57-5d2e6f0c9b11';
 var GUID_DESC = '9e4d27c0-1b6a-4f3e-b2d8-7a5c3e918f40';
+var AV_QUOTE_04_PROPERTY_COUNT = 45;
+
+function realTextValue(text, font, caps) {
+  return JSON.stringify({
+    capPropFontEdit: true,
+    capPropFontFauxStyleEdit: true,
+    capPropFontSizeEdit: true,
+    capPropTextRunCount: 1,
+    fontEditValue: [font],
+    fontFSAllCapsValue: [caps],
+    fontFSBoldValue: [!caps],
+    fontFSItalicValue: [false],
+    fontFSSmallCapsValue: [false],
+    fontSizeEditValue: [40],
+    fontTextRunLength: [text.length],
+    textEditValue: text
+  });
+}
 
 function avQuote04Specs() {
-  return [
-    { displayName: 'Title Main', value: GUID_TITLE },                      // 0
-    { displayName: 'Position', value: [0.5, 0.5] },                        // 1
-    { displayName: 'Scale', value: 100 },                                  // 2
-    { displayName: 'Text', value: textValue('Title') },                    // 3
-    { displayName: 'Fill', value: [1, 1, 1, 1] },                          // 4
-    { displayName: 'Opacity', value: 100 },                                // 5
-    { displayName: 'Description', value: GUID_DESC },                      // 6
-    { displayName: 'Position', value: [0.5, 0.8] },                        // 7
-    { displayName: 'Scale', value: 100 },                                  // 8
-    { displayName: 'Fill', value: [1, 1, 1, 1] },                          // 9
-    { displayName: 'Opacity', value: 100 },                                // 10
-    { displayName: 'Text', value: textValue('Description') }               // 11
-  ];
+  var specs = [];
+  var i;
+  for (i = 0; i < AV_QUOTE_04_PROPERTY_COUNT; i++) {
+    specs.push({ displayName: 'Property ' + i, value: 100 });
+  }
+  specs[2] = { displayName: 'Title Main', value: GUID_TITLE };
+  specs[3] = { displayName: 'Text', value: realTextValue('The Light of His Favour Is upon You', 'Avenir-Light', false) };
+  specs[6] = { displayName: 'Description', value: GUID_DESC };
+  specs[7] = { displayName: 'Text', value: realTextValue('Message Title', 'Avenir-Black', true) };
+  return specs;
 }
 
 // Premiere's MGT component: `properties` is a collection with numItems and index access.

@@ -321,11 +321,15 @@ test('group nodes of type 10 and type 4 set the group of the fields that follow 
 test('AV_Quote_04 as Premiere really reports it: no propertyType anywhere, groups found by GUID-list value', function () {
   var specs = mock.avQuote04Specs();
   specs.forEach(function (spec) { assert.strictEqual(spec.propertyType, undefined); });
-  assert.ok(/^[0-9a-f-]{36}(;[0-9a-f-]{36})*$/.test(specs[0].value));
+  assert.strictEqual(specs.length, 45);
+  assert.ok(/^[0-9a-f-]{36}(;[0-9a-f-]{36})*$/.test(specs[2].value));
+  assert.ok(/^[0-9a-f-]{36}(;[0-9a-f-]{36})*$/.test(specs[6].value));
+  assert.strictEqual(specs[3].displayName, 'Text');
+  assert.strictEqual(specs[7].displayName, 'Text');
   var env = mogrtEnv();
   var fields = env.host.call('getMogrtFields', { path: MOGRT }).data.fields;
   assert.deepStrictEqual(fields.map(function (f) { return f.group; }), ['Title Main', 'Description']);
-  assert.deepStrictEqual(fields.map(function (f) { return f.index; }), [3, 11]);
+  assert.deepStrictEqual(fields.map(function (f) { return f.index; }), [3, 7]);
 });
 
 test('a GUID-list header sets the group even when propertyType is undefined, and is not a field', function () {

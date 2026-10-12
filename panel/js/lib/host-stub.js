@@ -138,7 +138,7 @@
   var MOGRT_FIELDS = {
     fields: [
       { index: 3, name: 'Text', group: 'Title Main', label: 'Title Main > Text' },
-      { index: 11, name: 'Text', group: 'Description', label: 'Description > Text' }
+      { index: 7, name: 'Text', group: 'Description', label: 'Description > Text' }
     ]
   };
 

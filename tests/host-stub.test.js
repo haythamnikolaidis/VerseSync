@@ -45,7 +45,7 @@ test('insertCues: happy path echoes actualStartTicks as a string per cue', funct
     sequenceID: SEQ_2997,
     mogrtPath: 'D:/Templates/AV_Quote_04.mogrt',
     trackIndex: 2,
-    mapping: { referenceIndex: 11, bodyIndex: 3 },
+    mapping: { referenceIndex: 7, bodyIndex: 3 },
     cues: [
       { id: 'cue_001', atTicks: '100000000000', durationTicks: '6000000000', reference: 'John 3:16 (KJV)', body: '…' },
       { id: 'cue_002', atTicks: '200000000000', durationTicks: '6000000000', reference: 'Romans 8:28 (KJV)', body: '…' }
@@ -67,7 +67,7 @@ test('insertCues: rejects unsorted input with the exact §9 error string', funct
     sequenceID: SEQ_2997,
     mogrtPath: 'D:/Templates/AV_Quote_04.mogrt',
     trackIndex: 2,
-    mapping: { referenceIndex: 11, bodyIndex: 3 },
+    mapping: { referenceIndex: 7, bodyIndex: 3 },
     cues: [
       { id: 'cue_002', atTicks: '200000000000' },
       { id: 'cue_001', atTicks: '100000000000' }
@@ -136,7 +136,7 @@ function sequenceGuardPayload(sequenceID) {
   var payload = {
     mogrtPath: 'D:/Templates/AV_Quote_04.mogrt',
     trackIndex: 2,
-    mapping: { referenceIndex: 11, bodyIndex: 3 },
+    mapping: { referenceIndex: 7, bodyIndex: 3 },
     cues: [{ id: 'cue_001', atTicks: '100000000000', durationTicks: '6000000000', reference: 'John 3:16 (KJV)', body: '...' }]
   };
   if (sequenceID !== undefined) { payload.sequenceID = sequenceID; }

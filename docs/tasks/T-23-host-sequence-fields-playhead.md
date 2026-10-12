@@ -75,20 +75,25 @@ that was already paid for:
 
 Premiere is not available in the build environment. `panel/jsx/VerseSync.jsx` is executed under
 Node by `tests/host-jsx.test.js` against a mock of the Premiere object model
-(`tests/lib/premiere-mock.js`, `tests/lib/load-host.js`) shaped from docs/08 and the spike
-findings, with no native `JSON` so the file's own polyfill is the one under test.
+(`tests/lib/premiere-mock.js`, `tests/lib/load-host.js`) shaped from docs/08 and the recorded T-02
+spike data (`spikes/word_timestamps/graphic_raw.json`), with no native `JSON` so the file's own
+polyfill is the one under test. The mock cannot prove that a live Premiere behaves the same way;
+that is what the Deferred steps below are for.
 `tests/jsx-conformance.test.js` and `npm run lint` enforce ES3, ASCII-only source, no function
 declarations and no `#include`.
 
 - **Deferred — needs Premiere.** Field discovery returns both `Text` fields of `AV_Quote_04.mogrt`
-  with distinct indices and group-qualified labels. Logic is covered against a mock modelled on
-  that template (`tests/host-jsx.test.js`: "both Text fields of AV_Quote_04 ...", all three
-  detection strategies, group types 10 and 4, scratch insert past the end, undo-group balance).
-  The mock reproduces the recorded real behaviour (propertyType undefined for every property,
-  group headers whose getValue() is a ';'-joined GUID list, text leaves detected by
-  textEditValue). Steps for a human: open a sequence in Premiere, load the panel, select
-  `assets/test/AV_Quote_04.mogrt`, and confirm the field list shows `Title Main > Text` (index 3)
-  and `Description > Text` (index 11) and that no scratch clip is left on the timeline.
+  with distinct indices and group-qualified labels. Logic is covered against a mock of that
+  template (`tests/host-jsx.test.js`: "both Text fields of AV_Quote_04 ...", all three detection
+  strategies, group types 10 and 4, scratch insert past the end, undo-group balance). The mock
+  has the 45-property layout recorded in the T-02 dump: `Title Main` header at index 2 followed
+  by `Text` at 3, `Description` header at 6 followed by `Text` at 7, propertyType undefined for
+  every property, group headers whose getValue() is a ';'-joined GUID list, text leaves whose
+  getValue() is the recorded JSON blob. The dump records only the two text fields, so the other
+  41 property slots in the mock are placeholders, not the template's real properties. Steps for
+  a human: open a sequence in Premiere, load the panel, select your `AV_Quote_04.mogrt` template,
+  and confirm the field list shows `Title Main > Text` (index 3) and `Description > Text`
+  (index 7) and that no scratch clip is left on the timeline.
 - **Deferred — needs Premiere.** `getSequenceInfo` returns `timebase` as the real ticks-per-frame
   integer. The host passes `seq.timebase` through as a string and never derives it from
   `frameRate` (`tests/host-jsx.test.js`, "returns the real ticks-per-frame integer ..."; output

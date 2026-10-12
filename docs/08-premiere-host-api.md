@@ -142,7 +142,7 @@ sequence inside an undo group, enumerate `mgt.properties`, remove it.
 VS.getMogrtFields('{"path":"D:/Templates/AV_Quote_04.mogrt"}')
 → { ok: true, data: { fields: [
       { index: 3,  name: "Text", group: "Title Main",  label: "Title Main > Text" },
-      { index: 11, name: "Text", group: "Description", label: "Description > Text" }
+      { index: 7, name: "Text", group: "Description", label: "Description > Text" }
    ] } }
 ```
 
@@ -163,7 +163,7 @@ absolute times instead of being laid end to end from the playhead.
   "sequenceID": "6f1c2b7e-3a54-4d0e-9b6a-2c8d1e5f7a90",
   "mogrtPath": "D:/Templates/AV_Quote_04.mogrt",
   "trackIndex": 2,
-  "mapping": { "referenceIndex": 11, "bodyIndex": 3 },
+  "mapping": { "referenceIndex": 7, "bodyIndex": 3 },
   "cues": [
     { "id": "cue_014", "atTicks": "358996428390000", "durationTicks": "6878765400000",
       "reference": "1 Corinthians 6:19-20 (KJV)", "body": "19 What? know ye not…" }
