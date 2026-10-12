@@ -159,8 +159,11 @@ assert byte-identical output.
 - Lock file: stale lock is replaced; two sidecars cannot both claim it.
 - CLI and HTTP produce identical Cue Documents for the same input (T-21).
 
-**Host layer** — cannot be automated (no headless Premiere), so it is covered by the manual
-script in §6 plus the spike evidence from T-03 and T-04.
+**Host layer** — cannot be automated against a real Premiere (no headless Premiere), so it is
+covered by the manual script in §6 plus the spike evidence from T-03 and T-04. The host script's
+own logic (argument handling, error strings, undo-group balance, field detection) is run under
+Node against a mock of the Premiere object model (`tests/host-jsx.test.js`), and `npm run lint`
+enforces ES3 / ASCII-only source.
 
 ---
 

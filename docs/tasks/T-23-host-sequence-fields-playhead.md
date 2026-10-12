@@ -70,3 +70,36 @@ that was already paid for:
   This must not be "simplified" away.
 - `zeroPointTicks` is for **display timecode only** ([05 §1](../05-timing-and-placement.md)).
   Do not use it in placement math.
+
+## Status
+
+Premiere is not available in the build environment. `panel/jsx/VerseSync.jsx` is executed under
+Node by `tests/host-jsx.test.js` against a mock of the Premiere object model
+(`tests/lib/premiere-mock.js`, `tests/lib/load-host.js`) shaped from docs/08 and the spike
+findings, with no native `JSON` so the file's own polyfill is the one under test.
+`tests/jsx-conformance.test.js` and `npm run lint` enforce ES3, ASCII-only source, no function
+declarations and no `#include`.
+
+- **Deferred — needs Premiere.** Field discovery returns both `Text` fields of `AV_Quote_04.mogrt`
+  with distinct indices and group-qualified labels. Logic is covered against a mock modelled on
+  that template (`tests/host-jsx.test.js`: "both Text fields of AV_Quote_04 ...", all three
+  detection strategies, group types 10 and 4, scratch insert past the end, undo-group balance).
+  Steps for a human: open a sequence in Premiere, load the panel, select
+  `assets/test/AV_Quote_04.mogrt`, and confirm the field list shows `Title Main > Text` (index 3)
+  and `Description > Text` (index 11) and that no scratch clip is left on the timeline.
+- **Deferred — needs Premiere.** `getSequenceInfo` returns `timebase` as the real ticks-per-frame
+  integer. The host passes `seq.timebase` through as a string and never derives it from
+  `frameRate` (`tests/host-jsx.test.js`, "returns the real ticks-per-frame integer ..."; output
+  equals `tests/fixtures/host/sequence-*.json`). Steps: in 29.97, 23.976 and 25 fps sequences,
+  run `VS.getSequenceInfo('{}')` from the panel DevTools console and compare `timebase` with
+  8475667200, 10594584000 and 10160640000.
+- **Deferred — needs Premiere.** `setPlayhead` moves the playhead. Covered by the mock
+  ("setPlayhead moves the playhead ..."); the call form is `seq.setPlayerPosition(ticksString)`
+  as used in the T-02 spike. Steps: run `VS.setPlayhead('{"ticks":"30481920000000"}')` from the
+  panel DevTools console and confirm the Program monitor moves to 120 seconds into the sequence
+  (30481920000000 / 254016000000).
+- **Met** — With no sequence open every function returns the specified message, not an
+  exception: `getMogrtFields` returns the field-discovery message, `setPlayhead` returns `Open a
+  sequence in Premiere first.`, `getSequenceInfo` returns `hasActiveSequence: false`, and `ping`
+  still answers (`tests/host-jsx.test.js`, "with no sequence open no function throws ...", plus
+  an exact-string test for each).
