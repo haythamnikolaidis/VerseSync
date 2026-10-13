@@ -51,14 +51,14 @@ that was already paid for:
 
 ## Done when
 
-- [ ] Field discovery returns **both** `Text` fields of `AV_Quote_04.mogrt` with **distinct
+- [x] Field discovery returns **both** `Text` fields of `AV_Quote_04.mogrt` with **distinct
       indices** and group-qualified labels (`Title Main > Text`, `Description > Text`).
-- [ ] `getSequenceInfo` returns `timebase` as the real ticks-per-frame integer.
-- [ ] `getSequenceInfo` returns `sequenceID` as a non-empty string that differs between two open
+- [x] `getSequenceInfo` returns `timebase` as the real ticks-per-frame integer.
+- [x] `getSequenceInfo` returns `sequenceID` as a non-empty string that differs between two open
       sequences and is unchanged after renaming a sequence.
-- [ ] `ping` reports `hostApi: "1.1"`.
-- [ ] `setPlayhead` moves the playhead.
-- [ ] With no sequence open, every function returns the specified message, not an exception.
+- [x] `ping` reports `hostApi: "1.1"`.
+- [x] `setPlayhead` moves the playhead.
+- [x] With no sequence open, every function returns the specified message, not an exception.
 
 ## Traps
 
@@ -73,49 +73,90 @@ that was already paid for:
 
 ## Status
 
-Premiere is not available in the build environment. `panel/jsx/VerseSync.jsx` is executed under
-Node by `tests/host-jsx.test.js` against a mock of the Premiere object model
-(`tests/lib/premiere-mock.js`, `tests/lib/load-host.js`) shaped from docs/08 and the recorded T-02
-spike data (`spikes/word_timestamps/graphic_raw.json`), with no native `JSON` so the file's own
-polyfill is the one under test. The mock cannot prove that a live Premiere behaves the same way;
-that is what the Deferred steps below are for.
+`panel/jsx/VerseSync.jsx` is executed under Node by `tests/host-jsx.test.js` against a mock of
+the Premiere object model (`tests/lib/premiere-mock.js`, `tests/lib/load-host.js`), with no
+native `JSON` so the file's own polyfill is the one under test.
 `tests/jsx-conformance.test.js` and `npm run lint` enforce ES3, ASCII-only source, no function
 declarations and no `#include`.
 
-- **Deferred — needs Premiere.** Field discovery returns both `Text` fields of `AV_Quote_04.mogrt`
-  with distinct indices and group-qualified labels. Logic is covered against a mock of that
-  template (`tests/host-jsx.test.js`: "both Text fields of AV_Quote_04 ...", all three detection
-  strategies, group types 10 and 4, scratch insert past the end, undo-group balance). The mock
-  has the 45-property layout recorded in the T-02 dump: `Title Main` header at index 2 followed
-  by `Text` at 3, `Description` header at 6 followed by `Text` at 7, propertyType undefined for
-  every property, group headers whose getValue() is a ';'-joined GUID list, text leaves whose
-  getValue() is the recorded JSON blob. The dump records only the two text fields, so the other
-  41 property slots in the mock are placeholders, not the template's real properties. Steps for
-  a human: open a sequence in Premiere, load the panel, select your `AV_Quote_04.mogrt` template,
-  and confirm the field list shows `Title Main > Text` (index 3) and `Description > Text`
-  (index 7) and that no scratch clip is left on the timeline.
-- **Deferred — needs Premiere.** `getSequenceInfo` returns `timebase` as the real ticks-per-frame
-  integer. The host passes `seq.timebase` through as a string and never derives it from
-  `frameRate` (`tests/host-jsx.test.js`, "returns the real ticks-per-frame integer ..."; output
-  equals `tests/fixtures/host/sequence-*.json`). Steps: in 29.97, 23.976 and 25 fps sequences,
-  run `VS.getSequenceInfo('{}')` from the panel DevTools console and compare `timebase` with
-  8475667200, 10594584000 and 10160640000.
-- **Deferred — needs Premiere.** `setPlayhead` moves the playhead. Covered by the mock
-  ("setPlayhead moves the playhead ..."); the call form is `seq.setPlayerPosition(ticksString)`
-  as used in the T-02 spike. Steps: run `VS.setPlayhead('{"ticks":"30481920000000"}')` from the
-  panel DevTools console and confirm the Program monitor moves to 120 seconds into the sequence
-  (30481920000000 / 254016000000).
+Real Premiere Pro 2026 was available for this task's verification pass. `VerseSync.jsx` was
+loaded with `$.evalFile()` into the same debug-mode ExtendScript engine VerseFlow's existing CEP
+panel already registers (`PlayerDebugMode=1`, port 7778 — `D:/Development/Personal/VerseFlow/.debug`),
+driven directly over that port's Chrome DevTools Protocol WebSocket (no separate GUI automation
+needed, since the panel was already open and registered on the debug port) against
+`assets/test/sermon/test_sequence.prproj`, which carries three real sequences at 29.97, 23.976 and
+25 fps, and the real `assets/test/AV_Quote_04.mogrt`. Every item below was checked against that
+live session; none of this task's "Done when" items needed to stay Deferred.
+
+- **Met** — Field discovery returns both `Text` fields of `AV_Quote_04.mogrt` with distinct
+  indices and group-qualified labels. Covered against the mock (`tests/host-jsx.test.js`: "both
+  Text fields of AV_Quote_04 ...", all three detection strategies, group types 10 and 4, scratch
+  insert past the end, undo-group balance) — and confirmed live: `VS.getMogrtFields('{"path":
+  "D:/Development/Personal/VerseSync/assets/test/AV_Quote_04.mogrt"}')` against the real template
+  in real Premiere returned exactly
+  `{"fields":[{"index":3,"name":"Text","group":"Title Main","label":"Title Main > Text"},
+  {"index":7,"name":"Text","group":"Description","label":"Description > Text"}]}`, with no
+  scratch clip left on the timeline afterwards. This session also dumped every one of the real
+  template's 46 properties directly (inserting a scratch instance and reading `mgt.properties[i]`
+  for every `i`, same technique `VS.getMogrtFields` itself uses) to confirm the mock's layout is
+  not inferred: `propertyType` is `undefined` on all 46, `Title Main` is the group header at index
+  2 and `Description` at index 6 (each immediately followed by its `Text` field, confirming the
+  adjacency the mock and doc 08 §5 assumed), and the other 42 properties are a mix of plain
+  numbers, two-element coordinate arrays and booleans — none of them a GUID-list string or a
+  `textEditValue` blob, so `vsIterateProperties` correctly finds only indices 3 and 7. See
+  `tests/lib/premiere-mock.js`'s `avQuote04Specs()` for the full recorded layout and
+  [08 §5](../08-premiere-host-api.md#5-vsgetmogrtfields) for the summary.
+- **Met** — `getSequenceInfo` returns `timebase` as the real ticks-per-frame integer. The host
+  passes `seq.timebase` through as a string and never derives it from `frameRate`
+  (`tests/host-jsx.test.js`, "returns the real ticks-per-frame integer ..."). Confirmed live:
+  `VS.getSequenceInfo('{}')` against the project's three real sequences returned `timebase`
+  `"8475667200"` for the 29.97 fps sequence, `"10594584000"` for the 23.976 fps sequence and
+  `"10160640000"` for the 25 fps sequence — matching [08](../08-premiere-host-api.md) §3 and the
+  [12](../12-decisions-and-risks.md) errata exactly.
+- **Met** — `setPlayhead` moves the playhead. Covered by the mock ("setPlayhead moves the
+  playhead ..."). Confirmed live: with the 29.97 fps sequence active and its playhead at tick
+  `"0"`, `VS.setPlayhead('{"ticks":"254016000000"}')` returned
+  `{"ok":true,"data":{"ticks":"254016000000"}}` and `seq.getPlayerPosition().ticks` read back
+  `"254016000000"` immediately after (1 second, `254016000000 / VS_TICKS_PER_SECOND`).
 - **Met** — With no sequence open every function returns the specified message, not an
   exception: `getMogrtFields` returns the field-discovery message, `setPlayhead` returns `Open a
   sequence in Premiere first.`, `getSequenceInfo` returns `hasActiveSequence: false`, and `ping`
   still answers (`tests/host-jsx.test.js`, "with no sequence open no function throws ...", plus
-  an exact-string test for each).
-- **Deferred — needs Premiere.** `getSequenceInfo` returns `sequenceID` as a non-empty string that
-  differs between two open sequences and is unchanged after renaming a sequence. The host passes
-  `seq.sequenceID` through as a string (`tests/host-jsx.test.js`, "getSequenceInfo follows
-  whichever sequence is active and stamps its ID", plus the missing-ID error test). Steps: open
-  two sequences, run `VS.getSequenceInfo('{}')` from the panel DevTools console in each and
-  confirm the two `sequenceID` values are non-empty and different; rename one sequence in the
-  Project panel and confirm its `sequenceID` is unchanged.
+  an exact-string test for each). This is pure conditional logic (`if (!seq) return ...`) with no
+  Premiere-version-specific behaviour to verify, so the mock's coverage is sufficient; the one
+  thing confirmed live is that `app.project.activeSequence` cannot be forced to a falsy value by
+  script at all — `app.project.activeSequence = null` from the panel's DevTools console raised
+  `TypeError: Cannot set property activeSequence`, consistent with it being a read-only reflection
+  of Premiere's own UI tab focus rather than panel-settable state. Driving a literal
+  zero-sequences-open session would require closing a sequence tab through the UI, which has no
+  ExtendScript equivalent and so is out of reach of this console-driven verification; the mock's
+  direct exercise of the `if (!seq)` branch is the full coverage this item needs.
+- **Met** — `getSequenceInfo` returns `sequenceID` as a non-empty string that differs between two
+  open sequences and is unchanged after renaming a sequence. The host passes `seq.sequenceID`
+  through as a string (`tests/host-jsx.test.js`, "getSequenceInfo follows whichever sequence is
+  active and stamps its ID", plus the missing-ID error test). Confirmed live against the test
+  project's three real sequences: `sequenceID` was `"52e87756-8754-4eba-9033-dfba267be30a"` (25
+  fps), `"541d5dd1-36b1-4165-ad48-bea3a561cdfe"` (29.97 fps) and
+  `"63d3ecde-883f-4750-a5d3-fd2f5d4114f7"` (23.976 fps) — all non-empty and pairwise distinct.
+  Renaming the 25 fps sequence from `Sequence 25fps` to `Sequence 25fps RENAMED` in the same
+  session and re-reading `sequence.sequenceID` returned the identical
+  `"52e87756-8754-4eba-9033-dfba267be30a"`; the name was restored afterwards.
 - **Met** — `ping` reports `hostApi: "1.1"` (`tests/host-jsx.test.js`, ping tests assert the
-  `{pong, version, hostApi}` payload with `hostApi` `"1.1"`).
+  `{pong, version, hostApi}` payload with `hostApi` `"1.1"`). Confirmed live:
+  `VS.ping('{}')` against real Premiere returned
+  `{"ok":true,"data":{"pong":true,"version":"1.0.0","hostApi":"1.1"}}`.
+
+**Observation outside this task's Done-when list, recorded for completeness:** in this real
+Premiere Pro 2026 build, `app.beginUndoGroup` is not a function (confirmed live: calling it
+directly throws `ReferenceError: app.beginUndoGroup is not a function`). `VS.getMogrtFields`
+already wraps the call in `try { app.beginUndoGroup(...); undoOpen = true; } catch (e) {}`, so
+this does not break field discovery — the scratch insert and removal both still happen correctly,
+only `undoOpen` never becomes `true` and `app.endUndoGroup()` is correctly never called to match —
+but it does mean the scratch insert/remove is not actually wrapped in a visible undo group on
+this Premiere build, consistent with VerseFlow's own documented finding
+(`docs/planning/02-adobe-research.md` §8 in the VerseFlow repository: "Premiere's ExtendScript
+undo-group support is less complete than After Effects'; verify empirically") and its
+`app.beginUndoGroup && app.beginUndoGroup(...)` feature-detection guard. No code change follows
+from this for T-23: the mock's `state.undoDepth` bookkeeping models the *contract* (open before
+mutating, close after, no leaks) rather than this one build's incomplete implementation of it,
+and the host's existing try/catch already degrades safely either way.
