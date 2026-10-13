@@ -114,3 +114,22 @@ to whole frames, disabled cues skipped by the sweep, manual-offset cues outside 
 flagged `cut_from_edit`, `speed_change_unsupported` taking precedence over `cut_from_edit`,
 linked video/audio halves counted as one placement, the five panel-owned flags recomputed on
 every call, and the typed timecode treated as a display timecode (`zeroPointTicks` subtracted).
+
+Two spec gaps found by independent validation are now resolved (project-owner decisions, see
+`WORKER_RULES.md` §Project-owner decisions #6):
+
+- **`placementAlternatives` is panel-only session state, never part of the Cue Document.** Its
+  exact shape (`anchorTicks`, `endTicks`, `durationTicks`, `trackType`, `trackIndex` — matching
+  `timemap.js`'s `placementView`) is now specified in
+  [05 §5.2](../05-timing-and-placement.md), and the review row's use of it is specified in
+  [09 §5.3](../09-ui-spec.md). [07 §5.1](../07-sidecar-api.md)'s `alternatives` field description
+  is corrected to say it holds only competing scripture references from detection, never
+  multi-placement options — the code already matched this (`placementAlternatives` was never
+  written into a Cue Document), only the docs were out of step.
+- **The panel owns five flags, not three.** [07 §5.1](../07-sidecar-api.md) and the `flag`
+  description in `schemas/cue-document.schema.json` now say the panel adds/recomputes all five
+  of `cut_from_edit`, `multiple_placements`, `speed_change_unsupported`, `overlap` and
+  `truncated` after source→sequence mapping (the sidecar never emits any of them), consistent
+  with [05 §8](../05-timing-and-placement.md) and [09 §5.2](../09-ui-spec.md) and with
+  `timemap.js`'s `OWNED_FLAGS`. No enum change and no `schema_version` bump: the five flags
+  already existed, this only corrects which stage the docs/schema say owns them.

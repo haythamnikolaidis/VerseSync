@@ -234,6 +234,28 @@ n candidates → map to the earliest seqStart, flag `multiple_placements`,
 The multi-candidate case is real: a sermon clip used once in the body and again in a recap
 produces two valid answers, and only the editor knows which they meant.
 
+**`placementAlternatives` is panel-only session state, never part of the Cue Document.** It is
+*not* the schema's `alternatives` field ([07](07-sidecar-api.md) §5.1) — that field holds
+competing scripture references from detection, and persisting sequence-time positions into a
+document that must stay valid across a recut (§5.1) would defeat the point of keeping the Cue
+Document in source time. `timemap.js`'s `mapCues` instead returns `placementAlternatives` as a
+field of its own `cues[]` result (in memory only, for the duration of one mapping run), present
+only when the cue is flagged `multiple_placements`, holding every placement *other than* the
+one chosen (earliest `seqStart`), in the same order the resolver ranked them. Each entry has the
+same shape as the chosen placement:
+
+```
+{ anchorTicks, endTicks, durationTicks, trackType, trackIndex }
+```
+
+- `anchorTicks`, `endTicks`, `durationTicks` — frame-snapped tick strings (§7), the same
+  convention as the cue's own `anchorTicks`/`endTicks`/`durationTicks`.
+- `trackType` — `"video"` \| `"audio"`, the track the alternative sits on.
+- `trackIndex` — integer, the track index on that track type.
+
+The review row ([09](09-ui-spec.md) §5.3) reads this list straight from the mapping result to
+offer the one-click switch; nothing downstream writes it back into the saved document.
+
 Rules the resolver applies where the cases above leave room:
 
 - **Placements are counted per moment in the edit, not per track.** A clip whose video and

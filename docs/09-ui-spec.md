@@ -200,6 +200,14 @@ Clicking the row body expands it:
   (FR-6.3). Both re-run overlap resolution across the list, as do enabling and disabling a row
   (disabled rows are skipped by the sweep).
 - **Duration** override, per cue.
+- **Multi-placement switch.** When a row is flagged `multiple_placements`, the expanded row adds
+  a small list of the other moments the media appears at, one per entry in the mapping result's
+  `placementAlternatives` ([05](05-timing-and-placement.md) §5.2 — `anchorTicks`, `endTicks`,
+  `durationTicks`, `trackType`, `trackIndex`; panel-only, never saved in the Cue Document). Each
+  alternative shows as its display timecode plus track (e.g. `00:41:12:08 · V2`); clicking one
+  swaps it in as the cue's placement and re-runs overlap resolution (FR-5.7). This list always
+  comes from the live mapping output, never from the document's `alternatives` field, which is
+  reserved for competing scripture references ([07](07-sidecar-api.md) §5.1).
 - **Delete** removes the cue. Undo is via re-analysing or reloading a saved document — cheap
   enough not to need an undo stack.
 

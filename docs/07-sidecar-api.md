@@ -297,10 +297,20 @@ The sidecar's output, the panel's input, and the save format. **Versioned.**
   `low_confidence` · `overlap` · `truncated` · `long_passage` · `text_unavailable` ·
   `passage_not_found` · `chapter_only` · `suppressed_duplicate` · `cut_from_edit` ·
   `multiple_placements` · `speed_change_unsupported`.
-  The last three are added by the **panel** after mapping, not by the sidecar.
-- **`alternatives`** holds competing readings from detection — the Psalms
-  concatenation ambiguity ([04](04-reference-detection.md) §3.1) and multi-placement options
-  ([05](05-timing-and-placement.md) §5.2) — so the review row can offer a one-click switch.
+  Five of these — `cut_from_edit`, `multiple_placements`, `speed_change_unsupported`,
+  `overlap` and `truncated` — are added by the **panel** after source→sequence mapping, not by
+  the sidecar: the sidecar works in source time and has no notion of an edit, so none of these
+  five can be determined before mapping. `overlap` and `truncated` in particular only make sense
+  in sequence time (they come from the §8 overlap sweep) and are recomputed from scratch on every
+  mapping run ([05](05-timing-and-placement.md) §8). The remaining six are the sidecar's.
+- **`alternatives`** holds competing readings from **detection** — the Psalms
+  concatenation ambiguity ([04](04-reference-detection.md) §3.1) is the example — so the review
+  row can offer a one-click switch between scripture references. It never holds multi-placement
+  options: those are sequence-time positions, which the sidecar cannot compute and which are
+  therefore never part of the Cue Document. When a cue is flagged `multiple_placements`, the
+  panel carries the other placements as session-only state (`placementAlternatives`,
+  [05](05-timing-and-placement.md) §5.2) that the review row reads directly from the panel's
+  mapping output, not from this field.
 - **`transcript.words_ref`** points at a sibling file rather than inlining ~7,000 word objects.
   The panel fetches it only when an editor expands a row for context.
 

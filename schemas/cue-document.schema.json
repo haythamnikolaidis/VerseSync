@@ -145,7 +145,7 @@
         "multiple_placements",
         "speed_change_unsupported"
       ],
-      "description": "The review list's colour source (docs/07-sidecar-api.md §5.1). cut_from_edit, multiple_placements and speed_change_unsupported are added by the panel after source->sequence mapping; the sidecar never emits them."
+      "description": "The review list's colour source (docs/07-sidecar-api.md §5.1). cut_from_edit, multiple_placements, speed_change_unsupported, overlap and truncated are added (and, for overlap/truncated, recomputed on every mapping run) by the panel after source->sequence mapping, since only sequence time makes truncation and overlap meaningful; the sidecar never emits any of these five."
     },
     "cue": {
       "type": "object",
