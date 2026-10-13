@@ -321,9 +321,10 @@ test('group nodes of type 10 and type 4 set the group of the fields that follow 
 test('AV_Quote_04 as Premiere really reports it: no propertyType anywhere, groups found by GUID-list value', function () {
   var specs = mock.avQuote04Specs();
   specs.forEach(function (spec) { assert.strictEqual(spec.propertyType, undefined); });
-  assert.strictEqual(specs.length, 45);
-  assert.ok(/^[0-9a-f-]{36}(;[0-9a-f-]{36})*$/.test(specs[2].value));
-  assert.ok(/^[0-9a-f-]{36}(;[0-9a-f-]{36})*$/.test(specs[6].value));
+  assert.strictEqual(specs.length, 46);
+  var guidListRe = /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12};?)+$/i;
+  assert.ok(guidListRe.test(specs[2].value));
+  assert.ok(guidListRe.test(specs[6].value));
   assert.strictEqual(specs[3].displayName, 'Text');
   assert.strictEqual(specs[7].displayName, 'Text');
   var env = mogrtEnv();
