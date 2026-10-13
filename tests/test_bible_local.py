@@ -3,7 +3,8 @@ from __future__ import annotations
 import gzip
 import io
 import json
-import tarfile
+import xml.sax.saxutils as saxutils
+import zipfile
 from pathlib import Path
 
 import generate_web
@@ -83,7 +84,7 @@ def test_single_verse_range_and_chapter_format() -> None:
     john = passage("John", 3, 16)
     assert john.reference_display == "John 3:16 (WEB)"
     assert john.body == (
-        "16 For God so loved the world, that he gave his one and only Son, that whoever "
+        "16 For God so loved the world, that he gave his only born Son, that whoever "
         "believes in him should not perish, but have eternal life."
     )
     assert [(v.verse, v.text) for v in john.verses] == [(16, john.body[3:])]
@@ -280,46 +281,64 @@ def test_alternate_store_path_is_served(tmp_path: Path) -> None:
 # --- the generator -------------------------------------------------------------------------
 
 
-def _package_members_from_store() -> dict[str, bytes]:
-    """Rebuild WEB-layout per-book files (Romans doxology at 14:24-26) from the bundled store."""
-    store = _bundled_store()
-    members: dict[str, bytes] = {}
-    for book in load_canon().books:
-        entries = []
-        for c, chapter in enumerate(store["books"][book.osis], start=1):
-            for v, text in enumerate(chapter, start=1):
-                cc, vv = c, v
-                if book.osis == "Rom" and (c, v) in {(16, 25), (16, 26), (16, 27)}:
-                    cc, vv = 14, v - 1
-                if book.osis == "Rom" and (c, v) == (16, 25):
-                    entries.append(
-                        {
-                            "type": "paragraph text",
-                            "chapterNumber": 16,
-                            "verseNumber": 25,
-                            "value": "  ",
-                        }
-                    )
-                if text is None:
-                    text = "  "
-                entries.append(
-                    {
-                        "type": "paragraph text",
-                        "chapterNumber": cc,
-                        "verseNumber": vv,
-                        "value": " " + text + "  ",
-                    }
-                )
-        entries.append({"type": "header", "value": "A Psalm"})
-        members[generate_web._book_file(book.name)] = json.dumps(entries).encode()
-    return members
+def _book_usfx_xml(osis: str, chapters: list[list[str | None]]) -> str:
+    """Rebuild a USFX ``<book>`` element (Romans doxology back at 14:24-26) from a bundled book."""
+    code = generate_web.OSIS_CODE_USFX[osis]
+    parts = [f'<book id="{code}">']
+    if osis == "Ps":
+        # A descriptive title must never leak into verse 1's text.
+        parts.append("<d>A Psalm by David.</d>")
+    for c, chapter in enumerate(chapters, start=1):
+        parts.append(f'<c id="{c}" />')
+        for v, text in enumerate(chapter, start=1):
+            cc, vv = c, v
+            if osis == "Rom" and (c, v) in {(16, 25), (16, 26), (16, 27)}:
+                cc, vv = 14, v - 1
+            if osis == "Rom" and (c, v) == (16, 25):
+                # The leftover empty placeholder the real source leaves at 16:25.
+                parts.append(f'<v id="25" bcv="{code}.16.25" /><ve />')
+            body = saxutils.escape(text or "")
+            if osis == "Jude" and (c, v) == (1, 1):
+                # A footnote and a cross-reference must never leak into verse text either.
+                body = body + '<f caller="+"><ft>a note</ft></f><x><xt>Jas 1:1</xt></x>'
+            parts.append(f'<v id="{vv}" bcv="{code}.{cc}.{vv}" />{body}<ve />')
+    parts.append("</book>")
+    return "".join(parts)
+
+
+def _fake_usfx_zip(store: dict) -> bytes:
+    books_xml = "".join(
+        _book_usfx_xml(book.osis, store["books"][book.osis]) for book in load_canon().books
+    )
+    xml = f'<?xml version="1.0" encoding="utf-8"?><usfx>{books_xml}</usfx>'
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as zf:
+        zf.writestr(generate_web.ARCHIVE_MEMBER, xml.encode("utf-8"))
+    return buf.getvalue()
+
+
+def test_walk_and_extract_book_strip_titles_footnotes_and_crossrefs() -> None:
+    xml = (
+        '<book id="PSA"><d>A Psalm by David.</d>'
+        '<v id="1" bcv="PSA.3.1" />Yahweh<f><ft>note</ft></f>, how<x><xt>ref</xt></x>'
+        " are you.<ve />"
+        '<v id="2" bcv="PSA.3.2" />Second verse.<ve />'
+        "</book>"
+    )
+    import xml.etree.ElementTree as ET
+
+    book_elem = ET.fromstring(xml)
+    extracted = generate_web.extract_book(book_elem)
+    assert generate_web.clean(extracted[(3, 1)]) == "Yahweh, how are you."
+    assert generate_web.clean(extracted[(3, 2)]) == "Second verse."
 
 
 def test_generator_reproduces_the_bundled_store() -> None:
     canon = json.loads(generate_web.CANON_PATH.read_text(encoding="utf-8"))
-    built = generate_web.build(_package_members_from_store(), canon)
+    store = _bundled_store()
+    built = generate_web.build(generate_web.read_usfx_books(_fake_usfx_zip(store)), canon)
     generate_web.check_totals(built)
-    assert built == _bundled_store()
+    assert built == store
     assert generate_web.serialise(built) == generate_web.OUTPUT.read_bytes()
     assert built["source"]["sha256"] == generate_web.SOURCE_SHA256
     assert built["omitted"] == ["Acts.15.34", "Acts.24.7", "Acts.8.37", "Luke.17.36"]
@@ -328,25 +347,29 @@ def test_generator_reproduces_the_bundled_store() -> None:
 
 def test_generator_rejects_misaligned_source() -> None:
     canon = json.loads(generate_web.CANON_PATH.read_text(encoding="utf-8"))
-    members = _package_members_from_store()
-    key = generate_web._book_file("Jude")
-    entries = json.loads(members[key])
-    entries.append({"type": "paragraph text", "chapterNumber": 1, "verseNumber": 26, "value": "x"})
-    members[key] = json.dumps(entries).encode()
+    store = _bundled_store()
+    blob = _fake_usfx_zip(store)
+    usfx_books = generate_web.read_usfx_books(blob)
+    usfx_books["JUD"][(1, 26)] = "x"
     with pytest.raises(SystemExit, match="versification mismatch"):
-        generate_web.build(members, canon)
+        generate_web.build(usfx_books, canon)
 
 
 def test_generator_verifies_the_pinned_checksum() -> None:
     with pytest.raises(SystemExit, match="SHA-256 mismatch"):
-        generate_web.verify_source(b"not the package")
+        generate_web.verify_source(b"not the archive")
 
 
-def test_generator_reads_only_book_json_from_the_tarball() -> None:
+def test_generator_reads_only_the_66_canon_books() -> None:
     buf = io.BytesIO()
-    with tarfile.open(fileobj=buf, mode="w:gz") as tar:
-        for name, data in {"package/json/john.json": b"[]", "package/readme.md": b"x"}.items():
-            info = tarfile.TarInfo(name)
-            info.size = len(data)
-            tar.addfile(info, io.BytesIO(data))
-    assert generate_web.read_tarball_members(buf.getvalue()) == {"package/json/john.json": b"[]"}
+    with zipfile.ZipFile(buf, "w") as zf:
+        xml = (
+            '<?xml version="1.0" encoding="utf-8"?><usfx>'
+            '<book id="GEN"><v id="1" bcv="GEN.1.1" />In the beginning.<ve /></book>'
+            '<book id="TOB"><v id="1" bcv="TOB.1.1" />Not in the 66-book canon.<ve /></book>'
+            "</usfx>"
+        )
+        zf.writestr(generate_web.ARCHIVE_MEMBER, xml.encode("utf-8"))
+    books = generate_web.read_usfx_books(buf.getvalue())
+    assert set(books) == {"GEN"}
+    assert books["GEN"] == {(1, 1): "In the beginning."}

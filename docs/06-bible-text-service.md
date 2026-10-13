@@ -133,13 +133,31 @@ The resolver never lets a provider failure fail a job (FR-4.5). Every error maps
 ### 3.3 The bundled local text (WEB) and its versification
 
 `local.py` serves the **World English Bible**, public domain, from
-`sidecar/versesync/bible/data/web.json.gz`. `tools/generate_web.py` builds it and records the
-source (npm `world-english-bible` 1.0.1, a conversion of the eBible.org WEB HTML), its SHA-256
-and registry integrity string; it verifies both before reading anything. eBible.org itself was
-not reachable from the build environment, which is why the pinned npm tarball is the source.
-The generator refuses to write a store that is not exactly the canon table's shape: 66 books,
-1,189 chapters, 31,102 verse slots, KJV versification. At load time the provider re-checks the
-same alignment and treats a mismatch as `ProviderUnavailable`.
+`sidecar/versesync/bible/data/web.json.gz`. `tools/generate_web.py` builds it directly from
+**eBible.org**, the WEB's official distribution point
+(<https://ebible.org/find/details.php?id=eng-web>), fetching the USFX archive:
+
+- URL: `https://eBible.org/Scriptures/eng-web_usfx.zip`
+- Fetched: 2026-10-13
+- SHA-256 of the fetched archive:
+  `e6a433c6b27bbcd457dfadad2953b6b0e14c510eee7cca0f14aad32334936d3a`
+
+The generator verifies that checksum before reading anything, then parses `eng-web_usfx.xml`
+(inside the archive) directly — a single XML file with explicit `<v bcv="BOOK.C.V"/>`/`<ve/>`
+verse-boundary markers, which it reads to tell verse text apart from footnotes (`<f>`),
+cross-references (`<x>`) and descriptive/Psalm titles (`<d>`), none of which are stored. The
+generator refuses to write a store that is not exactly the canon table's shape: 66 books, 1,189
+chapters, 31,102 verse slots, KJV versification. At load time the provider re-checks the same
+alignment and treats a mismatch as `ProviderUnavailable`.
+
+An earlier build of this store used the npm package `world-english-bible` 1.0.1 (a third-party
+conversion of eBible.org's WEB HTML) because eBible.org was not reachable from that build
+environment. Independent validation against a second WEB copy found roughly 2,000 verses,
+clustering in the Old Testament, that differed in wording — consistent with that package having
+bundled a different WEB revision. eBible.org is reachable now, so the store is sourced from it
+directly, as above, and re-verified by spot-checking the regenerated text against eBible.org's
+own live chapter pages (not a third copy) across both testaments — see the task's Status section
+for the verses checked.
 
 WEB differs from KJV numbering in these places, all handled at generation time:
 
