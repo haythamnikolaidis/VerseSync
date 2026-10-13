@@ -146,10 +146,36 @@ VS.getMogrtFields('{"path":"D:/Templates/AV_Quote_04.mogrt"}')
    ] } }
 ```
 
-Keep all three detection strategies (`propertyType === 6`, `=== 5`, then a `getValue()` probe
-for `textEditValue`) and the group-node handling for types `10` and `4`. Keep the
-open-sequence error message. **Keep index-based targeting** — the reference template has two
-fields both named `Text`, so display names are ambiguous (VerseFlow risk R7).
+**Group detection is GUID-list matching, not `propertyType`.** On the real reference template
+(`AV_Quote_04.mogrt`, Premiere Pro 2026), confirmed live by directly inserting a scratch instance
+of it and dumping every one of its 46 properties: `propertyType` is `undefined` on **every**
+property, group header and text leaf alike, with no exceptions. A group/folder node is
+identifiable only by the *shape* of its value — `getValue()` returns a `;`-joined, `;`-terminated
+list of GUIDs (`VS_GUID_LIST_RE` in the host) — never by a type number. The primary signal is
+therefore the GUID-list match; `propertyType === 10` (the MOGRT `definition.json` spec) and
+`=== 4` (seen on older Premiere builds) are kept as a secondary OR-condition purely for templates
+or Premiere versions that do populate `propertyType`, which this one does not.
+
+Text-field detection keeps all three strategies in order (`propertyType === 6`, `=== 5`, then a
+`getValue()` probe for `textEditValue`) for the same reason — strategies 1 and 2 are dead code on
+this template (propertyType is always undefined) but are cheap to keep for a template that does
+report it; strategy 3 is what actually fires here, and does so reliably: a text leaf's
+`getValue()` is a JSON string whose parsed object has a `.textEditValue` field, and nothing else
+among the template's 46 properties matches that shape.
+
+Keep the open-sequence error message. **Keep index-based targeting** — the reference template has
+two fields both named `Text`, so display names are ambiguous (VerseFlow risk R7).
+
+The live dump (property index : displayName, confirmed in Premiere Pro 2026, not inferred):
+`0: Quote #04` (the template's own name, plain string, not a group or field) · `1: Text –
+GENERAL SETTINGS` (group) · `2: Title Main` (group) · `3: Text` (**field**) · `4: Color` ·
+`5: Position` · `6: Description` (group) · `7: Text` (**field**) · `8: Color` · `9: Position` ·
+`10-20`: nested `Graphic Elements` groups and their `Color`/`Position`/`BG` leaves ·
+`21-22: BG – X / Y` · `23-41`: `All Graphics` shadow/position/size groups and their
+`Color`/`Opacity`/`Distance`/`Softness` leaves · `42: Switch ON / OFF` (group) ·
+`43-45`: three boolean per-group enable switches. Only indices 3 and 7 hold `textEditValue`; every
+other non-group property is a plain number, a two-element coordinate array, or a boolean, and
+none of those is mistaken for a group or a field by `vsIterateProperties`.
 
 ---
 
