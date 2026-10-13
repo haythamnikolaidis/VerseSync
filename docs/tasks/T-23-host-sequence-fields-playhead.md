@@ -101,9 +101,13 @@ live session; none of this task's "Done when" items needed to stay Deferred.
   for every `i`, same technique `VS.getMogrtFields` itself uses) to confirm the mock's layout is
   not inferred: `propertyType` is `undefined` on all 46, `Title Main` is the group header at index
   2 and `Description` at index 6 (each immediately followed by its `Text` field, confirming the
-  adjacency the mock and doc 08 §5 assumed), and the other 42 properties are a mix of plain
-  numbers, two-element coordinate arrays and booleans — none of them a GUID-list string or a
-  `textEditValue` blob, so `vsIterateProperties` correctly finds only indices 3 and 7. See
+  adjacency the mock and doc 08 §5 assumed) — these are 2 of 15 GUID-list group headers found
+  across the template's full property list; one further property (index 0) is a plain string
+  holding the template's own name; and the other 28 properties are a mix of plain numbers,
+  two-element coordinate arrays and booleans — none of them a GUID-list string or a
+  `textEditValue` blob, so `vsIterateProperties` correctly finds only indices 3 and 7
+  (15 group headers + 2 text fields + 1 plain-string name + 28 plain number/array/boolean = 46).
+  See
   `tests/lib/premiere-mock.js`'s `avQuote04Specs()` for the full recorded layout and
   [08 §5](../08-premiere-host-api.md#5-vsgetmogrtfields) for the summary.
 - **Met** — `getSequenceInfo` returns `timebase` as the real ticks-per-frame integer. The host

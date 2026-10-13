@@ -52,9 +52,11 @@ rediscovered.
   properties of its MGT component shows `Title Main` itself is the group header at index 2 and
   `Description` at index 6 (the T-02 dump recorded the two `Text` fields and their group labels,
   not the headers' own indices, so T-23's live dump is the first direct confirmation of index 2/6,
-  not an inference from adjacency) — `propertyType` is `undefined` on all 46 properties, and the
-  other 42 non-field properties are plain numbers, two-element coordinate arrays and booleans,
-  none of them a GUID-list string or a `textEditValue` blob. See
+  not an inference from adjacency) — `propertyType` is `undefined` on all 46 properties: 15 of
+  them are GUID-list group headers, 2 are the `Text` fields, 1 (index 0) is a plain string holding
+  the template's own name, and the remaining 28 non-group, non-field properties are plain numbers,
+  two-element coordinate arrays and booleans, none of them a GUID-list string or a `textEditValue`
+  blob. See
   `tests/lib/premiere-mock.js`'s `avQuote04Specs()` and [T-23](tasks/T-23-host-sequence-fields-playhead.md)'s Status section for the full property-by-property record.
 
 ---

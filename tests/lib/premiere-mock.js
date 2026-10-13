@@ -56,11 +56,13 @@ function textValue(text) {
 // matching the independently recorded dump in spikes/word_timestamps/graphic_raw.json. Premiere
 // reports propertyType as undefined for every one of the 46 properties (confirmed live, not just
 // for the two text fields); a group header's getValue() is a ';'-joined, ';'-terminated list of
-// GUIDs; a text leaf's getValue() is a JSON blob with textEditValue and the font-run keys; the
-// other 38 properties are a mix of plain numbers (color packs, sizes, offsets), two-element
-// coordinate arrays (position/BG pairs) and three booleans (the per-group enable switches at the
-// end) -- none of them a GUID-list string and none holding textEditValue, so none is picked up as
-// a group or a field by vsIterateProperties.
+// GUIDs (15 of the 46 properties); a text leaf's getValue() is a JSON blob with textEditValue and
+// the font-run keys (the 2 Text fields, at indices 3 and 7); index 0 ('Quote #04') is a plain
+// string holding the template's own name; and the other 28 properties are a mix of plain numbers
+// (color packs, sizes, offsets), two-element coordinate arrays (position/BG pairs) and three
+// booleans (the per-group enable switches at the end) -- none of them a GUID-list string and none
+// holding textEditValue, so none is picked up as a group or a field by vsIterateProperties.
+// (15 group headers + 2 text leaves + 1 plain-string name + 28 plain number/array/boolean = 46.)
 var GUID_TEXT_GENERAL = '36ddb78d-d185-4be4-8129-397a0f2f10a6;759554ff-7827-42ec-bf0e-0e7e3ed93cd0;';
 var GUID_TITLE = '31a1fe9e-5ef8-4a8e-80e3-f666166d3536;7f04d77d-3ccc-4c66-8c9b-54575c561ab0;' +
   'a01c7d4f-6fc2-4d1d-9e01-c4f849c5aa33;';
