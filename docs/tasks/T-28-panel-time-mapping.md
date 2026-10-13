@@ -65,7 +65,7 @@ Cue Document in source time is what makes Journey B a pure recomputation.
 - [ ] The worked example in [05 §9](../05-timing-and-placement.md) reproduces exactly.
 - [ ] Snapping is correct at 23.976, 25 and 29.97 using the real `timebase`.
 - [ ] A 40-cue batch shows **no cumulative drift**.
-- [ ] All three panel-owned flags are assigned correctly from the T-39 fixtures.
+- [ ] All five panel-owned flags are assigned correctly from the T-39 fixtures.
 - [ ] Manual-offset mode maps and flags correctly.
 
 ## Traps
@@ -100,7 +100,7 @@ Implemented in `panel/js/timemap.js` (loaded by `panel/index.html`); tests in
   from an independent BigInt oracle.
 - **A 40-cue batch shows no cumulative drift** — **Met.** Test "40 cues in one batch…" at 29.97,
   23.976 and 25: every anchor and end is within half a frame of its exact time.
-- **All three panel-owned flags assigned correctly from the T-39 fixtures** — **Met.** Tests
+- **All five panel-owned flags assigned correctly from the T-39 fixtures** — **Met.** Tests
   `segments-split` (`cut_from_edit`), `segments-duplicate` (`multiple_placements` plus
   alternatives), `segments-speed` (`speed_change_unsupported`), `segments-none`.
 - **Manual-offset mode maps and flags correctly** — **Met.** Tests "manual offset: …" and
@@ -115,8 +115,7 @@ flagged `cut_from_edit`, `speed_change_unsupported` taking precedence over `cut_
 linked video/audio halves counted as one placement, the five panel-owned flags recomputed on
 every call, and the typed timecode treated as a display timecode (`zeroPointTicks` subtracted).
 
-Two spec gaps found by independent validation are now resolved (project-owner decisions, see
-`WORKER_RULES.md` §Project-owner decisions #6):
+Two spec gaps found by independent validation are now resolved:
 
 - **`placementAlternatives` is panel-only session state, never part of the Cue Document.** Its
   exact shape (`anchorTicks`, `endTicks`, `durationTicks`, `trackType`, `trackIndex` — matching

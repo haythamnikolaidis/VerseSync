@@ -33,8 +33,9 @@ do not quietly emit something different.
 3. Write the transcript word array to a **sibling file** and reference it via
    `transcript.words_ref` — ~7,000 word objects must not be inlined. The panel fetches it only
    when an editor expands a row.
-4. Emit only sidecar-owned flags. `cut_from_edit`, `multiple_placements` and
-   `speed_change_unsupported` are added by the **panel** after mapping — never by you.
+4. Emit only sidecar-owned flags. `cut_from_edit`, `multiple_placements`,
+   `speed_change_unsupported`, `overlap` and `truncated` are added by the **panel** after
+   mapping — never by you.
 5. Set `origin: "detected"` for pipeline cues (manual and edited are set by the panel).
 6. Populate `warnings[]` — e.g. `provider_partial` when some passages could not be fetched.
 7. Validate every generated document against T-37's schema **in the code path**, not only in
