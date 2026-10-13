@@ -47,7 +47,15 @@ rediscovered.
   recorded real dump (`spikes/word_timestamps/graphic_raw.json`) shows `Title Main > Text` at
   index 3 and `Description > Text` at index 7, each group header immediately followed by its
   `Text` field. The response shape is unchanged, so `hostApi` is not bumped; only the data was
-  corrected.
+  corrected. **T-23 then confirmed this directly, not just from the T-02 dump**: inserting a
+  scratch instance of the real `AV_Quote_04.mogrt` into real Premiere Pro 2026 and dumping all 46
+  properties of its MGT component shows `Title Main` itself is the group header at index 2 and
+  `Description` at index 6 (the T-02 dump recorded the two `Text` fields and their group labels,
+  not the headers' own indices, so T-23's live dump is the first direct confirmation of index 2/6,
+  not an inference from adjacency) — `propertyType` is `undefined` on all 46 properties, and the
+  other 42 non-field properties are plain numbers, two-element coordinate arrays and booleans,
+  none of them a GUID-list string or a `textEditValue` blob. See
+  `tests/lib/premiere-mock.js`'s `avQuote04Specs()` and [T-23](tasks/T-23-host-sequence-fields-playhead.md)'s Status section for the full property-by-property record.
 
 ---
 
