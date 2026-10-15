@@ -67,7 +67,7 @@ def match_book(tokens: Sequence[Token], i: int, canon: Canon, *,
 
 ### T-11.2 · Tier 2: curated ASR-confusion table
 
-**Executor** agent · **Size** XS · **Prereqs** T-11.1 · **Status** in-progress
+**Executor** agent · **Size** XS · **Prereqs** T-11.1 · **Status** done
 
 - **Read:** [04 §4.1](../04-reference-detection.md) (the seed table)
 - **Touches:** `sidecar/versesync/detect/data/confusions.json` (new) ·
@@ -81,7 +81,7 @@ def match_book(tokens: Sequence[Token], i: int, canon: Canon, *,
      `fuzzy_gate=None`, or with a gate that returns False, gives `None`. Commit.
 - **Verify:** `pytest tests/test_book_matching.py -q`
 - **Done when:**
-  - [ ] Every seed entry resolves, and only behind the gate.
+  - [x] Every seed entry resolves, and only behind the gate.
 
 ### T-11.3 · Tier 3: fuzzy matching and the short-name restriction
 
