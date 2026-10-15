@@ -109,7 +109,7 @@ job.
 
 ### T-12.3 · P10, and P11/P12 context carry
 
-**Executor** agent · **Size** S · **Prereqs** T-12.2 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-12.2 · **Status** done
 
 - **Read:** [04 §4](../04-reference-detection.md) (the P10–P12 rows and the "Context carry"
   paragraph)
@@ -132,8 +132,8 @@ job.
      Commit.
 - **Verify:** `pytest tests/test_grammar.py -q`
 - **Done when:**
-  - [ ] P10–P12 pass their tabulated examples.
-  - [ ] Both window bounds are tested independently.
+  - [x] P10–P12 pass their tabulated examples.
+  - [x] Both window bounds are tested independently.
 
 ### T-12.4 · Psalms concatenation, chapter-only, and the bootstrap corpus check
 
