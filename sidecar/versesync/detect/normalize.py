@@ -10,7 +10,7 @@ import re
 from collections.abc import Sequence
 
 from versesync.detect.canon import Canon
-from versesync.detect.numbers import parse_cardinal
+from versesync.detect.numbers import parse_cardinal, parse_ordinal
 from versesync.detect.types import Token
 from versesync.types import Word
 
@@ -20,6 +20,9 @@ _Piece = tuple[str, bool, int]
 _EDGES = re.compile(r"([\W_]*)(.*?)([\W_]*)", re.DOTALL)
 _DIGIT_JOINER = re.compile(r"(?<=\d)([:\-])(?=\d)")
 _DROP = re.compile(r"[^\w:\-]|_")
+_ROMAN = frozenset({"i", "ii", "iii"})
+# Rule 4 applies to the bare units 1..3 only: the highest numbered-book prefix is "3 John".
+_MAX_BOOK_PREFIX = 3
 
 
 def _pieces(text: str, index: int) -> list[_Piece]:
@@ -53,6 +56,7 @@ def normalize(words: Sequence[Word], canon: Canon) -> list[Token]:
     for i, word in enumerate(words):
         pieces.extend(_pieces(word.text, i))
     texts = [p[0] if not p[1] else "" for p in pieces]
+    bases = canon.numbered_bases()
 
     tokens: list[Token] = []
     j = 0
@@ -62,11 +66,23 @@ def normalize(words: Sequence[Word], canon: Canon) -> list[Token]:
             tokens.append(_make(words, text, "punct", None, [pieces[j][2]]))
             j += 1
             continue
+        before_base = j + 1 < len(texts) and texts[j + 1] in bases
+        # Rule 3. Roman numerals are book prefixes only, so "I have" stays a word.
+        ordinal = parse_ordinal(texts, j)
+        if ordinal is not None and (text not in _ROMAN or before_base):
+            value, used = ordinal
+            ids = [p[2] for p in pieces[j : j + used]]
+            tokens.append(_make(words, str(value), "ordinal", value, ids))
+            j += used
+            continue
         card = parse_cardinal(texts, j)
         if card is not None:
             value, used = card
             ids = [p[2] for p in pieces[j : j + used]]
-            tokens.append(_make(words, str(value), "number", value, ids))
+            # Rule 4: "one corinthians" is the book, not chapter 1.
+            is_prefix = used == 1 and value <= _MAX_BOOK_PREFIX and before_base
+            kind = "ordinal" if is_prefix else "number"
+            tokens.append(_make(words, str(value), kind, value, ids))
             j += used
             continue
         tokens.append(_make(words, text, "word", None, [pieces[j][2]]))
