@@ -22,6 +22,19 @@ jobs:
       - run: mypy
       - run: pytest
 
+  python-linux:
+    # Agents run on Linux, so prove the suite passes there too.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - run: ruff check sidecar tools tests
+      - run: mypy
+      - run: pytest
+
   js:
     runs-on: ubuntu-latest
     steps:
