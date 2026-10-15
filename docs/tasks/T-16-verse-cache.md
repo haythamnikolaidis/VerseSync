@@ -1,6 +1,6 @@
 # T-16 · Verse cache
 
-**Executor** agent · **Size** S · **Prereqs** T-14.3, T-05.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-14.3, T-05.1 · **Status** done
 
 | | |
 |---|---|
@@ -55,6 +55,6 @@ injected; there's no wall clock in the key path. Entries never expire.
 
 ## Done when
 
-- [ ] Every test case above passes.
-- [ ] `cache_allowed: false` means nothing is ever written to disk, not merely that the text is
+- [x] Every test case above passes.
+- [x] `cache_allowed: false` means nothing is ever written to disk, not merely that the text is
       re-read.
