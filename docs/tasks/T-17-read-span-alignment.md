@@ -100,7 +100,7 @@ numbers.
 
 ### T-17.3 · Calibration against the bootstrap corpus
 
-**Executor** agent · **Size** S · **Prereqs** T-17.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-17.2 · **Status** in-progress
 
 - **Read:** `tests/fixtures/README.md` (the label format) · [05 §4.2](../05-timing-and-placement.md)
   ("Why 0.55")
