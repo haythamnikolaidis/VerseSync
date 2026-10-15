@@ -50,7 +50,7 @@ class BibleProvider(Protocol):
 
 ### T-14.1 · Types, protocol and error taxonomy
 
-**Executor** agent · **Size** XS · **Prereqs** T-09.3 · **Status** in-progress
+**Executor** agent · **Size** XS · **Prereqs** T-09.3 · **Status** done
 
 - **Read:** [06 §1, §3, §3.2](../06-bible-text-service.md)
 - **Touches:** `sidecar/versesync/bible/base.py` (new) · `tests/test_bible_base.py` (new)
@@ -61,7 +61,7 @@ class BibleProvider(Protocol):
      against 07's `GET /translations` example keys. Commit.
 - **Verify:** `pytest tests/test_bible_base.py -q`
 - **Done when:**
-  - [ ] Every error is a `BibleError` subclass with a `code`.
+  - [x] Every error is a `BibleError` subclass with a `code`.
 
 ### T-14.2 · `format.py` and the VerseFlow round-trip test
 
