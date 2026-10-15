@@ -36,7 +36,7 @@ The fake has to reproduce the **spike findings**, not ideal behaviour:
 
 ### T-45.1 · JSX loader, sequence/track/clip model
 
-**Executor** agent · **Size** S · **Prereqs** T-43 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-43 · **Status** in-progress
 
 - **Read:** [08 §1, §3, §4](../08-premiere-host-api.md) · `spikes/media_segments/RESULTS.md`
   (the results table only) · `reference/verseflow/jsx/VerseFlow.jsx` (grep for the
