@@ -308,6 +308,20 @@ def test_p10_without_verse_is_chapter_only_three_phrasings():
     ]
 
 
+def test_every_chapter_only_form_has_no_verse_and_no_verse_end():
+    phrasings = {
+        "P5": "romans chapter 8",
+        "P9": "romans 8",
+        "P10": "the eighth chapter of romans",
+        "P8 (Psalms concatenation)": "psalm one nineteen",
+    }
+    for label, text in phrasings.items():
+        found = find(text, start=10.0)
+        assert len(found) == 1, label
+        assert found[0].verse is None and found[0].verse_end is None, label
+        assert found[0].pattern == label.split()[0], label
+
+
 # --- P11/P12: context carry ------------------------------------------------------------------
 
 
