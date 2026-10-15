@@ -93,3 +93,114 @@ def tokens_equal(a: str, b: str, cfg: AlignConfig = AlignConfig()) -> bool:
     if len(a) < cfg.fuzzy_min_len or len(b) < cfg.fuzzy_min_len:
         return False
     return bool(jellyfish.levenshtein_distance(a, b) <= 1)
+
+
+@dataclass(frozen=True)
+class Alignment:
+    """Outcome of aligning a resolved passage against the transcript (05 section 4.2)."""
+
+    classification: str  # 'read' | 'paraphrase' (the schema enum values)
+    coverage: float
+    read_start_s: float | None
+    read_end_s: float | None
+    read_word_span: tuple[int, int] | None  # inclusive word indices, for the panel's underline
+
+
+@dataclass(frozen=True)
+class _Run:
+    matched: int
+    first_match: int | None
+    last_match: int | None
+
+
+def align_from(
+    verse: Sequence[str],
+    window: Sequence[AToken],
+    start_j: int,
+    cfg: AlignConfig = AlignConfig(),
+) -> _Run:
+    """Monotonic greedy alignment of ``verse`` tokens against ``window`` from ``start_j``.
+
+    A run of more than ``cfg.max_skip`` consecutive misses means the speaker skipped a verse
+    word, so the verse pointer advances (05 section 4.1).
+    """
+    i = 0
+    j = start_j
+    matched = 0
+    misses = 0
+    first_match: int | None = None
+    last_match: int | None = None
+    while i < len(verse) and j < len(window):
+        if tokens_equal(window[j].text, verse[i], cfg):
+            if first_match is None:
+                first_match = j
+            last_match = j
+            matched += 1
+            i += 1
+            j += 1
+            misses = 0
+        else:
+            j += 1
+            misses += 1
+            if misses > cfg.max_skip:
+                i += 1
+                misses = 0
+    return _Run(matched, first_match, last_match)
+
+
+def _best_run(verse: Sequence[str], window: Sequence[AToken], cfg: AlignConfig) -> _Run | None:
+    """Best run over the first ``k_starts`` positions matching ``V[0]`` or ``V[1]``.
+
+    Ties on coverage keep the earliest start, because only a strictly better run replaces
+    the incumbent.
+    """
+    openers = verse[:2]
+    best: _Run | None = None
+    tried = 0
+    for j, token in enumerate(window):
+        if tried >= cfg.k_starts:
+            break
+        if not any(tokens_equal(token.text, opener, cfg) for opener in openers):
+            continue
+        tried += 1
+        run = align_from(verse, window, j, cfg)
+        if best is None or run.matched > best.matched:
+            best = run
+    return best
+
+
+def align(
+    verse_texts: Sequence[str],
+    words: Sequence[Word],
+    mention_word_index: int,
+    cfg: AlignConfig = AlignConfig(),
+) -> Alignment:
+    """Classify a cue as read or paraphrase and locate the reading in the transcript.
+
+    ``coverage`` is always reported. An empty verse (unresolved passage) or a window with no
+    candidate start yields a paraphrase with coverage 0.0 (05 section 4.3).
+    """
+    verse = normalise_verse(verse_texts)
+    tokens = transcript_tokens(words)
+    if not verse or not tokens:
+        return Alignment("paraphrase", 0.0, None, None, None)
+
+    # First transcript token at or after the mention word (tokens are in word order).
+    m = len(tokens)
+    for index, token in enumerate(tokens):
+        if token.word_index >= mention_word_index:
+            m = index
+            break
+    lo, hi = window_bounds(m, len(verse), len(tokens), cfg)
+    window = tokens[lo:hi]
+
+    best = _best_run(verse, window, cfg)
+    if best is None or best.first_match is None or best.last_match is None:
+        return Alignment("paraphrase", 0.0, None, None, None)
+
+    coverage = best.matched / len(verse)
+    if coverage < cfg.read_coverage_threshold:
+        return Alignment("paraphrase", coverage, None, None, None)
+    first = window[best.first_match]
+    last = window[best.last_match]
+    return Alignment("read", coverage, first.start, last.end, (first.word_index, last.word_index))
