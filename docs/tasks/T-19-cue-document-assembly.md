@@ -67,7 +67,7 @@ to them; don't redesign them.** If the schema looks wrong, mark the task blocked
 
 ### T-19.2 · Document assembly, sibling transcript, validation in the code path
 
-**Executor** agent · **Size** S · **Prereqs** T-19.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-19.1 · **Status** in-progress
 
 - **Read:** [07 §5, §5.2](../07-sidecar-api.md) · `tools/validate_cue_document.py` (its public
   function only)
