@@ -51,7 +51,7 @@ numbers.
 
 ### T-17.1 · Alignment normalisation, window and token equality
 
-**Executor** agent · **Size** XS · **Prereqs** T-14.3, T-13.3 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-14.3, T-13.3 · **Status** in-progress
 
 - **Read:** [05 §4.1](../05-timing-and-placement.md) (the "window" line and the normalisation
   paragraph)
