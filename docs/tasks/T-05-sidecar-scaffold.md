@@ -28,7 +28,7 @@ The mock accepts any non-empty Origin, so the contract tests (T-42) send this va
 
 ### T-05.1 · `paths.py` and `config.py`
 
-**Executor** agent · **Size** S · **Prereqs** T-44 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-44 · **Status** in-progress
 
 - **Read:** [05 §2](../05-timing-and-placement.md) (the config table) ·
   [06 §8](../06-bible-text-service.md) · `reference/fwt/config/manager.py` (the

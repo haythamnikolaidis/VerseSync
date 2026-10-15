@@ -13,3 +13,11 @@ if str(TOOLS_DIR) not in sys.path:
 @pytest.fixture(scope="session")
 def canon() -> Canon:
     return load_canon()
+
+
+@pytest.fixture
+def app_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Point VERSESYNC_HOME at a per-test temporary directory."""
+    home = tmp_path / "home"
+    monkeypatch.setenv("VERSESYNC_HOME", str(home))
+    return home
