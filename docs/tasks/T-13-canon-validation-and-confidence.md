@@ -98,7 +98,7 @@ bonus, so the cue builder (T-19.1) assigns it.
 
 ### T-13.3 · Duplicate suppression, snippets and `detect()`
 
-**Executor** agent · **Size** S · **Prereqs** T-13.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-13.2 · **Status** in-progress
 
 - **Read:** [04 §6](../04-reference-detection.md) (the "Duplicate suppression" bullet) ·
   [04 §7](../04-reference-detection.md)
