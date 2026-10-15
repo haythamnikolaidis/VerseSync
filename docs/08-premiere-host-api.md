@@ -31,10 +31,11 @@ document builds on rather than repeats.
 
 ```
 VS.ping("{}")
-→ { ok: true, data: { pong: true, version: "1.0.0", hostApi: "1.0" } }
+→ { ok: true, data: { pong: true, version: "1.0.0", hostApi: "1.1" } }
 ```
 
-Used for the health check and the version handshake.
+Used for the health check and the version handshake. `hostApi` is `"1.1"`: 1.1 added the
+required `sequenceId` (D20, risk R-13; see §3).
 
 ---
 
@@ -46,6 +47,7 @@ Extends VerseFlow's version with everything the timing layer needs.
 VS.getSequenceInfo("{}")
 → { ok: true, data: {
       hasActiveSequence: true,
+      sequenceId: "7f3c2a10-5b8e-4d21-9c47-1e6a0b93d5f2",  // Premiere's sequence.sequenceID
       name: "Sermon 2026-08-09",
       videoTrackCount: 4,
       audioTrackCount: 6,
@@ -56,6 +58,15 @@ VS.getSequenceInfo("{}")
       endTicks: "689538816000000"
    } }
 ```
+
+**`sequenceId` identifies the sequence this analysis belongs to (D20, risk R-13).**
+`app.project.activeSequence` follows UI focus, so the editor can switch tabs between Analyse
+and Insert. The panel stores `sequenceId` when it analyses and passes it back, as a **required**
+argument, to `VS.getMediaSegments`, `VS.validateTrack` and `VS.insertCues`. Before touching
+anything, each of those compares it to `app.project.activeSequence.sequenceID` and, if they
+differ, returns the §9 "active sequence changed" error. The host **never** silently changes the
+active sequence. `sequenceId` is absent when `hasActiveSequence` is `false`. That `sequenceID`
+stays stable across separate `evalScript` calls is assumed and is checked by T-25.H.
 
 **`timebase` is the load-bearing field.** All frame snapping ([05](05-timing-and-placement.md)
 §7) divides by it. Deriving ticks-per-frame from `frameRate` is wrong for 23.976 and 29.97 and
@@ -71,7 +82,8 @@ will produce cumulative drift across a 40-cue batch.
 mapping possible (FR-5.5).
 
 ```
-VS.getMediaSegments('{"mediaPath":"D:/Sermons/SERMON_A001.MXF"}')
+VS.getMediaSegments('{"sequenceId":"7f3c2a10-5b8e-4d21-9c47-1e6a0b93d5f2",
+                      "mediaPath":"D:/Sermons/SERMON_A001.MXF"}')
 → { ok: true, data: {
       matched: true,
       segments: [
@@ -143,6 +155,7 @@ absolute times instead of being laid end to end from the playhead.
 
 ```json
 {
+  "sequenceId": "7f3c2a10-5b8e-4d21-9c47-1e6a0b93d5f2",
   "mogrtPath": "D:/Templates/AV_Quote_04.mogrt",
   "trackIndex": 2,
   "mapping": { "referenceIndex": 11, "bodyIndex": 3 },
@@ -162,6 +175,8 @@ absolute times instead of being laid end to end from the playhead.
 
 **Contract:**
 
+- `sequenceId` is **required**, from `VS.getSequenceInfo` (§3). It is checked before anything
+  else is touched; a missing or mismatched value returns an error and inserts nothing.
 - `cues` **must** arrive sorted ascending by `atTicks`. The panel sorts; the host asserts and
   errors rather than silently misbehaving.
 - `atTicks` and `durationTicks` are already **frame-snapped** by the panel. The host does not
@@ -227,7 +242,7 @@ effect on whether the review pass feels trustworthy.
 ## 8. `VS.validateTrack`
 
 ```
-VS.validateTrack('{"trackIndex":2,"ranges":[{"startTicks":"…","endTicks":"…"}]}')
+VS.validateTrack('{"sequenceId":"7f3c2a10-5b8e-4d21-9c47-1e6a0b93d5f2","trackIndex":2,"ranges":[{"startTicks":"…","endTicks":"…"}]}')
 → { ok: true, data: { conflicts: [ { rangeIndex: 3, existingClipName: "Lower Third 02" } ] } }
 ```
 
@@ -249,6 +264,8 @@ Host errors are read by editors, not developers. Keep VerseFlow's tone:
 | `importMGT` returned null | `Premiere could not insert the template. Check the .mogrt path is still valid.` |
 | `getMGTComponent()` null | `This template has no Motion Graphics component — it may not be an After Effects template.` |
 | Track index out of range | `Track V{n} no longer exists in this sequence. Click Refresh.` |
+| `sequenceId` differs from the active sequence's ID (`VS.getMediaSegments`, `VS.validateTrack`, `VS.insertCues`) | `The active sequence changed since this analysis. Switch back to "<name>" or click Analyse again.` Here `<name>` is the name of the sequence whose ID matches, looked up in `app.project.sequences`. |
+| `sequenceId` missing, or it matches no sequence in the project | `Open a sequence in Premiere first.` |
 | Unsorted cues | `Internal error: cues must be sorted by time. Please report this.` |
 
 ---
