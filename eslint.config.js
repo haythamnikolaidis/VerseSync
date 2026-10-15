@@ -1,6 +1,7 @@
 'use strict';
 
 module.exports = [
+  { ignores: ['reference/**'] },
   {
     files: ['panel/js/**/*.js'],
     languageOptions: {

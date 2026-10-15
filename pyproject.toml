@@ -21,6 +21,7 @@ testpaths = ["tests"]
 [tool.ruff]
 src = ["sidecar"]
 line-length = 100
+extend-exclude = ["reference"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
