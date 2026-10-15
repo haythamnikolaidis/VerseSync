@@ -96,7 +96,7 @@ way to get this module wrong**, because it's how a regex match ends up as a time
 
 ### T-10.3 · Search string, offset map and span round-trip
 
-**Executor** agent · **Size** S · **Prereqs** T-10.2 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-10.2 · **Status** done
 
 - **Read:** [04 §3](../04-reference-detection.md) (the last paragraph, on the search string)
 - **Touches:** `sidecar/versesync/detect/normalize.py` · `tests/test_search_text.py` (new)
@@ -120,9 +120,9 @@ way to get this module wrong**, because it's how a regex match ends up as a time
      to the right source seconds. Commit.
 - **Verify:** `pytest tests/test_search_text.py -q`
 - **Done when:**
-  - [ ] The fuzz test passes. The offset map is exact, including for spaces, which map to the
+  - [x] The fuzz test passes. The offset map is exact, including for spaces, which map to the
         token before them.
-  - [ ] A token span converts back to the correct word span and source seconds.
+  - [x] A token span converts back to the correct word span and source seconds.
 
 ## Traps
 
