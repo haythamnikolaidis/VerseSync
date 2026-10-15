@@ -47,7 +47,7 @@ def match_book(tokens: Sequence[Token], i: int, canon: Canon, *,
 
 ### T-11.1 · Tier 1: exact and alias matching with ordinal prefixes
 
-**Executor** agent · **Size** S · **Prereqs** T-10.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-10.3 · **Status** in-progress
 
 - **Read:** [04 §4.1](../04-reference-detection.md) (tier 1 and the short-name restriction)
 - **Touches:** `sidecar/versesync/detect/types.py` · `sidecar/versesync/detect/fuzzy.py` (new) ·
