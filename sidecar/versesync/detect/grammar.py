@@ -165,6 +165,7 @@ def _int(match: re.Match[str], group: str) -> int:
 
 
 _BOOK = r"§b(?P<b>\d+)"
+_RANGE = r"(?:through|to|-|and)"  # the connectives of a verse range (04 section 4, P3)
 
 # The registry is the priority order: the first pattern to match a span wins it (04 section 4).
 PATTERNS: tuple[Pattern, ...] = (
@@ -177,6 +178,21 @@ PATTERNS: tuple[Pattern, ...] = (
         "P2",
         _compile(rf"{_BOOK} (?P<c>\d+) : (?P<v>\d+)"),
         lambda m: Fields(_int(m, "c"), _int(m, "v"), None),
+    ),
+    Pattern(
+        "P3",
+        _compile(rf"{_BOOK} chapter (?P<c>\d+) verses? (?P<v>\d+) {_RANGE} (?P<ve>\d+)"),
+        lambda m: Fields(_int(m, "c"), _int(m, "v"), _int(m, "ve")),
+    ),
+    Pattern(
+        "P4",
+        _compile(rf"{_BOOK} chapter (?P<c>\d+) verses? (?P<v>\d+)"),
+        lambda m: Fields(_int(m, "c"), _int(m, "v"), None),
+    ),
+    Pattern(
+        "P5",
+        _compile(rf"{_BOOK} chapter (?P<c>\d+)"),
+        lambda m: Fields(_int(m, "c"), None, None),
     ),
     Pattern(
         "P9",

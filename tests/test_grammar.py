@@ -142,3 +142,45 @@ def test_results_sorted_by_source_start():
 
 def test_no_book_no_candidates():
     assert find("we read chapter 3 verse 16") == []
+
+
+# --- P3-P5: the chapter keyword forms ---------------------------------------------------------
+
+
+def test_p3_chapter_verses_range_three_phrasings():
+    assert [fields(c) for c in find("john chapter 3 verses 16 through 18", start=10.0)] == [
+        ("John", 3, 16, 18, "P3")
+    ]
+    assert [fields(c) for c in find("romans chapter 8 verses 28 to 30")] == [
+        ("Rom", 8, 28, 30, "P3")
+    ]
+    assert [fields(c) for c in find("first corinthians chapter 6 verses 19 and 20")] == [
+        ("1Cor", 6, 19, 20, "P3")
+    ]
+    assert [fields(c) for c in find("john chapter 3 verse 16 - 18")] == [("John", 3, 16, 18, "P3")]
+
+
+def test_p4_chapter_verse_three_phrasings():
+    assert [fields(c) for c in find("2 timothy chapter 2 verse 15", start=10.0)] == [
+        ("2Tim", 2, 15, None, "P4")
+    ]
+    assert [fields(c) for c in find("john chapter three verse sixteen")] == [
+        ("John", 3, 16, None, "P4")
+    ]
+    assert [fields(c) for c in find("psalm chapter 23 verses 4")] == [("Ps", 23, 4, None, "P4")]
+
+
+def test_p5_chapter_only_three_phrasings():
+    found = find("romans chapter 8", start=10.0)
+    assert [fields(c) for c in found] == [("Rom", 8, None, None, "P5")]
+    assert found[0].verse is None
+    assert [fields(c) for c in find("john chapter three")] == [("John", 3, None, None, "P5")]
+    assert [fields(c) for c in find("first john chapter 1 is short")] == [
+        ("1John", 1, None, None, "P5")
+    ]
+
+
+def test_keyword_forms_cover_the_whole_phrase_and_leave_no_stray_pattern():
+    c = find("john chapter 3 verses 16 through 18", start=10.0)[0]
+    assert c.token_span == (0, 6)
+    assert (c.source_start, c.source_end) == (10.0, 13.4)
