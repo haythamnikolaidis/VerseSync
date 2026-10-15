@@ -47,7 +47,7 @@ def match_book(tokens: Sequence[Token], i: int, canon: Canon, *,
 
 ### T-11.1 · Tier 1: exact and alias matching with ordinal prefixes
 
-**Executor** agent · **Size** S · **Prereqs** T-10.3 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-10.3 · **Status** done
 
 - **Read:** [04 §4.1](../04-reference-detection.md) (tier 1 and the short-name restriction)
 - **Touches:** `sidecar/versesync/detect/types.py` · `sidecar/versesync/detect/fuzzy.py` (new) ·
@@ -62,8 +62,8 @@ def match_book(tokens: Sequence[Token], i: int, canon: Canon, *,
      ambiguous, and the plan says don't guess. Commit.
 - **Verify:** `pytest tests/test_book_matching.py -q`
 - **Done when:**
-  - [ ] Tier 1 resolves every alias in `canon.json`.
-  - [ ] Matches report the correct `first`/`last`, including the ordinal prefix.
+  - [x] Tier 1 resolves every alias in `canon.json`.
+  - [x] Matches report the correct `first`/`last`, including the ordinal prefix.
 
 ### T-11.2 · Tier 2: curated ASR-confusion table
 
