@@ -1,6 +1,6 @@
 # T-43 · Vendor VerseFlow reference sources
 
-**Executor** agent · **Size** XS · **Prereqs** — · **Status** in-progress
+**Executor** agent · **Size** XS · **Prereqs** — · **Status** done
 
 | | |
 |---|---|
