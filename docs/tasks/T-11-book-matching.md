@@ -85,7 +85,7 @@ def match_book(tokens: Sequence[Token], i: int, canon: Canon, *,
 
 ### T-11.3 · Tier 3: fuzzy matching and the short-name restriction
 
-**Executor** agent · **Size** S · **Prereqs** T-11.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-11.2 · **Status** in-progress
 
 - **Read:** [04 §4.1](../04-reference-detection.md) (tier 3 and the gate) ·
   [11 §1](../11-testing.md) (the "Book matching" negative fixtures)
