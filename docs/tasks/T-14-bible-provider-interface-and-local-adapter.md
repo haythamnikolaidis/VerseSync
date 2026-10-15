@@ -102,7 +102,7 @@ class BibleProvider(Protocol):
 
 ### T-14.3 · `local.py` over the bundled KJV
 
-**Executor** agent · **Size** S · **Prereqs** T-14.2 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-14.2 · **Status** done
 
 - **Read:** [06 §3.1](../06-bible-text-service.md) (the `local.py` row)
 - **Touches:** `sidecar/versesync/bible/local.py` (new) · `tests/test_local_provider.py` (new)
@@ -129,8 +129,8 @@ class BibleProvider(Protocol):
      Commit.
 - **Verify:** `pytest tests/test_local_provider.py -q`
 - **Done when:**
-  - [ ] Single verse, range and chapter fetches all work, all offline.
-  - [ ] No bare exceptions escape.
+  - [x] Single verse, range and chapter fetches all work, all offline.
+  - [x] No bare exceptions escape.
 
 ## Traps
 
