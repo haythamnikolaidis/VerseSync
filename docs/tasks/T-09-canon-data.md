@@ -28,7 +28,7 @@ counts from the bundled text means T-13 can't reject a verse that T-14 can serve
 
 ### T-09.1 · Bundle the public-domain KJV text
 
-**Executor** agent · **Size** S · **Prereqs** — · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** — · **Status** in-progress
 
 - **Read:** this card only.
 - **Touches:** `tools/fetch_pd_bible.py` (new) · `sidecar/versesync/bible/data/kjv.json.gz`
