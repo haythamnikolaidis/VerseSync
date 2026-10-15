@@ -5,8 +5,8 @@ var assert = require('node:assert');
 
 var VS = require('../panel/js/lib/host-stub');
 
-// Must equal "sequenceId" in tests/fixtures/host/sequence-2997.json (the sync test enforces it
-// for getSequenceInfo; the other sequences' IDs are read through getSequenceInfo below).
+// Must equal "sequenceId" in tests/fixtures/host/sequence-2997.json; the sync test enforces
+// that getSequenceInfo returns the fixture, so a drift fails there.
 var ID_2997 = '7f3c2a10-5b8e-4d21-9c47-1e6a0b93d5f2';
 
 function freshStub() {
@@ -199,4 +199,87 @@ test('activation: ?hostSequence and ?hostSegments query params select a scenario
     delete global.window;
     freshStub(); // restore a window-less module for any test file that runs after this one
   }
+});
+
+// ---- sequence identity (D20, risk R-13; docs/08 §3 and §9) ----
+
+var CHANGED_MESSAGE =
+  'The active sequence changed since this analysis. Switch back to "Sermon 2026-09-14" or click Analyse again.';
+
+function insertPayload(extra) {
+  var base = {
+    mogrtPath: 'D:/Templates/AV_Quote_04.mogrt',
+    trackIndex: 2,
+    mapping: { referenceIndex: 11, bodyIndex: 3 },
+    cues: [{ id: 'cue_001', atTicks: '100000000000', durationTicks: '6000000000' }]
+  };
+  Object.keys(extra).forEach(function (key) { base[key] = extra[key]; });
+  return JSON.stringify(base);
+}
+
+test('sequence identity: getSequenceInfo returns a distinct sequenceId per sequence', function () {
+  var seen = {};
+  ['sequence-2997', 'sequence-23976', 'sequence-25'].forEach(function (name) {
+    VS.__setScenario({ sequence: name });
+    var id = JSON.parse(VS.getSequenceInfo('{}')).data.sequenceId;
+    assert.strictEqual(typeof id, 'string');
+    assert.ok(id.length > 0);
+    assert.strictEqual(seen[id], undefined);
+    seen[id] = true;
+  });
+  VS.__setScenario({ sequence: 'sequence-2997' });
+});
+
+test('sequence identity: a matching sequenceId passes on all three calls', function () {
+  VS.__setScenario({ sequence: 'sequence-2997' });
+  assert.strictEqual(JSON.parse(VS.getMediaSegments(JSON.stringify({ sequenceId: ID_2997 }))).ok, true);
+  assert.strictEqual(
+    JSON.parse(VS.validateTrack(JSON.stringify({ sequenceId: ID_2997, trackIndex: 2, ranges: [] }))).ok,
+    true
+  );
+  assert.strictEqual(JSON.parse(VS.insertCues(insertPayload({ sequenceId: ID_2997 }))).ok, true);
+});
+
+test('sequence identity: a mismatched sequenceId returns the exact §9 message on all three calls', function () {
+  VS.__setScenario({ sequence: 'sequence-2997' });
+  VS.__setScenario({ focusedSequence: 'sequence-25' }); // editor switched tab after Analyse
+  var expected = { ok: false, error: CHANGED_MESSAGE };
+  assert.deepStrictEqual(JSON.parse(VS.getMediaSegments(JSON.stringify({ sequenceId: ID_2997 }))), expected);
+  assert.deepStrictEqual(
+    JSON.parse(VS.validateTrack(JSON.stringify({ sequenceId: ID_2997, trackIndex: 2, ranges: [] }))),
+    expected
+  );
+  assert.deepStrictEqual(JSON.parse(VS.insertCues(insertPayload({ sequenceId: ID_2997 }))), expected);
+  VS.__setScenario({ focusedSequence: null });
+  assert.strictEqual(JSON.parse(VS.insertCues(insertPayload({ sequenceId: ID_2997 }))).ok, true);
+});
+
+test('sequence identity: the message names the sequence that owns the ID, not the active one', function () {
+  VS.__setScenario({ sequence: 'sequence-25', focusedSequence: 'sequence-2997' });
+  var idOf25 = '0e8b5a37-d6c4-4192-a8f3-3b71c9d04e5a';
+  var response = JSON.parse(VS.insertCues(insertPayload({ sequenceId: idOf25 })));
+  assert.deepStrictEqual(response, {
+    ok: false,
+    error: 'The active sequence changed since this analysis. Switch back to "UK Service 2026-09-27" or click Analyse again.'
+  });
+  VS.__setScenario({ sequence: 'sequence-2997' });
+});
+
+test('sequence identity: a sequenceId that matches no sequence returns the open-a-sequence message', function () {
+  VS.__setScenario({ sequence: 'sequence-2997' });
+  var response = JSON.parse(VS.insertCues(insertPayload({ sequenceId: 'no-such-sequence' })));
+  assert.deepStrictEqual(response, { ok: false, error: 'Open a sequence in Premiere first.' });
+});
+
+test('sequence identity: a missing sequenceId on insertCues is ok:false and inserts nothing', function () {
+  VS.__setScenario({ sequence: 'sequence-2997' });
+  var response = JSON.parse(VS.insertCues(insertPayload({})));
+  assert.strictEqual(response.ok, false);
+  assert.strictEqual(response.data, undefined);
+});
+
+test('sequence identity: __setScenario({ sequence }) clears a simulated tab switch', function () {
+  VS.__setScenario({ focusedSequence: 'sequence-25' });
+  VS.__setScenario({ sequence: 'sequence-2997' });
+  assert.strictEqual(VS.__getScenario().focusedSequence, null);
 });
