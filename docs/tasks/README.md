@@ -1,40 +1,64 @@
 # Task Files
 
-One file per task. **Each is self-contained**: a developer with no prior context should be able
-to open one, read the linked spec sections, and finish it.
+One **epic file** per task ID. Atomic tasks live in their own file. A task that was too big to
+be atomic became an epic, and its subtasks (`T-NN.1`, `T-NN.2`, …, and `T-NN.H` for human
+verification) are sections inside that file.
 
-- **Build order and who owns what:** [../13-technical-plan.md](../13-technical-plan.md)
-- **Index of every task:** [../10-tasks.md](../10-tasks.md)
+- **Autonomous agents: read [AGENT.md](AGENT.md) first.** It covers the session loop, recovery,
+  stop conditions and build conventions.
+- **The execution queue and index:** [../10-tasks.md](../10-tasks.md)
+- **Why the plan has this shape:** [../13-technical-plan.md §11](../13-technical-plan.md#11-autonomous-agent-execution)
+- **What to work on next:** `python tools/plan.py next`
 
-## File anatomy
+## Card anatomy
+
+Every task, whether it's a whole file or a `###` section, starts with a **status line**.
+`tools/plan.py` parses it, so keep the format exact:
+
+```
+**Executor** agent · **Size** S · **Prereqs** T-10.3, T-11.1 · **Status** todo
+```
 
 | Field | Means |
 |-------|-------|
-| **Workstream** | Which stream owns it ([13 §4](../13-technical-plan.md)). One owner per stream. |
-| **Wave** | When it runs ([13 §5](../13-technical-plan.md)). |
-| **Prereqs** | Must be **merged** before this starts. |
-| **Unblocks** | Who is waiting on you. Ship promptly if this list is long. |
-| **Spec** | Read these sections before writing code. They are the source of truth; task files summarise but never override them. |
-| **Done when** | Verifiable by someone other than the author. |
+| **Executor** | `agent`: buildable and verifiable in a Linux container with no Premiere, GPU, media or credentials. `human`: needs one of those. |
+| **Size** | `XS` is under ~100 changed lines including tests. `S` is ~100–300. Agent tasks are never bigger. |
+| **Prereqs** | Must be **merged** (`done`) first. An epic ID means "all of its subtasks". |
+| **Status** | `todo` · `in-progress` · `blocked` (with a `> **Blocked:**` line under it) · `done` |
 
-## Estimates
+Then the card fields:
 
-**S** ≤ half a day · **M** ~1 day · **L** 2–3 days · **XL** ~1 week.
+| Field | Means |
+|-------|-------|
+| **Read** | The *only* spec sections and files to read. Everything else is out of budget. |
+| **Touches** | The files this task creates or changes. Changing anything else is a smell; see AGENT.md §4. |
+| **Interface** | Signatures and shapes that are **decided**. Implement them exactly. Later tasks depend on them. |
+| **Steps** | Each Step is one commit, pushed, and leaves the build green. The commit subject is `T-NN.k [i/n] …`. |
+| **Verify** | The narrow command that proves the task works. Run it after every Step. |
+| **Done when** | Checks that someone other than the author can verify. |
+
+The epic header holds **Goal**, **Context** and **Traps**, which apply to every subtask in it.
+Keep them short: an agent reads them for every subtask.
+
+## Writing or changing cards
+
+- **One Step, one idea, one commit.** If a Step can't be finished in a fraction of a session,
+  split it.
+- **Decide interfaces in the card**, not in the implementation. Seams between tasks are where
+  autonomous work goes wrong.
+- **Name exact files, exact messages, and exact constants.** "Handle errors nicely" can't be
+  verified, but *"`Jude has only 1 chapter.`"* can.
+- **Never make an agent task depend on a human task** unless the card says **Gate**.
+- Run `python tools/plan.py validate` after any change to a status line, a prereq or the queue.
 
 ## Conventions
 
-- Branch `task/T-NN-short-slug`, one PR per task, PR title starts with the task ID.
-- Definition of Ready / Done: [13 §8](../13-technical-plan.md).
-- Changing a frozen contract requires the protocol in [13 §8](../13-technical-plan.md) —
-  spec, schema, fixtures and mock all move in one PR.
-- Task IDs **T-01…T-36** are referenced by ID from other documents in this package
-  ([02](../02-source-project-audit.md), [08](../08-premiere-host-api.md),
-  [12](../12-decisions-and-risks.md)). **Do not renumber them.** T-37…T-42 were added later as
-  the foundation tasks — they run *first* despite the higher numbers.
-
-## Before you start anything
-
-- Any host (`.jsx`) task → read [08-premiere-host-api.md](../08-premiere-host-api.md) **and**
-  VerseFlow's `docs/planning/02-adobe-research.md`.
-- Any detection task → read [04-reference-detection.md](../04-reference-detection.md).
-- Any timing task → read [05-timing-and-placement.md](../05-timing-and-placement.md).
+- Changing a frozen contract needs a dedicated **Contract:** task (see
+  [../13-technical-plan.md §8](../13-technical-plan.md)). The spec, the schema, the fixtures,
+  the stub and the mock all move together in one PR. T-47 and T-50 are the examples.
+- Task IDs **T-01…T-42** are referenced by ID from [02](../02-source-project-audit.md),
+  [08](../08-premiere-host-api.md) and [12](../12-decisions-and-risks.md). **Don't renumber
+  them.** New work gets the next free number (T-51 and up) or a new subtask.
+- Any host (`.jsx`) task: read the relevant [08](../08-premiere-host-api.md) sections and
+  `reference/verseflow/docs/planning/02-adobe-research.md` (vendored by T-43). Read only the
+  sections the card lists.

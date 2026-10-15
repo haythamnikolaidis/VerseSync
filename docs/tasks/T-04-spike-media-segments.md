@@ -1,5 +1,7 @@
 # T-04 · Spike: source→sequence mapping from a real sequence
 
+**Executor** human · **Size** — · **Prereqs** — · **Status** done
+
 | | |
 |---|---|
 | **Workstream** | S — Spikes |

@@ -2,56 +2,52 @@
 
 | | |
 |---|---|
-| **Workstream** | H — Quality & release |
-| **Wave** | 3 |
-| **Estimate** | M |
-| **Prereqs** | T-30, T-31 |
-| **Unblocks** | release |
+| **Workstream** | H — Quality |
+| **Unblocks** | T-36.3, release |
 | **Spec** | [01-requirements.md](../01-requirements.md) NFR-2 · [00-prd.md §5](../00-prd.md) (M4) |
 
 ## Goal
 
-Verify NFR-2 on the reference workstation and record the measured numbers.
+Verify NFR-2 and record the measured numbers. Where a number can be measured in the container,
+the agent measures it there. GPU and Premiere numbers are measured by a human.
 
-## Context you need
+## Subtasks
 
-NFR-2's numbers are stated **for the reference GPU workstation** and must be reported as such —
-a CPU-only machine may take longer to transcribe than the sermon lasts (risk R-10). Honest,
-qualified numbers are the deliverable; a single unqualified figure is not.
+### T-35.1 · Container-measurable budgets as tests
 
-M4 (editor time ≤ 10 min per 45-minute sermon, against a 60–90 min manual baseline) is the
-product-level number these roll up into.
+**Executor** agent · **Size** S · **Prereqs** T-30.2, T-21.1 · **Status** todo
 
-## Steps
+- **Read:** NFR-2 in [01](../01-requirements.md)
+- **Touches:** `tests/test_performance.py` (new) · `tests/panel/performance.test.js` (new) ·
+  `docs/qa/performance-results.md` (new)
+- **Steps:**
+  1. Python budget tests, marked `@pytest.mark.perf` but run by default because they're
+     cheap:
+     - the pipeline (detect, resolve, time) on the longest fixture, scaled ×6 to about 45
+       minutes of words, finishes in **15 s or less**;
+     - `hash_media` on a 4 GB sparse file takes under 1 s;
+     - a cache-hit job, end to end over HTTP with the fixture backend, takes under 5 s.
 
-1. Measure on the reference workstation, on a real 45-minute sermon:
-   - **transcription ≤ 4 min**
-   - **pipeline (detect + resolve + time) ≤ 15 s**
-   - **cached re-run ≤ 5 s** (Journey B)
-   - **a 40-cue insert without freezing the panel**
-2. Tune `batch_size` for the reference GPU; record the value and the VRAM headroom it needs.
-3. Profile the review list with 40 cues and several rows expanded — CEP's Chromium is old, and
-   a re-render on every checkbox toggle will show.
-4. Confirm the media hash (T-08) is well under a second on a 4 GB MXF.
-5. Measure the `VS.getMediaSegments` walk on the longest available sequence.
-6. Also measure a **CPU-only** run and state it plainly, so the warning in the panel
-   ([09](../09-ui-spec.md), risk R-10) is based on a real number.
-7. Record everything in the repo README with the workstation spec beside it.
+     Commit.
+  2. Panel budget test (jsdom): rendering 40 cues with 5 expanded takes under 300 ms, and a
+     checkbox toggle takes under 16 ms. Write the measured values into
+     `docs/qa/performance-results.md`, labelled **container, not the reference workstation**.
+     Commit.
+- **Verify:** `pytest tests/test_performance.py -q && node --test tests/panel/performance.test.js`
+- **Done when:**
+  - [ ] Every container-measurable budget is enforced by a test.
 
-## Files
+### T-35.H · Reference workstation numbers
 
-- `README.md` (measured numbers + reference spec)
-- `docs/qa/performance-results.md`
+**Executor** human · **Size** — · **Prereqs** T-35.1, T-30.H · **Status** todo
 
-## Done when
+On the reference workstation, with a real 45-minute sermon:
 
-- [ ] All four NFR-2 numbers are measured and met on the reference workstation.
-- [ ] The measured numbers and the workstation spec are in the README.
-- [ ] A CPU-only figure is recorded and the panel's warning threshold is set from it.
-- [ ] The 40-cue review list stays responsive.
+- transcription takes **4 min or less**, including a cold start with model load;
+- a cached re-run takes **5 s or less**;
+- a 40-cue insert doesn't freeze the panel;
+- record the `VS.getMediaSegments` walk time on the longest sequence;
+- record a **CPU-only** figure, and set the panel's CPU warning threshold from it (R-10);
+- tune `batch_size` and record the VRAM headroom.
 
-## Traps
-
-- Measure a **cold** start too, including model load. First-run experience is what an editor
-  judges the product on, and it is the slowest path.
-- Do not report a number without the machine it was measured on.
+Record everything, with the machine spec, in `docs/qa/performance-results.md`.

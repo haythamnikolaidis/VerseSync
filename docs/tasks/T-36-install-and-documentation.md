@@ -2,64 +2,92 @@
 
 | | |
 |---|---|
-| **Workstream** | H — Quality & release |
-| **Wave** | 3 |
-| **Estimate** | M |
-| **Prereqs** | T-30, T-35 |
+| **Workstream** | H — Quality |
 | **Unblocks** | release |
-| **Spec** | [06 §5](../06-bible-text-service.md) · [02 §2.1](../02-source-project-audit.md) · VerseFlow `README.md` |
+| **Spec** | [06 §5](../06-bible-text-service.md) · [02 §2.1](../02-source-project-audit.md) · `reference/verseflow/README.md` · `reference/fwt/install.py` |
 
 ## Goal
 
-A clean Windows workstation goes from nothing to a completed Journey A using **only the
-README**.
+A clean Windows workstation goes from nothing to a completed Journey A using **only the README**.
 
-## Context you need
+## Context
 
-Risk R-9 is that the two-process design strands a non-technical user. The install is the first
-place that risk shows up — the editor's mental model is "copy a folder", and we are asking for a
-Python environment as well. It has to be one command.
+Risk R-9 is that the two-process design strands a non-technical user. The install has to be one
+command for each part. The agent writes the installers and the documentation, and tests them
+with **dry-run and fake-filesystem modes**. Proving it on a clean machine is T-36.H.
 
-## Steps
+## Subtasks
 
-1. **Sidecar installer** following `Faster-Whisper-Transcriber`'s `install.py` **pinned-wheel
-   pattern**: pinned wheels per Python version (cp311/312/313), GPU vs CPU torch, CUDA runtime
-   pins. Do not invent a new approach — that pattern is proven on these machines.
-2. **Panel install** per VerseFlow's debug-mode instructions: the `PlayerDebugMode` registry
-   keys for CSXS 11 and 12, and copying to
-   `%APPDATA%\Adobe\CEP\extensions\VerseSync`.
-3. **README** covering:
-   - both installs, start to finish
-   - the config file and every option
-   - **credentials** — where the Bible API key goes, and that it never leaves the machine except
-     as a verse-reference request
-   - the **licensing obligations** from [06 §5](../06-bible-text-service.md), including required
-     attribution text per translation
-   - the **privacy statement**: transcription is entirely local; the only outbound traffic is
-     verse *references*, never audio and never transcript text (risk R-12, NFR-4)
-   - the measured performance numbers from T-35 with the reference spec
-   - troubleshooting for each failure state, with the sidecar log path
-4. Verify on a **genuinely clean** machine — no Python, no CUDA, no prior Adobe extensions.
+### T-36.1 · Sidecar installer
 
-## Files
+**Executor** agent · **Size** S · **Prereqs** T-07.2, T-44 · **Status** todo
 
-- `install.py`, `README.md`, `docs/INSTALL.md`
+- **Read:** `reference/fwt/install.py` (the pinned-wheel pattern) · [02 §2.1](../02-source-project-audit.md)
+- **Touches:** `install.py` (new) · `tests/test_install.py` (new)
+- **Steps:**
+  1. Port the **pinned-wheel pattern**. It detects the Python version (cp311, cp312 or cp313)
+     and a GPU (`nvidia-smi` present), picks GPU or CPU torch and the CUDA runtime pins, creates
+     `%LOCALAPPDATA%\VerseSync\venv`, and installs `versesync[transcribe]`. Every subprocess
+     call goes through one `run(cmd)` function, and `--dry-run` prints the commands instead of
+     running them. Commit.
+  2. Tests use `--dry-run`, with the GPU check mocked: the GPU and CPU command lists differ as
+     expected, and an unsupported Python exits with a clear message. Commit.
+- **Verify:** `pytest tests/test_install.py -q`
+- **Done when:**
+  - [ ] GPU and CPU-only paths are both covered by dry-run tests.
 
-## Done when
+### T-36.2 · Panel installer
 
-- [ ] A clean Windows workstation reaches a completed Journey A using only the README.
-- [ ] The installer handles both GPU and CPU-only machines.
-- [ ] Attribution requirements per translation are documented.
-- [ ] The privacy statement is present and accurate.
-- [ ] Every failure state has a troubleshooting entry with the log path.
+**Executor** agent · **Size** XS · **Prereqs** T-22.1 · **Status** todo
+
+- **Read:** `reference/verseflow/README.md` (the debug-mode install section)
+- **Touches:** `tools/install_panel.ps1` (new) · `tools/install_panel.reg` (new) ·
+  `tests/test_install_panel.py` (new)
+- **Steps:**
+  1. Write `install_panel.reg`, which sets `PlayerDebugMode` for CSXS.11 and CSXS.12. Write
+     `install_panel.ps1`, which imports the `.reg` file and copies `panel/` to
+     `%APPDATA%\Adobe\CEP\extensions\VerseSync`, excluding `js/lib/host-stub.js`. It is
+     idempotent.
+
+     Write a test that parses the `.reg` file for both keys, and checks that the `.ps1` script
+     references the right paths and excludes the stub. Commit.
+- **Verify:** `pytest tests/test_install_panel.py -q`
+- **Done when:**
+  - [ ] Both CSXS versions are covered.
+  - [ ] The stub is never deployed.
+
+### T-36.3 · README and INSTALL
+
+**Executor** agent · **Size** S · **Prereqs** T-36.1, T-36.2, T-35.1, T-32.1 · **Status** todo
+
+- **Read:** [06 §5](../06-bible-text-service.md) · `docs/qa/error-reproduction.md` ·
+  `docs/qa/performance-results.md`
+- **Touches:** `README.md` · `docs/INSTALL.md` (new)
+- **Steps:**
+  1. Write `docs/INSTALL.md`. It covers both installs from start to finish, the config file and
+     **every** option (generated from `config.py`'s defaults, with a small script or by hand),
+     and **where the credentials go**. Commit.
+  2. Add these sections to `README.md`:
+     - **licensing obligations**, with the attribution for each translation;
+     - the **privacy statement**: transcription is entirely local, and the only outbound
+       traffic is verse *references*;
+     - measured performance, with the machine spec next to it, or a "pending T-35.H" note;
+     - **troubleshooting** for each row of `error-reproduction.md`, with the log path.
+
+     Commit.
+- **Verify:** `grep -c "Troubleshooting\|Privacy\|Licensing" README.md`
+- **Done when:**
+  - [ ] Every config option and every failure state is documented.
+  - [ ] The documentation describes what the code actually does.
+
+### T-36.H · Clean-machine install
+
+**Executor** human · **Size** — · **Prereqs** T-36.3, T-35.H · **Status** todo
+
+On a **genuinely clean** Windows machine (no Python, no CUDA, no Adobe extensions), follow only
+the README through a full Journey A. Fix the documentation wherever it's wrong.
 
 ## Traps
 
-- "Clean machine" means clean. Testing on a dev box with CUDA already installed proves nothing,
-  and the CUDA path is exactly where installs break.
-- Attribution is a **licensing obligation**, not documentation polish
-  ([06 §5](../06-bible-text-service.md)). Some translations require specific wording on screen or
-  in the product.
-- Note that VerseFlow's README went stale about its own file layout
-  ([02 §1.3](../02-source-project-audit.md)). Document what the code does, and re-check at
-  release.
+- "Clean machine" means clean. The CUDA path is exactly where installs break.
+- Attribution is a **licensing obligation**, not polish.

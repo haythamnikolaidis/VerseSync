@@ -1,57 +1,59 @@
-# T-31 · Journey B — the re-run
+# T-31 · Journey B: the re-run
 
 | | |
 |---|---|
-| **Workstream** | H — Quality & release |
-| **Wave** | 3 |
-| **Estimate** | M |
-| **Prereqs** | T-08, T-28, T-30 |
-| **Unblocks** | T-32 |
+| **Workstream** | H — Quality |
+| **Unblocks** | T-32, release |
 | **Spec** | [00-prd.md §6](../00-prd.md) · [03 §4](../03-architecture.md) · [05 §5](../05-timing-and-placement.md) |
 
 ## Goal
 
-Re-analysing an already-transcribed file after the sequence has been recut returns in seconds
-with correctly updated anchors.
+Re-analysing a file that's already been transcribed, after the sequence has been recut, returns
+in seconds with correctly updated anchors. This is **half the product's value**.
 
-## Context you need
+## Context
 
-This is **half the product's value**, not a nice-to-have. Sermons get recut — an intro trimmed,
-a section lifted — and without this the editor redoes everything.
+The Cue Document stores **source time only**, so a recut invalidates the *mapping* and never the
+*analysis*. Most of this epic is proving that the existing pieces compose correctly.
 
-It works because of a design choice already made: the Cue Document stores **source time only**
-([07 §5.1](../07-sidecar-api.md)), so a recut invalidates the *mapping*, never the *analysis*.
-Journey B is therefore a pure recomputation, and most of this task is verifying that the
-existing pieces compose rather than writing new logic.
+## Subtasks
 
-## Steps
+### T-31.1 · Recut scenarios, automated
 
-1. Wire the cache-hit path through the UI: `POST /jobs` returns `cache_hit: true`, the
-   `transcribing` phase is skipped, the bar races, and the panel shows *Using cached transcript*.
-2. On every analysis — cached or not — re-call `VS.getMediaSegments` and re-derive **all**
-   anchors against the **current** edit. Never reuse previously computed sequence times.
-3. Verify `cut_from_edit` detection after a recut: cues whose source moment no longer appears in
-   the sequence are flagged and disabled by default.
-4. Verify the same for **Load cue document** — loading a saved document must re-map against the
-   current sequence, not trust stored positions.
-5. Confirm re-running after a recut where a section was *moved* (not deleted) produces correctly
-   shifted anchors.
+**Executor** agent · **Size** S · **Prereqs** T-30.2, T-20.4 · **Status** todo
 
-## Files
+- **Read:** [05 §5.2](../05-timing-and-placement.md) · [11 §6](../11-testing.md) (step 31)
+- **Touches:** `tests/panel/journey-b.test.js` (new) · `tests/fixtures/host/recut-*.json` (new;
+  these are **new** fixtures, not edits to frozen ones)
+- **Steps:**
+  1. Add two recut segment fixtures, consistent with `segments-split.json`:
+     - `recut-delete`, where a middle section is removed;
+     - `recut-move`, where two sections swap order.
 
-- `panel/js/main.js`, `panel/js/timemap.js` (verification and wiring; little new logic expected)
+     Commit.
+  2. Write a panel-level test with the stub bridge and the fake client, running Analyse twice:
+     - the second run reports `cache_hit` and the progress view shows *Using cached transcript*;
+     - in between, the stub scenario switches to each recut fixture;
+     - every anchor is **re-derived**, with no stale ticks: cues in the deleted section get
+       `cut_from_edit` and are disabled, and cues in moved sections shift by exactly the move
+       delta;
+     - a saved document loaded after the recut re-maps the same way;
+     - progress still ends at exactly 1.0.
 
-## Done when
+     Commit.
+- **Verify:** `node --test tests/panel/journey-b.test.js`
+- **Done when:**
+  - [ ] The delete and move recuts both behave as [05 §5.2] says.
+  - [ ] Nothing in the Cue Document stores ticks.
 
-- [ ] Recutting a sequence and re-analysing returns in **< 5 s** with correctly updated anchors.
-- [ ] Cues cut from the edit are flagged `cut_from_edit` and disabled.
-- [ ] Moving a section shifts the affected anchors correctly.
-- [ ] Loading a saved Cue Document re-maps against the current sequence.
-- [ ] The progress bar still ends at exactly 1.0 on a cache hit.
+### T-31.H · Journey B on a real workstation
+
+**Executor** human · **Size** — · **Prereqs** T-31.1, T-30.H · **Status** todo
+
+- Run [11 §6](../11-testing.md) steps 12 and 31 on a real recut. The re-analysis must take
+  **under 5 s**, and the anchors must be correct.
+- Record the results in `docs/qa/journey-b.md`.
 
 ## Traps
 
-- If you find yourself needing to store sequence ticks in the Cue Document to make this work,
-  something upstream is wrong — that persistence is precisely what Journey B must not depend on.
-- Test with a recut that **deletes** content and one that **moves** it. They exercise different
-  paths through [05 §5.2](../05-timing-and-placement.md).
+- If storing ticks in the Cue Document starts to look necessary, something upstream is wrong.

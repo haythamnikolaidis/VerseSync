@@ -1,5 +1,7 @@
 # T-40 · Repo scaffold and CI
 
+**Executor** agent · **Size** — · **Prereqs** — · **Status** done
+
 | | |
 |---|---|
 | **Workstream** | 0 — Foundations |

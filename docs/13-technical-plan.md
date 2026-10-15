@@ -7,6 +7,14 @@ whom*. It exists to get five or six people working at once without waiting on ea
 Per-task detail lives in **[`tasks/`](tasks/)** — one file per task. [10-tasks.md](10-tasks.md)
 is the index.
 
+> **2026-10-15: reworked for autonomous execution.** From Wave 1 on, the backlog is built by an
+> autonomous coding agent with a limited token budget, one atomic task per session. §§1–9 below
+> still explain the *architecture* of the plan: frozen seams, fakes on the far side, and why
+> the spikes gate what they gate. The **wave and staffing tables (§5–§7) describe the original
+> multi-person plan.** The order an agent actually follows is the execution queue in
+> [10-tasks.md](10-tasks.md). The evaluation that drove the rework, and the rules it introduced,
+> are in **[§11](#11-autonomous-agent-execution)**.
+
 ---
 
 ## 1. The problem this plan solves
@@ -322,3 +330,59 @@ schedule* specifically:
 2. Read your stream's spec document (the table in §4 tells you which).
 3. Pick your task file from [`tasks/`](tasks/) and read it — it is self-contained by design.
 4. If a task file leaves you guessing, that is a bug in the task file. Fix it in your PR.
+
+---
+
+## 11. Autonomous-agent execution
+
+### 11.1 Evaluation: why the Wave 1+ backlog wasn't agent-buildable
+
+The specification is strong: precise algorithms, frozen contracts, real spike evidence. The
+*backlog*, though, was written for a team of humans who share context, own a stream for weeks,
+and can walk over to a Premiere workstation. Measured against an agent that starts every session
+cold, in a Linux container, with a limited token budget, it had nine structural problems.
+
+| # | Finding | Effect on an autonomous agent | Fix in this rework |
+|---|---------|------------------------------|--------------------|
+| **E1** | **Tasks are too big.** Six tasks were sized L or XL, T-29 alone was "~1 week", and most M tasks bundled 6–10 steps across several files. | A task can't be finished in one session, and a partial task leaves no recoverable state. | Every remaining task is split into **XS/S subtasks** (≤ ~300 changed lines, one module, ≤ 4 files), each with **Steps** that are individually committable. 33 open tasks became 99 agent subtasks and 11 human ones. |
+| **E2** | **No recovery protocol.** The containers are ephemeral, and nothing said how a new session discovers half-finished work. | Lost work, duplicated work, or a confused restart that burns budget re-deriving state. | [AGENT.md §3](tasks/AGENT.md): push after every Step, commit subjects of the form `T-NN.k [i/n]`, a handoff note in every commit body, and `tools/plan.py next`, which reports START or RESUME from the remote branches. |
+| **E3** | **Human-only work mixed into buildable tasks.** "Done when" items like *"loads in Premiere"*, *"45-minute file on GPU"*, *"clean Windows machine"* or *"real API key"* sat inside otherwise automatable tasks. | The agent could never mark those tasks done, or would be tempted to claim checks it can't run. | Each one is split into an **agent** task (automated evidence) and a **`.H` human** task (real-hardware verification). Human tasks never block agent tasks, except T-34, whose dependency on the corpus is an explicit **Gate**. |
+| **E4** | **The host layer was declared untestable** ([11 §5](11-testing.md)). | Six host tasks with no automated verification at all. | **T-45** builds a fake Premiere DOM that reproduces the *measured* spike behaviour, and `VerseSync.jsx` runs in Node under `vm`. T-30.2 even runs a panel-and-host integration test on it. |
+| **E5** | **Cross-repo dependencies on private code.** About a dozen tasks say "port VerseFlow's X verbatim", but VerseFlow lives in another repo. | The agent either guesses at the ported code or spends budget on cross-repo exploration in every session. | **T-43 / T-44** vendor the exact files into `reference/` once, at a recorded SHA. |
+| **E6** | **Seams within streams left open.** For example, the C→E output shape was to be "agreed in a mid-wave meeting", and the pipeline function that the service and CLI share was unnamed. | Each agent session invents a slightly different interface, and integration fails later. | Cards carry **Interface** blocks: `Word`, `Reference`, `Token`, `BookMatch`, `Candidate`, `Detection`, `Passage`, `Alignment`, `Timing`, `run_pipeline`, and the JS module APIs. The meeting is replaced by the card. |
+| **E7** | **Spec gaps an agent would hit and have to stop on:** no owner for resolution (truncation, error→flag mapping, `provider_partial`); no way to fetch `words_ref`; open risk R-13 (the wrong sequence); no CORS story for a `file://` panel calling the sidecar with an `Authorization` header. | A blocked task, or worse, an improvised contract change. | New **T-48** (resolver). **D20 / T-47** (sequence identity). **D21** (Node `http` transport). **D22 / T-50** (transcript endpoint). **D23** (KJV verse counts). All are recorded in [12](12-decisions-and-risks.md). |
+| **E8** | **Contradictions between documents.** T-07 said "not distil" while T-02 recommends distil. The launch command `versesync.sidecar` didn't match the documented `__main__.py` location. Test paths like `tests/js/test_*.js` are never run by `npm test`. T-11's tier name "curated" doesn't match the schema enum `alias`. | The agent wastes budget reconciling them, or silently picks the wrong one. | Each one is resolved and listed in [12 Errata](12-decisions-and-risks.md). Conventions are fixed in [AGENT.md §6](tasks/AGENT.md). |
+| **E9** | **Read cost.** Cards said "read 04 §4" and "read VerseFlow's research doc". The package is about 3,800 lines. | A large share of each session spent reading. | Every card lists exactly what to **Read** and which files it **Touches**. [AGENT.md §2](tasks/AGENT.md) sets reading discipline, and T-46 adds a SessionStart hook and `tools/verify.sh`, so setup costs no tokens. |
+
+### 11.2 Rules the rework introduces
+
+1. **The atomicity bar.** An agent task touches one module, at most ~300 changed lines
+   including tests, and at most 4 files. It has a single Verify command and is finished within
+   one session with margin to spare. Every Step leaves CI green.
+2. **Automated evidence only.** An agent task's "Done when" must be provable in the container.
+   Anything else becomes a `.H` task.
+3. **Interfaces are decided in cards.** Changing one means editing the card first, in its own
+   PR, before writing code.
+4. **Contracts move only through Contract tasks** (T-47 and T-50 are the pattern). An agent
+   that finds a contract conflict marks its task **blocked** and doesn't improvise
+   ([AGENT.md §4](tasks/AGENT.md)).
+5. **The plan is machine-checked.** `tools/plan.py validate` (run in CI by `tests/test_plan.py`)
+   checks that IDs are unique, prereqs exist, there are no cycles, and the queue order respects
+   every prereq.
+
+### 11.3 Execution order
+
+The phases in [10-tasks.md](10-tasks.md) put the **pure Python pipeline first** (phase 1). It
+depends on nothing but fixtures, it carries the most algorithmic risk, and it ends with
+`run_pipeline()`, which gives an offline CLI and golden files early. The sidecar service comes
+next (phase 2), then the host on the fake DOM (phase 3), then the panel (phase 4). The panel
+isn't the critical path any more: with one agent working serially, the order affects risk and
+how early there's something to demo, not the total time. With more than one agent, the queue's
+phase boundaries are the natural split. Phases 1–2 and phases 3–4 share no files.
+
+### 11.4 What still needs a human
+
+Eleven `.H` tasks ([10-tasks.md](10-tasks.md#human-tasks)), plus **Q-A** (licensing, inside
+T-15.H) and the merge policy line in [AGENT.md §7](tasks/AGENT.md). None of these block agent
+progress until release, with one exception: **T-34 tuning** can't start until the full corpus
+(T-33.H) exists. Start the corpus early.

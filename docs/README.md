@@ -62,6 +62,10 @@ retained.
 Read in order if you are new. Then go to [13-technical-plan.md](13-technical-plan.md) for the
 build order, and pick a task from [`tasks/`](tasks/).
 
+**Autonomous coding agents:** don't read this package in order. Start with
+[tasks/AGENT.md](tasks/AGENT.md), then run `python tools/plan.py next`. Each task card names the
+few sections you need.
+
 | File | Purpose |
 |------|---------|
 | [00-prd.md](00-prd.md) | **The PRD.** Problem, users, goals, success metrics, scope, journeys, release plan. |
@@ -74,7 +78,8 @@ build order, and pick a task from [`tasks/`](tasks/).
 | [07-sidecar-api.md](07-sidecar-api.md) | HTTP contract between the panel and the Python sidecar, plus the Cue Document schema. |
 | [08-premiere-host-api.md](08-premiere-host-api.md) | The `VS.*` ExtendScript contract — what the panel can ask Premiere to do. |
 | [09-ui-spec.md](09-ui-spec.md) | Panel layout, every control, and the review list. |
-| [10-tasks.md](10-tasks.md) | **The backlog index.** Every task, by wave and stream. |
+| [10-tasks.md](10-tasks.md) | **The backlog index and execution queue.** Every task, in the order it gets built. |
+| [tasks/AGENT.md](tasks/AGENT.md) | **The protocol for autonomous coding agents:** session loop, recovery, stop conditions and build conventions. Run `python tools/plan.py next`. |
 | [`tasks/`](tasks/) | **One file per task** — goal, context, steps, done-when, traps. Self-contained; this is where day-to-day work lives. |
 | [11-testing.md](11-testing.md) | Unit, integration and manual QA strategy, plus the fixture corpus. |
 | [12-decisions-and-risks.md](12-decisions-and-risks.md) | Decision log, risk register, and open questions still needing an answer. |

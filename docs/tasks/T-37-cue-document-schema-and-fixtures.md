@@ -1,5 +1,7 @@
 # T-37 · Cue Document JSON Schema and golden fixtures
 
+**Executor** agent · **Size** — · **Prereqs** — · **Status** done
+
 | | |
 |---|---|
 | **Workstream** | 0 — Foundations |
