@@ -1,67 +1,94 @@
-# T-23 · Host: sequence info, field discovery, playhead
+# T-23 · Host: skeleton, sequence info, playhead, field discovery
 
 | | |
 |---|---|
 | **Workstream** | G — Host (ExtendScript) |
-| **Wave** | 1 |
-| **Estimate** | M |
-| **Prereqs** | T-22 |
-| **Unblocks** | T-24, T-25, T-27 |
-| **Spec** | [08-premiere-host-api.md §1–3, §5, §7, §9](../08-premiere-host-api.md) |
+| **Unblocks** | T-24, T-25 |
+| **Spec** | [08-premiere-host-api.md §1–3, §5, §7, §9](../08-premiere-host-api.md) (as updated by T-47) |
 
 ## Goal
 
-Port VerseFlow's host to `VerseSync.jsx` and implement `VS.ping`, `VS.getSequenceInfo`,
-`VS.getMogrtFields` and `VS.setPlayhead`.
+Port VerseFlow's host to `panel/jsx/VerseSync.jsx`, and implement `VS.ping`,
+`VS.getSequenceInfo`, `VS.setPlayhead` and `VS.getMogrtFields`. Test them under Node against the
+T-45 fake DOM.
 
-## Context you need
+## Context
 
-**Read [08 §1](../08-premiere-host-api.md) and VerseFlow's `docs/planning/02-adobe-research.md`
-before writing a line.** The conventions there are not style preferences — each one is a bug
-that was already paid for:
+The [08 §1] conventions aren't style preferences. Each one records a bug that has already been
+paid for:
 
-- **One file, no `#include`** — path resolution is unreliable in Premiere 2026.
-- **`var fn = function(){}`, never `function fn(){}`** — `$.evalFile()` does not hoist
-  declarations into persistent global scope in this engine. Violating this produces
-  "undefined is not a function" at *call* time, not load time.
-- **ES3, ASCII-only**, with the JSON polyfill at the top — this engine has no native `JSON`.
-- **Never throw across the bridge.** Every function returns a JSON string.
-- **Ticks are strings.**
+- one file, no `#include`;
+- `var fn = function(){}`, never `function fn(){}`;
+- ES3 and ASCII only, with the JSON polyfill at the top;
+- never throw across the bridge;
+- ticks are strings.
 
-## Steps
+**Response shapes must equal the T-39 fixtures (`tests/fixtures/host/*.json`) exactly**, so that
+swapping the stub for the real host changes nothing.
 
-1. Port `VerseFlow.jsx` → `VerseSync.jsx`, namespace `VS`, keeping the polyfill and conventions.
-2. `VS.ping` → `{pong, version, hostApi}` for the health check and version handshake.
-3. `VS.getSequenceInfo` — VerseFlow's version **extended** with `timebase`, `frameRate`,
-   `zeroPointTicks` and `endTicks` ([08 §3](../08-premiere-host-api.md)).
-4. `VS.getMogrtFields` — VerseFlow's logic **unchanged**. Keep all three detection strategies
-   (`propertyType === 6`, then `=== 5`, then a `getValue()` probe for the substring
-   `textEditValue`), the group-node handling for types `10` and `4`, the scratch-insert-past-
-   the-end technique, and the open-sequence error message.
-5. `VS.setPlayhead` — small function, disproportionate effect: it backs FR-6.6, letting an
-   editor click a review row's timecode and hear the actual audio.
-6. Use the exact error strings in [08 §9](../08-premiere-host-api.md). These are read by
-   editors, not developers.
+## Subtasks
 
-## Files
+### T-23.1 · `VerseSync.jsx` skeleton, ES3 lint, `ping`, `getSequenceInfo`, `setPlayhead`
 
-- `panel/jsx/VerseSync.jsx`
+**Executor** agent · **Size** S · **Prereqs** T-45.1, T-47 · **Status** todo
 
-## Done when
+- **Read:** [08 §1, §2, §3, §7, §9](../08-premiere-host-api.md) ·
+  `reference/verseflow/jsx/VerseFlow.jsx` (the header comment, the JSON polyfill, and
+  `getSequenceInfo`) · `tests/fixtures/host/sequence-2997.json`
+- **Touches:** `panel/jsx/VerseSync.jsx` (new) · `eslint.config.js` (add a `panel/jsx/**/*.jsx`
+  block with `ecmaVersion: 3`, `sourceType: 'script'`, and `func-style: ['error','expression']`)
+  · `package.json` (extend the `lint` script to cover `panel/jsx`) · `tests/host/sequence.test.js`
+  (new)
+- **Steps:**
+  1. Port the header and the polyfill. Add the `VS` namespace, a `_ok(data)` / `_err(msg)`
+     JSON-string helper pair, and the outer try/catch wrapper pattern that every `VS.*` function
+     uses. Add `VS.ping`, returning `hostApi: "1.1"`. Add the ESLint ES3 block, and an
+     ASCII-only check in `load-jsx.js` (T-45.1 already throws on non-ASCII). Commit.
+  2. Add `VS.getSequenceInfo`, including `sequenceId`, `timebase` (Premiere's own string,
+     **never derived**), `zeroPointTicks` and `endTicks`. Add `VS.setPlayhead`, which goes
+     through `activeSequence.setPlayerPosition`. With no sequence open, both return the §9
+     message. Commit.
+  3. Tests on the fake DOM. Each response equals its fixture once that fixture is loaded into
+     the fake (`sequence-2997`, `sequence-23976`, `sequence-25`, `sequence-none`). Also:
+     `setPlayhead` moves the fake's playhead, and the "no sequence" message is exact. Commit.
+- **Verify:** `node --test tests/host/sequence.test.js && npm run lint`
+- **Done when:**
+  - [ ] Responses are deep-equal to the T-39 fixtures.
+  - [ ] ES3 lint is enforced on `panel/jsx`.
+  - [ ] No function declarations, and no non-ASCII bytes.
 
-- [ ] Field discovery returns **both** `Text` fields of `AV_Quote_04.mogrt` with **distinct
-      indices** and group-qualified labels (`Title Main > Text`, `Description > Text`).
-- [ ] `getSequenceInfo` returns `timebase` as the real ticks-per-frame integer.
-- [ ] `setPlayhead` moves the playhead.
-- [ ] With no sequence open, every function returns the specified message, not an exception.
+### T-23.2 · `VS.getMogrtFields` (ported unchanged)
+
+**Executor** agent · **Size** S · **Prereqs** T-23.1, T-45.2 · **Status** todo
+
+- **Read:** [08 §5](../08-premiere-host-api.md) · `reference/verseflow/jsx/VerseFlow.jsx`
+  (`getMogrtFields` and its helpers) · `tests/fixtures/host/mogrt-fields.json`
+- **Touches:** `panel/jsx/VerseSync.jsx` · `tests/host/mogrt-fields.test.js` (new)
+- **Steps:**
+  1. Port `getMogrtFields` **without changing its logic**:
+     - the three detection strategies (`propertyType === 6`, then `=== 5`, then a `getValue()`
+       probe for `textEditValue`);
+     - the handling of group nodes of types 10 and 4;
+     - the scratch insert past the end, inside an undo group, then removal;
+     - the open-sequence error message.
+
+     The output shape matches `mogrt-fields.json`. Commit.
+  2. Tests on the fake, using the registered `AV_Quote_04` template:
+     - both `Text` fields come back with **different indices** and the labels
+       `Title Main > Text` and `Description > Text`;
+     - the scratch clip is removed and the undo groups balance;
+     - no sequence gives the §9 field-discovery message;
+     - a template with no text fields gives `fields: []`.
+
+     Commit.
+- **Verify:** `node --test tests/host/mogrt-fields.test.js`
+- **Done when:**
+  - [ ] The output equals `mogrt-fields.json` for the reference template.
+  - [ ] The undo groups balance.
 
 ## Traps
 
-- **`timebase` is load-bearing.** All frame snapping divides by it. Deriving ticks-per-frame
-  from `frameRate` is wrong for 23.976 and 29.97 and produces cumulative drift across a 40-cue
-  batch. Return Premiere's integer.
-- **Keep index-based field targeting.** The reference template has two fields both named `Text`;
-  `getParamForDisplayName` is ambiguous and would silently target the wrong one (risk R-8).
-  This must not be "simplified" away.
-- `zeroPointTicks` is for **display timecode only** ([05 §1](../05-timing-and-placement.md)).
-  Do not use it in placement math.
+- **`timebase` carries the load.** Return Premiere's integer string, and never compute it from
+  `frameRate`.
+- **Keep index-based field targeting.** Both fields are named `Text` (R-8).
+- `zeroPointTicks` is for display only.

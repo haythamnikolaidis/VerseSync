@@ -1,5 +1,7 @@
 # T-02 · Spike: word-level timestamps on real sermon audio
 
+**Executor** human · **Size** — · **Prereqs** — · **Status** done
+
 | | |
 |---|---|
 | **Workstream** | S — Spikes |

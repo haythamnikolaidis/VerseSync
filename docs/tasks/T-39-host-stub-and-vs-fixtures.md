@@ -1,5 +1,7 @@
 # T-39 · Host stub and `VS.*` fixtures
 
+**Executor** agent · **Size** — · **Prereqs** — · **Status** done
+
 | | |
 |---|---|
 | **Workstream** | 0 — Foundations |

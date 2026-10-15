@@ -107,6 +107,10 @@ harness with no CEP and no Premiere.
 
 ## 3. The fixture corpus
 
+> **Deferred past v1 (D24).** The full corpus below isn't built for v1. Only T-41's
+> bootstrap fixtures exist, and they drive the unit, golden-file and fixture checks. This
+> section is kept as the specification for when measurement is reinstated.
+
 Detection cannot be tuned without labelled data, and the corpus is a deliverable in its own
 right — build it early (during M2), not at M5 when the metrics are due.
 
@@ -142,7 +146,8 @@ checked-in expected Cue Documents.
   against the local provider, and timing.
 - Diff against the expected Cue Document, ignoring `generated_at` and job ids.
 - A deliberate change to a threshold should show up as a **reviewable diff** in the golden
-  files, which is exactly what makes T-34's tuning safe.
+  files. With tuning deferred (D24), the golden files are v1's main guard against detection
+  output silently changing.
 
 This is also the determinism test (NFR-3, [05](05-timing-and-placement.md) §10): run twice,
 assert byte-identical output.
@@ -230,8 +235,10 @@ A build ships only when all of these hold:
 |------|--------|
 | Unit and golden-file tests green | §1, §2, §4 |
 | Integration tests green | §5 |
-| **M1 recall ≥ 90%, M2 precision ≥ 85%, M3 anchor accuracy ≥ 90%** | accuracy harness, [00-prd.md](00-prd.md) §5 |
-| No regression in any metric versus the previous release | harness diff mode |
+| ~~M1 recall ≥ 90%, M2 precision ≥ 85%, M3 anchor accuracy ≥ 90%~~ **Not gated in v1 (D24).** Targets only. | ~~accuracy harness~~ deferred |
+| ~~No regression in any metric~~ → **Golden-file tests unchanged, or diffs reviewed and approved in the PR** | §4, T-33.1 |
+| Bootstrap-fixture detection and alignment checks green (T-12.4, T-17.3) | §1 |
+| Journey A accuracy spot-check recorded | T-30.H |
 | NFR-2 performance numbers met on the reference workstation | T-35 |
 | Manual QA script §6 fully passed | manual |
 | The round-trip formatting test passes | §1, T-14 |

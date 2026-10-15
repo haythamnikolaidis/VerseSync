@@ -1,5 +1,7 @@
 # T-38 · Mock sidecar
 
+**Executor** agent · **Size** — · **Prereqs** — · **Status** done
+
 | | |
 |---|---|
 | **Workstream** | 0 — Foundations |

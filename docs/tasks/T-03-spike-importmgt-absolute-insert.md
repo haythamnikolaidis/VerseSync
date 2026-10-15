@@ -1,5 +1,7 @@
 # T-03 · Spike: `importMGT` at an absolute time on a populated track
 
+**Executor** human · **Size** — · **Prereqs** — · **Status** done
+
 | | |
 |---|---|
 | **Workstream** | S — Spikes |

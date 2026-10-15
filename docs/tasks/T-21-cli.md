@@ -3,53 +3,61 @@
 | | |
 |---|---|
 | **Workstream** | B — Sidecar platform |
-| **Wave** | 2 |
-| **Estimate** | S |
-| **Prereqs** | T-20 |
 | **Unblocks** | T-33 |
 | **Spec** | [07-sidecar-api.md §6](../07-sidecar-api.md) |
 
 ## Goal
 
-Run the whole pipeline from a terminal, with no HTTP and no Premiere.
+Run the pipeline from a terminal, with no HTTP and no Premiere. This is how detection gets
+iterated on, how the accuracy harness runs, and how support issues get reproduced (NFR-5).
 
-## Context you need
+## Subtasks
 
-This is **not a convenience**. Per [07 §6](../07-sidecar-api.md) it is how detection and timing
-get developed and tested at all (NFR-5), how the accuracy harness runs (T-33), and how a support
-issue gets reproduced without an editing workstation.
+### T-21.1 · `detect`, `resolve` and `analyse` commands
 
-## Steps
+**Executor** agent · **Size** S · **Prereqs** T-20.2, T-48.1 · **Status** todo
 
-1. Implement the three commands:
+- **Read:** [07 §6](../07-sidecar-api.md)
+- **Touches:** `sidecar/versesync/cli.py` (new) · `cli/versesync_cli.py` (a shim calling
+  `versesync.cli.main`) · `tests/test_cli.py` (new)
+- **Commands:**
+  ```
+  python -m versesync.cli detect  <words.json> [--out detections.json]          # JSON list of Detection.to_json()
+  python -m versesync.cli resolve "<reference>" [--translation kjv]             # Passage.to_json() to stdout
+  python -m versesync.cli analyse <media|words.json> [--translation kjv] --out cues.json
+        [--config cfg.yaml] [--job-id ID] [--generated-at ISO]
+  ```
+  `analyse` with a `.words.json` input skips transcription and uses the same job metadata
+  defaults the `fixture:` backend uses. `--job-id` and `--generated-at` make the output
+  deterministic for tests.
+- **Steps:**
+  1. Write `detect` and `resolve` by calling `detect()` and `parse_reference` + `LocalProvider`.
+     Exit codes: 0 for OK, 2 for bad input (with the editor message on stderr), 1 for internal
+     errors. Commit.
+  2. Write `analyse` as a thin wrapper over the **same** job phases (`hash_media`, the backend,
+     `run_pipeline`) by calling the T-20.2 functions directly. There must be **no pipeline
+     logic in `cli.py`**. Commit.
+  3. Tests: `detect` on a fixture produces JSON; `resolve "Jude 5:1"` exits 2 with the message;
+     `analyse` on a fixture `.words.json` produces a schema-valid document. Commit.
+- **Verify:** `pytest tests/test_cli.py -q`
+- **Done when:**
+  - [ ] All three commands work as documented, with no GPU.
 
-   ```
-   python -m versesync.cli analyse D:/Sermons/sermon.mxf --translation kjv --out cues.json
-   python -m versesync.cli detect  transcript.json --out detections.json
-   python -m versesync.cli resolve "Romans 8:28" --translation kjv
-   ```
+### T-21.2 · CLI and HTTP parity test
 
-2. **Call the same pipeline functions the service calls.** Not a reimplementation, not a copy —
-   a second entry point to one pipeline.
-3. `detect` takes a word-array file directly (the T-41 fixture format), so detection can be
-   iterated with no audio.
-4. Sensible exit codes and errors for scripting.
-5. Write the **parity test**: CLI and HTTP produce identical Cue Documents for the same input.
+**Executor** agent · **Size** XS · **Prereqs** T-21.1, T-20.4 · **Status** todo
 
-## Files
-
-- `cli/versesync_cli.py`
-- `tests/test_cli_parity.py`
-
-## Done when
-
-- [ ] All three commands work as documented.
-- [ ] The parity test passes — identical Cue Documents from CLI and HTTP for one input.
-- [ ] `detect` runs against a fixture word array with no audio and no GPU.
+- **Read:** [07 §6](../07-sidecar-api.md) (the last paragraph)
+- **Touches:** `tests/test_cli_parity.py` (new)
+- **Steps:**
+  1. For one T-41 fixture, run `analyse` through the CLI, and run a job over HTTP with the
+     `fixture:` backend, using the same job id and `generated_at` (injected into both). Compare
+     the two Cue Documents for equality, ignoring `job.media_path`. Commit.
+- **Verify:** `pytest tests/test_cli_parity.py -q`
+- **Done when:**
+  - [ ] The documents are identical.
 
 ## Traps
 
-- Parity drift is the risk this task exists to prevent. If you find yourself writing pipeline
-  logic in `cli/`, stop — it belongs in `sidecar/versesync/` and both entry points call it.
-- Keep `--out` deterministic (T-13, [05 §10](../05-timing-and-placement.md)), or the parity test
-  and the golden-file tests in [11 §4](../11-testing.md) will flake.
+- If you find yourself writing pipeline logic in `cli.py`, stop. It belongs in
+  `sidecar/versesync/`, where both entry points call it.

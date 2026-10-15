@@ -1,5 +1,7 @@
 # T-01 · Obtain and verify the reference assets
 
+**Executor** human · **Size** — · **Prereqs** — · **Status** done
+
 | | |
 |---|---|
 | **Workstream** | 0 — Foundations |

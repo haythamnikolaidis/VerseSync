@@ -1,5 +1,7 @@
 # T-41 · Fixture corpus bootstrap
 
+**Executor** agent · **Size** — · **Prereqs** — · **Status** done
+
 | | |
 |---|---|
 | **Workstream** | 0 — Foundations |

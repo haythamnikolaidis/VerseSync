@@ -93,8 +93,11 @@ Measured against the QA corpus in [11-testing.md](11-testing.md) (10 real sermon
 | **M4** | **Editor time per sermon** — wall-clock from opening the panel to graphics placed. | **≤ 10 min** for a 45-min sermon on the reference GPU workstation | Against a 60–90 min manual baseline. Includes transcription. |
 | **M5** | **Review burden** — cues the editor edits or unchecks. | **≤ 20%** | If the editor changes more than one cue in five, the automation is not carrying its weight. |
 
-M1–M3 are gated by the accuracy harness ([T-33](tasks/T-33-accuracy-harness.md)); a build that
-regresses them does not ship.
+> **v1 (D24, 2026-10-15):** M1–M3 remain the **targets**, but they're **not measured or gated
+> in v1**. Building the labelled corpus and accuracy harness ([T-33](tasks/T-33-accuracy-harness.md),
+> [T-34](tasks/T-34-threshold-tuning.md)) is deferred past v1. The first real signal comes
+> from the accuracy spot-check in the Journey A run (T-30.H), and after that from editors'
+> review edits (M5). See [12](12-decisions-and-risks.md) D24 for the accepted risk.
 
 ---
 

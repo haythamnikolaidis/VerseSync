@@ -29,10 +29,30 @@ rediscovered.
 | D17 | Transcript caching key | **Content hash** (first 8 MB + last 8 MB + size) | Full-hashing a 4 GB MXF every run is unacceptable; this composite distinguishes edits of the same recording | Low |
 | D18 | Curation off for VerseSync jobs | **Yes** | `curate_text` rewrites the transcript after the fact, breaking the word-to-text correspondence every timestamp depends on | Trivial |
 | D19 | T-02 gate response (p90 > 0.5s, tripped) | **Accept a lower auto-detection rate on pure paraphrases** — no tolerance widening, no forced-alignment pass | `spikes/word_timestamps/RESULTS.md` §4.3 found ~31% of real mentions are narrative paraphrases with zero lexical overlap with the verse text — no ASR-side fix reaches them. The review list (D4) is the backstop. | Low — a forced-alignment pass or wider tolerance can still be added later without touching this decision |
+| D20 | Sequence identity across panel calls (R-13) | **`VS.getSequenceInfo` returns `sequenceId`; `getMediaSegments`, `validateTrack` and `insertCues` require it, and refuse if the active sequence differs.** The host never switches sequences itself. | `activeSequence` follows UI focus between `evalScript` calls (T-04), so without this an Insert can silently land in the wrong sequence. Abort-and-explain is the conservative behaviour. | Low. Contract change in **T-47** (host API 1.1). `sequenceID` stability is verified on real Premiere in **T-25.H**. |
+| D21 | Panel → sidecar transport | **Node's `http` module** (CEP `--enable-nodejs --mixed-context`), with an explicit `Origin: cep://com.versesync.panel` header. Not XHR or EventSource. | A `file://` CEP page sending `Authorization` triggers a CORS preflight, which neither the mock nor the spec handles. The launch needs `child_process` anyway, and the same transport runs unchanged in Node tests. A browser page can't forge `Origin`, so the allowlist still protects the sidecar. | Low. Confined to `sidecar.js`'s transport. Verified in **T-22.H**. |
+| D22 | How the panel gets `transcript.words_ref` | **`GET /jobs/{id}/transcript`** for job results. For a document on disk, resolve it as a sibling file relative to the document. *Save cue document* writes the sibling too. | 07 §5.1 said the panel "fetches" the sibling but defined no endpoint or resolution rule, which left the expanded row's transcript context unbuildable. | Low. Additive endpoint, API stays 1.0. Implemented by **T-50**. |
+| D23 | Verse-count authority for the canon table | **KJV**, derived from the bundled public-domain text (T-09.1). | One source for both canon validation (T-13) and the local provider (T-14) means a verse can never be rejected by one and served by the other. | Low. Regenerate `canon.json` from a different text. |
+| D24 | Accuracy measurement and threshold tuning | **Deferred past v1.** No labelled corpus beyond T-41's bootstrap fixtures, no accuracy harness, no tuning pass (T-33.2, T-33.H and T-34 are deferred). Spec-default constants ship as specified. M1–M3 are targets, not release gates. T-33.1 golden files stay, as the regression guard. | Stakeholder schedule pressure, and no annotator capacity. The largest known accuracy gap is narrative paraphrase with no lexical overlap, about 31% of mentions in T-02 (D19). No amount of tuning reaches it; the review list (D4) and manual add are the backstop. **Accepted risk:** v1 ships with recall, precision and anchor accuracy unmeasured. | Low technically: the constants are named, the CLI and golden files exist, and reinstating the deferred tasks needs no redesign. The cost is the annotation effort itself. |
 
 ---
 
 ## Errata
+
+- **Default transcription model.** The original T-07 card said the default should be
+  `large-v3-turbo`, "**not** distil". T-02 measured otherwise and recommended
+  `distil-large-v3` (`spikes/word_timestamps/RESULTS.md` §1, §5), and the R-5 entry below
+  already followed the spike. **The spike wins.** The reworked T-07 card uses `distil-large-v3`,
+  which stays configurable.
+- **Entry points.** [03 §5](03-architecture.md) put `__main__.py` at `versesync/`, which gives
+  `python -m versesync`, while the panel and 07 launch `python -m versesync.sidecar`. Settled:
+  `sidecar/versesync/sidecar.py` is the entry point and `__main__.py` delegates to it. Likewise,
+  `python -m versesync.cli` is `sidecar/versesync/cli.py`, and `cli/versesync_cli.py` is a shim.
+  See [tasks/AGENT.md §6](tasks/AGENT.md).
+- **Panel test paths.** The original T-26 to T-29 cards named tests like `tests/js/test_sidecar.js`,
+  which `npm test`'s `tests/**/*.test.js` glob never runs. Settled: `tests/panel/<module>.test.js`.
+- **Book-match tier names.** The T-11 card called tier 2 "curated", but the schema's
+  `book_match.tier` enum is `exact | alias | fuzzy`. Tier 2 is `alias`.
 
 - **`timebase` example was off by 1000x.** [08](08-premiere-host-api.md) §3 and
   [05](05-timing-and-placement.md) §9's worked example gave `8475667` as the 29.97fps
@@ -70,8 +90,11 @@ on the grammar covering how preachers actually speak. Recall and precision are t
   three-tier book matcher with the number-follows gate; canon validation, which removes a large
   share of false positives at no cost; and structurally, **D4's review list**, which converts a
   detection error into a checkbox rather than a published mistake.
-- **Action:** the corpus ([11](11-testing.md) §3) is a **deliverable built during M2**, not an
-  M5 afterthought. T-33/T-34 tune against it and the metrics gate the release.
+- **Action (revised by D24, 2026-10-15):** the corpus and tuning are **deferred past v1**, and
+  this risk is **accepted** for v1, with the paraphrase gap as its largest known component.
+  The residual signals are T-41's fixture checks, the golden files (T-33.1), the Journey A
+  spot-check (T-30.H), and editors' review edits in production. Reinstate T-33.2, T-33.H and
+  T-34 if editors report heavy correction loads.
 
 ### R-3 — ExtendScript end-of-support (~September 2026) 🔴 High / strategic *(inherited)*
 
@@ -196,13 +219,13 @@ into the wrong sequence, with no error. This is the same failure shape R-4's
 mitigation was built to avoid (a confidently wrong result with no warning),
 just at the sequence-identity level rather than the clip-placement level.
 
-- **Mitigation (not yet implemented):** re-verify the target sequence's
+- **Mitigation, specified as D20:** re-verify the target sequence's
   identity immediately before `VS.insertCues` runs (e.g. compare against
   the sequence captured when cues were generated) and abort with a clear
   error if it changed, rather than trusting `activeSequence` to still mean
   what it meant earlier in the flow.
-- **Action:** needs a decision before T-25/T-30 ship — tracked against
-  those tasks.
+- **Action:** decided as **D20**. The contract change is T-47, the host implementation
+  T-24/T-25.1, the panel side T-29.4/T-30.2, and real-Premiere verification T-25.H.
 
 ### R-12 — Sermon audio privacy 🟢 Low / trust
 
@@ -252,10 +275,10 @@ The real edit does also use nested sequences and multicam clips (for
 graphics/B-roll, not the primary audio), and speed changes — all
 characterised by the same spike; no merged clips in this workflow.
 
-### Q-E — Confidence threshold for the amber flag 🟢 Resolves during tuning
+### Q-E — Confidence threshold for the amber flag ✅ Closed for v1 by D24
 
-Specified at 0.55, chosen to be tuned (T-34). Not a decision anyone needs to make in advance —
-the corpus decides it.
+Specified at 0.55, originally to be tuned by T-34. Tuning is deferred (D24), so **0.55 ships
+as specified**. Revisit it if editors find the amber flag too noisy or too quiet.
 
 ---
 

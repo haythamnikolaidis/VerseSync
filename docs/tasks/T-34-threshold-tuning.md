@@ -2,71 +2,73 @@
 
 | | |
 |---|---|
-| **Workstream** | H — Quality & release |
-| **Wave** | 3 |
-| **Estimate** | M |
-| **Prereqs** | T-33 |
+| **Workstream** | H — Quality |
 | **Unblocks** | release |
 | **Spec** | [04 §6](../04-reference-detection.md) · [05 §4.2](../05-timing-and-placement.md) · [00-prd.md §5](../00-prd.md) |
+| **Gate** | Needs the full corpus from **T-33.H**, a human task. |
+
+> **Deferred past v1 (D24, 2026-10-15).** There's no corpus to tune against, so v1 ships the
+> constants **as specified** in [04 §6](../04-reference-detection.md) and
+> [05 §2](../05-timing-and-placement.md). They stay named module-level constants (T-13.2,
+> T-17.1), so reinstating this epic later needs no redesign. Don't start it.
 
 ## Goal
 
-Replace every guessed constant with a measured one, and hit the release metrics: **M1 ≥ 90%,
-M2 ≥ 85%, M3 ≥ 90%**.
+Replace every guessed constant with a measured one, and hit the release metrics:
+**M1 ≥ 90%, M2 ≥ 85%, M3 ≥ 90%**, measured on the **holdout** sermons.
 
-## Context you need
+## Subtasks
 
-Every threshold in the pipeline was specified as a *starting point to be tuned*, not as an
-answer. This task is where they become real. It is also open question **Q-E**'s resolution — the
-amber confidence flag threshold is decided by the corpus, not by anyone's opinion.
+### T-34.1 · Sweep tooling and report
 
-## Steps
+**Executor** agent · **Size** S · **Prereqs** T-33.2, T-33.H · **Status** deferred
 
-Tune against the corpus, using the harness's diff mode to check each change:
+- **Read:** [04 §6](../04-reference-detection.md) · [05 §4.2](../05-timing-and-placement.md) ·
+  the constants in `detect/confidence.py`, `detect/detector.py` and `timing/align.py` (grep for
+  UPPER_CASE names)
+- **Touches:** `tools/tune.py` (new) · `docs/qa/tuning-results.md` (new)
+- **Steps:**
+  1. Write `tools/tune.py`. It does a grid or coordinate-descent sweep over:
+     - the confidence weights;
+     - the amber threshold;
+     - `read_coverage_threshold`;
+     - the fuzzy distance bounds;
+     - the context window;
+     - the duplicate cooldown.
 
-1. **Confidence weights** ([04 §6](../04-reference-detection.md)) — the 0.40/0.25/0.25/0.10
-   split across book, ASR, structure and validation scores, and the tier scores within
-   `book_score`.
-2. **Amber flag threshold** — specified at 0.55 (Q-E).
-3. **Read-coverage threshold** ([05 §4.2](../05-timing-and-placement.md)) — specified at 0.55,
-   sitting in the gap between readings (0.6–0.9) and paraphrase (≤ 0.35). **Confirm that gap
-   actually exists in the corpus.** If the distributions overlap, say so, pick the best split,
-   and document the overlap rather than hiding it.
-4. **Fuzzy distance bounds** ([04 §4.1](../04-reference-detection.md)) — the ≤ 2 / ≤ 1 bounds and
-   the short-name exclusion list.
-5. **Context window** ([04 §4](../04-reference-detection.md)) — 120 s / 400 tokens.
-6. **Duplicate cooldown** — 60 s.
-7. Grow the **curated confusion table** (T-11) from mishearings the corpus reveals. This is
-   usually the cheapest recall win available, and it carries no precision cost because of the
-   number-follows gate.
-8. **Document every chosen value with the measurement that chose it** — a comment on the
-   constant citing the number. This is a Definition-of-Done requirement
-   ([13 §8](../13-technical-plan.md)).
+     It evaluates on the **tuning** sermons only, with the holdout excluded, by calling the
+     harness API. Commit.
+  2. Run it. Write `docs/qa/tuning-results.md` with:
+     - the best values;
+     - a table of the read and paraphrase coverage distributions, with any overlap stated;
+     - every mishearing observed in the corpus that tier 1 missed. Those are candidates for
+       `confusions.json`.
 
-## Files
+     Commit.
+- **Verify:** `python tools/tune.py --dry-run`
+- **Done when:**
+  - [ ] The report exists and the holdout was never used for selection.
 
-- `sidecar/versesync/detect/detector.py`, `sidecar/versesync/timing/align.py`
-- `sidecar/versesync/detect/data/confusions.json`
-- `docs/qa/tuning-results.md`
+### T-34.2 · Apply the tuned constants
 
-## Done when
+**Executor** agent · **Size** S · **Prereqs** T-34.1 · **Status** deferred
 
-- [ ] **M1 ≥ 90%, M2 ≥ 85%, M3 ≥ 90%** on the corpus.
-- [ ] Every tuned constant carries a comment citing the measurement that chose it.
-- [ ] The read/paraphrase distributions are plotted or tabulated, and the chosen threshold is
-      justified against them.
-- [ ] Golden files are regenerated and the diffs reviewed.
-- [ ] Q-E is closed in [12-decisions-and-risks.md](../12-decisions-and-risks.md).
+- **Read:** `docs/qa/tuning-results.md`
+- **Touches:** `sidecar/versesync/detect/{confidence,detector,fuzzy}.py` ·
+  `sidecar/versesync/timing/align.py` · `sidecar/versesync/detect/data/confusions.json` ·
+  `tests/golden/*` · [12](../12-decisions-and-risks.md) (close Q-E)
+- **Steps:**
+  1. Apply the values. **Every changed constant gets a comment citing the measurement**, for
+     example `# 0.52: tuning-results.md §2, best M1/M2 on 8 tuning sermons`. Add the confusion
+     entries. Commit.
+  2. Regenerate the golden files and review the diff in the PR body. Run the harness with
+     `--holdout`, and report the holdout M1, M2 and M3 in the PR. Close Q-E in 12. Commit.
+- **Verify:** `python tools/accuracy_harness.py --holdout $(cat tests/fixtures/corpus/HOLDOUT)`
+- **Done when:**
+  - [ ] Holdout metrics meet the targets, **or** the gap is reported with data and the task is
+        marked blocked for a product decision. Never move the targets.
 
 ## Traps
 
-- **Do not tune on the test set.** Hold out at least two sermons and report final metrics on
-  those, or you will ship numbers that do not survive contact with sermon eleven.
-- Recall and precision trade against each other. M2 is targeted *lower* than M1 deliberately —
-  a false positive costs one click to uncheck; a miss costs a full manual add. When in doubt,
-  favour recall.
-- If a metric cannot be reached, report the gap with data rather than moving the target. That is
-  a product conversation ([13 §9](../13-technical-plan.md)).
-
-> Docs [04 §6](../04-reference-detection.md) and [05 §4.2](../05-timing-and-placement.md)
-> previously cited T-31 for this tuning pass. **T-34 is the owner.**
+- **Don't tune on the test set.**
+- M2 is targeted *lower* than M1 on purpose. When in doubt, favour recall.

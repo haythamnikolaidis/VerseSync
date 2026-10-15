@@ -183,7 +183,8 @@ read_coverage = coverage                              (always reported)
 commentary, skips words, substitutes synonyms from memory, and is transcribed imperfectly. In
 the fixture corpus, verbatim readings land between 0.6 and 0.9 coverage; genuine paraphrase
 rarely exceeds 0.35. The gap is wide and 0.55 sits in it.
-**[T-34](tasks/T-34-threshold-tuning.md) confirms this against the corpus and adjusts.**
+**[T-34](tasks/T-34-threshold-tuning.md) would confirm this against a corpus. That's deferred
+past v1 (D24), so 0.55 ships as specified, backed only by T-17.3's bootstrap-fixture table.**
 
 `read_coverage` is always shown in the expanded review row, so an editor can see *why* a cue
 was classified as it was — this is a G3 (trustworthy by being visible) requirement, not a
