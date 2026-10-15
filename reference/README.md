@@ -24,3 +24,22 @@ Files are byte-identical to the source commit and keep their relative paths.
 | `verseflow/index.html` | Panel entry page. |
 | `verseflow/docs/planning/02-adobe-research.md` | Notes on Adobe CEP and Premiere scripting behaviour. |
 | `verseflow/README.md` | VerseFlow project readme. |
+
+## reference/fwt/
+
+- Source repo: `haythamnikolaidis/Faster-Whisper-Transcriber`
+- Commit: `8d46a0986e27b14135ccb63b7fd6683ad950dbac` (`8d46a09`)
+- Vendored: 2026-10-15
+
+Files are byte-identical to the source commit and keep their relative paths. The source repo has
+no `requirements*.txt`, so none is vendored. `core/models/__init__.py` is part of the copied
+directory and is not an addition of this repo.
+
+| File | Description |
+|---|---|
+| `fwt/config/manager.py` | Config load, merge and save pattern. |
+| `fwt/config.yaml` | Default configuration. |
+| `fwt/core/cuda_setup.py` | CUDA setup ordering. |
+| `fwt/core/transcription/service.py` | Transcription service around faster-whisper. |
+| `fwt/core/models/` | Model loader, manager and metadata. |
+| `fwt/install.py` | Installer. |
