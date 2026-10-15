@@ -67,7 +67,7 @@ def match_book(tokens: Sequence[Token], i: int, canon: Canon, *,
 
 ### T-11.2 · Tier 2: curated ASR-confusion table
 
-**Executor** agent · **Size** XS · **Prereqs** T-11.1 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-11.1 · **Status** in-progress
 
 - **Read:** [04 §4.1](../04-reference-detection.md) (the seed table)
 - **Touches:** `sidecar/versesync/detect/data/confusions.json` (new) ·
