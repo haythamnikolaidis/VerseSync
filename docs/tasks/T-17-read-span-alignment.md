@@ -74,7 +74,7 @@ numbers.
 
 ### T-17.2 · Greedy aligner, multi-start, classification
 
-**Executor** agent · **Size** S · **Prereqs** T-17.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-17.1 · **Status** done
 
 - **Read:** [05 §4.1, §4.2, §4.3](../05-timing-and-placement.md) (the pseudocode)
 - **Touches:** `sidecar/versesync/timing/align.py` · `tests/test_align.py`
@@ -95,8 +95,8 @@ numbers.
      Commit.
 - **Verify:** `pytest tests/test_align.py -q`
 - **Done when:**
-  - [ ] Every [11 §1] alignment case passes.
-  - [ ] `coverage` is always reported, including for paraphrases.
+  - [x] Every [11 §1] alignment case passes.
+  - [x] `coverage` is always reported, including for paraphrases.
 
 ### T-17.3 · Calibration against the bootstrap corpus
 
