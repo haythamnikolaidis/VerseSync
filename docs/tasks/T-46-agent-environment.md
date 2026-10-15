@@ -1,6 +1,6 @@
 # T-46 · Agent environment bootstrap
 
-**Executor** agent · **Size** XS · **Prereqs** — · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** — · **Status** in-progress
 
 | | |
 |---|---|
