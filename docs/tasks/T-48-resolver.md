@@ -22,7 +22,7 @@ This work was **unowned** in the original backlog. T-15 mentions batching, and T
 
 ### T-48.1 · `parse_reference()` for editor-typed references
 
-**Executor** agent · **Size** XS · **Prereqs** T-13.3 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-13.3 · **Status** in-progress
 
 - **Read:** [07 §2](../07-sidecar-api.md) (`POST /resolve`) · [09 §5.3](../09-ui-spec.md) (the
   reference field)
