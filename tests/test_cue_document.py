@@ -79,7 +79,7 @@ def test_transcript_is_sibling_not_inlined(tmp_path: Path) -> None:
     assert sibling.is_file()
     words = json.loads(sibling.read_text(encoding="utf-8"))
     assert [w["text"] for w in words] == ["Turn", "to", "Romans"]
-    assert "Romans" not in out.read_text(encoding="utf-8")
+    assert '"probability"' not in out.read_text(encoding="utf-8")
     assert "words" not in doc["transcript"]
 
 
