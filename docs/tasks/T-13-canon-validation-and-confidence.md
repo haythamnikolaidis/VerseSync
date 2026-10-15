@@ -49,7 +49,7 @@ bonus, so the cue builder (T-19.1) assigns it.
 
 ### T-13.1 · Canon validation rules
 
-**Executor** agent · **Size** S · **Prereqs** T-12.4 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-12.4 · **Status** done
 
 - **Read:** [04 §5](../04-reference-detection.md)
 - **Touches:** `sidecar/versesync/detect/validate.py` (new) · `tests/test_validation.py` (new)
@@ -72,7 +72,7 @@ bonus, so the cue builder (T-19.1) assigns it.
      reversed range swaps; a range over 30 drops its end. Commit.
 - **Verify:** `pytest tests/test_validation.py -q`
 - **Done when:**
-  - [ ] Every rule has at least one passing and one failing case.
+  - [x] Every rule has at least one passing and one failing case.
 
 ### T-13.2 · Confidence scoring
 
