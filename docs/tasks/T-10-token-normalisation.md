@@ -51,7 +51,7 @@ way to get this module wrong**, because it's how a regex match ends up as a time
 
 ### T-10.2 · `Token` and the normalisation pass
 
-**Executor** agent · **Size** S · **Prereqs** T-10.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-10.1 · **Status** done
 
 - **Read:** [04 §3](../04-reference-detection.md) (the `Token` dataclass and steps 1–6)
 - **Touches:** `sidecar/versesync/detect/types.py` (new) · `sidecar/versesync/detect/normalize.py`
@@ -88,10 +88,10 @@ way to get this module wrong**, because it's how a regex match ends up as a time
      it into the test. Commit.
 - **Verify:** `pytest tests/test_normalize.py -q`
 - **Done when:**
-  - [ ] "First Corinthians six, nineteen and twenty" gives
+  - [x] "First Corinthians six, nineteen and twenty" gives
         `[ordinal 1, word corinthians, number 6, punct ',', number 19, word and, number 20]`.
-  - [ ] Digits and spelled-out forms of the same number produce equal `text` and `value`.
-  - [ ] Every token's `word_ids` is non-empty and ascending, and the union over all tokens
+  - [x] Digits and spelled-out forms of the same number produce equal `text` and `value`.
+  - [x] Every token's `word_ids` is non-empty and ascending, and the union over all tokens
         covers every word that produced a token.
 
 ### T-10.3 · Search string, offset map and span round-trip
