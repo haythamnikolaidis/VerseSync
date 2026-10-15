@@ -65,7 +65,7 @@ class BibleProvider(Protocol):
 
 ### T-14.2 · `format.py` and the VerseFlow round-trip test
 
-**Executor** agent · **Size** S · **Prereqs** T-14.1, T-43 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-14.1, T-43 · **Status** done
 
 - **Read:** [06 §2](../06-bible-text-service.md) · `reference/verseflow/js/scripture-parser.js`
   (the block format and the regex) · `reference/verseflow/js/duration.js` (the word-count
@@ -96,9 +96,9 @@ class BibleProvider(Protocol):
      which has a numbered book. Commit.
 - **Verify:** `pytest tests/test_format_roundtrip.py -q`
 - **Done when:**
-  - [ ] The round-trip test passes for a single verse, a range, and a numbered book.
-  - [ ] Ranges use a hyphen, never an en-dash.
-  - [ ] Verse numbers stay in the body.
+  - [x] The round-trip test passes for a single verse, a range, and a numbered book.
+  - [x] Ranges use a hyphen, never an en-dash.
+  - [x] Verse numbers stay in the body.
 
 ### T-14.3 · `local.py` over the bundled KJV
 
