@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import NamedTuple
 
 from versesync.detect.canon import Book, Canon
@@ -204,7 +204,8 @@ PATTERNS: tuple[Pattern, ...] = (
         _compile(rf"{_BOOK} (?P<c>\d+) , (?P<v>\d+)"),
         lambda m: Fields(_int(m, "c"), _int(m, "v"), None),
     ),
-    # Always the split reading "ch v". The Psalms concatenation rule (04 section 3.1) is T-12.4.
+    # The split reading "ch v"; for Psalms find_candidates applies the concatenation rule
+    # (04 section 3.1) on top of it.
     Pattern(
         "P8",
         _compile(rf"{_BOOK} (?P<c>\d+) (?P<v>\d+)"),
@@ -251,6 +252,32 @@ CONTEXT_PATTERNS: tuple[ContextPattern, ...] = (
 )
 
 
+_PSALMS = "Ps"
+_PSALMS_SPLIT_REASON = "Split chapter:verse reading — 'Psalm N N' is ambiguous"
+
+
+def _psalms_readings(canon: Canon, book: Book, split: Fields) -> tuple[Fields, Fields | None]:
+    """The Psalms rule for P8 (docs/04 section 3.1): "psalm one nineteen" is 119, not 1:19.
+
+    ``split`` is the plain "chapter verse" reading. When the two numbers also concatenate to a
+    valid chapter and the split reading is valid too, the concatenation is the primary
+    (chapter-only) reading and the split reading is its alternative. When only one reading is
+    valid, only that one is returned. When neither is, the split reading stays as the P8 default
+    and stage 3 rejects it.
+    """
+    assert split.verse is not None
+    joined = int(f"{split.chapter}{split.verse}")
+    concatenated = Fields(joined, None, None)
+    joined_valid = canon.verse_count(book, joined) is not None
+    verses = canon.verse_count(book, split.chapter)
+    split_valid = verses is not None and 1 <= split.verse <= verses
+    if joined_valid and split_valid:
+        return concatenated, split
+    if joined_valid:
+        return concatenated, None
+    return split, None
+
+
 def _consumed(flags: Sequence[bool], first: int, last: int) -> bool:
     return any(flags[first : last + 1])
 
@@ -289,18 +316,24 @@ def find_candidates(
     out: list[Candidate] = []
     for pattern in PATTERNS:
         for match, view_span in _scan(pattern.regex, view, consumed):
+            book_match = view.books[int(match.group("b"))]
             fields = pattern.build(match)
-            out.append(
-                _candidate(
-                    tokens,
-                    view,
-                    view_span,
-                    pattern.name,
-                    view.books[int(match.group("b"))],
-                    fields,
-                    contextual=False,
-                )
+            alternative: Fields | None = None
+            if pattern.name == "P8" and book_match.book.osis == _PSALMS:
+                fields, alternative = _psalms_readings(canon, book_match.book, fields)
+            candidate = _candidate(
+                tokens, view, view_span, pattern.name, book_match, fields, contextual=False
             )
+            if alternative is not None:
+                split = _candidate(
+                    tokens, view, view_span, pattern.name, book_match, alternative, contextual=False
+                )
+                candidate = replace(
+                    candidate,
+                    alternatives=(split,),
+                    alternative_reason=_PSALMS_SPLIT_REASON,
+                )
+            out.append(candidate)
     full = sorted(out, key=lambda c: c.token_span)
     for ctx in CONTEXT_PATTERNS:
         for match, view_span in _scan(ctx.regex, view, consumed):

@@ -222,6 +222,64 @@ def test_p8_outside_psalms_has_no_alternative_reading():
     assert c.alternatives == () and c.alternative_reason is None
 
 
+REASON = "Split chapter:verse reading — 'Psalm N N' is ambiguous"
+
+
+def test_psalm_twelve_two_is_122_with_the_split_reading_as_alternative():
+    found = find("psalm twelve two", start=10.0)
+    assert [fields(c) for c in found] == [("Ps", 122, None, None, "P8")]
+    primary = found[0]
+    assert primary.verse is None
+    assert primary.alternative_reason == REASON
+    assert [fields(a) for a in primary.alternatives] == [("Ps", 12, 2, None, "P8")]
+    alt = primary.alternatives[0]
+    assert (alt.token_span, alt.word_span) == (primary.token_span, primary.word_span)
+    assert (alt.source_start, alt.source_end) == (primary.source_start, primary.source_end)
+
+
+def test_psalm_one_nineteen_is_only_119_because_1_19_is_invalid():
+    found = find("psalm one nineteen")
+    assert [fields(c) for c in found] == [("Ps", 119, None, None, "P8")]
+    assert found[0].alternatives == () and found[0].alternative_reason is None
+
+
+def test_psalm_with_only_a_valid_split_reading_emits_just_that_one():
+    # 150 and 3 concatenate to 1503, which is not a chapter; Psalm 150 has six verses.
+    assert [fields(c) for c in find("psalm 150 3")] == [("Ps", 150, 3, None, "P8")]
+    found = find("psalm 150 3")[0]
+    assert found.alternatives == () and found.alternative_reason is None
+
+
+def test_psalm_with_neither_reading_valid_keeps_the_split_default():
+    # 1 and 200 concatenate to 1200; Psalm 1 has no verse 200.
+    found = find("psalm 1 200")
+    assert [fields(c) for c in found] == [("Ps", 1, 200, None, "P8")]
+    assert found[0].alternatives == ()
+
+
+def test_psalm_rule_applies_to_other_spellings_and_numbers():
+    found = find("psalms twenty three")
+    assert [fields(c) for c in found] == [("Ps", 23, None, None, "P9")]
+    found = find("psalm one twenty")  # Psalm 1 has six verses, so 1:20 is not a reading
+    assert [fields(c) for c in found] == [("Ps", 120, None, None, "P8")]
+    assert found[0].alternatives == ()
+    found = find("psalm eleven one")
+    assert [fields(c) for c in found] == [("Ps", 111, None, None, "P8")]
+    assert [fields(a) for a in found[0].alternatives] == [("Ps", 11, 1, None, "P8")]
+
+
+def test_psalms_rule_does_not_touch_explicit_forms():
+    assert [fields(c) for c in find("psalm 12 : 2")] == [("Ps", 12, 2, None, "P2")]
+    assert [fields(c) for c in find("psalm 12 , 2")] == [("Ps", 12, 2, None, "P7")]
+
+
+def test_other_books_stay_split_only_even_when_the_numbers_concatenate():
+    # 1 and 6 concatenate to 16, a valid Romans chapter, yet P8 stays chapter 1, verse 6.
+    found = find("romans 1 6")
+    assert [fields(c) for c in found] == [("Rom", 1, 6, None, "P8")]
+    assert found[0].alternatives == ()
+
+
 # --- P10: "the ORD chapter of B" -------------------------------------------------------------
 
 
