@@ -65,7 +65,7 @@ The mock accepts any non-empty Origin, so the contract tests (T-42) send this va
 
 ### T-05.2 · Lock file
 
-**Executor** agent · **Size** S · **Prereqs** T-05.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-05.1 · **Status** done
 
 - **Read:** [07 §1.1](../07-sidecar-api.md) · `tools/mock_sidecar.py` (the lock-file functions
   only; grep for `lock`)
@@ -89,7 +89,7 @@ The mock accepts any non-empty Origin, so the contract tests (T-42) send this va
      delete another process's lock. Commit.
 - **Verify:** `pytest tests/test_lockfile.py -q`
 - **Done when:**
-  - [ ] Two sidecars can't both hold the lock, and a stale lock is cleared.
+  - [x] Two sidecars can't both hold the lock, and a stale lock is cleared.
 
 ### T-05.3 · HTTP server core: bind, auth, Origin, headers, errors, `/health`, `/shutdown`
 
