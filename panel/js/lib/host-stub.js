@@ -22,6 +22,7 @@
   var SEQUENCES = {
     'sequence-2997': {
       hasActiveSequence: true,
+      sequenceId: '7f3c2a10-5b8e-4d21-9c47-1e6a0b93d5f2',
       name: 'Sermon 2026-09-14',
       videoTrackCount: 4,
       audioTrackCount: 6,
@@ -33,6 +34,7 @@
     },
     'sequence-23976': {
       hasActiveSequence: true,
+      sequenceId: 'c41d9e68-2a07-4f5b-b3d1-85e0a7c2f946',
       name: 'Promo 2026-09-20',
       videoTrackCount: 2,
       audioTrackCount: 2,
@@ -44,6 +46,7 @@
     },
     'sequence-25': {
       hasActiveSequence: true,
+      sequenceId: '0e8b5a37-d6c4-4192-a8f3-3b71c9d04e5a',
       name: 'UK Service 2026-09-27',
       videoTrackCount: 3,
       audioTrackCount: 4,
@@ -139,7 +142,10 @@
     ]
   };
 
-  var scenario = { sequence: 'sequence-2997', segments: 'segments-single' };
+  // `focusedSequence` simulates the editor switching sequence tabs in Premiere after an analysis
+  // (R-13, docs/08 §3): when set, it is the sequence the host sees as active, while the panel
+  // still holds the sequenceId from the earlier getSequenceInfo. null means "no tab switch".
+  var scenario = { sequence: 'sequence-2997', segments: 'segments-single', focusedSequence: null };
 
   function queryParam(name) {
     if (!hasWindow || !window.location || !window.location.search) { return null; }
@@ -161,15 +167,39 @@
 
   function fail(message) { return JSON.stringify({ ok: false, error: message }); }
 
+  function activeSequence() {
+    return SEQUENCES[scenario.focusedSequence || scenario.sequence];
+  }
+
   function requireActiveSequence() {
-    if (!SEQUENCES[scenario.sequence].hasActiveSequence) {
+    if (!activeSequence().hasActiveSequence) {
       return 'Open a sequence in Premiere first.';
     }
     return null;
   }
 
+  // docs/08 §3 and §9 (D20): the three sequence-bound calls compare the caller's sequenceId to
+  // the active sequence before doing anything else.
+  function checkSequenceId(sequenceId) {
+    var active = activeSequence();
+    if (typeof sequenceId === 'string' && active.sequenceId === sequenceId) { return null; }
+    var key;
+    for (key in SEQUENCES) {
+      if (SEQUENCES.hasOwnProperty(key) && typeof sequenceId === 'string' &&
+          SEQUENCES[key].sequenceId === sequenceId) {
+        return 'The active sequence changed since this analysis. Switch back to "' +
+          SEQUENCES[key].name + '" or click Analyse again.';
+      }
+    }
+    return 'Open a sequence in Premiere first.';
+  }
+
+  function requireSequence(sequenceId) {
+    return requireActiveSequence() || checkSequenceId(sequenceId);
+  }
+
   function checkTrackIndex(trackIndex) {
-    var seq = SEQUENCES[scenario.sequence];
+    var seq = activeSequence();
     if (typeof trackIndex !== 'number' || trackIndex < 0 || trackIndex > seq.videoTrackCount - 1) {
       return 'Track V' + (trackIndex + 1) + ' no longer exists in this sequence. Click Refresh.';
     }
@@ -185,19 +215,22 @@
   var VS = {};
 
   VS.ping = function () {
-    return ok({ pong: true, version: '1.0.0', hostApi: '1.0' });
+    return ok({ pong: true, version: '1.0.0', hostApi: '1.1' });
   };
 
   VS.getSequenceInfo = function () {
-    return ok(clone(SEQUENCES[scenario.sequence]));
+    return ok(clone(activeSequence()));
   };
 
-  VS.getMediaSegments = function () {
+  VS.getMediaSegments = function (argJson) {
+    var args = JSON.parse(argJson || '{}');
+    var seqErr = requireSequence(args.sequenceId);
+    if (seqErr) { return fail(seqErr); }
     return ok(clone(SEGMENTS[scenario.segments]));
   };
 
   VS.getMogrtFields = function (argJson) {
-    if (!SEQUENCES[scenario.sequence].hasActiveSequence) {
+    if (!activeSequence().hasActiveSequence) {
       return fail(
         'Open a sequence in Premiere first — reading a template\'s fields requires an ' +
         'active sequence.'
@@ -215,14 +248,14 @@
     var cues = args.cues || [];
     var i;
 
+    var seqErr = requireSequence(args.sequenceId);
+    if (seqErr) { return fail(seqErr); }
+
     for (i = 1; i < cues.length; i++) {
       if (Number(cues[i].atTicks) < Number(cues[i - 1].atTicks)) {
         return fail('Internal error: cues must be sorted by time. Please report this.');
       }
     }
-
-    var activeErr = requireActiveSequence();
-    if (activeErr) { return fail(activeErr); }
 
     var trackErr = checkTrackIndex(args.trackIndex);
     if (trackErr) { return fail(trackErr); }
@@ -258,8 +291,8 @@
 
   VS.validateTrack = function (argJson) {
     var args = JSON.parse(argJson);
-    var activeErr = requireActiveSequence();
-    if (activeErr) { return fail(activeErr); }
+    var seqErr = requireSequence(args.sequenceId);
+    if (seqErr) { return fail(seqErr); }
     var trackErr = checkTrackIndex(args.trackIndex);
     if (trackErr) { return fail(trackErr); }
     return ok({ conflicts: [] });
@@ -268,12 +301,23 @@
   // ---- dev-only scenario switcher (not part of the frozen VS.* contract) ----
 
   VS.__setScenario = function (next) {
-    if (next && next.sequence && SEQUENCES[next.sequence]) { scenario.sequence = next.sequence; }
+    if (next && next.sequence && SEQUENCES[next.sequence]) {
+      scenario.sequence = next.sequence;
+      scenario.focusedSequence = null; // a new base sequence ends any simulated tab switch
+    }
+    if (next && next.focusedSequence === null) { scenario.focusedSequence = null; }
+    if (next && next.focusedSequence && SEQUENCES[next.focusedSequence]) {
+      scenario.focusedSequence = next.focusedSequence;
+    }
     if (next && next.segments && SEGMENTS[next.segments]) { scenario.segments = next.segments; }
   };
 
   VS.__getScenario = function () {
-    return { sequence: scenario.sequence, segments: scenario.segments };
+    return {
+      sequence: scenario.sequence,
+      segments: scenario.segments,
+      focusedSequence: scenario.focusedSequence
+    };
   };
 
   // ---- activation ----

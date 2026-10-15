@@ -5,6 +5,10 @@ var assert = require('node:assert');
 
 var VS = require('../panel/js/lib/host-stub');
 
+// Must equal "sequenceId" in tests/fixtures/host/sequence-2997.json (the sync test enforces it
+// for getSequenceInfo; the other sequences' IDs are read through getSequenceInfo below).
+var ID_2997 = '7f3c2a10-5b8e-4d21-9c47-1e6a0b93d5f2';
+
 function freshStub() {
   delete require.cache[require.resolve('../panel/js/lib/host-stub')];
   return require('../panel/js/lib/host-stub');
@@ -12,7 +16,7 @@ function freshStub() {
 
 test('ping', function () {
   var response = JSON.parse(VS.ping('{}'));
-  assert.deepStrictEqual(response, { ok: true, data: { pong: true, version: '1.0.0', hostApi: '1.0' } });
+  assert.deepStrictEqual(response, { ok: true, data: { pong: true, version: '1.0.0', hostApi: '1.1' } });
 });
 
 test('ticks are strings everywhere, never numbers', function () {
@@ -23,7 +27,7 @@ test('ticks are strings everywhere, never numbers', function () {
   assert.strictEqual(typeof seqInfo.zeroPointTicks, 'string');
   assert.strictEqual(typeof seqInfo.endTicks, 'string');
 
-  var segments = JSON.parse(VS.getMediaSegments('{}')).data.segments;
+  var segments = JSON.parse(VS.getMediaSegments(JSON.stringify({ sequenceId: ID_2997 }))).data.segments;
   segments.forEach(function (seg) {
     assert.strictEqual(typeof seg.seqStartTicks, 'string');
     assert.strictEqual(typeof seg.seqEndTicks, 'string');
@@ -39,6 +43,7 @@ test('ticks are strings everywhere, never numbers', function () {
 test('insertCues: happy path echoes actualStartTicks as a string per cue', function () {
   VS.__setScenario({ sequence: 'sequence-2997' });
   var payload = JSON.stringify({
+    sequenceId: ID_2997,
     mogrtPath: 'D:/Templates/AV_Quote_04.mogrt',
     trackIndex: 2,
     mapping: { referenceIndex: 11, bodyIndex: 3 },
@@ -60,6 +65,7 @@ test('insertCues: happy path echoes actualStartTicks as a string per cue', funct
 test('insertCues: rejects unsorted input with the exact §9 error string', function () {
   VS.__setScenario({ sequence: 'sequence-2997' });
   var payload = JSON.stringify({
+    sequenceId: ID_2997,
     mogrtPath: 'D:/Templates/AV_Quote_04.mogrt',
     trackIndex: 2,
     mapping: { referenceIndex: 11, bodyIndex: 3 },
@@ -77,7 +83,7 @@ test('insertCues: rejects unsorted input with the exact §9 error string', funct
 
 test('insertCues: out-of-range trackIndex errors', function () {
   VS.__setScenario({ sequence: 'sequence-2997' }); // videoTrackCount: 4, valid 0-3
-  var payload = JSON.stringify({ mogrtPath: 'x', trackIndex: 9, mapping: {}, cues: [] });
+  var payload = JSON.stringify({ sequenceId: ID_2997, mogrtPath: 'x', trackIndex: 9, mapping: {}, cues: [] });
   var response = JSON.parse(VS.insertCues(payload));
   assert.deepStrictEqual(response, {
     ok: false,
@@ -96,6 +102,7 @@ test('insertCues: no active sequence errors', function () {
 test('insertCues: a cue id ending in _importfail is a per-cue failure, not a top-level error', function () {
   VS.__setScenario({ sequence: 'sequence-2997' });
   var payload = JSON.stringify({
+    sequenceId: ID_2997,
     mogrtPath: 'x',
     trackIndex: 2,
     mapping: {},
@@ -136,10 +143,10 @@ test('getMogrtFields: an unrecognised path errors', function () {
 
 test('validateTrack: happy path and out-of-range trackIndex', function () {
   VS.__setScenario({ sequence: 'sequence-2997' });
-  var happy = JSON.parse(VS.validateTrack('{"trackIndex":2,"ranges":[]}'));
+  var happy = JSON.parse(VS.validateTrack(JSON.stringify({ sequenceId: ID_2997, trackIndex: 2, ranges: [] })));
   assert.deepStrictEqual(happy, { ok: true, data: { conflicts: [] } });
 
-  var bad = JSON.parse(VS.validateTrack('{"trackIndex":99,"ranges":[]}'));
+  var bad = JSON.parse(VS.validateTrack(JSON.stringify({ sequenceId: ID_2997, trackIndex: 99, ranges: [] })));
   assert.deepStrictEqual(bad, {
     ok: false,
     error: 'Track V100 no longer exists in this sequence. Click Refresh.'
@@ -187,7 +194,7 @@ test('activation: ?hostSequence and ?hostSegments query params select a scenario
   global.window = { location: { search: '?hostSequence=sequence-25&hostSegments=segments-duplicate' } };
   try {
     var stub = freshStub();
-    assert.deepStrictEqual(stub.__getScenario(), { sequence: 'sequence-25', segments: 'segments-duplicate' });
+    assert.deepStrictEqual(stub.__getScenario(), { sequence: 'sequence-25', segments: 'segments-duplicate', focusedSequence: null });
   } finally {
     delete global.window;
     freshStub(); // restore a window-less module for any test file that runs after this one
