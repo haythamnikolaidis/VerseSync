@@ -94,3 +94,10 @@ def test_fixed_mode_ignores_alignment() -> None:
 
 def test_confidence_bonus_capped_at_one() -> None:
     assert compute_timing(50.0, _read(51.0, 60.0), 20, 0.97).confidence == 1.0
+
+
+def test_worked_example_from_spec_section_9() -> None:
+    timing = compute_timing(1425.82, _read(1428.9, 1451.4), 40, 0.91)
+    assert timing.source_anchor_s == 1425.32
+    assert timing.source_duration_s == 27.08
+    assert timing.confidence == 1.0
