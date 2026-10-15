@@ -73,7 +73,7 @@ job.
 
 ### T-12.1 · Pre-pass, grammar view, framework and P1/P2/P9
 
-**Executor** agent · **Size** S · **Prereqs** T-11.3 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-11.3 · **Status** done
 
 - **Read:** [04 §4](../04-reference-detection.md) (the table, P1, P2 and P9 rows)
 - **Touches:** `sidecar/versesync/detect/grammar.py` (new) · `tests/test_grammar.py` (new)
@@ -85,9 +85,9 @@ job.
      Add a test that `john 3 : 16 - 18` gives one P1 match and no stray P9. Commit.
 - **Verify:** `pytest tests/test_grammar.py -q`
 - **Done when:**
-  - [ ] P1, P2 and P9 pass with their tabulated examples.
-  - [ ] Consumption is tested.
-  - [ ] `source_start` is the start of the ordinal for "first corinthians…".
+  - [x] P1, P2 and P9 pass with their tabulated examples.
+  - [x] Consumption is tested.
+  - [x] `source_start` is the start of the ordinal for "first corinthians…".
 
 ### T-12.2 · P3–P8: keyword and comma forms
 
