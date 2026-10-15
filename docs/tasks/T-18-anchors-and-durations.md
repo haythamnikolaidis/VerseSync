@@ -1,6 +1,6 @@
 # T-18 · Anchors and durations
 
-**Executor** agent · **Size** S · **Prereqs** T-17.2, T-43 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-17.2, T-43 · **Status** in-progress
 
 | | |
 |---|---|
