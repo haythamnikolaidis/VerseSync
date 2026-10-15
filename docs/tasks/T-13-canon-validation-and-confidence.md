@@ -49,7 +49,7 @@ bonus, so the cue builder (T-19.1) assigns it.
 
 ### T-13.1 · Canon validation rules
 
-**Executor** agent · **Size** S · **Prereqs** T-12.4 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-12.4 · **Status** in-progress
 
 - **Read:** [04 §5](../04-reference-detection.md)
 - **Touches:** `sidecar/versesync/detect/validate.py` (new) · `tests/test_validation.py` (new)
