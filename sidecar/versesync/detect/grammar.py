@@ -195,6 +195,22 @@ PATTERNS: tuple[Pattern, ...] = (
         lambda m: Fields(_int(m, "c"), None, None),
     ),
     Pattern(
+        "P6",
+        _compile(rf"{_BOOK} (?P<c>\d+) , (?P<v>\d+) (?:and|through|to) (?P<ve>\d+)"),
+        lambda m: Fields(_int(m, "c"), _int(m, "v"), _int(m, "ve")),
+    ),
+    Pattern(
+        "P7",
+        _compile(rf"{_BOOK} (?P<c>\d+) , (?P<v>\d+)"),
+        lambda m: Fields(_int(m, "c"), _int(m, "v"), None),
+    ),
+    # Always the split reading "ch v". The Psalms concatenation rule (04 section 3.1) is T-12.4.
+    Pattern(
+        "P8",
+        _compile(rf"{_BOOK} (?P<c>\d+) (?P<v>\d+)"),
+        lambda m: Fields(_int(m, "c"), _int(m, "v"), None),
+    ),
+    Pattern(
         "P9",
         _compile(rf"{_BOOK} (?P<c>\d+)"),
         lambda m: Fields(_int(m, "c"), None, None),

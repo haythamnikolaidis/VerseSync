@@ -184,3 +184,62 @@ def test_keyword_forms_cover_the_whole_phrase_and_leave_no_stray_pattern():
     c = find("john chapter 3 verses 16 through 18", start=10.0)[0]
     assert c.token_span == (0, 6)
     assert (c.source_start, c.source_end) == (10.0, 13.4)
+
+
+# --- P6-P8: the comma and bare-number forms ---------------------------------------------------
+
+
+def test_p6_comma_verse_range_three_phrasings():
+    assert [fields(c) for c in find("1 corinthians 6 , 19 and 20", start=10.0)] == [
+        ("1Cor", 6, 19, 20, "P6")
+    ]
+    assert [fields(c) for c in find("romans 8, 28 through 30")] == [("Rom", 8, 28, 30, "P6")]
+    assert [fields(c) for c in find("john 3 , 16 to 18")] == [("John", 3, 16, 18, "P6")]
+
+
+def test_p7_comma_verse_three_phrasings():
+    assert [fields(c) for c in find("john 3 , 16", start=10.0)] == [("John", 3, 16, None, "P7")]
+    assert [fields(c) for c in find("john 3, 16")] == [("John", 3, 16, None, "P7")]
+    assert [fields(c) for c in find("second timothy two, fifteen")] == [
+        ("2Tim", 2, 15, None, "P7")
+    ]
+
+
+def test_p8_bare_numbers_split_chapter_and_verse_three_phrasings():
+    assert [fields(c) for c in find("john 3 16", start=10.0)] == [("John", 3, 16, None, "P8")]
+    assert [fields(c) for c in find("romans eight twenty eight")] == [("Rom", 8, 28, None, "P8")]
+    assert [fields(c) for c in find("first corinthians 13 4")] == [("1Cor", 13, 4, None, "P8")]
+
+
+def test_p8_outside_psalms_has_no_alternative_reading():
+    c = find("john 3 16")[0]
+    assert c.alternatives == () and c.alternative_reason is None
+
+
+# --- Priority ---------------------------------------------------------------------------------
+
+
+def test_priority_order_is_p1_to_p9():
+    from versesync.detect.grammar import PATTERNS
+
+    assert [p.name for p in PATTERNS] == [f"P{n}" for n in range(1, 10)]
+
+
+def test_higher_priority_pattern_wins_when_several_could_match():
+    # Each input is also matched by every lower pattern in the same family, and by P9.
+    cases = {
+        "john 3 : 16 - 18": "P1",  # P1 > P2 > P9
+        "john chapter 3 verses 16 through 18": "P3",  # P3 > P4 > P5
+        "john chapter 3 verse 16": "P4",  # P4 > P5
+        "john 3 , 16 and 17": "P6",  # P6 > P7 > P9
+        "john 3 , 16": "P7",  # P7 > P9
+        "john 3 16": "P8",  # P8 > P9
+    }
+    for text, expected in cases.items():
+        found = find(text)
+        assert [c.pattern for c in found] == [expected], text
+        assert found[0].token_span[1] == len(toks(text)) - 1, text
+
+
+def test_comma_forms_leave_no_stray_chapter_match():
+    assert [c.pattern for c in find("john 3 , 16 and 17 then romans 8")] == ["P6", "P9"]
