@@ -22,7 +22,7 @@ This work was **unowned** in the original backlog. T-15 mentions batching, and T
 
 ### T-48.1 · `parse_reference()` for editor-typed references
 
-**Executor** agent · **Size** XS · **Prereqs** T-13.3 · **Status** in-progress
+**Executor** agent · **Size** XS · **Prereqs** T-13.3 · **Status** done
 
 - **Read:** [07 §2](../07-sidecar-api.md) (`POST /resolve`) · [09 §5.3](../09-ui-spec.md) (the
   reference field)
@@ -48,7 +48,7 @@ This work was **unowned** in the original backlog. T-15 mentions batching, and T
      message) and `hello` (the generic message). Commit.
 - **Verify:** `pytest tests/test_parse_reference.py -q`
 - **Done when:**
-  - [ ] Typed input is validated by the **same** canon and grammar that detection uses.
+  - [x] Typed input is validated by the **same** canon and grammar that detection uses.
 
 ### T-48.2 · `resolve_detections()`
 
