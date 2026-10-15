@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import pytest
 
 from versesync.detect.canon import load_canon, normalise_alias
@@ -96,3 +99,67 @@ def test_number_token_ends_a_name():
     match = match_book(tokens, 0, CANON)
     assert match is not None
     assert (match.first, match.last) == (0, 0)
+
+
+def _confusions() -> dict[str, str]:
+    path = Path(__file__).resolve().parents[1] / "sidecar/versesync/detect/data/confusions.json"
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _always(_index: int) -> bool:
+    return True
+
+
+def _never(_index: int) -> bool:
+    return False
+
+
+@pytest.mark.parametrize("heard, osis", sorted(_confusions().items()))
+def test_every_confusion_resolves_as_alias_behind_the_gate(heard, osis):
+    tokens = norm(heard)
+    match = match_book(tokens, 0, CANON, fuzzy_gate=_always)
+    assert match is not None
+    assert (match.book.osis, match.tier, match.distance) == (osis, "alias", 0)
+    assert (match.first, match.last) == (0, len(tokens) - 1)
+    assert match_book(tokens, 0, CANON) is None
+    assert match_book(tokens, 0, CANON, fuzzy_gate=_never) is None
+
+
+def test_gate_receives_index_after_the_match():
+    seen: list[int] = []
+
+    def gate(index: int) -> bool:
+        seen.append(index)
+        return True
+
+    match = match_book(norm("see have a cook one"), 1, CANON, fuzzy_gate=gate)
+    assert match is not None and match.book.osis == "Hab"
+    assert seen == [4]
+
+
+def test_seed_forms_cover_the_spec_table():
+    heard = set(_confusions())
+    for form in [
+        "philippines",
+        "philippi ans",
+        "collations",
+        "colossions",
+        "tight us",
+        "have a cook",
+        "habakuk",
+        "habbakuk",
+        "ecclesiasties",
+        "deuter onomy",
+        "zachariah",
+        "zecharia",
+        "nehemia",
+        "nehamiah",
+        "1 thessalonica ns",
+        "2 thessalonions",
+        "1 thesalonians",
+    ]:
+        assert form in heard
+    # The normaliser strips apostrophes, so these possessives reach the matcher as these forms.
+    assert match_book(norm("titus's"), 0, CANON, fuzzy_gate=_always).book.osis == "Titus"
+    assert match_book(norm("deuteronomy's"), 0, CANON, fuzzy_gate=_always).book.osis == "Deut"
+    assert match_book(norm("ecclesiastes'"), 0, CANON).book.osis == "Eccl"
