@@ -137,7 +137,7 @@ job.
 
 ### T-12.4 · Psalms concatenation, chapter-only, and the bootstrap corpus check
 
-**Executor** agent · **Size** S · **Prereqs** T-12.3 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-12.3 · **Status** done
 
 - **Read:** [04 §3.1](../04-reference-detection.md) (the first bullet) ·
   `tests/fixtures/README.md` (the label format only) · `tests/fixtures/cue-documents/alternatives.json`
@@ -161,11 +161,11 @@ job.
      the test, mapping the label to a one-line reason. Keep that dict short and honest. Commit.
 - **Verify:** `pytest tests/test_grammar.py tests/test_grammar_corpus.py -q`
 - **Done when:**
-  - [ ] "psalm twelve two" gives Psalm 122 with an alternative of Psalm 12:2, matching
+  - [x] "psalm twelve two" gives Psalm 122 with an alternative of Psalm 12:2, matching
         `alternatives.json`.
-  - [ ] "psalm one nineteen" gives only Psalm 119, because 1:19 is invalid.
-  - [ ] Zero candidates in any negative label span.
-  - [ ] Every miss is listed with a reason.
+  - [x] "psalm one nineteen" gives only Psalm 119, because 1:19 is invalid.
+  - [x] Zero candidates in any negative label span.
+  - [x] Every miss is listed with a reason.
 
 ## Traps
 
