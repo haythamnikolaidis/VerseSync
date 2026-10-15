@@ -60,7 +60,7 @@ counts from the bundled text means T-13 can't reject a verse that T-14 can serve
 
 ### T-09.2 · Generate `canon.json`
 
-**Executor** agent · **Size** S · **Prereqs** T-09.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-09.1 · **Status** done
 
 - **Read:** [04 §4.1, §5](../04-reference-detection.md) · [04 §3.1](../04-reference-detection.md)
   (the "numbered form" list only)
@@ -99,8 +99,8 @@ counts from the bundled text means T-13 can't reject a verse that T-14 can serve
      Commit.
 - **Verify:** `pytest tests/test_canon_data.py -q`
 - **Done when:**
-  - [ ] Every assertion above passes.
-  - [ ] Re-running the generator reproduces the file byte for byte.
+  - [x] Every assertion above passes.
+  - [x] Re-running the generator reproduces the file byte for byte.
 
 ### T-09.3 · `Canon` loader and shared core types
 
