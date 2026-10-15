@@ -28,7 +28,7 @@ counts from the bundled text means T-13 can't reject a verse that T-14 can serve
 
 ### T-09.1 · Bundle the public-domain KJV text
 
-**Executor** agent · **Size** S · **Prereqs** — · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** — · **Status** done
 
 - **Read:** this card only.
 - **Touches:** `tools/fetch_pd_bible.py` (new) · `sidecar/versesync/bible/data/kjv.json.gz`
@@ -55,8 +55,8 @@ counts from the bundled text means T-13 can't reject a verse that T-14 can serve
      verses. No verse text is empty. Loading the file takes under 200 ms. Commit.
 - **Verify:** `pytest tests/test_pd_bible.py -q`
 - **Done when:**
-  - [ ] The totals above hold, and the source URL and its hash are pinned in the script.
-  - [ ] The file is under ~1.5 MB compressed.
+  - [x] The totals above hold, and the source URL and its hash are pinned in the script.
+  - [x] The file is under ~1.5 MB compressed.
 
 ### T-09.2 · Generate `canon.json`
 

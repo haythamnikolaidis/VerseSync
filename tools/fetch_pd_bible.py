@@ -88,8 +88,9 @@ def main(argv: list[str]) -> int:
     payload = json.dumps(data, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
     out.parent.mkdir(parents=True, exist_ok=True)
     # mtime=0 keeps the output byte-for-byte reproducible.
-    with open(out, "wb") as fh, gzip.GzipFile(fileobj=fh, mode="wb", mtime=0, compresslevel=9) as gz:
-        gz.write(payload)
+    with open(out, "wb") as fh:
+        with gzip.GzipFile(fileobj=fh, mode="wb", mtime=0, compresslevel=9) as gz:
+            gz.write(payload)
     print(f"wrote {out} ({out.stat().st_size} bytes)")
     return 0
 
