@@ -40,7 +40,28 @@ function loadJsx(jsxPath, fake) {
   // ExtendScript has no native JSON object.
   vm.runInContext('delete globalThis.JSON;', context);
   vm.runInContext(source, context, { filename: jsxPath });
-  return { VS: context.VS, context: context };
+  // A FatalHostError cannot be caught by the script (T-03). The vm cannot skip
+  // a script's catch, so the fake records the error and each VS entry point
+  // rethrows it to the Node caller once the call returns.
+  const VS = context.VS;
+  if (VS && typeof fake.fatal !== 'undefined') {
+    Object.keys(VS).forEach(function (key) {
+      const fn = VS[key];
+      if (typeof fn !== 'function') {
+        return;
+      }
+      VS[key] = function () {
+        const result = fn.apply(this, arguments);
+        if (fake.fatal !== null) {
+          const err = fake.fatal;
+          fake.fatal = null;
+          throw err;
+        }
+        return result;
+      };
+    });
+  }
+  return { VS: VS, context: context };
 }
 
 module.exports = { loadJsx: loadJsx };
