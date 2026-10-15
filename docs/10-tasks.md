@@ -131,16 +131,12 @@ skip them. `python tools/plan.py validate` checks this table against the cards.
 | 98 | [T-32.2](tasks/T-32-error-surface-pass.md) | Panel failure states and never-settling promises | agent | S | T-32.1, T-30.2 | 5 |
 | 99 | [T-32.H](tasks/T-32-error-surface-pass.md) | Manual failure-mode pass | **human** | — | T-32.2, T-30.H | 5 |
 | 100 | [T-33.1](tasks/T-33-accuracy-harness.md) | Golden-file tests | agent | S | T-21.1 | 5 |
-| 101 | [T-33.2](tasks/T-33-accuracy-harness.md) | `accuracy_harness.py`: M1, M2, M3, plus diff mode | agent | S | T-33.1 | 5 |
-| 102 | [T-33.H](tasks/T-33-accuracy-harness.md) | Build the full corpus | **human** | — | T-33.2, T-07.H | 5 |
-| 103 | [T-35.1](tasks/T-35-performance-pass.md) | Container-measurable budgets as tests | agent | S | T-30.2, T-21.1 | 5 |
-| 104 | [T-35.H](tasks/T-35-performance-pass.md) | Reference workstation numbers | **human** | — | T-35.1, T-30.H | 5 |
-| 105 | [T-36.1](tasks/T-36-install-and-documentation.md) | Sidecar installer | agent | S | T-07.2, T-44 | 5 |
-| 106 | [T-36.2](tasks/T-36-install-and-documentation.md) | Panel installer | agent | XS | T-22.1 | 5 |
-| 107 | [T-36.3](tasks/T-36-install-and-documentation.md) | README and INSTALL | agent | S | T-36.1, T-36.2, T-35.1, T-32.1 | 5 |
-| 108 | [T-36.H](tasks/T-36-install-and-documentation.md) | Clean-machine install | **human** | — | T-36.3, T-35.H | 5 |
-| 109 | [T-34.1](tasks/T-34-threshold-tuning.md) | Sweep tooling and report | agent | S | T-33.2, T-33.H | 5 |
-| 110 | [T-34.2](tasks/T-34-threshold-tuning.md) | Apply the tuned constants | agent | S | T-34.1 | 5 |
+| 101 | [T-35.1](tasks/T-35-performance-pass.md) | Container-measurable budgets as tests | agent | S | T-30.2, T-21.1 | 5 |
+| 102 | [T-35.H](tasks/T-35-performance-pass.md) | Reference workstation numbers | **human** | — | T-35.1, T-30.H | 5 |
+| 103 | [T-36.1](tasks/T-36-install-and-documentation.md) | Sidecar installer | agent | S | T-07.2, T-44 | 5 |
+| 104 | [T-36.2](tasks/T-36-install-and-documentation.md) | Panel installer | agent | XS | T-22.1 | 5 |
+| 105 | [T-36.3](tasks/T-36-install-and-documentation.md) | README and INSTALL | agent | S | T-36.1, T-36.2, T-35.1, T-32.1 | 5 |
+| 106 | [T-36.H](tasks/T-36-install-and-documentation.md) | Clean-machine install | **human** | — | T-36.3, T-35.H | 5 |
 
 **Phases.**
 
@@ -151,7 +147,7 @@ skip them. `python tools/plan.py validate` checks this table against the cards.
 | **2** | The HTTP sidecar around that pipeline, the CLI, contract tests against the mock, the API.Bible adapter, and the transcription backends. |
 | **3** | `VerseSync.jsx`, tested under Node against the fake DOM. |
 | **4** | The CEP panel, built against the mock sidecar and the host stub, and finally integrated with the real `VerseSync.jsx` on the fake DOM. |
-| **5** | Journey B, error surfaces, golden files and the accuracy harness, performance budgets, installers and documentation, and threshold tuning (which is gated on the human-built corpus). |
+| **5** | Journey B, error surfaces, golden files, performance budgets, installers and documentation. |
 
 ## Human tasks
 
@@ -162,16 +158,32 @@ They verify agent work on real hardware, and **together they are the release gat
 | ID | What | Gates |
 |----|------|-------|
 | [T-06.H](tasks/T-06-upstream-qt-free-engine.md) | Upstream GUI parity, then merge the upstream PR | release |
-| [T-07.H](tasks/T-07-transcription-in-sidecar.md) | GPU transcription: determinism, cancellation, OOM message | T-33.H, release |
+| [T-07.H](tasks/T-07-transcription-in-sidecar.md) | GPU transcription: determinism, cancellation, OOM message | release |
 | [T-15.H](tasks/T-15-api-bible-adapter.md) | **Q-A**: licensed translations, real API key, recorded fixtures | release |
 | [T-22.H](tasks/T-22-panel-scaffold-and-bridge.md) | The panel loads in Premiere, and Node `http` works there (D21) | T-25.H |
 | [T-25.H](tasks/T-25-host-insert-cues.md) | Every `VS.*` call on real Premiere, including D20's `sequenceID` stability | T-30.H |
-| [T-30.H](tasks/T-30-panel-insert-orchestration.md) | **Journey A** end to end on a real sermon | release |
+| [T-30.H](tasks/T-30-panel-insert-orchestration.md) | **Journey A** end to end on a real sermon, plus the five-count **accuracy spot-check** (D24) | release |
 | [T-31.H](tasks/T-31-journey-b-rerun.md) | **Journey B** on a real recut | release |
 | [T-32.H](tasks/T-32-error-surface-pass.md) | Failure modes on real Premiere | release |
-| [T-33.H](tasks/T-33-accuracy-harness.md) | **The full labelled corpus** (≥ 10 sermons, ≥ 300 utterances) | **T-34 (Gate)**, release |
 | [T-35.H](tasks/T-35-performance-pass.md) | NFR-2 numbers on the reference workstation | release |
 | [T-36.H](tasks/T-36-install-and-documentation.md) | Clean-machine install from the README | release |
+
+## Deferred past v1 (D24, 2026-10-15)
+
+Not built in v1. Stakeholders accepted the detection-accuracy risk, paraphrased scripture
+especially, rather than wait for a labelled corpus. `plan.py` never offers these tasks, and no
+active task depends on them. See [12](12-decisions-and-risks.md) D24 and
+[13 §11.5](13-technical-plan.md).
+
+| ID | Task | Why deferred |
+|----|------|--------------|
+| [T-33.2](tasks/T-33-accuracy-harness.md) | `accuracy_harness.py`: M1, M2, M3, plus diff mode | There's no corpus to measure against. |
+| [T-33.H](tasks/T-33-accuracy-harness.md) | Build the full labelled corpus (≥ 10 sermons, ≥ 300 utterances) | No annotator capacity. |
+| [T-34.1](tasks/T-34-threshold-tuning.md) | Sweep tooling and report | Needs the corpus. |
+| [T-34.2](tasks/T-34-threshold-tuning.md) | Apply tuned constants | Needs the corpus. v1 ships the spec defaults. |
+
+To reinstate them, set their status back to `todo`, add them to the queue after T-33.1, and run
+`python tools/plan.py validate`.
 
 ## Done: Wave 0 (2026-10-11)
 
@@ -203,5 +215,5 @@ PHASE 3   T-45 + T-47 ─► T-23.1 ─► T-23.2 ─► T-25.1 ─► T-25.2 / 
 PHASE 4   T-22.1 ─► T-22.2 ─► T-26.* ─► T-49 ─► T-27.* ─┐
           T-22.1 ─► T-28.* ─────────────────────────────┼─► T-29.1 … T-29.9 ─► T-30.1 ─► T-30.2
                                      T-25.* ────────────────────────────────────────────┘
-PHASE 5   T-31.1  T-32.*  T-33.1 ─► T-33.2 ─► [T-33.H corpus] ─► T-34.*   T-35.1   T-36.*
+PHASE 5   T-31.1  T-32.*  T-33.1 (golden files)  T-35.1  T-36.*
 ```

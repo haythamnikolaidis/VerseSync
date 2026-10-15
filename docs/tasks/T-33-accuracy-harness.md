@@ -3,8 +3,14 @@
 | | |
 |---|---|
 | **Workstream** | H — Quality |
-| **Unblocks** | T-34 |
+| **Unblocks** | release (T-33.1 is the detection regression guard) |
 | **Spec** | [11-testing.md §3, §4](../11-testing.md) · [00-prd.md §5](../00-prd.md) |
+
+> **Rescoped 2026-10-15 (D24).** Accuracy measurement is **deferred past v1**: there is no
+> capacity to build the labelled corpus, and stakeholders accepted the detection-accuracy risk.
+> **T-33.2 and T-33.H are deferred.** **T-33.1 stays in scope.** It needs no corpus, because it
+> runs on the existing T-41 fixtures, and it's the only regression guard left for detection
+> output once measurement is gone.
 
 ## Goal
 
@@ -42,7 +48,7 @@ and scales unchanged to the full one.
 
 ### T-33.2 · `accuracy_harness.py`: M1, M2, M3, plus diff mode
 
-**Executor** agent · **Size** S · **Prereqs** T-33.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-33.1 · **Status** deferred
 
 - **Read:** [00-prd.md §5](../00-prd.md) (the M1–M3 definitions) · `tests/fixtures/README.md`
   (the label format)
@@ -70,7 +76,7 @@ and scales unchanged to the full one.
 
 ### T-33.H · Build the full corpus
 
-**Executor** human · **Size** — · **Prereqs** T-33.2, T-07.H · **Status** todo
+**Executor** human · **Size** — · **Prereqs** T-33.2, T-07.H · **Status** deferred
 
 - Grow T-41's corpus to the [11 §3](../11-testing.md) specification. Transcribe each sermon
   with the CLI on the GPU workstation. Label every reference following the labelling protocol,

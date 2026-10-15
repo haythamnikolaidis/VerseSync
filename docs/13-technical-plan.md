@@ -194,8 +194,8 @@ Note the collision: **M1–M3 are also the names of the accuracy metrics** in
   Wave 2 as soon as T-21 lands)*
 - **T-35** performance pass · **T-36** install + documentation
 
-**Exit criteria:** the release gates in [11](11-testing.md) §7 — M1 ≥ 90%, M2 ≥ 85%,
-M3 ≥ 90%, NFR-2 measured on the reference workstation, and the Definition of Done in
+**Exit criteria:** the release gates in [11](11-testing.md) §7 (M1–M3 are no longer gated;
+see D24), NFR-2 measured on the reference workstation, and the Definition of Done in
 [README.md](README.md).
 
 ---
@@ -272,7 +272,8 @@ and "Done when" criteria that someone else could verify without asking the autho
 2. Tests written at the level the task file specifies ([11](11-testing.md) §1–2).
 3. CI green.
 4. Any constant that was *tuned* rather than *specified* carries a comment citing the
-   measurement that chose it (this is a release gate — see T-34).
+   measurement that chose it. Since D24 there's no tuning in v1, so a constant **copied from the
+   spec** cites its spec section instead.
 5. If the change touched a contract, §8's protocol was followed.
 
 ### Branching
@@ -346,7 +347,7 @@ cold, in a Linux container, with a limited token budget, it had nine structural 
 |---|---------|------------------------------|--------------------|
 | **E1** | **Tasks are too big.** Six tasks were sized L or XL, T-29 alone was "~1 week", and most M tasks bundled 6–10 steps across several files. | A task can't be finished in one session, and a partial task leaves no recoverable state. | Every remaining task is split into **XS/S subtasks** (≤ ~300 changed lines, one module, ≤ 4 files), each with **Steps** that are individually committable. 33 open tasks became 99 agent subtasks and 11 human ones. |
 | **E2** | **No recovery protocol.** The containers are ephemeral, and nothing said how a new session discovers half-finished work. | Lost work, duplicated work, or a confused restart that burns budget re-deriving state. | [AGENT.md §3](tasks/AGENT.md): push after every Step, commit subjects of the form `T-NN.k [i/n]`, a handoff note in every commit body, and `tools/plan.py next`, which reports START or RESUME from the remote branches. |
-| **E3** | **Human-only work mixed into buildable tasks.** "Done when" items like *"loads in Premiere"*, *"45-minute file on GPU"*, *"clean Windows machine"* or *"real API key"* sat inside otherwise automatable tasks. | The agent could never mark those tasks done, or would be tempted to claim checks it can't run. | Each one is split into an **agent** task (automated evidence) and a **`.H` human** task (real-hardware verification). Human tasks never block agent tasks, except T-34, whose dependency on the corpus is an explicit **Gate**. |
+| **E3** | **Human-only work mixed into buildable tasks.** "Done when" items like *"loads in Premiere"*, *"45-minute file on GPU"*, *"clean Windows machine"* or *"real API key"* sat inside otherwise automatable tasks. | The agent could never mark those tasks done, or would be tempted to claim checks it can't run. | Each one is split into an **agent** task (automated evidence) and a **`.H` human** task (real-hardware verification). Human tasks never block agent tasks. The one exception, T-34's corpus **Gate**, went away when D24 deferred T-34. |
 | **E4** | **The host layer was declared untestable** ([11 §5](11-testing.md)). | Six host tasks with no automated verification at all. | **T-45** builds a fake Premiere DOM that reproduces the *measured* spike behaviour, and `VerseSync.jsx` runs in Node under `vm`. T-30.2 even runs a panel-and-host integration test on it. |
 | **E5** | **Cross-repo dependencies on private code.** About a dozen tasks say "port VerseFlow's X verbatim", but VerseFlow lives in another repo. | The agent either guesses at the ported code or spends budget on cross-repo exploration in every session. | **T-43 / T-44** vendor the exact files into `reference/` once, at a recorded SHA. |
 | **E6** | **Seams within streams left open.** For example, the C→E output shape was to be "agreed in a mid-wave meeting", and the pipeline function that the service and CLI share was unnamed. | Each agent session invents a slightly different interface, and integration fails later. | Cards carry **Interface** blocks: `Word`, `Reference`, `Token`, `BookMatch`, `Candidate`, `Detection`, `Passage`, `Alignment`, `Timing`, `run_pipeline`, and the JS module APIs. The meeting is replaced by the card. |
@@ -384,5 +385,23 @@ phase boundaries are the natural split. Phases 1–2 and phases 3–4 share no f
 
 Eleven `.H` tasks ([10-tasks.md](10-tasks.md#human-tasks)), plus **Q-A** (licensing, inside
 T-15.H) and the merge policy line in [AGENT.md §7](tasks/AGENT.md). None of these block agent
-progress until release, with one exception: **T-34 tuning** can't start until the full corpus
-(T-33.H) exists. Start the corpus early.
+progress until release.
+
+### 11.5 Rescope: no corpus, no tuning in v1 (D24, 2026-10-15)
+
+Because of stakeholder schedule pressure and the lack of annotator capacity, the labelled
+corpus (T-33.H), the accuracy harness (T-33.2) and threshold tuning (T-34) are **deferred**.
+That removes the largest human workload from the plan and the only agent task that was waiting
+on a human (the old T-34 **Gate**). Spec defaults ship as specified, and M1–M3 become targets
+rather than release gates.
+
+The accepted risk is that **detection accuracy, paraphrased scripture especially, is unmeasured
+at release.** That's acceptable because nothing reaches the timeline without passing the
+review list (D4), and a miss costs one manual add. What remains as cheap evidence:
+
+- fixture checks (T-12.4, T-17.3);
+- golden files (T-33.1), so any change in detection output shows up as a reviewable diff;
+- a five-count spot-check during the real Journey A run (T-30.H).
+
+`plan.py` enforces the rescope: `deferred` tasks are never offered, and no active task may
+depend on one.

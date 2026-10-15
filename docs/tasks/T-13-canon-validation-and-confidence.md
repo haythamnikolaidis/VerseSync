@@ -83,7 +83,7 @@ bonus, so the cue builder (T-19.1) assigns it.
 - **Interface:**
   `def score(c: Candidate, validation_score: float) -> float`. Every weight is a module-level
   constant.
-- **Constants** (named exactly like this, because T-34 tunes them): `W_BOOK=0.40`,
+- **Constants** (named exactly like this, so a future tuning pass can find them; tuning is deferred by D24): `W_BOOK=0.40`,
   `W_ASR=0.25`, `W_STRUCTURE=0.25`, `W_VALIDATION=0.10`; `BOOK_EXACT=1.0`, `BOOK_ALIAS=0.85`,
   `BOOK_FUZZY_D1=0.65`, `BOOK_FUZZY_D2=0.55`; `STRUCT_VERSE=1.0`, `STRUCT_RANGE=0.75`,
   `STRUCT_CHAPTER=0.55`, `STRUCT_CONTEXT=0.45`. A contextual candidate scores `STRUCT_CONTEXT`
@@ -130,4 +130,4 @@ bonus, so the cue builder (T-19.1) assigns it.
 
 - Don't discard low-confidence cues. The review list exists to decide those.
 - The +0.10 corroboration bonus belongs to T-18, not here.
-- The tuning pass is **T-34**, not T-31.
+- There's no tuning pass in v1 (D24). The constants ship as specified, so copy them exactly.

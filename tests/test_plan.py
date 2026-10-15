@@ -83,6 +83,19 @@ def test_validate_catches_order_unknown_and_cycles(tmp_path: Path) -> None:
     assert "queue order" in errors
 
 
+def test_deferred_tasks_are_excluded_and_guarded(tmp_path: Path) -> None:
+    p = mini_plan(tmp_path, "| 1 | T-02.1 |\n| 2 | T-02.H |\n| 3 | T-03 |\n")
+    p.tasks["T-03"].status = "deferred"
+    errors = "\n".join(plan.validate(p))
+    assert "deferred tasks don't belong in the execution queue" in errors
+    p.queue.remove("T-03")
+    assert plan.validate(p) == []
+    p.tasks["T-02.1"].status = "deferred"
+    p.queue.remove("T-02.1")
+    assert "T-02.H: depends on deferred task T-02.1" in "\n".join(plan.validate(p))
+    assert all(t.status != "deferred" for t in plan.ready(p, "agent"))
+
+
 def test_queue_takes_first_id_per_row() -> None:
     text = "## Execution queue\n| 1 | [T-05.1](x) | uses T-44 | T-44 |\n| 2 | T-44 |\n"
     assert plan.parse_queue(text) == ["T-05.1", "T-44"]

@@ -13,7 +13,8 @@ A task is any heading (`# T-NN · …` or `### T-NN.k · …`) followed by a sta
     **Executor** agent · **Size** S · **Prereqs** T-10.3, T-11.1 · **Status** todo
 
 An epic heading without its own status line is not a task; listing an epic ID as a prereq
-means "every subtask of that epic is done".
+means "every subtask of that epic is done". A `deferred` task is out of scope for now: it is
+never offered, stays out of the queue, and no active task may depend on it.
 """
 
 from __future__ import annotations
@@ -33,11 +34,11 @@ ID = r"T-\d+(?:\.[0-9A-Z]+)?"
 HEADING_RE = re.compile(rf"^(#|###) ({ID}) · (.+)$")
 STATUS_RE = re.compile(
     r"^\*\*Executor\*\* (agent|human) · \*\*Size\*\* (\S+) · "
-    r"\*\*Prereqs\*\* (.+?) · \*\*Status\*\* (todo|in-progress|blocked|done)\s*$"
+    r"\*\*Prereqs\*\* (.+?) · \*\*Status\*\* (todo|in-progress|blocked|deferred|done)\s*$"
 )
 ID_RE = re.compile(ID)
 SUBJECT_RE = re.compile(rf"^({ID}) \[([^\]]+)\]")
-STATUSES = ("todo", "in-progress", "blocked", "done")
+STATUSES = ("todo", "in-progress", "blocked", "deferred", "done")
 
 
 @dataclass
@@ -163,8 +164,14 @@ def validate(plan: Plan) -> list[str]:
         if task_id not in plan.tasks:
             errors.append(f"queue lists unknown task {task_id}")
     for task in plan.tasks.values():
-        if task.status == "done":
+        if task.status in ("done", "deferred"):
+            if task.status == "deferred" and task.id in position:
+                errors.append(f"{task.id}: deferred tasks don't belong in the execution queue")
             continue
+        for prereq in task.prereqs:
+            for dep in expand(plan, prereq):
+                if dep in plan.tasks and plan.tasks[dep].status == "deferred":
+                    errors.append(f"{task.id}: depends on deferred task {dep}")
         if task.id not in position:
             errors.append(f"{task.id}: not in the execution queue in docs/10-tasks.md")
             continue

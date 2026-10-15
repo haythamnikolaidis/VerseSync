@@ -120,7 +120,8 @@ numbers.
 - **Verify:** `pytest tests/test_align_corpus.py -q`
 - **Done when:**
   - [ ] The distributions are documented, and any overlap between them is stated with the data.
-        Don't move the threshold here. Retuning belongs to T-34.
+        Don't move the threshold here. v1 ships 0.55 as specified (D24); the table is the
+        evidence for a future tuning pass.
   - [ ] The performance bound holds.
 
 ## Traps

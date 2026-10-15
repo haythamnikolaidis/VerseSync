@@ -90,6 +90,18 @@ select media, Analyse, review, Insert, and check that the graphics land at the r
 and that **one Ctrl+Z** removes the batch. Record the results in
 `docs/qa/journey-a.md`. This is the old **Wave 2 exit criterion**.
 
+**Accuracy spot-check (it replaces measurement for v1; D24).** While reviewing, write down five
+counts:
+
+- cues surfaced;
+- cues unchecked because they were wrong;
+- references added by hand because they were missed;
+- cues whose anchor was visibly off;
+- cues whose reference had to be edited.
+
+This takes no annotation protocol and no extra session, and gives a first rough read on
+precision, recall and review burden (M5). Record the counts in `docs/qa/journey-a.md`.
+
 ## Traps
 
 - Sort before sending. An unsorted payload means this task has a bug, not the host.

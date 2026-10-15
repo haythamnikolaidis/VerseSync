@@ -33,6 +33,7 @@ rediscovered.
 | D21 | Panel → sidecar transport | **Node's `http` module** (CEP `--enable-nodejs --mixed-context`), with an explicit `Origin: cep://com.versesync.panel` header. Not XHR or EventSource. | A `file://` CEP page sending `Authorization` triggers a CORS preflight, which neither the mock nor the spec handles. The launch needs `child_process` anyway, and the same transport runs unchanged in Node tests. A browser page can't forge `Origin`, so the allowlist still protects the sidecar. | Low. Confined to `sidecar.js`'s transport. Verified in **T-22.H**. |
 | D22 | How the panel gets `transcript.words_ref` | **`GET /jobs/{id}/transcript`** for job results. For a document on disk, resolve it as a sibling file relative to the document. *Save cue document* writes the sibling too. | 07 §5.1 said the panel "fetches" the sibling but defined no endpoint or resolution rule, which left the expanded row's transcript context unbuildable. | Low. Additive endpoint, API stays 1.0. Implemented by **T-50**. |
 | D23 | Verse-count authority for the canon table | **KJV**, derived from the bundled public-domain text (T-09.1). | One source for both canon validation (T-13) and the local provider (T-14) means a verse can never be rejected by one and served by the other. | Low. Regenerate `canon.json` from a different text. |
+| D24 | Accuracy measurement and threshold tuning | **Deferred past v1.** No labelled corpus beyond T-41's bootstrap fixtures, no accuracy harness, no tuning pass (T-33.2, T-33.H and T-34 are deferred). Spec-default constants ship as specified. M1–M3 are targets, not release gates. T-33.1 golden files stay, as the regression guard. | Stakeholder schedule pressure, and no annotator capacity. The largest known accuracy gap is narrative paraphrase with no lexical overlap, about 31% of mentions in T-02 (D19). No amount of tuning reaches it; the review list (D4) and manual add are the backstop. **Accepted risk:** v1 ships with recall, precision and anchor accuracy unmeasured. | Low technically: the constants are named, the CLI and golden files exist, and reinstating the deferred tasks needs no redesign. The cost is the annotation effort itself. |
 
 ---
 
@@ -89,8 +90,11 @@ on the grammar covering how preachers actually speak. Recall and precision are t
   three-tier book matcher with the number-follows gate; canon validation, which removes a large
   share of false positives at no cost; and structurally, **D4's review list**, which converts a
   detection error into a checkbox rather than a published mistake.
-- **Action:** the corpus ([11](11-testing.md) §3) is a **deliverable built during M2**, not an
-  M5 afterthought. T-33/T-34 tune against it and the metrics gate the release.
+- **Action (revised by D24, 2026-10-15):** the corpus and tuning are **deferred past v1**, and
+  this risk is **accepted** for v1, with the paraphrase gap as its largest known component.
+  The residual signals are T-41's fixture checks, the golden files (T-33.1), the Journey A
+  spot-check (T-30.H), and editors' review edits in production. Reinstate T-33.2, T-33.H and
+  T-34 if editors report heavy correction loads.
 
 ### R-3 — ExtendScript end-of-support (~September 2026) 🔴 High / strategic *(inherited)*
 
@@ -271,10 +275,10 @@ The real edit does also use nested sequences and multicam clips (for
 graphics/B-roll, not the primary audio), and speed changes — all
 characterised by the same spike; no merged clips in this workflow.
 
-### Q-E — Confidence threshold for the amber flag 🟢 Resolves during tuning
+### Q-E — Confidence threshold for the amber flag ✅ Closed for v1 by D24
 
-Specified at 0.55, chosen to be tuned (T-34). Not a decision anyone needs to make in advance —
-the corpus decides it.
+Specified at 0.55, originally to be tuned by T-34. Tuning is deferred (D24), so **0.55 ships
+as specified**. Revisit it if editors find the amber flag too noisy or too quiet.
 
 ---
 

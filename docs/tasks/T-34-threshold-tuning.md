@@ -7,6 +7,11 @@
 | **Spec** | [04 §6](../04-reference-detection.md) · [05 §4.2](../05-timing-and-placement.md) · [00-prd.md §5](../00-prd.md) |
 | **Gate** | Needs the full corpus from **T-33.H**, a human task. |
 
+> **Deferred past v1 (D24, 2026-10-15).** There's no corpus to tune against, so v1 ships the
+> constants **as specified** in [04 §6](../04-reference-detection.md) and
+> [05 §2](../05-timing-and-placement.md). They stay named module-level constants (T-13.2,
+> T-17.1), so reinstating this epic later needs no redesign. Don't start it.
+
 ## Goal
 
 Replace every guessed constant with a measured one, and hit the release metrics:
@@ -16,7 +21,7 @@ Replace every guessed constant with a measured one, and hit the release metrics:
 
 ### T-34.1 · Sweep tooling and report
 
-**Executor** agent · **Size** S · **Prereqs** T-33.2, T-33.H · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-33.2, T-33.H · **Status** deferred
 
 - **Read:** [04 §6](../04-reference-detection.md) · [05 §4.2](../05-timing-and-placement.md) ·
   the constants in `detect/confidence.py`, `detect/detector.py` and `timing/align.py` (grep for
@@ -46,7 +51,7 @@ Replace every guessed constant with a measured one, and hit the release metrics:
 
 ### T-34.2 · Apply the tuned constants
 
-**Executor** agent · **Size** S · **Prereqs** T-34.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-34.1 · **Status** deferred
 
 - **Read:** `docs/qa/tuning-results.md`
 - **Touches:** `sidecar/versesync/detect/{confidence,detector,fuzzy}.py` ·

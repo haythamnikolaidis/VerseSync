@@ -245,5 +245,8 @@ or a person's judgement. Agents never pick them up. They exist so that:
 - a release can't ship until a human has done the real-hardware checks
   ([11 §7](../11-testing.md)).
 
-A human task blocks an agent task only where the card says **Gate**. For example, T-34 tuning
-needs the full corpus from T-33.H.
+A human task blocks an agent task only where the card says **Gate**. There are no active gates
+since D24 deferred the corpus and tuning work.
+
+**Deferred tasks** (`**Status** deferred`) are out of scope for now. `plan.py` never offers
+them. Don't start one, and don't add an active task that depends on one.
