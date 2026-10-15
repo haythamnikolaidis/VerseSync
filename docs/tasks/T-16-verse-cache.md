@@ -1,6 +1,6 @@
 # T-16 · Verse cache
 
-**Executor** agent · **Size** S · **Prereqs** T-14.3, T-05.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-14.3, T-05.1 · **Status** in-progress
 
 | | |
 |---|---|
