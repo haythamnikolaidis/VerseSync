@@ -5,7 +5,13 @@ from __future__ import annotations
 import re
 
 from versesync.detect.canon import load_canon
-from versesync.detect.grammar import Candidate, build_view, find_books, find_candidates
+from versesync.detect.grammar import (
+    Candidate,
+    GrammarConfig,
+    build_view,
+    find_books,
+    find_candidates,
+)
 from versesync.detect.normalize import normalize
 from versesync.detect.types import Token
 from versesync.types import Word
@@ -244,6 +250,122 @@ def test_p10_without_verse_is_chapter_only_three_phrasings():
     ]
 
 
+# --- P11/P12: context carry ------------------------------------------------------------------
+
+
+def ref_then_fragment(gap_words: int, fragment: str, step: float = 0.1) -> list[Candidate]:
+    """"john 3:16", ``gap_words`` filler words, then ``fragment``; words ``step`` seconds apart."""
+    text = " ".join(["john 3 : 16"] + ["blah"] * gap_words + [fragment])
+    glued = re.sub(r"(?<=\d) ([:\-]) (?=\d)", r"\1", text)
+    ws = [
+        Word(text=w, start=step * i, end=step * i + step / 2, probability=1.0)
+        for i, w in enumerate(glued.split())
+    ]
+    return find_candidates(normalize(ws, CANON), CANON)
+
+
+def at_seconds(fragment_start: float, fragment: str) -> list[Candidate]:
+    """"john 3:16" ending at exactly 1.0 s, then ``fragment`` starting at ``fragment_start``."""
+    ws = [Word("john", 0.0, 0.5, 1.0), Word("3:16", 0.5, 1.0, 1.0)]
+    ws += [
+        Word(w, fragment_start + 0.5 * i, fragment_start + 0.5 * i + 0.4, 1.0)
+        for i, w in enumerate(fragment.split())
+    ]
+    return find_candidates(normalize(ws, CANON), CANON)
+
+
+def test_p12_verse_inherits_book_and_chapter_inside_the_window():
+    found = find("john 3 : 16 and also verse 5", start=10.0)
+    assert [fields(c) for c in found] == [("John", 3, 16, None, "P2"), ("John", 3, 5, None, "P12")]
+    carried = found[1]
+    assert carried.contextual is True
+    assert found[0].contextual is False
+    assert carried.book_match is found[0].book_match
+    assert carried.token_span == (6, 7)  # just "verse 5"
+    assert carried.verse_end is None
+
+
+def test_p11_verse_range_inherits_book_and_chapter_three_phrasings():
+    assert [fields(c) for c in find("romans 8 verses 19 through 20")] == [
+        ("Rom", 8, None, None, "P9"),
+        ("Rom", 8, 19, 20, "P11"),
+    ]
+    assert [fields(c) for c in find("romans 8 verse 19 to 20")][1] == ("Rom", 8, 19, 20, "P11")
+    assert [fields(c) for c in find("romans 8 verses 19 and 20")][1] == ("Rom", 8, 19, 20, "P11")
+    assert [fields(c) for c in find("romans 8 verses 19 - 20")][1] == ("Rom", 8, 19, 20, "P11")
+
+
+def test_p11_takes_the_range_before_p12_can_take_its_first_verse():
+    found = find("john 3 : 16 verses 19 through 20")
+    assert [c.pattern for c in found] == ["P2", "P11"]
+
+
+def test_fragment_inside_a_full_reference_is_not_a_second_candidate():
+    assert [c.pattern for c in find("john chapter 3 verse 16")] == ["P4"]
+    assert [c.pattern for c in find("the third chapter of john , verse 16")] == ["P10"]
+
+
+def test_fragment_with_nothing_before_it_is_dropped():
+    assert find("verse 5") == []
+
+
+def test_carry_works_at_exactly_the_time_bound():
+    # "john 3:16" ends at 1.0 s; a fragment starting at 121.0 s is exactly 120 s later.
+    assert [c.pattern for c in at_seconds(121.0, "verse 5")] == ["P2", "P12"]
+
+
+def test_carry_is_dropped_past_120_seconds():
+    assert [c.pattern for c in at_seconds(122.0, "verse 5")] == ["P2"]  # 121 s later
+
+
+def test_carry_is_dropped_past_the_token_bound_even_within_120_seconds():
+    # 0.1 s per word keeps every case far inside 120 s, so only the token bound can drop it.
+    # Token distance is the fragment's first token minus the reference's last token.
+    assert [c.pattern for c in ref_then_fragment(399, "verse 5")] == ["P2", "P12"]  # 400
+    dropped = ref_then_fragment(400, "verse 5")  # 401
+    assert [c.pattern for c in dropped] == ["P2"]
+    assert dropped[0].source_end < 60.0
+
+
+def test_the_time_and_token_bounds_are_independent():
+    # Few tokens but too long a gap: dropped by time alone.
+    assert [c.pattern for c in at_seconds(500.0, "verse 5")] == ["P2"]
+    # A tight config makes each bound alone drop a fragment the other would allow.
+    tight_time = GrammarConfig(context_window_s=0.5, context_window_tokens=400)
+    tight_tokens = GrammarConfig(context_window_s=120.0, context_window_tokens=1)
+    ws = words("john 3 : 16 and verse 5")
+    tokens = normalize(ws, CANON)
+    assert [c.pattern for c in find_candidates(tokens, CANON, tight_time)] == ["P2"]
+    assert [c.pattern for c in find_candidates(tokens, CANON, tight_tokens)] == ["P2"]
+    assert [c.pattern for c in find_candidates(tokens, CANON)] == ["P2", "P12"]
+
+
+def test_carry_comes_from_the_most_recent_book_not_an_earlier_one():
+    found = find("romans 8 and then john 3 and now verse 16")
+    assert [fields(c) for c in found] == [
+        ("Rom", 8, None, None, "P9"),
+        ("John", 3, None, None, "P9"),
+        ("John", 3, 16, None, "P12"),
+    ]
+    assert found[2].book_match is found[1].book_match
+
+
+def test_carry_never_chains_through_another_carried_fragment():
+    # Both fragments carry from the full reference, not the first fragment.
+    found = find("john 3 : 16 then verse 5 and verse 9")
+    assert [(c.pattern, c.verse) for c in found] == [("P2", 16), ("P12", 5), ("P12", 9)]
+    assert found[1].book_match is found[0].book_match is found[2].book_match
+
+
+def test_carry_only_looks_at_the_most_recent_reference_even_when_it_is_stale():
+    # The earlier reference is in range but the nearer one is out: the nearer one still decides.
+    ws = [Word("romans", 0.0, 0.5, 1.0), Word("8", 0.5, 1.0, 1.0)]
+    ws += [Word("john", 100.0, 100.5, 1.0), Word("3", 100.5, 101.0, 1.0)]
+    ws += [Word("verse", 230.0, 230.4, 1.0), Word("5", 230.5, 230.9, 1.0)]
+    found = find_candidates(normalize(ws, CANON), CANON)
+    assert [c.pattern for c in found] == ["P9", "P9"]  # 129 s after John, 229 s after Romans
+
+
 # --- Priority ---------------------------------------------------------------------------------
 
 
@@ -251,6 +373,12 @@ def test_priority_order_is_p1_to_p10():
     from versesync.detect.grammar import PATTERNS
 
     assert [p.name for p in PATTERNS] == [f"P{n}" for n in range(1, 11)]
+
+
+def test_context_patterns_come_after_every_full_pattern_in_priority():
+    from versesync.detect.grammar import CONTEXT_PATTERNS
+
+    assert [p.name for p in CONTEXT_PATTERNS] == ["P11", "P12"]
 
 
 def test_higher_priority_pattern_wins_when_several_could_match():
