@@ -227,8 +227,54 @@ PATTERNS: tuple[Pattern, ...] = (
 )
 
 
+@dataclass(frozen=True)
+class ContextPattern:
+    """A bare verse fragment (P11, P12); the book and chapter come from an earlier reference."""
+
+    name: str
+    regex: re.Pattern[str]
+    build: Callable[[re.Match[str]], tuple[int, int | None]]  # (verse, verse_end)
+
+
+# Tried after every full pattern, so a fragment inside a full reference is already consumed.
+CONTEXT_PATTERNS: tuple[ContextPattern, ...] = (
+    ContextPattern(
+        "P11",
+        _compile(rf"verses? (?P<v>\d+) {_RANGE} (?P<ve>\d+)"),
+        lambda m: (_int(m, "v"), _int(m, "ve")),
+    ),
+    ContextPattern(
+        "P12",
+        _compile(r"verse (?P<v>\d+)"),
+        lambda m: (_int(m, "v"), None),
+    ),
+)
+
+
 def _consumed(flags: Sequence[bool], first: int, last: int) -> bool:
     return any(flags[first : last + 1])
+
+
+def _scan(
+    regex: re.Pattern[str], view: GrammarView, consumed: list[bool]
+) -> list[tuple[re.Match[str], tuple[int, int]]]:
+    """Every match of ``regex`` that overlaps no consumed view token; marks them consumed."""
+    found: list[tuple[re.Match[str], tuple[int, int]]] = []
+    text = view.search.text
+    pos = 0
+    while True:
+        match = regex.search(text, pos)
+        if match is None:
+            return found
+        v_first, v_last = view.search.token_span(*match.span())
+        if _consumed(consumed, v_first, v_last):
+            # Retry one character on: a later, non-overlapping match may still exist.
+            pos = match.start() + 1
+            continue
+        for k in range(v_first, v_last + 1):
+            consumed[k] = True
+        found.append((match, (v_first, v_last)))
+        pos = match.end()
 
 
 def find_candidates(
@@ -238,41 +284,78 @@ def find_candidates(
 
     The grammar does no canon validation; that is stage 3's job (docs/04 section 5).
     """
-    del cfg  # the context window applies to P11/P12 only
     view = build_view(tokens, find_books(tokens, canon))
     consumed = [False] * len(view.tokens)
     out: list[Candidate] = []
-    text = view.search.text
     for pattern in PATTERNS:
-        pos = 0
-        while True:
-            match = pattern.regex.search(text, pos)
-            if match is None:
-                break
-            v_first, v_last = view.search.token_span(*match.span())
-            if _consumed(consumed, v_first, v_last):
-                # Retry one character on: a later, non-overlapping match may still exist.
-                pos = match.start() + 1
-                continue
-            for k in range(v_first, v_last + 1):
-                consumed[k] = True
-            out.append(_candidate(pattern, match, view, tokens, (v_first, v_last)))
-            pos = match.end()
+        for match, view_span in _scan(pattern.regex, view, consumed):
+            fields = pattern.build(match)
+            out.append(
+                _candidate(
+                    tokens,
+                    view,
+                    view_span,
+                    pattern.name,
+                    view.books[int(match.group("b"))],
+                    fields,
+                    contextual=False,
+                )
+            )
+    full = sorted(out, key=lambda c: c.token_span)
+    for ctx in CONTEXT_PATTERNS:
+        for match, view_span in _scan(ctx.regex, view, consumed):
+            first = view.spans[view_span[0]][0]
+            source = _carry_source(full, tokens, first, cfg)
+            if source is None:
+                continue  # outside the context window: the fragment is discarded
+            verse, verse_end = ctx.build(match)
+            out.append(
+                _candidate(
+                    tokens,
+                    view,
+                    view_span,
+                    ctx.name,
+                    source.book_match,
+                    Fields(source.chapter, verse, verse_end),
+                    contextual=True,
+                )
+            )
     out.sort(key=lambda c: (c.source_start, c.token_span))
     return out
 
 
+def _carry_source(
+    full: Sequence[Candidate], tokens: Sequence[Token], first: int, cfg: GrammarConfig
+) -> Candidate | None:
+    """The most recent full reference before token ``first``, if it is inside the window.
+
+    The window is "120 seconds or 400 tokens, whichever is shorter" (docs/04 section 4), so both
+    bounds must hold. Only the most recent reference is considered: if it is out of range, an
+    earlier one is further out still, and carrying from it would attach to the wrong passage.
+    """
+    previous = [c for c in full if c.token_span[1] < first]
+    if not previous:
+        return None
+    source = max(previous, key=lambda c: c.token_span[1])
+    if tokens[first].start - source.source_end > cfg.context_window_s:
+        return None
+    if first - source.token_span[1] > cfg.context_window_tokens:
+        return None
+    return source
+
+
 def _candidate(
-    pattern: Pattern,
-    match: re.Match[str],
-    view: GrammarView,
     tokens: Sequence[Token],
+    view: GrammarView,
     view_span: tuple[int, int],
+    pattern: str,
+    book_match: BookMatch,
+    fields: Fields,
+    *,
+    contextual: bool,
 ) -> Candidate:
     first = view.spans[view_span[0]][0]
     last = view.spans[view_span[1]][1]
-    book_match = view.books[int(match.group("b"))]
-    fields = pattern.build(match)
     start, end = seconds(tokens, first, last)
     covered = tokens[first : last + 1]
     return Candidate(
@@ -280,8 +363,8 @@ def _candidate(
         chapter=fields.chapter,
         verse=fields.verse,
         verse_end=fields.verse_end,
-        pattern=pattern.name,
-        contextual=False,
+        pattern=pattern,
+        contextual=contextual,
         book_match=book_match,
         token_span=(first, last),
         word_span=word_span(tokens, first, last),
