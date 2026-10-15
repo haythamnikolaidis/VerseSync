@@ -65,7 +65,7 @@ The mock accepts any non-empty Origin, so the contract tests (T-42) send this va
 
 ### T-05.2 · Lock file
 
-**Executor** agent · **Size** S · **Prereqs** T-05.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-05.1 · **Status** in-progress
 
 - **Read:** [07 §1.1](../07-sidecar-api.md) · `tools/mock_sidecar.py` (the lock-file functions
   only; grep for `lock`)
