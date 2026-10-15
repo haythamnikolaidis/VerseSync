@@ -96,7 +96,7 @@ The fake has to reproduce the **spike findings**, not ideal behaviour:
      visible through `track.overlaps()`. Commit.
 - **Verify:** `node --test tests/host/fake-premiere.test.js`
 - **Done when:**
-  - [ ] `importMGT` overwrite/trim matches T-03's single-overlap case in a test.
+  - [x] `importMGT` overwrite/trim matches T-03's single-overlap case in a test.
   - [x] `fontTextRunLength` and `textEditValue` written through `setValue` can be read back.
   - [x] An undo-group imbalance can be detected.
   - [x] An out-of-range track access is uncatchable by script `try`/`catch`. A test shows the
