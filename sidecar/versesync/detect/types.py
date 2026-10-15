@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from versesync.detect.canon import Book
+
 
 @dataclass(frozen=True)
 class Token:
@@ -16,3 +18,14 @@ class Token:
     start: float  # seconds, from the first source word
     end: float  # seconds, from the last source word
     prob: float  # min probability across source words
+
+
+@dataclass(frozen=True)
+class BookMatch:
+    """A book name found in the token stream (docs/04-reference-detection.md section 4.1)."""
+
+    book: Book
+    tier: str  # 'exact' | 'alias' | 'fuzzy'
+    distance: int  # 0 for exact/alias
+    first: int  # inclusive token indices consumed, including any ordinal prefix
+    last: int
