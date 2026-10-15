@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://versesync.internal/schemas/cue-document.schema.json",
+  "title": "VerseSync Cue Document",
+  "description": "The sidecar's output, the panel's input, and the on-disk save format (FR-6.8). See docs/07-sidecar-api.md §5. All times are source seconds, never sequence ticks.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "generated_at", "job", "translation", "transcript", "cues", "warnings"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0",
+      "description": "major.minor. Per docs/07-sidecar-api.md §5.2: a reader accepts any matching major and warns on a newer minor; a major mismatch is refused with an explanation rather than a parse error."
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "job": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "media_path", "media_hash", "media_duration_s", "model", "quantization", "device", "language", "options"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "media_path": { "type": "string", "minLength": 1 },
+        "media_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]+$" },
+        "media_duration_s": { "type": "number", "minimum": 0 },
+        "model": { "type": "string", "minLength": 1 },
+        "quantization": { "type": "string", "minLength": 1 },
+        "device": { "type": "string", "enum": ["cuda", "cpu"] },
+        "language": { "type": "string", "minLength": 1 },
+        "options": { "type": "object" }
+      }
+    },
+    "translation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "abbreviation", "name", "attribution"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "abbreviation": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "attribution": { "type": "string" }
+      }
+    },
+    "transcript": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["word_count", "words_ref"],
+      "properties": {
+        "word_count": { "type": "integer", "minimum": 0 },
+        "words_ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "cues": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/cue" }
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/warning" }
+    }
+  },
+  "$defs": {
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["book", "osis", "chapter"],
+      "properties": {
+        "book": { "type": "string", "minLength": 1 },
+        "osis": { "type": "string", "minLength": 1 },
+        "chapter": { "type": "integer", "minimum": 1 },
+        "verse": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Absent for a chapter-only reference (D12) — flagged chapter_only and disabled by default, never auto-expanded."
+        },
+        "verse_end": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "detection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pattern", "contextual", "book_match", "token_span", "word_span"],
+      "properties": {
+        "pattern": {
+          "type": "string",
+          "enum": ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10", "P11", "P12"],
+          "description": "Grammar pattern from docs/04-reference-detection.md §4. P11/P12 are context-carried (verse-only) matches."
+        },
+        "contextual": {
+          "type": "boolean",
+          "description": "True when the reference was carried from a preceding mention (P11/P12) rather than naming its own book/chapter."
+        },
+        "book_match": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tier", "distance"],
+          "properties": {
+            "tier": { "type": "string", "enum": ["exact", "alias", "fuzzy"] },
+            "distance": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "token_span": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0 },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "word_span": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0 },
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "alternative": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reference", "reference_display", "body", "confidence"],
+      "properties": {
+        "reference": { "$ref": "#/$defs/reference" },
+        "reference_display": { "type": "string", "minLength": 1 },
+        "body": { "type": "string" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "reason": {
+          "type": "string",
+          "description": "Short human-readable note on why this competed, e.g. the Psalms concatenation ambiguity (docs/04-reference-detection.md §3.1)."
+        }
+      }
+    },
+    "flag": {
+      "type": "string",
+      "enum": [
+        "low_confidence",
+        "overlap",
+        "truncated",
+        "long_passage",
+        "text_unavailable",
+        "passage_not_found",
+        "chapter_only",
+        "suppressed_duplicate",
+        "cut_from_edit",
+        "multiple_placements",
+        "speed_change_unsupported"
+      ],
+      "description": "The review list's colour source (docs/07-sidecar-api.md §5.1). cut_from_edit, multiple_placements and speed_change_unsupported are added by the panel after source->sequence mapping; the sidecar never emits them."
+    },
+    "cue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "enabled", "origin",
+        "reference", "reference_display", "body", "body_word_count", "body_truncated",
+        "source_anchor_s", "source_duration_s", "mention_start_s", "mention_end_s",
+        "classification", "confidence", "snippet", "flags", "alternatives"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "enabled": { "type": "boolean" },
+        "origin": {
+          "type": "string",
+          "enum": ["detected", "manual", "edited"],
+          "description": "Manual cues have no detection block, a confidence of 1.0, and their anchor supplied by the editor."
+        },
+        "reference": { "$ref": "#/$defs/reference" },
+        "reference_display": { "type": "string", "minLength": 1 },
+        "body": { "type": "string" },
+        "body_word_count": { "type": "integer", "minimum": 0 },
+        "body_truncated": { "type": "boolean" },
+        "source_anchor_s": { "type": "number", "minimum": 0 },
+        "source_duration_s": { "type": "number", "minimum": 0 },
+        "mention_start_s": { "type": "number", "minimum": 0 },
+        "mention_end_s": { "type": "number", "minimum": 0 },
+        "classification": { "type": "string", "enum": ["read", "paraphrase"] },
+        "read_coverage": { "type": "number", "minimum": 0, "maximum": 1 },
+        "read_start_s": { "type": "number", "minimum": 0 },
+        "read_end_s": { "type": "number", "minimum": 0 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "detection": { "$ref": "#/$defs/detection" },
+        "snippet": { "type": "string" },
+        "flags": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/flag" }
+        },
+        "alternatives": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/alternative" }
+        }
+      }
+    },
+    "warning": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message"],
+      "properties": {
+        "code": { "type": "string", "minLength": 1 },
+        "message": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

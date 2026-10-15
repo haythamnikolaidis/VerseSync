@@ -3,10 +3,10 @@ name = "versesync"
 version = "0.1.0"
 description = "Automatic scripture-reference detection and timing for Premiere Pro"
 requires-python = ">=3.11,<3.14"
-dependencies = ["jellyfish>=1.0", "PyYAML>=6"]
+dependencies = ["jellyfish>=1.0", "PyYAML>=6", "jsonschema>=4.18"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11", "jsonschema>=4.18"]
+dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11"]
 
 [build-system]
 requires = ["setuptools>=68"]
@@ -14,6 +14,9 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["sidecar"]
+
+[tool.setuptools.package-data]
+versesync = ["data/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
