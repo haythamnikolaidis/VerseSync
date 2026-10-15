@@ -137,7 +137,7 @@ job.
 
 ### T-12.4 · Psalms concatenation, chapter-only, and the bootstrap corpus check
 
-**Executor** agent · **Size** S · **Prereqs** T-12.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-12.3 · **Status** in-progress
 
 - **Read:** [04 §3.1](../04-reference-detection.md) (the first bullet) ·
   `tests/fixtures/README.md` (the label format only) · `tests/fixtures/cue-documents/alternatives.json`
