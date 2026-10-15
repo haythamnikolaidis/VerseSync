@@ -1,4 +1,5 @@
 """Checks on the bundled public-domain KJV text."""
+
 from __future__ import annotations
 
 import gzip
@@ -10,7 +11,11 @@ import pytest
 
 KJV_PATH = (
     Path(__file__).resolve().parent.parent
-    / "sidecar" / "versesync" / "bible" / "data" / "kjv.json.gz"
+    / "sidecar"
+    / "versesync"
+    / "bible"
+    / "data"
+    / "kjv.json.gz"
 )
 
 

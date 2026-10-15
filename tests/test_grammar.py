@@ -206,9 +206,7 @@ def test_p6_comma_verse_range_three_phrasings():
 def test_p7_comma_verse_three_phrasings():
     assert [fields(c) for c in find("john 3 , 16", start=10.0)] == [("John", 3, 16, None, "P7")]
     assert [fields(c) for c in find("john 3, 16")] == [("John", 3, 16, None, "P7")]
-    assert [fields(c) for c in find("second timothy two, fifteen")] == [
-        ("2Tim", 2, 15, None, "P7")
-    ]
+    assert [fields(c) for c in find("second timothy two, fifteen")] == [("2Tim", 2, 15, None, "P7")]
 
 
 def test_p8_bare_numbers_split_chapter_and_verse_three_phrasings():
@@ -326,7 +324,7 @@ def test_every_chapter_only_form_has_no_verse_and_no_verse_end():
 
 
 def ref_then_fragment(gap_words: int, fragment: str, step: float = 0.1) -> list[Candidate]:
-    """"john 3:16", ``gap_words`` filler words, then ``fragment``; words ``step`` seconds apart."""
+    """ "john 3:16", ``gap_words`` filler words, then ``fragment``; words ``step`` seconds apart."""
     text = " ".join(["john 3 : 16"] + ["blah"] * gap_words + [fragment])
     glued = re.sub(r"(?<=\d) ([:\-]) (?=\d)", r"\1", text)
     ws = [
@@ -337,7 +335,7 @@ def ref_then_fragment(gap_words: int, fragment: str, step: float = 0.1) -> list[
 
 
 def at_seconds(fragment_start: float, fragment: str) -> list[Candidate]:
-    """"john 3:16" ending at exactly 1.0 s, then ``fragment`` starting at ``fragment_start``."""
+    """ "john 3:16" ending at exactly 1.0 s, then ``fragment`` starting at ``fragment_start``."""
     ws = [Word("john", 0.0, 0.5, 1.0), Word("3:16", 0.5, 1.0, 1.0)]
     ws += [
         Word(w, fragment_start + 0.5 * i, fragment_start + 0.5 * i + 0.4, 1.0)

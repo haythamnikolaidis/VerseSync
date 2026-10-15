@@ -35,9 +35,7 @@ def base_url() -> Iterator[str]:
         thread.join(timeout=5)
 
 
-def request(
-    url: str, method: str = "GET", body: dict[str, Any] | None = None
-) -> tuple[int, Any]:
+def request(url: str, method: str = "GET", body: dict[str, Any] | None = None) -> tuple[int, Any]:
     data = json.dumps(body).encode("utf-8") if body is not None else None
     headers = dict(HEADERS)
     if data is not None:

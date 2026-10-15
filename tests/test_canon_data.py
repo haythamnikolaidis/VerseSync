@@ -1,4 +1,5 @@
 """Checks on the generated canon table."""
+
 from __future__ import annotations
 
 import importlib.util
@@ -70,13 +71,23 @@ def test_spoken_forms(canon: list[dict]) -> None:
 
 
 def test_numbered_books_have_all_ordinal_forms(canon: list[dict]) -> None:
-    bases = {"samuel", "kings", "chronicles", "corinthians", "thessalonians",
-             "timothy", "peter", "john"}
+    bases = {
+        "samuel",
+        "kings",
+        "chronicles",
+        "corinthians",
+        "thessalonians",
+        "timothy",
+        "peter",
+        "john",
+    }
     numbered = [b for b in canon if b["numbered"]]
     assert {b["base"] for b in numbered} == bases
-    forms = {1: ["1", "first", "1st", "i", "one"],
-             2: ["2", "second", "2nd", "ii", "two"],
-             3: ["3", "third", "3rd", "iii", "three"]}
+    forms = {
+        1: ["1", "first", "1st", "i", "one"],
+        2: ["2", "second", "2nd", "ii", "two"],
+        3: ["3", "third", "3rd", "iii", "three"],
+    }
     for b in numbered:
         for prefix in forms[b["ordinal"]]:
             assert f"{prefix} {b['base']}" in b["aliases"], (b["osis"], prefix)
