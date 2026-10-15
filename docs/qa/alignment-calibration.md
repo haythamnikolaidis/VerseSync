@@ -70,3 +70,10 @@ With 11 measurements, 2 of them paraphrases, this is far too small to choose a t
 misclassifications are recorded in `KNOWN_MISCLASSIFIED` with their reasons, and the test fails
 if either starts matching its label, so a future change that fixes them is noticed.
 
+
+## Performance
+
+`align()` over every detection in `long-sermon-filler` (about 7,000 words, 5 detections, two of
+them chapter-only and aligned against the whole of John 3) must finish in under 1 s in total.
+The bound is asserted by `test_long_sermon_alignment_is_fast`. Verse text is fetched before the
+clock starts, since only alignment is in scope.

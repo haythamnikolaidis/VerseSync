@@ -8,6 +8,7 @@ table equal to what this module measures.
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -19,7 +20,7 @@ from versesync.bible.local import LocalProvider
 from versesync.detect.canon import load_canon
 from versesync.detect.detector import Detection, detect
 from versesync.detect.parse import parse_reference
-from versesync.timing.align import Alignment, align
+from versesync.timing.align import AlignConfig, Alignment, align
 from versesync.types import Reference, Word, load_words
 
 CANON = load_canon()
@@ -28,6 +29,9 @@ TRANSLATION = "kjv"
 CALIBRATION_DOC = (
     Path(__file__).resolve().parent.parent / "docs" / "qa" / "alignment-calibration.md"
 )
+
+# The performance bound for aligning every detection in long-sermon-filler (T-17.3 step 2).
+ALIGN_BUDGET_S = 1.0
 
 # Labels whose classification differs from the hand label, keyed by (fixture, reference,
 # mention start), each with a reason. The threshold is deliberately not moved to fix these
@@ -192,3 +196,24 @@ def test_calibration_doc_lists_every_measured_row() -> None:
     doc = CALIBRATION_DOC.read_text(encoding="utf-8")
     for m in MEASURED:
         assert doc_row(m) in doc, f"docs/qa/alignment-calibration.md is missing: {doc_row(m)}"
+
+
+def test_long_sermon_alignment_is_fast() -> None:
+    words = load_words(FIXTURES_DIR / "long-sermon-filler.words.json")
+    detections = detect(words, CANON)
+    assert detections
+    jobs: list[tuple[list[str], int]] = []
+    for d in detections:
+        if d.reference.verse is None:
+            passage = PROVIDER.fetch_chapter(d.reference.osis, d.reference.chapter, TRANSLATION)
+            texts = [v.text for v in passage.verses]
+        else:
+            texts = verse_texts(d.reference)
+        jobs.append((texts, d.candidate.word_span[0]))
+
+    start = time.perf_counter()
+    results = [align(texts, words, index, AlignConfig()) for texts, index in jobs]
+    elapsed = time.perf_counter() - start
+
+    assert len(results) == len(detections)
+    assert elapsed < ALIGN_BUDGET_S
