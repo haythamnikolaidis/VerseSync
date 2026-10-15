@@ -76,7 +76,7 @@ bonus, so the cue builder (T-19.1) assigns it.
 
 ### T-13.2 · Confidence scoring
 
-**Executor** agent · **Size** XS · **Prereqs** T-13.1 · **Status** in-progress
+**Executor** agent · **Size** XS · **Prereqs** T-13.1 · **Status** done
 
 - **Read:** [04 §6](../04-reference-detection.md)
 - **Touches:** `sidecar/versesync/detect/confidence.py` (new) · `tests/test_confidence.py` (new)
@@ -93,8 +93,8 @@ bonus, so the cue builder (T-19.1) assigns it.
      that the same input always gives the same output. Commit.
 - **Verify:** `pytest tests/test_confidence.py -q`
 - **Done when:**
-  - [ ] The structure scores match §6: 1.0, 0.75, 0.55 and 0.45.
-  - [ ] Every weight is a named constant.
+  - [x] The structure scores match §6: 1.0, 0.75, 0.55 and 0.45.
+  - [x] Every weight is a named constant.
 
 ### T-13.3 · Duplicate suppression, snippets and `detect()`
 
