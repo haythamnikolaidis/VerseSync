@@ -60,7 +60,7 @@ counts from the bundled text means T-13 can't reject a verse that T-14 can serve
 
 ### T-09.2 · Generate `canon.json`
 
-**Executor** agent · **Size** S · **Prereqs** T-09.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-09.1 · **Status** in-progress
 
 - **Read:** [04 §4.1, §5](../04-reference-detection.md) · [04 §3.1](../04-reference-detection.md)
   (the "numbered form" list only)
