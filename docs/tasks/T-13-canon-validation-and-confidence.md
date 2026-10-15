@@ -76,7 +76,7 @@ bonus, so the cue builder (T-19.1) assigns it.
 
 ### T-13.2 · Confidence scoring
 
-**Executor** agent · **Size** XS · **Prereqs** T-13.1 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-13.1 · **Status** in-progress
 
 - **Read:** [04 §6](../04-reference-detection.md)
 - **Touches:** `sidecar/versesync/detect/confidence.py` (new) · `tests/test_confidence.py` (new)
