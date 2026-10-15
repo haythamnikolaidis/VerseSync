@@ -67,7 +67,7 @@ to them; don't redesign them.** If the schema looks wrong, mark the task blocked
 
 ### T-19.2 · Document assembly, sibling transcript, validation in the code path
 
-**Executor** agent · **Size** S · **Prereqs** T-19.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-19.1 · **Status** done
 
 - **Read:** [07 §5, §5.2](../07-sidecar-api.md) · `tools/validate_cue_document.py` (its public
   function only)
@@ -100,8 +100,8 @@ to them; don't redesign them.** If the schema looks wrong, mark the task blocked
      Commit.
 - **Verify:** `pytest tests/test_cue_document.py -q`
 - **Done when:**
-  - [ ] Validation happens in the code path, not only in tests.
-  - [ ] The round-trip is lossless.
+  - [x] Validation happens in the code path, not only in tests.
+  - [x] The round-trip is lossless.
 
 ### T-19.3 · `run_pipeline()`: words to Cue Document, offline
 
