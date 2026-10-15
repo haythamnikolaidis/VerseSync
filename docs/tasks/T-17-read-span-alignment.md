@@ -51,7 +51,7 @@ numbers.
 
 ### T-17.1 · Alignment normalisation, window and token equality
 
-**Executor** agent · **Size** XS · **Prereqs** T-14.3, T-13.3 · **Status** in-progress
+**Executor** agent · **Size** XS · **Prereqs** T-14.3, T-13.3 · **Status** done
 
 - **Read:** [05 §4.1](../05-timing-and-placement.md) (the "window" line and the normalisation
   paragraph)
@@ -69,8 +69,8 @@ numbers.
      Test each function. Commit.
 - **Verify:** `pytest tests/test_align.py -q`
 - **Done when:**
-  - [ ] The stop list is applied to **both** sides, with a test that proves it.
-  - [ ] The window is clamped to the transcript at both ends.
+  - [x] The stop list is applied to **both** sides, with a test that proves it.
+  - [x] The window is clamped to the transcript at both ends.
 
 ### T-17.2 · Greedy aligner, multi-start, classification
 
