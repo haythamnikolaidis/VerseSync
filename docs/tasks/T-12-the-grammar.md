@@ -73,7 +73,7 @@ job.
 
 ### T-12.1 · Pre-pass, grammar view, framework and P1/P2/P9
 
-**Executor** agent · **Size** S · **Prereqs** T-11.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-11.3 · **Status** in-progress
 
 - **Read:** [04 §4](../04-reference-detection.md) (the table, P1, P2 and P9 rows)
 - **Touches:** `sidecar/versesync/detect/grammar.py` (new) · `tests/test_grammar.py` (new)
