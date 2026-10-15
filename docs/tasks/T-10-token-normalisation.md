@@ -22,7 +22,7 @@ way to get this module wrong**, because it's how a regex match ends up as a time
 
 ### T-10.1 · Spoken-number and ordinal parser
 
-**Executor** agent · **Size** S · **Prereqs** T-09.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-09.3 · **Status** in-progress
 
 - **Read:** [04 §3.1](../04-reference-detection.md)
 - **Touches:** `sidecar/versesync/detect/numbers.py` (new) · `tests/test_numbers.py` (new)
