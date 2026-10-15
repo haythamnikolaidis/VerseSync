@@ -14,6 +14,17 @@ SHORT_BOOKS = frozenset({"job", "mark", "acts", "numbers", "judges", "ruth", "ja
 _NAME_KINDS = frozenset({"word", "ordinal"})
 
 
+def _is_name_window(window: Sequence[Token]) -> bool:
+    # Abbreviated forms ("1 sa", "2 co") are not tagged as ordinals by the normaliser, which only
+    # does so before a full base name, so a leading number token may open a name. Only the first
+    # token may be a number; the alias lookup rejects values that are not real book prefixes.
+    for k, token in enumerate(window):
+        if token.kind in _NAME_KINDS or (k == 0 and token.kind == "number" and len(window) > 1):
+            continue
+        return False
+    return True
+
+
 def match_book(
     tokens: Sequence[Token],
     i: int,
@@ -29,7 +40,7 @@ def match_book(
         return None
     for n in range(min(canon.max_alias_tokens(), len(tokens) - i), 0, -1):
         window = tokens[i : i + n]
-        if any(t.kind not in _NAME_KINDS for t in window):
+        if not _is_name_window(window):
             continue
         book = canon.lookup(" ".join(t.text for t in window))
         if book is not None:
