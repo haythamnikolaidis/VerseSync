@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from versesync.detect.canon import load_canon, normalise_alias
-from versesync.detect.fuzzy import match_book
+from versesync.detect.fuzzy import SHORT_BOOKS, match_book
 from versesync.detect.normalize import normalize
 from versesync.detect.types import Token
 from versesync.types import Word
@@ -163,3 +163,92 @@ def test_seed_forms_cover_the_spec_table():
     assert match_book(norm("titus's"), 0, CANON, fuzzy_gate=_always).book.osis == "Titus"
     assert match_book(norm("deuteronomy's"), 0, CANON, fuzzy_gate=_always).book.osis == "Deut"
     assert match_book(norm("ecclesiastes'"), 0, CANON).book.osis == "Eccl"
+
+
+def _fuzzy(text: str, gate=_always):
+    return match_book(norm(text), 0, CANON, fuzzy_gate=gate)
+
+
+def test_philippines_is_caught_by_tier_2_not_tier_3():
+    match = _fuzzy("philippines")
+    assert (match.book.osis, match.tier, match.distance) == ("Phil", "alias", 0)
+
+
+def test_one_edit_misspelling_is_fuzzy_at_distance_1():
+    match = _fuzzy("philipians")
+    assert (match.book.osis, match.tier, match.distance) == ("Phil", "fuzzy", 1)
+    assert (match.first, match.last) == (0, 0)
+
+
+def test_two_edits_match_on_long_names_and_three_do_not():
+    match = _fuzzy("lebitikus")
+    assert (match.book.osis, match.tier, match.distance) == ("Lev", "fuzzy", 2)
+    assert _fuzzy("lexitxcxs") is None
+
+
+def test_shorter_candidates_allow_only_one_edit():
+    assert _fuzzy("hoseb").book.osis == "Hos"  # five letters: one edit allowed
+    assert _fuzzy("hosbc") is None
+
+
+def test_fuzzy_requires_the_gate():
+    assert _fuzzy("philipians", gate=None) is None
+    assert _fuzzy("philipians", gate=_never) is None
+
+
+def test_gate_is_asked_about_the_token_after_the_window():
+    seen: list[int] = []
+
+    def gate(index: int) -> bool:
+        seen.append(index)
+        return True
+
+    assert match_book(norm("see philipians one"), 1, CANON, fuzzy_gate=gate) is not None
+    assert seen == [2]
+
+
+def test_two_token_window_and_ordinal_prefix():
+    match = _fuzzy("1 corinthyans")
+    assert (match.book.osis, match.tier, match.distance) == ("1Cor", "fuzzy", 1)
+    assert (match.first, match.last) == (0, 1)
+    # The ordinal must agree exactly: "4 john" must not drift to "1 john".
+    assert _fuzzy("4 johm") is None
+
+
+@pytest.mark.parametrize("word", ["jobs", "marks", "number", "ruths", "jame", "amo", "judgess"])
+def test_short_book_neighbours_never_fuzzy_match(word):
+    assert _fuzzy(word) is None
+
+
+@pytest.mark.parametrize("name", sorted(SHORT_BOOKS))
+def test_short_books_never_resolve_via_fuzzy(name):
+    for variant in (name + "s", name[:-1], name + "x", name[1:]):
+        match = _fuzzy(variant)
+        assert match is None or match.tier != "fuzzy" or match.book.name.lower() not in SHORT_BOOKS
+
+
+@pytest.mark.parametrize(
+    "sentence",
+    [
+        "he lost his job last year",
+        "faith without works acts dead",
+        "mark my words",
+        "the numbers don't lie",
+        "he was a judge for thirty years",
+        "in the book of life",
+        "romans were known for their roads",
+    ],
+)
+def test_negative_sentences_never_reach_tier_2_or_3(sentence):
+    # Without a passing gate only tier 1 can fire. Whether an exact "job" or "romans" is a
+    # reference is decided later by the grammar and canon validation, so only the tier is asserted.
+    tokens = norm(sentence)
+    for i in range(len(tokens)):
+        for gate in (None, _never):
+            match = match_book(tokens, i, CANON, fuzzy_gate=gate)
+            assert match is None or match.tier == "exact"
+
+
+def test_mark_still_matches_at_tier_1_when_exact():
+    match = match_book(norm("mark"), 0, CANON)
+    assert (match.book.osis, match.tier, match.distance) == ("Mark", "exact", 0)
