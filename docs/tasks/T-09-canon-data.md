@@ -104,7 +104,7 @@ counts from the bundled text means T-13 can't reject a verse that T-14 can serve
 
 ### T-09.3 · `Canon` loader and shared core types
 
-**Executor** agent · **Size** S · **Prereqs** T-09.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-09.2 · **Status** in-progress
 
 - **Read:** [04 §5](../04-reference-detection.md) · [07 §5](../07-sidecar-api.md) (the
   `reference` object only)
