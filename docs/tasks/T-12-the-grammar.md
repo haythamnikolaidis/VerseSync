@@ -91,7 +91,7 @@ job.
 
 ### T-12.2 · P3–P8: keyword and comma forms
 
-**Executor** agent · **Size** S · **Prereqs** T-12.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-12.1 · **Status** done
 
 - **Read:** [04 §4](../04-reference-detection.md) (the P3–P8 rows)
 - **Touches:** `sidecar/versesync/detect/grammar.py` · `tests/test_grammar.py`
@@ -103,8 +103,8 @@ job.
      pattern, as [11 §1](../11-testing.md) asks. Commit.
 - **Verify:** `pytest tests/test_grammar.py -q`
 - **Done when:**
-  - [ ] Every P3–P8 row has tests with three phrasings each, including its tabulated example.
-  - [ ] The final priority order is P1 > P2 > … > P9, and a test proves it on an input where
+  - [x] Every P3–P8 row has tests with three phrasings each, including its tabulated example.
+  - [x] The final priority order is P1 > P2 > … > P9, and a test proves it on an input where
         two patterns could both match.
 
 ### T-12.3 · P10, and P11/P12 context carry
