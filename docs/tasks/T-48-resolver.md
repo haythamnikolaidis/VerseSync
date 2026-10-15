@@ -52,7 +52,7 @@ This work was **unowned** in the original backlog. T-15 mentions batching, and T
 
 ### T-48.2 · `resolve_detections()`
 
-**Executor** agent · **Size** S · **Prereqs** T-48.1, T-16 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-48.1, T-16 · **Status** done
 
 - **Read:** [06 §3.2, §5](../06-bible-text-service.md) ("Quantity limits") ·
   [07 §5.1](../07-sidecar-api.md) (`flags` and `warnings`)
@@ -91,5 +91,5 @@ This work was **unowned** in the original backlog. T-15 mentions batching, and T
      Commit.
 - **Verify:** `pytest tests/test_resolver.py -q`
 - **Done when:**
-  - [ ] A provider failure never raises, except `TranslationNotLicensed`.
-  - [ ] Flags and warnings match [07 §5.1](../07-sidecar-api.md) exactly.
+  - [x] A provider failure never raises, except `TranslationNotLicensed`.
+  - [x] Flags and warnings match [07 §5.1](../07-sidecar-api.md) exactly.
