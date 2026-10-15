@@ -28,7 +28,7 @@ The mock accepts any non-empty Origin, so the contract tests (T-42) send this va
 
 ### T-05.1 · `paths.py` and `config.py`
 
-**Executor** agent · **Size** S · **Prereqs** T-44 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-44 · **Status** done
 
 - **Read:** [05 §2](../05-timing-and-placement.md) (the config table) ·
   [06 §8](../06-bible-text-service.md) · `reference/fwt/config/manager.py` (the
@@ -59,8 +59,8 @@ The mock accepts any non-empty Origin, so the contract tests (T-42) send this va
      `Config.__repr__` must not include any secret value. Test it. Commit.
 - **Verify:** `pytest tests/test_config.py -q`
 - **Done when:**
-  - [ ] `VERSESYNC_HOME` overrides the home directory, and every test uses `tmp_path`.
-  - [ ] Credentials are read from the environment by variable name, and they never appear in
+  - [x] `VERSESYNC_HOME` overrides the home directory, and every test uses `tmp_path`.
+  - [x] Credentials are read from the environment by variable name, and they never appear in
         `repr`, in logs, or in `config.yaml`.
 
 ### T-05.2 · Lock file
