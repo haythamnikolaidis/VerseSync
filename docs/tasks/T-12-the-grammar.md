@@ -91,7 +91,7 @@ job.
 
 ### T-12.2 · P3–P8: keyword and comma forms
 
-**Executor** agent · **Size** S · **Prereqs** T-12.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-12.1 · **Status** in-progress
 
 - **Read:** [04 §4](../04-reference-detection.md) (the P3–P8 rows)
 - **Touches:** `sidecar/versesync/detect/grammar.py` · `tests/test_grammar.py`
