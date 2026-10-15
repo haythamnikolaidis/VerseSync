@@ -7,7 +7,9 @@ over the search string is turned back into timestamps.
 from __future__ import annotations
 
 import re
+from bisect import bisect_right
 from collections.abc import Sequence
+from dataclasses import dataclass
 
 from versesync.detect.canon import Canon
 from versesync.detect.numbers import parse_cardinal, parse_ordinal
@@ -90,9 +92,7 @@ def normalize(words: Sequence[Word], canon: Canon) -> list[Token]:
     return tokens
 
 
-def _make(
-    words: Sequence[Word], text: str, kind: str, value: int | None, ids: list[int]
-) -> Token:
+def _make(words: Sequence[Word], text: str, kind: str, value: int | None, ids: list[int]) -> Token:
     word_ids = tuple(sorted(set(ids)))
     return Token(
         text=text,
@@ -103,3 +103,46 @@ def _make(
         end=words[word_ids[-1]].end,
         prob=min(words[i].probability for i in word_ids),
     )
+
+
+@dataclass(frozen=True)
+class SearchText:
+    """Token texts joined by single spaces, plus the map from characters back to tokens."""
+
+    text: str  # token texts joined by single spaces
+    starts: tuple[int, ...]  # sorted start offset of each token within ``text``
+
+    def token_at(self, char_offset: int) -> int:
+        """Index of the token containing ``char_offset``; a space maps to the token before it."""
+        if not 0 <= char_offset < len(self.text):
+            raise IndexError(f"char offset {char_offset} outside search text")
+        return bisect_right(self.starts, char_offset) - 1
+
+    def token_span(self, char_start: int, char_end: int) -> tuple[int, int]:
+        """Inclusive ``[first, last]`` token span of a regex match span.
+
+        ``char_end`` is exclusive, as in ``re.Match.span()``; the match must be non-empty.
+        """
+        if char_end <= char_start:
+            raise ValueError("empty character span")
+        return self.token_at(char_start), self.token_at(char_end - 1)
+
+
+def build_search_text(tokens: Sequence[Token]) -> SearchText:
+    """Join token texts with single spaces and record where each token starts."""
+    starts: list[int] = []
+    pos = 0
+    for token in tokens:
+        starts.append(pos)
+        pos += len(token.text) + 1
+    return SearchText(text=" ".join(t.text for t in tokens), starts=tuple(starts))
+
+
+def word_span(tokens: Sequence[Token], first: int, last: int) -> tuple[int, int]:
+    """Inclusive ``Word`` index span covered by tokens ``first..last`` (inclusive)."""
+    return tokens[first].word_ids[0], tokens[last].word_ids[-1]
+
+
+def seconds(tokens: Sequence[Token], first: int, last: int) -> tuple[float, float]:
+    """Source ``(start, end)`` seconds covered by tokens ``first..last`` (inclusive)."""
+    return tokens[first].start, tokens[last].end
