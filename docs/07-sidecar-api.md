@@ -156,6 +156,14 @@ The panel must tolerate the stream dropping — CEP panels reload — and fall b
 
 The **Cue Document** (§5). `409` if the job is not `done`.
 
+### `GET /jobs/{id}/transcript`
+
+The job's transcript words, as a JSON array in the shape of the `*.words.json` transcript
+fixtures: `[{"text","start","end","probability"}]`, with `start` and `end` in `source` seconds.
+It is the content that the Cue Document's `transcript.words_ref` (§5.1) names. `409
+job_not_finished` if the job is not `done`. Authenticated like every other route except
+`/health`. See D22 ([12](12-decisions-and-risks.md)).
+
 ### `DELETE /jobs/{id}`
 
 Cancels a running job or discards a finished one. Cancellation is cooperative: the transcriber
@@ -302,7 +310,17 @@ The sidecar's output, the panel's input, and the save format. **Versioned.**
   concatenation ambiguity ([04](04-reference-detection.md) §3.1) and multi-placement options
   ([05](05-timing-and-placement.md) §5.2) — so the review row can offer a one-click switch.
 - **`transcript.words_ref`** points at a sibling file rather than inlining ~7,000 word objects.
-  The panel fetches it only when an editor expands a row for context.
+  The panel fetches it only when an editor expands a row for context. How it resolves the name
+  depends on where the document came from (D22):
+  - **A job result** — the panel calls `GET /jobs/{id}/transcript` (§2). `words_ref` is only a
+    name here; the sidecar resolves the job's words itself.
+  - **A document loaded from disk** — `words_ref` is a file name resolved relative to the
+    directory of the loaded `.json` file. If that file is missing, the expanded row says
+    "Transcript not available for this document." and does not fail.
+  - **Save cue document** writes the transcript sibling next to the saved file, under the same
+    `words_ref` name, so a saved document stays self-contained.
+
+  The endpoint is additive, so the API version stays `1.0`.
 
 ### 5.2 Versioning
 
