@@ -215,6 +215,15 @@ PATTERNS: tuple[Pattern, ...] = (
         _compile(rf"{_BOOK} (?P<c>\d+)"),
         lambda m: Fields(_int(m, "c"), None, None),
     ),
+    # "the third chapter of john , verse 16". The ordinal token's text is its value in digits,
+    # and any ordinal prefix of the book is already folded into the book token.
+    Pattern(
+        "P10",
+        _compile(rf"the (?P<c>\d+) chapter of {_BOOK}(?: , verses? (?P<v>\d+))?"),
+        lambda m: Fields(
+            _int(m, "c"), int(m.group("v")) if m.group("v") is not None else None, None
+        ),
+    ),
 )
 
 

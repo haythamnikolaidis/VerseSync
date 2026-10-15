@@ -216,13 +216,41 @@ def test_p8_outside_psalms_has_no_alternative_reading():
     assert c.alternatives == () and c.alternative_reason is None
 
 
+# --- P10: "the ORD chapter of B" -------------------------------------------------------------
+
+
+def test_p10_ordinal_chapter_of_book_with_verse_three_phrasings():
+    found = find("the third chapter of john , verse 16", start=10.0)
+    assert [fields(c) for c in found] == [("John", 3, 16, None, "P10")]
+    assert found[0].token_span == (0, 7)
+    assert found[0].source_start == 10.0
+    assert [fields(c) for c in find("the second chapter of romans, verse 4")] == [
+        ("Rom", 2, 4, None, "P10")
+    ]
+    assert [fields(c) for c in find("the eighth chapter of first corinthians , verses 28")] == [
+        ("1Cor", 8, 28, None, "P10")
+    ]
+
+
+def test_p10_without_verse_is_chapter_only_three_phrasings():
+    found = find("the third chapter of john", start=10.0)
+    assert [fields(c) for c in found] == [("John", 3, None, None, "P10")]
+    assert found[0].verse is None
+    assert [fields(c) for c in find("the eighth chapter of romans")] == [
+        ("Rom", 8, None, None, "P10")
+    ]
+    assert [fields(c) for c in find("the twenty third chapter of first john")] == [
+        ("1John", 23, None, None, "P10")
+    ]
+
+
 # --- Priority ---------------------------------------------------------------------------------
 
 
-def test_priority_order_is_p1_to_p9():
+def test_priority_order_is_p1_to_p10():
     from versesync.detect.grammar import PATTERNS
 
-    assert [p.name for p in PATTERNS] == [f"P{n}" for n in range(1, 10)]
+    assert [p.name for p in PATTERNS] == [f"P{n}" for n in range(1, 11)]
 
 
 def test_higher_priority_pattern_wins_when_several_could_match():
