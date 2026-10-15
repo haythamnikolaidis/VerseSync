@@ -3,7 +3,7 @@ name = "versesync"
 version = "0.1.0"
 description = "Automatic scripture-reference detection and timing for Premiere Pro"
 requires-python = ">=3.11,<3.14"
-dependencies = []
+dependencies = ["jellyfish>=1.0"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11", "jsonschema>=4.18"]
