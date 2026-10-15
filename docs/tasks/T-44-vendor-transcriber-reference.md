@@ -1,6 +1,6 @@
 # T-44 · Vendor Faster-Whisper-Transcriber reference sources
 
-**Executor** agent · **Size** XS · **Prereqs** T-43 · **Status** in-progress
+**Executor** agent · **Size** XS · **Prereqs** T-43 · **Status** done
 
 | | |
 |---|---|
