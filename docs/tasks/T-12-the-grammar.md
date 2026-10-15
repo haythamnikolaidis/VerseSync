@@ -109,7 +109,7 @@ job.
 
 ### T-12.3 · P10, and P11/P12 context carry
 
-**Executor** agent · **Size** S · **Prereqs** T-12.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-12.2 · **Status** in-progress
 
 - **Read:** [04 §4](../04-reference-detection.md) (the P10–P12 rows and the "Context carry"
   paragraph)
