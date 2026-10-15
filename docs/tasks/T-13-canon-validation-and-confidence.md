@@ -98,7 +98,7 @@ bonus, so the cue builder (T-19.1) assigns it.
 
 ### T-13.3 · Duplicate suppression, snippets and `detect()`
 
-**Executor** agent · **Size** S · **Prereqs** T-13.2 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-13.2 · **Status** done
 
 - **Read:** [04 §6](../04-reference-detection.md) (the "Duplicate suppression" bullet) ·
   [04 §7](../04-reference-detection.md)
@@ -123,8 +123,8 @@ bonus, so the cue builder (T-19.1) assigns it.
      Commit.
 - **Verify:** `pytest tests/test_detector.py -q`
 - **Done when:**
-  - [ ] Suppressed rows survive, with their flag set.
-  - [ ] `detect()` is deterministic, and its `to_json` matches the 04 §7 keys.
+  - [x] Suppressed rows survive, with their flag set.
+  - [x] `detect()` is deterministic, and its `to_json` matches the 04 §7 keys.
 
 ## Traps
 
