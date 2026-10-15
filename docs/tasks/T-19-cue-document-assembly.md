@@ -22,7 +22,7 @@ to them; don't redesign them.** If the schema looks wrong, mark the task blocked
 
 ### T-19.1 · Cue builder
 
-**Executor** agent · **Size** S · **Prereqs** T-18, T-48.2 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-18, T-48.2 · **Status** done
 
 - **Read:** [07 §5, §5.1](../07-sidecar-api.md) · [09 §5.2](../09-ui-spec.md) (the flags table,
   for `enabled` defaults) · print one cue from `tests/fixtures/cue-documents/happy-18-cues.json`
@@ -62,8 +62,8 @@ to them; don't redesign them.** If the schema looks wrong, mark the task blocked
      Commit.
 - **Verify:** `pytest tests/test_cues.py -q`
 - **Done when:**
-  - [ ] Every built cue is schema-valid.
-  - [ ] The `enabled` defaults match the 09 §5.2 table for sidecar flags.
+  - [x] Every built cue is schema-valid.
+  - [x] The `enabled` defaults match the 09 §5.2 table for sidecar flags.
 
 ### T-19.2 · Document assembly, sibling transcript, validation in the code path
 
