@@ -51,7 +51,7 @@ way to get this module wrong**, because it's how a regex match ends up as a time
 
 ### T-10.2 · `Token` and the normalisation pass
 
-**Executor** agent · **Size** S · **Prereqs** T-10.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-10.1 · **Status** in-progress
 
 - **Read:** [04 §3](../04-reference-detection.md) (the `Token` dataclass and steps 1–6)
 - **Touches:** `sidecar/versesync/detect/types.py` (new) · `sidecar/versesync/detect/normalize.py`
