@@ -22,7 +22,7 @@ way to get this module wrong**, because it's how a regex match ends up as a time
 
 ### T-10.1 · Spoken-number and ordinal parser
 
-**Executor** agent · **Size** S · **Prereqs** T-09.3 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-09.3 · **Status** done
 
 - **Read:** [04 §3.1](../04-reference-detection.md)
 - **Touches:** `sidecar/versesync/detect/numbers.py` (new) · `tests/test_numbers.py` (new)
@@ -45,9 +45,9 @@ way to get this module wrong**, because it's how a regex match ends up as a time
   2. Implement `parse_ordinal` and test it. Commit.
 - **Verify:** `pytest tests/test_numbers.py -q`
 - **Done when:**
-  - [ ] Every number from 1 to 176 round-trips from its spelled-out form. Generate the inputs
+  - [x] Every number from 1 to 176 round-trips from its spelled-out form. Generate the inputs
         in the test from a small number-to-words helper written in the test file.
-  - [ ] `parse_cardinal(["and"], 0)` is `None`.
+  - [x] `parse_cardinal(["and"], 0)` is `None`.
 
 ### T-10.2 · `Token` and the normalisation pass
 
