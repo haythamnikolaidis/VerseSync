@@ -74,7 +74,7 @@ numbers.
 
 ### T-17.2 · Greedy aligner, multi-start, classification
 
-**Executor** agent · **Size** S · **Prereqs** T-17.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-17.1 · **Status** in-progress
 
 - **Read:** [05 §4.1, §4.2, §4.3](../05-timing-and-placement.md) (the pseudocode)
 - **Touches:** `sidecar/versesync/timing/align.py` · `tests/test_align.py`
