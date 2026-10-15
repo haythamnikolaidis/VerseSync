@@ -73,7 +73,7 @@ The fake has to reproduce the **spike findings**, not ideal behaviour:
 
 ### T-45.2 · `importMGT`, MGT components, undo groups, CSXS events
 
-**Executor** agent · **Size** S · **Prereqs** T-45.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-45.1 · **Status** in-progress
 
 - **Read:** [08 §5, §6](../08-premiere-host-api.md) · `spikes/absolute_insert/RESULTS.md`
   (the results and risks sections) · `reference/verseflow/jsx/VerseFlow.jsx` (the
