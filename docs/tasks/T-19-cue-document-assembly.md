@@ -105,7 +105,7 @@ to them; don't redesign them.** If the schema looks wrong, mark the task blocked
 
 ### T-19.3 · `run_pipeline()`: words to Cue Document, offline
 
-**Executor** agent · **Size** S · **Prereqs** T-19.2 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-19.2 · **Status** done
 
 - **Read:** [07 §4](../07-sidecar-api.md) (the phase names) · [05 §10](../05-timing-and-placement.md)
 - **Touches:** `sidecar/versesync/pipeline.py` (new) · `tests/test_pipeline.py` (new)
@@ -139,8 +139,8 @@ to them; don't redesign them.** If the schema looks wrong, mark the task blocked
      Commit.
 - **Verify:** `pytest tests/test_pipeline.py -q`
 - **Done when:**
-  - [ ] Every fixture produces a schema-valid, deterministic document.
-  - [ ] This is the **only** place the stages are joined. T-20 and T-21 call it.
+  - [x] Every fixture produces a schema-valid, deterministic document.
+  - [x] This is the **only** place the stages are joined. T-20 and T-21 call it.
 
 ## Traps
 
