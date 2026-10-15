@@ -50,7 +50,7 @@ class BibleProvider(Protocol):
 
 ### T-14.1 · Types, protocol and error taxonomy
 
-**Executor** agent · **Size** XS · **Prereqs** T-09.3 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-09.3 · **Status** in-progress
 
 - **Read:** [06 §1, §3, §3.2](../06-bible-text-service.md)
 - **Touches:** `sidecar/versesync/bible/base.py` (new) · `tests/test_bible_base.py` (new)
