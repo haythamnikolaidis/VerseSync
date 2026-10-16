@@ -20,7 +20,7 @@ The Cue Document stores **source time only**, so a recut invalidates the *mappin
 
 ### T-31.1 · Recut scenarios, automated
 
-**Executor** agent · **Size** S · **Prereqs** T-30.2, T-20.4 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-30.2, T-20.4 · **Status** done
 
 - **Read:** [05 §5.2](../05-timing-and-placement.md) · [11 §6](../11-testing.md) (step 31)
 - **Touches:** `tests/panel/journey-b.test.js` (new) · `tests/fixtures/host/recut-*.json` (new;
@@ -43,8 +43,8 @@ The Cue Document stores **source time only**, so a recut invalidates the *mappin
      Commit.
 - **Verify:** `node --test tests/panel/journey-b.test.js`
 - **Done when:**
-  - [ ] The delete and move recuts both behave as [05 §5.2] says.
-  - [ ] Nothing in the Cue Document stores ticks.
+  - [x] The delete and move recuts both behave as [05 §5.2] says.
+  - [x] Nothing in the Cue Document stores ticks.
 
 ### T-31.H · Journey B on a real workstation
 
