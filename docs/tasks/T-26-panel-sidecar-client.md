@@ -38,7 +38,7 @@ client.health() / models() / translations() / startJob(req) / job(id) / result(i
 
 ### T-26.1 · Node transport and client core
 
-**Executor** agent · **Size** S · **Prereqs** T-22.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-22.1 · **Status** in-progress
 
 - **Read:** [07 §1.2, §1.3, §2, §3](../07-sidecar-api.md)
 - **Touches:** `panel/js/sidecar.js` (new) · `tests/panel/sidecar-client.test.js` (new)
