@@ -29,7 +29,7 @@ and scales unchanged to the full one.
 
 ### T-33.1 · Golden-file tests
 
-**Executor** agent · **Size** S · **Prereqs** T-21.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-21.1 · **Status** in-progress
 
 - **Read:** [11 §4](../11-testing.md)
 - **Touches:** `tests/golden/*.cues.json` (new) · `tests/test_golden.py` (new) ·
