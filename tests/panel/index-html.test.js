@@ -24,6 +24,8 @@ test('scripts load in the required order', () => {
     'js/lib/sidecar-stub.js',
     'js/sidecar.js',
     'js/bridge.js',
+    'js/state.js',
+    'js/setup.js',
     'js/main.js'
   ]);
 });

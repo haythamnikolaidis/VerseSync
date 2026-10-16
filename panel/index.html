@@ -14,7 +14,27 @@
       <div id="status" class="vf-status" aria-live="polite"></div>
     </header>
 
-    <section id="setup" class="vf-section" aria-label="Setup"></section>
+    <section id="setup" class="vf-section" aria-label="Setup">
+      <div class="vf-label">Media</div>
+      <div class="vf-file-row">
+        <button id="setup-media-btn" class="vf-btn" type="button">Choose media…</button>
+        <span id="setup-media-name" class="vf-filename">No file selected</span>
+      </div>
+      <div class="vf-label">Template</div>
+      <div class="vf-file-row">
+        <button id="setup-template-btn" class="vf-btn" type="button">Choose template…</button>
+        <span id="setup-template-name" class="vf-filename">No template selected</span>
+      </div>
+      <div id="setup-template-msg" role="status" hidden></div>
+      <div class="vf-mapping-row">
+        <label class="vf-label" for="setup-reference">Reference</label>
+        <select id="setup-reference" class="vf-select" disabled></select>
+      </div>
+      <div class="vf-mapping-row">
+        <label class="vf-label" for="setup-body">Scripture</label>
+        <select id="setup-body" class="vf-select" disabled></select>
+      </div>
+    </section>
 
     <section id="progress" class="vf-section" aria-label="Progress" hidden></section>
 
@@ -30,6 +50,8 @@
   <script src="js/lib/sidecar-stub.js"></script>
   <script src="js/sidecar.js"></script>
   <script src="js/bridge.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/setup.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
