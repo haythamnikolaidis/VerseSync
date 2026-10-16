@@ -15,7 +15,7 @@ iterated on, how the accuracy harness runs, and how support issues get reproduce
 
 ### T-21.1 · `detect`, `resolve` and `analyse` commands
 
-**Executor** agent · **Size** S · **Prereqs** T-20.2, T-48.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-20.2, T-48.1 · **Status** in-progress
 
 - **Read:** [07 §6](../07-sidecar-api.md)
 - **Touches:** `sidecar/versesync/cli.py` (new) · `cli/versesync_cli.py` (a shim calling
