@@ -43,7 +43,8 @@ def test_defaults(app_home: Path) -> None:
         "allowed_origins": ["cep://com.versesync.panel"],
         "allowed_media_roots": [],
     }
-    assert cfg.transcription == {}
+    assert cfg.transcription["model"] == "distil-large-v3"
+    assert cfg.transcription["backend"] == "faster_whisper"
 
 
 def test_home_file_deep_merges_defaults(app_home: Path) -> None:

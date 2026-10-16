@@ -52,12 +52,27 @@ _SERVER_DEFAULTS: dict[str, Any] = {
     "allowed_media_roots": [],
 }
 
+# docs/tasks/T-07-transcription-in-sidecar.md (defaults per spike T-02 and decision D19).
+# initial_prompt is left to TranscribeOptions, which owns SCRIPTURE_PROMPT.
+_TRANSCRIPTION_DEFAULTS: dict[str, Any] = {
+    "backend": "faster_whisper",
+    "model": "distil-large-v3",
+    "device": "cuda",
+    "quantization": "float16",
+    "batch_size": 8,
+    "language": "en",
+    "vad_filter": True,
+    "vad_parameters": None,
+    "condition_on_previous_text": True,
+    "temperature": 0.0,
+}
+
 _SECTIONS = ("transcription", "detection", "timing", "bible", "server")
 
 
 def _defaults() -> dict[str, dict[str, Any]]:
     return {
-        "transcription": {},
+        "transcription": copy.deepcopy(_TRANSCRIPTION_DEFAULTS),
         "detection": {},
         "timing": copy.deepcopy(_TIMING_DEFAULTS),
         "bible": copy.deepcopy(_BIBLE_DEFAULTS),
