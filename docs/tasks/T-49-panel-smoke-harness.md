@@ -1,6 +1,6 @@
 # T-49 · Panel smoke harness (headless Chromium)
 
-**Executor** agent · **Size** S · **Prereqs** T-22.2, T-26.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-22.2, T-26.1 · **Status** in-progress
 
 | | |
 |---|---|
