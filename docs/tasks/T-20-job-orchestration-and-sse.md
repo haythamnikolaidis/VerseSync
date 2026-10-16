@@ -159,7 +159,7 @@ to it.
 
 ### T-20.5 · `/models`, `/translations`, `/resolve`, and `/health` status
 
-**Executor** agent · **Size** S · **Prereqs** T-20.3, T-48.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-20.3, T-48.1 · **Status** done
 
 - **Read:** [07 §2](../07-sidecar-api.md) (`/health`, `/models`, `/translations`, `/resolve`)
 - **Touches:** `sidecar/versesync/server.py` · `sidecar/versesync/sidecar.py` ·
@@ -186,7 +186,7 @@ to it.
      Commit.
 - **Verify:** `pytest tests/test_misc_endpoints.py -q`
 - **Done when:**
-  - [ ] Every endpoint in [07 §2] is implemented.
+  - [x] Every endpoint in [07 §2] is implemented.
 
 ## Traps
 
