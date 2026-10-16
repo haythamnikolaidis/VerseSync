@@ -247,7 +247,7 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
 
 ### T-29.8 · Timing edits: nudges, set-to-playhead, duration override
 
-**Executor** agent · **Size** S · **Prereqs** T-29.6 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-29.6 · **Status** in-progress
 
 - **Read:** [09 §5.3](../09-ui-spec.md) (the Timing row)
 - **Touches:** `panel/js/review.js` · `tests/panel/review-timing.test.js` (new)
