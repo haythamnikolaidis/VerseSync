@@ -58,7 +58,7 @@ when the upstream PR merges.
 
 ### T-06.2 · Route `TranscriptionService` through the engine; delete dead code
 
-**Executor** agent · **Size** S · **Prereqs** T-06.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-06.1 · **Status** done
 
 - **Read:** [02 §2.2](../02-source-project-audit.md) Gaps 5 and 7
 - **Touches (upstream):** `core/transcription/service.py` · `core/models/metadata.py` ·
@@ -73,7 +73,7 @@ when the upstream PR merges.
 - **Verify (upstream):** the upstream test suite passes, and `python -c "import core.transcription.engine"`
   works with Qt uninstalled.
 - **Done when:**
-  - [ ] `core/service.py` is gone and nothing imports it.
+  - [x] `core/service.py` is gone and nothing imports it.
   - [ ] The PR is open upstream, and its body says GUI parity needs T-06.H.
 
 ### T-06.H · Upstream GUI parity check
