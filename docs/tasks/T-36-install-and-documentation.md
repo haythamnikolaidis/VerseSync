@@ -20,7 +20,7 @@ with **dry-run and fake-filesystem modes**. Proving it on a clean machine is T-3
 
 ### T-36.1 · Sidecar installer
 
-**Executor** agent · **Size** S · **Prereqs** T-07.2, T-44 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-07.2, T-44 · **Status** done
 
 - **Read:** `reference/fwt/install.py` (the pinned-wheel pattern) · [02 §2.1](../02-source-project-audit.md)
 - **Touches:** `install.py` (new) · `tests/test_install.py` (new)
@@ -34,7 +34,7 @@ with **dry-run and fake-filesystem modes**. Proving it on a clean machine is T-3
      expected, and an unsupported Python exits with a clear message. Commit.
 - **Verify:** `pytest tests/test_install.py -q`
 - **Done when:**
-  - [ ] GPU and CPU-only paths are both covered by dry-run tests.
+  - [x] GPU and CPU-only paths are both covered by dry-run tests.
 
 ### T-36.2 · Panel installer
 
