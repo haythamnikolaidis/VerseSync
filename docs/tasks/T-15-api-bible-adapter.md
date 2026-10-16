@@ -58,7 +58,7 @@ logged and never serialised.
 
 ### T-15.2 · Batching, retry and error mapping
 
-**Executor** agent · **Size** S · **Prereqs** T-15.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-15.1 · **Status** done
 
 - **Read:** [06 §3.2, §4](../06-bible-text-service.md) (the "Batching" paragraph)
 - **Touches:** `sidecar/versesync/bible/api_bible.py` · `tests/test_api_bible.py`
@@ -73,9 +73,9 @@ logged and never serialised.
      Commit.
 - **Verify:** `pytest tests/test_api_bible.py -q`
 - **Done when:**
-  - [ ] Every status code maps to its typed error.
-  - [ ] Exactly one retry happens after a 429.
-  - [ ] The request-count bound is asserted.
+  - [x] Every status code maps to its typed error.
+  - [x] Exactly one retry happens after a 429.
+  - [x] The request-count bound is asserted.
 
 ### T-15.H · Real key, real translations (Q-A)
 

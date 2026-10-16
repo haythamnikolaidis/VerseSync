@@ -1,7 +1,7 @@
 """Fixtures for the sidecar contract suite (T-42).
 
 One suite, parameterised over the server under test. ``mock`` launches
-``tools/mock_sidecar.py``; ``real`` launches ``python -m versesync.sidecar`` and
+``tools/mock_sidecar.py``; ``real`` launches ``python -m versesync.sidecar`` and 
 both run in CI. Tests assert shape, status and ordering only, never cue content.
 """
 
