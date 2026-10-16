@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import sys
 from collections.abc import Sequence
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +18,9 @@ from versesync.config import Config, load_config
 from versesync.detect.canon import load_canon
 from versesync.detect.detector import detect
 from versesync.detect.parse import InvalidReference, parse_reference
+from versesync.jobs import Job, JobRegistry, new_job_id, run_job
+from versesync.paths import app_home
+from versesync.transcribe import Backend, FixtureBackend, get_backend
 from versesync.types import load_words
 
 EXIT_OK = 0
@@ -90,6 +95,65 @@ def cmd_resolve(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+# 07 section 3 codes that mean the editor's input was wrong rather than VerseSync.
+_INPUT_ERROR_CODES = frozenset({"media_not_found", "media_unreadable", "translation_not_licensed"})
+
+
+def _epoch(generated_at: str) -> float:
+    try:
+        when = datetime.fromisoformat(generated_at)
+    except ValueError as exc:
+        raise UsageError(f"--generated-at must be an ISO 8601 time, not {generated_at!r}") from exc
+    if when.tzinfo is None:
+        when = when.replace(tzinfo=timezone.utc)
+    return when.timestamp()
+
+
+def cmd_analyse(args: argparse.Namespace) -> int:
+    """The same ``run_job`` the sidecar runs, with the clock and job id injected."""
+    config = load_config(args.config)
+    provider = LocalProvider()
+    translation = _find_translation(provider, args.translation or _default_translation(config))
+    backend: Backend
+    if args.input.suffix.lower() == ".json":
+        # A transcript replays through the fixture backend, as `transcription.backend: fixture:`.
+        backend = FixtureBackend(args.input)
+    else:
+        backend = get_backend(config)
+    job_id: str = args.job_id or new_job_id()
+    now = _epoch(args.generated_at) if args.generated_at else datetime.now(timezone.utc).timestamp()
+    registry = JobRegistry(id_factory=lambda: job_id, clock=lambda: now)
+    job: Job = registry.create()
+    request = {"media_path": str(args.input), "translation_id": translation.id, "options": {}}
+    run_job(
+        job,
+        request,
+        config=config,
+        backend=backend,
+        provider=provider,
+        registry=registry,
+        clock=lambda: now,
+    )
+    if job.status != "done" or job.result_path is None:
+        error = job.error or {"code": "internal", "message": job.message or "The job failed."}
+        message = str(error["message"])
+        if error.get("detail"):
+            message += f" ({error['detail']})"
+        if error.get("hint"):
+            message += f" {error['hint']}"
+        raise UsageError(message) if error["code"] in _INPUT_ERROR_CODES else RuntimeError(message)
+    result = job.result_path
+    doc = json.loads(result.read_text(encoding="utf-8"))
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(result, args.out)
+    shutil.copyfile(
+        result.parent / doc["transcript"]["words_ref"],
+        args.out.parent / doc["transcript"]["words_ref"],
+    )
+    shutil.rmtree(app_home() / "jobs" / job_id, ignore_errors=True)
+    return EXIT_OK
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="versesync.cli")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -104,6 +168,15 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--translation", default=None)
     p.add_argument("--config", type=Path, default=None)
     p.set_defaults(run=cmd_resolve)
+
+    p = commands.add_parser("analyse", help="run the whole pipeline and write a Cue Document")
+    p.add_argument("input", type=Path, help="a media file, or a .words.json transcript")
+    p.add_argument("--translation", default=None)
+    p.add_argument("--out", type=Path, required=True)
+    p.add_argument("--config", type=Path, default=None)
+    p.add_argument("--job-id", default=None)
+    p.add_argument("--generated-at", default=None)
+    p.set_defaults(run=cmd_analyse)
     return parser
 
 
