@@ -541,7 +541,17 @@
           });
         });
       }
-      step().then(function () { polling = false; }, function () { polling = false; });
+      step().then(function () { polling = false; }, function (e) {
+        // The client never rejects, so this is a bug or a fake: end the job rather than leave
+        // the progress view up with nobody polling.
+        polling = false;
+        finish(opts.onFailed, {
+          code: 'internal',
+          message: 'Unexpected error while checking the job: ' + (e && e.message),
+          hint: '',
+          status: 0
+        });
+      });
     }
 
     function onStreamEvent(name, data) {
