@@ -128,3 +128,43 @@ var _wrap = function (name, fn) {
 VS.ping = _wrap('ping', function (args) {
     return _ok({ pong: true, version: VS_VERSION, hostApi: VS_HOST_API });
 });
+
+// ---- VS.getSequenceInfo -----------------------------------------------------
+
+// Frame rate is display only. Frame snapping uses timebase, which is passed
+// through exactly as Premiere reports it and never derived from this value.
+var _displayFrameRate = function (timebase) {
+    var tb = Number(timebase);
+    if (!(tb > 0)) return 0;
+    return Math.round(VS_TICKS_PER_SECOND / tb * 1000) / 1000;
+};
+
+VS.getSequenceInfo = _wrap('getSequenceInfo', function (args) {
+    var seq = app.project.activeSequence;
+    if (!seq) return _ok({ hasActiveSequence: false });
+    var timebase = String(seq.timebase);
+    return _ok({
+        hasActiveSequence: true,
+        sequenceId:        String(seq.sequenceID),
+        name:              seq.name,
+        videoTrackCount:   seq.videoTracks.numTracks,
+        audioTrackCount:   seq.audioTracks.numTracks,
+        playheadTicks:     String(seq.getPlayerPosition().ticks),
+        timebase:          timebase,
+        frameRate:         _displayFrameRate(timebase),
+        zeroPointTicks:    String(seq.zeroPoint),
+        endTicks:          String(seq.end)
+    });
+});
+
+// ---- VS.setPlayhead ---------------------------------------------------------
+
+VS.setPlayhead = _wrap('setPlayhead', function (args) {
+    var seq = app.project.activeSequence;
+    if (!seq) return _err(VS_MSG_NO_SEQUENCE);
+    if (typeof args.ticks !== 'string' || args.ticks === '') {
+        return _err('setPlayhead: ticks must be a string');
+    }
+    seq.setPlayerPosition(args.ticks);
+    return _ok({ ticks: args.ticks });
+});
