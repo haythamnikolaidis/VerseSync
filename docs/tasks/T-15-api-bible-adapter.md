@@ -28,7 +28,7 @@ logged and never serialised.
 
 ### T-15.1 · Client, response parsing, translations
 
-**Executor** agent · **Size** S · **Prereqs** T-14.3 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-14.3 · **Status** done
 
 - **Read:** [06 §3.1, §5, §8](../06-bible-text-service.md) · [07 §2](../07-sidecar-api.md)
   (`GET /translations`). The API.Bible public reference for `GET /v1/bibles` and
@@ -53,8 +53,8 @@ logged and never serialised.
      that fixture's text from the bundled KJV so the two can actually match. Commit.
 - **Verify:** `pytest tests/test_api_bible.py -q`
 - **Done when:**
-  - [ ] The identical-output test passes.
-  - [ ] No API key appears in any log record (assert with `caplog`) or in any `repr()`.
+  - [x] The identical-output test passes.
+  - [x] No API key appears in any log record (assert with `caplog`) or in any `repr()`.
 
 ### T-15.2 · Batching, retry and error mapping
 
