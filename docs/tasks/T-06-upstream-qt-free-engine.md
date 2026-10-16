@@ -27,7 +27,7 @@ when the upstream PR merges.
 
 ### T-06.1 · Extract `core/transcription/engine.py`
 
-**Executor** agent · **Size** S · **Prereqs** T-44 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-44 · **Status** done
 
 - **Read:** [02 §2.2](../02-source-project-audit.md) Gaps 1, 2 and 6 ·
   `reference/fwt/core/transcription/service.py`
@@ -53,7 +53,7 @@ when the upstream PR merges.
      `PyQt*` or `PySide*` (assert on `sys.modules`). Commit.
 - **Verify (upstream):** `pytest tests/test_engine.py -q`
 - **Done when:**
-  - [ ] The engine runs with no `QApplication`, and its words carry `start`, `end`, `text` and
+  - [x] The engine runs with no `QApplication`, and its words carry `start`, `end`, `text` and
         `probability`.
 
 ### T-06.2 · Route `TranscriptionService` through the engine; delete dead code
