@@ -75,7 +75,7 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
 
 ### T-29.2 · Save, load, and VerseFlow `.txt` export
 
-**Executor** agent · **Size** XS · **Prereqs** T-29.1, T-43 · **Status** in-progress
+**Executor** agent · **Size** XS · **Prereqs** T-29.1, T-43 · **Status** done
 
 - **Read:** [09 §5.4](../09-ui-spec.md) (Save ▾) · `reference/verseflow/js/scripture-parser.js`
   (the block format)
@@ -93,8 +93,8 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
      Commit.
 - **Verify:** `node --test tests/panel/cues-io.test.js`
 - **Done when:**
-  - [ ] The round trip is lossless.
-  - [ ] The `.txt` export parses with VerseFlow's parser.
+  - [x] The round trip is lossless.
+  - [x] The `.txt` export parses with VerseFlow's parser.
 
 ### T-29.3 · Collapsed rows
 
