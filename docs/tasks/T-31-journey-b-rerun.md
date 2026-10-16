@@ -20,7 +20,7 @@ The Cue Document stores **source time only**, so a recut invalidates the *mappin
 
 ### T-31.1 · Recut scenarios, automated
 
-**Executor** agent · **Size** S · **Prereqs** T-30.2, T-20.4 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-30.2, T-20.4 · **Status** in-progress
 
 - **Read:** [05 §5.2](../05-timing-and-placement.md) · [11 §6](../11-testing.md) (step 31)
 - **Touches:** `tests/panel/journey-b.test.js` (new) · `tests/fixtures/host/recut-*.json` (new;
