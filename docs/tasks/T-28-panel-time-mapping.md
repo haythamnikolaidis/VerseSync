@@ -61,7 +61,7 @@ Config defaults come from [05 §2](../05-timing-and-placement.md): `MIN_VISIBLE_
 
 ### T-28.2 · Segment map: source→sequence, inverse, flags
 
-**Executor** agent · **Size** S · **Prereqs** T-28.1, T-47 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-28.1, T-47 · **Status** done
 
 - **Read:** [05 §5.1, §5.2, §5.3](../05-timing-and-placement.md) · [08 §4](../08-premiere-host-api.md)
   (the response shape)
@@ -88,7 +88,7 @@ Config defaults come from [05 §2](../05-timing-and-placement.md): `MIN_VISIBLE_
      round-trip. Commit.
 - **Verify:** `node --test tests/panel/timemap-map.test.js`
 - **Done when:**
-  - [ ] Every [05 §5.2] case is tested against the fixtures.
+  - [x] Every [05 §5.2] case is tested against the fixtures.
 
 ### T-28.3 · Overlap sweep
 
