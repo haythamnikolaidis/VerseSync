@@ -34,6 +34,9 @@ jobs:
       - run: ruff check sidecar tools tests
       - run: mypy
       - run: pytest
+      # Already part of the run above; repeated so the mock and real parameters' run time is
+      # visible in the log (T-42.2).
+      - run: pytest tests/contract -q --durations=5
 
   js:
     runs-on: ubuntu-latest
