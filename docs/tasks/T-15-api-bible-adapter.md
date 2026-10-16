@@ -58,7 +58,7 @@ logged and never serialised.
 
 ### T-15.2 · Batching, retry and error mapping
 
-**Executor** agent · **Size** S · **Prereqs** T-15.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-15.1 · **Status** in-progress
 
 - **Read:** [06 §3.2, §4](../06-bible-text-service.md) (the "Batching" paragraph)
 - **Touches:** `sidecar/versesync/bible/api_bible.py` · `tests/test_api_bible.py`
