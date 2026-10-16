@@ -87,6 +87,43 @@
     };
   }
 
+  // Words shown either side of the matched span in the transcript context (docs/09 §5.3).
+  var CONTEXT_WORDS = 15;
+
+  var CONTEXT_MISSING = 'Transcript not available for this document.';
+
+  // Pure view model of the transcript context. words is the transcript array
+  // ([{text,start,end}]); a cue with no detection block (manual) or a word_span outside the
+  // transcript has no context (null). The matched span is word_span (inclusive); a word is in
+  // the read span when its midpoint falls inside read_start_s..read_end_s.
+  function contextViewModel(cue, words) {
+    if (!cue.detection || !words || !cue.detection.word_span) { return null; }
+    var first = cue.detection.word_span[0];
+    var last = cue.detection.word_span[1];
+    if (first < 0 || last >= words.length || last < first) { return null; }
+    var hasRead = cue.classification === 'read' &&
+      typeof cue.read_start_s === 'number' && typeof cue.read_end_s === 'number';
+    var from = Math.max(0, first - CONTEXT_WORDS);
+    var to = Math.min(words.length - 1, last + CONTEXT_WORDS);
+    var out = [];
+    for (var i = from; i <= to; i++) {
+      var w = words[i];
+      var mid = (w.start + w.end) / 2;
+      out.push({
+        text: w.text,
+        match: i >= first && i <= last,
+        read: hasRead && mid >= cue.read_start_s && mid <= cue.read_end_s
+      });
+    }
+    return out;
+  }
+
+  function classificationLine(cue) {
+    if (cue.classification !== 'read') { return 'PARAPHRASE'; }
+    var cov = typeof cue.read_coverage === 'number' ? ' (coverage ' + cue.read_coverage.toFixed(2) + ')' : '';
+    return 'READ' + cov;
+  }
+
   function el(doc, tag, cls, text) {
     var node = doc.createElement(tag);
     if (cls) { node.className = cls; }
@@ -102,7 +139,10 @@
     var box = el(doc, 'input', 'vf-row-check');
     box.type = 'checkbox';
     box.setAttribute('aria-label', 'Enable ' + vm.reference);
-    var tc = el(doc, 'span', 'vf-row-timecode', vm.timecode);
+    var tc = el(doc, 'button', 'vf-row-timecode', vm.timecode);
+    tc.type = 'button';
+    tc.disabled = !vm.placed;
+    tc.title = 'Move the playhead here';
     var ref = el(doc, 'span', 'vf-row-reference', vm.reference);
     var flags = el(doc, 'span', 'vf-row-flags');
     line1.appendChild(box);
@@ -129,9 +169,63 @@
     return row;
   }
 
+  function renderContext(doc, holder, words) {
+    var vm = contextViewModel(holder.cue, words);
+    holder = holder.node;
+    while (holder.firstChild) { holder.removeChild(holder.firstChild); }
+    if (!vm) { holder.appendChild(el(doc, 'div', 'vf-hint vf-ctx-missing', CONTEXT_MISSING)); return; }
+    var line = el(doc, 'div', 'vf-ctx-text');
+    vm.forEach(function (w, i) {
+      if (i > 0) { line.appendChild(doc.createTextNode(' ')); }
+      if (w.match && (i === 0 || !vm[i - 1].match)) { line.appendChild(el(doc, 'span', 'vf-ctx-arrow', '\u25B8')); }
+      var cls = 'vf-ctx-word' + (w.match ? ' vf-ctx-match' : '') + (w.read ? ' vf-ctx-read' : '');
+      line.appendChild(el(doc, 'span', cls, w.text));
+      if (w.match && (i === vm.length - 1 || !vm[i + 1].match)) { line.appendChild(el(doc, 'span', 'vf-ctx-arrow', '\u25C2')); }
+    });
+    holder.appendChild(line);
+  }
+
+  // The expanded part of a row: reference, verse text (read-only), transcript context and the
+  // classification line. getTranscript() resolves to the word array or null.
+  function buildDetail(doc, cue, getTranscript) {
+    var box = el(doc, 'div', 'vf-row-detail');
+    var refLine = el(doc, 'div', 'vf-detail-reference');
+    refLine.appendChild(el(doc, 'span', 'vf-detail-label', 'Reference '));
+    refLine.appendChild(el(doc, 'span', 'vf-detail-value', cue.reference_display));
+    box.appendChild(refLine);
+
+    var verse = el(doc, 'div', 'vf-detail-verse');
+    verse.appendChild(el(doc, 'span', 'vf-detail-body', cue.body));
+    if ((cue.flags || []).indexOf('long_passage') !== -1) {
+      verse.appendChild(el(doc, 'span', 'vf-detail-truncated',
+        ' \u2026 (long passage: the text ends here)'));
+    }
+    box.appendChild(verse);
+
+    if (cue.detection) {
+      box.appendChild(el(doc, 'div', 'vf-detail-label', 'Transcript context'));
+      var ctx = el(doc, 'div', 'vf-detail-context');
+      box.appendChild(ctx);
+      Promise.resolve(getTranscript ? getTranscript() : null).then(function (words) {
+        renderContext(doc, { cue: cue, node: ctx }, words);
+      }, function () {
+        renderContext(doc, { cue: cue, node: ctx }, null);
+      });
+    }
+
+    var cls = el(doc, 'div', 'vf-detail-classification');
+    cls.appendChild(el(doc, 'span', 'vf-detail-label', 'Classification '));
+    cls.appendChild(el(doc, 'span', 'vf-detail-value', classificationLine(cue)));
+    box.appendChild(cls);
+    return box;
+  }
+
   // Applies the parts of a view model that change when a cue is toggled or re-flagged.
   function updateRow(doc, row, vm) {
-    row.className = 'row' + (vm.enabled ? '' : ' vf-row--disabled');
+    row.className = 'row' + (vm.enabled ? '' : ' vf-row--disabled') +
+      (row.querySelector('.vf-row-detail') ? ' vf-row--expanded' : '');
+    row.querySelector('.vf-row-timecode').textContent = vm.timecode;
+    row.querySelector('.vf-row-timecode').disabled = !vm.placed;
     row.querySelector('.vf-row-check').checked = vm.enabled;
     var holder = row.querySelector('.vf-row-flags');
     while (holder.firstChild) { holder.removeChild(holder.firstChild); }
@@ -142,8 +236,8 @@
   }
 
   // opts: { root, model, getPlacements, bridge, threshold, onSave, onLoad, onExport, onInsert }.
-  // getPlacements() returns the VSTimemap.mapCueDocument placements map. bridge is accepted for
-  // the expanded row (T-29.6). The on* callbacks run the Save menu entries and the Insert button.
+  // getPlacements() returns the VSTimemap.mapCueDocument placements map. bridge moves the playhead
+  // (the timecode button); getTranscript() resolves to the transcript words or null. The on* callbacks run the Save menu entries and the Insert button.
   function create(opts) {
     var container = opts.root;
     var doc = container.ownerDocument;
@@ -289,6 +383,26 @@
       return vm;
     }
 
+    // Clicking the row body expands or collapses it; the checkbox and the timecode keep their
+    // own behaviour.
+    function toggleExpanded(id) {
+      var row = rows[id];
+      var open = row.querySelector('.vf-row-detail');
+      if (open) {
+        row.removeChild(open);
+        row.classList.remove('vf-row--expanded');
+        return;
+      }
+      row.appendChild(buildDetail(doc, model.get(id), opts.getTranscript));
+      row.classList.add('vf-row--expanded');
+    }
+
+    function movePlayhead(id) {
+      var p = placementOf(id);
+      if (!p || !p.timecode || !opts.bridge) { return; }
+      opts.bridge.call('setPlayhead', { ticks: String(p.atTicks) });
+    }
+
     function onToggle(id, checked) {
       model.setEnabled(id, checked);
       refreshRow(id);
@@ -304,6 +418,15 @@
         var row = buildRow(doc, vm);
         row.querySelector('.vf-row-check').addEventListener('change', function (e) {
           onToggle(item.cue.id, e.target.checked);
+        });
+        row.querySelector('.vf-row-timecode').addEventListener('click', function () {
+          movePlayhead(item.cue.id);
+        });
+        row.addEventListener('click', function (e) {
+          var t = e.target;
+          if (t.closest && (t.closest('.vf-row-check') || t.closest('.vf-row-timecode') ||
+              t.closest('.vf-row-detail'))) { return; }
+          toggleExpanded(item.cue.id);
         });
         rows[item.cue.id] = row;
         updateRow(doc, row, vm);
@@ -326,6 +449,7 @@
     FLAGS: FLAGS,
     NO_TIMECODE: NO_TIMECODE,
     rowViewModel: rowViewModel,
+    contextViewModel: contextViewModel,
     create: create
   };
 

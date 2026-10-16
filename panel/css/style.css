@@ -426,6 +426,14 @@ button:focus-visible, select:focus-visible, input:focus-visible {
   padding: 3px 6px;
 }
 .row.vf-row--disabled { opacity: 0.5; }
+.row.vf-row--expanded { max-height: none; }
+.vf-row-timecode { background: none; border: 0; color: inherit; cursor: pointer; padding: 0; }
+.vf-row-timecode:disabled { cursor: default; }
+.vf-row-detail { border-top: 1px solid var(--border); margin-top: 3px; padding: 4px 0 2px 24px; }
+.vf-detail-label { color: var(--text-dim); }
+.vf-detail-truncated { color: var(--text-dim); font-style: italic; }
+.vf-ctx-match { font-weight: bold; }
+.vf-ctx-read { text-decoration: underline; }
 
 .vf-row-main { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .vf-row-timecode { font-family: 'Consolas', 'Courier New', monospace; }

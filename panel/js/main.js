@@ -159,6 +159,7 @@
           model: s.model,
           getPlacements: function () { return s.mapping.placements; },
           bridge: bridge,
+          getTranscript: function () { return loadTranscript(s); },
           onSave: saveDocument,
           onLoad: loadDocument,
           onExport: exportTxt
@@ -199,6 +200,21 @@
         return Promise.resolve(read && read.err === 0 ? read.data : null);
       }
       return Promise.resolve(null);
+    }
+
+    // The transcript words for the expanded rows: fetched once per document (the promise is kept
+    // on the session), resolving to the word array or null when there is none.
+    function loadTranscript(s) {
+      if (!s.transcriptWords) {
+        s.transcriptWords = Promise.resolve().then(function () {
+          return transcriptText(s);
+        }).then(function (text) {
+          if (text === null) { return null; }
+          var words = JSON.parse(text);
+          return Array.isArray(words) ? words : null;
+        }).catch(function () { return null; });
+      }
+      return s.transcriptWords;
     }
 
     function saveDocument() {
@@ -329,7 +345,8 @@
             model: model,
             manualOffsetTicks: null,
             mapping: null,
-            review: null
+            review: null,
+            transcriptWords: null
           };
           var mapping = remap();
           if (mapping.unmatched) { showManualOffset(); return null; }
