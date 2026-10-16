@@ -125,7 +125,7 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
 
 ### T-29.4 · The Analyse → review flow (makes the screen demoable)
 
-**Executor** agent · **Size** S · **Prereqs** T-29.3, T-27.4 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-29.3, T-27.4 · **Status** done
 
 - **Read:** [03 §4](../03-architecture.md) (Journey A, steps 1–4) · [09 §7](../09-ui-spec.md)
 - **Touches:** `panel/js/main.js` · `tests/panel/analyse-flow.test.js` (new)
@@ -149,7 +149,7 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
      Then run `npm run smoke -- --expect '#review .row' --count 18`. Commit.
 - **Verify:** `node --test tests/panel/analyse-flow.test.js && npm run smoke`
 - **Done when:**
-  - [ ] **The review list can be demoed in a browser against the stubs** (the old Wave 1 exit
+  - [x] **The review list can be demoed in a browser against the stubs** (the old Wave 1 exit
         criterion).
 
 ### T-29.5 · List header and actions
