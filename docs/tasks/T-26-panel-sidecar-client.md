@@ -62,7 +62,7 @@ client.health() / models() / translations() / startJob(req) / job(id) / result(i
 
 ### T-26.2 · Discovery, launch, health polling, lifecycle states
 
-**Executor** agent · **Size** S · **Prereqs** T-26.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-26.1 · **Status** done
 
 - **Read:** [03 §3](../03-architecture.md) · [07 §1.1](../07-sidecar-api.md) ·
   [09 §2](../09-ui-spec.md) (the status table)
@@ -98,9 +98,9 @@ client.health() / models() / translations() / startJob(req) / job(id) / result(i
      Commit.
 - **Verify:** `node --test tests/panel/sidecar-lifecycle.test.js`
 - **Done when:**
-  - [ ] It reattaches instead of launching a second sidecar.
-  - [ ] A stale lock is recovered from.
-  - [ ] It times out at exactly 30 s, not 5 s.
+  - [x] It reattaches instead of launching a second sidecar.
+  - [x] A stale lock is recovered from.
+  - [x] It times out at exactly 30 s, not 5 s.
 
 ### T-26.3 · Job watcher: SSE, polling fallback, rejoin after reload
 
