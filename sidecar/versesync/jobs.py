@@ -276,6 +276,19 @@ class _Reporter:
         self._progress = Progress()
         self._last_phase: str | None = None
         self._last_published = 0.0
+        self._last_value = 0.0
+
+    def finish(self) -> None:
+        """Publish a closing 1.0 if throttling dropped it (07 section 2: progress ends at 1.0)."""
+        job = self._job
+        if job.phase is None or self._last_value >= 1.0:
+            return
+        job.progress = 1.0
+        self._last_value = 1.0
+        data: dict[str, Any] = {"phase": job.phase, "progress": 1.0, "eta_s": 0}
+        if job.message is not None:
+            data["message"] = job.message
+        self._registry.publish(job.id, "progress", data)
 
     def skip_transcribing(self) -> None:
         """Renormalise the bar once a cache hit is known (after hashing, so hashing is done)."""
@@ -294,6 +307,7 @@ class _Reporter:
             return
         self._last_phase = phase
         self._last_published = now
+        self._last_value = round(job.progress, 4)
         data: dict[str, Any] = {
             "phase": phase,
             "progress": round(job.progress, 4),
@@ -349,11 +363,6 @@ def run_job(
             ),
         )
         return
-    # Throttling may have dropped the last in-phase report, so a stream that ends without this
-    # would stop short of 1.0 (07 section 2: progress ends at 1.0).
-    final: dict[str, Any] = {"phase": job.phase, "progress": 1.0, "eta_s": 0}
-    if job.phase is not None:
-        registry.publish(job.id, "progress", final)
     job.status = "done"
     job.phase = None
     job.progress = 1.0
@@ -445,6 +454,7 @@ def _run_phases(
     result_path = app_home() / "jobs" / job.id / "cues.json"
     write_document(doc, words, result_path)
     job.result_path = result_path
+    reporter.finish()
     return len(doc["cues"])
 
 

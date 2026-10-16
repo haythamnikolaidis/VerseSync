@@ -137,10 +137,12 @@ def test_happy_run(app_home: Path, media: Path) -> None:
 
 
 def test_progress_events_never_decrease_and_are_throttled(app_home: Path, media: Path) -> None:
-    # A clock that never moves: only phase changes publish, one event per phase.
+    # A clock that never moves: only phase changes publish, one event per phase, plus the
+    # closing 1.0 that the last phase always gets (07 section 2).
     still = start(media, clock=FakeClock(step=0.0))
     still_events = [d for n, d in still.drain() if n == "progress"]
-    assert [d["phase"] for d in still_events] == PHASES
+    assert [d["phase"] for d in still_events] == [*PHASES, PHASES[-1]]
+    assert still_events[-1]["progress"] == 1.0
 
     # A clock that moves 0.6 s per reading is past the 0.5 s minimum, so every report publishes.
     moving = start(
