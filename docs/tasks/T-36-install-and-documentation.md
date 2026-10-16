@@ -38,7 +38,7 @@ with **dry-run and fake-filesystem modes**. Proving it on a clean machine is T-3
 
 ### T-36.2 · Panel installer
 
-**Executor** agent · **Size** XS · **Prereqs** T-22.1 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-22.1 · **Status** in-progress
 
 - **Read:** `reference/verseflow/README.md` (the debug-mode install section)
 - **Touches:** `tools/install_panel.ps1` (new) · `tools/install_panel.reg` (new) ·
