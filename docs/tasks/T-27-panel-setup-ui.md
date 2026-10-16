@@ -92,7 +92,7 @@ unit tests. **Render functions** are thin, are tested under jsdom, and are check
 
 ### T-27.3 · Setup view (part 2): translation, track, duration, lead-in, Analyse
 
-**Executor** agent · **Size** S · **Prereqs** T-27.2, T-26.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-27.2, T-26.1 · **Status** in-progress
 
 - **Read:** [09 §3](../09-ui-spec.md) (the Translation, Target track, Duration, Lead-in and
   Analyse rows)
