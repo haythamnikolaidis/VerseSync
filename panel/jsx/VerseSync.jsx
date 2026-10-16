@@ -313,3 +313,124 @@ VS.getMogrtFields = function (argsJson) {
         return _err('getMogrtFields: ' + e);
     }
 };
+
+// ---- VS.getMediaSegments ----------------------------------------------------
+
+// docs/08 section 9
+var VS_MSG_SEQUENCE_CHANGED_PREFIX = 'The active sequence changed since this analysis. Switch back to "';
+var VS_MSG_SEQUENCE_CHANGED_SUFFIX = '" or click Analyse again.';
+
+// Name of the project sequence whose ID is sequenceId, or null if none.
+var _sequenceNameById = function (sequenceId) {
+    var seqs = app.project.sequences;
+    if (!seqs) return null;
+    var n = seqs.numSequences !== undefined ? seqs.numSequences : seqs.length;
+    for (var i = 0; i < n; i++) {
+        if (seqs[i] && String(seqs[i].sequenceID) === sequenceId) {
+            return String(seqs[i].name);
+        }
+    }
+    return null;
+};
+
+// D20: compares the caller's sequenceId to the active sequence. Returns
+// { seq: <active sequence> } on a match, otherwise { err: <_err response> }.
+var _checkSequenceId = function (sequenceId) {
+    var seq = app.project.activeSequence;
+    if (!seq) return { err: _err(VS_MSG_NO_SEQUENCE) };
+    if (typeof sequenceId !== 'string' || sequenceId === '') {
+        return { err: _err(VS_MSG_NO_SEQUENCE) };
+    }
+    if (String(seq.sequenceID) === sequenceId) return { seq: seq };
+    var name = _sequenceNameById(sequenceId);
+    if (name === null) return { err: _err(VS_MSG_NO_SEQUENCE) };
+    return { err: _err(VS_MSG_SEQUENCE_CHANGED_PREFIX + name + VS_MSG_SEQUENCE_CHANGED_SUFFIX) };
+};
+
+// Backslashes to slashes, repeated slashes collapsed (a leading // is kept so
+// UNC paths stay distinct), lowercased for Windows case-insensitivity.
+var _normalisePath = function (p) {
+    var s = String(p).replace(/\\/g, '/');
+    var unc = s.indexOf('//') === 0;
+    s = s.replace(/\/{2,}/g, '/');
+    if (unc) s = '/' + s;
+    return s.toLowerCase();
+};
+
+// Ticks are at most ~1e15, well inside the 2^53 range of a Number, so plain
+// subtraction is exact; results go back out as strings.
+var _ticksBetween = function (startTicks, endTicks) {
+    return String(Number(endTicks) - Number(startTicks));
+};
+
+var _segmentFor = function (trackType, trackIndex, clip, speed) {
+    var startTicks = String(clip.start.ticks);
+    var endTicks = String(clip.end.ticks);
+    return {
+        trackType:     trackType,
+        trackIndex:    trackIndex,
+        seqStartTicks: startTicks,
+        seqEndTicks:   endTicks,
+        inPointTicks:  String(clip.inPoint.ticks),
+        durationTicks: _ticksBetween(startTicks, endTicks),
+        speed:         speed,
+        name:          String(clip.name)
+    };
+};
+
+var _walkTracksForMedia = function (tracks, trackType, target, segments, unsupported) {
+    for (var t = 0; t < tracks.numTracks; t++) {
+        var clips = tracks[t].clips;
+        // Premiere's TrackItemCollection exposes numItems; a plain array has length.
+        var count = clips.numItems !== undefined ? clips.numItems : clips.length;
+        for (var c = 0; c < count; c++) {
+            var clip = clips[c];
+            // projectItem can be null (T-04); check it before chaining.
+            if (!clip || !clip.projectItem) continue;
+
+            var path = '';
+            try { path = clip.projectItem.getMediaPath(); } catch (e) { path = ''; }
+
+            if (!path) {
+                // Nested sequence, multicam or offline media (T-04): not told apart.
+                unsupported.push({
+                    trackType:  trackType,
+                    trackIndex: t,
+                    name:       String(clip.name),
+                    reason:     'unresolvable_media'
+                });
+                continue;
+            }
+            if (_normalisePath(path) !== target) continue;
+
+            var speed = clip.getSpeed();
+            if (speed !== 1) {
+                // In and out points are garbage once the speed changes (T-04).
+                var u = _segmentFor(trackType, t, clip, speed);
+                u.reason = 'speed_change';
+                unsupported.push(u);
+                continue;
+            }
+            segments.push(_segmentFor(trackType, t, clip, speed));
+        }
+    }
+};
+
+VS.getMediaSegments = _wrap('getMediaSegments', function (args) {
+    var checked = _checkSequenceId(args.sequenceId);
+    if (checked.err) return checked.err;
+    if (typeof args.mediaPath !== 'string' || args.mediaPath === '') {
+        return _err('getMediaSegments: mediaPath must be a non-empty string');
+    }
+    var seq = checked.seq;
+    var target = _normalisePath(args.mediaPath);
+    var segments = [];
+    var unsupported = [];
+    _walkTracksForMedia(seq.videoTracks, 'video', target, segments, unsupported);
+    _walkTracksForMedia(seq.audioTracks, 'audio', target, segments, unsupported);
+    return _ok({
+        matched:     segments.length > 0,
+        segments:    segments,
+        unsupported: unsupported
+    });
+});
