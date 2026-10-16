@@ -11,7 +11,7 @@ import signal
 import sys
 import threading
 import time
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
 from pathlib import Path
 from types import FrameType
 from typing import Any
@@ -42,8 +42,6 @@ class _TrackedServer(SidecarServer):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.last_request = time.monotonic()
-        # Idle exit waits while this is non-zero; attach_jobs() points it at the job registry.
-        self.active_jobs: Callable[[], int] = lambda: 0
 
     def match(self, method: str, path: str) -> tuple[tuple[_Route, dict[str, str]] | None, bool]:
         self.last_request = time.monotonic()
@@ -99,13 +97,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         return 1
 
+    provider = CachingProvider(LocalProvider())
     service = JobService(
-        config=config,
-        backend_factory=lambda: get_backend(config),
-        provider=CachingProvider(LocalProvider()),
+        config=config, backend_factory=lambda: get_backend(config), provider=provider
     )
     server.attach_jobs(service)
-    server.active_jobs = service.active_count
+    server.attach_provider(provider)
 
     pid = os.getpid()
     info = lockfile.LockInfo(

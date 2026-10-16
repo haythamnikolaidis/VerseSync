@@ -9,16 +9,23 @@ from __future__ import annotations
 import hmac
 import json
 import logging
+import os
 import queue
 import re
 import threading
+import time
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from urllib.parse import parse_qs, unquote, urlsplit
 
+from versesync.bible.base import BibleError, BibleProvider, Translation, TranslationNotLicensed
+from versesync.bible.format import format_passage
 from versesync.config import Config
+from versesync.detect.canon import load_canon
+from versesync.detect.parse import InvalidReference, parse_reference
 
 if TYPE_CHECKING:
     from versesync.jobs import JobService
@@ -44,6 +51,22 @@ SSE_POLL_S = 1.0
 # Chosen: a quiet stream writes an SSE comment after this many polls, so a client that has gone
 # away is noticed (the write fails) instead of holding a thread until the job ends.
 SSE_KEEPALIVE_POLLS = 15
+
+# Chosen: how long a provider reachability result is reused by /health. /health is polled by
+# the panel, and a real provider's list_translations is a network call.
+PROVIDER_CHECK_TTL_S = 30.0
+
+# 07 section 2 (/models). The word_timestamp_quality values come from the T-02 spike
+# (spikes/word_timestamps/RESULTS.md section 4): all three models were measured on real audio,
+# with p90 start error of 5.8-6.6 s dominated by paraphrase, not by the model, so none is
+# rated above "good"; a model the spike did not measure would be "unverified". Quantization
+# lists follow the 07 section 2 example.
+_QUANTIZATIONS = {"cuda": ["float16", "bfloat16", "float32"], "cpu": ["float32"]}
+_MODELS: tuple[tuple[str, str], ...] = (
+    ("distil-large-v3", "good"),
+    ("large-v3-turbo", "good"),
+    ("large-v3", "good"),
+)
 
 _TERMINAL_STATUSES = ("done", "failed", "cancelled")
 
@@ -135,6 +158,29 @@ def _compile_pattern(pattern: str) -> re.Pattern[str]:
     for index, part in enumerate(parts):
         out.append(f"(?P<{part}>[^/]+)" if index % 2 else re.escape(part))
     return re.compile("^" + "".join(out) + "$")
+
+
+def _model_downloaded(name: str) -> bool:
+    """Whether a faster-whisper copy of ``name`` is in the Hugging Face cache (no network)."""
+    hub = os.environ.get("HF_HUB_CACHE")
+    if hub:
+        root = Path(hub)
+    else:
+        home = os.environ.get("HF_HOME")
+        root = (Path(home) if home else Path.home() / ".cache" / "huggingface") / "hub"
+    # CTranslate2 conversions are published as faster-whisper-<name>, or faster-distil-whisper-<x>.
+    suffixes = (
+        f"--faster-whisper-{name}",
+        f"--faster-{name}",
+        f"--faster-distil-whisper-{name.removeprefix('distil-')}",
+    )
+    try:
+        return any(
+            entry.name.startswith("models--") and entry.name.endswith(suffixes)
+            for entry in root.iterdir()
+        )
+    except OSError:
+        return False
 
 
 class _Httpd(ThreadingHTTPServer):
@@ -284,9 +330,19 @@ class SidecarServer:
         self._serving = False
         self._closed = False
         self.jobs: JobService | None = None
+        # /health reports busy while this is non-zero; attach_jobs() points it at the registry.
+        self.active_jobs: Callable[[], int] = lambda: 0
+        self.provider: BibleProvider | None = None
+        self.model_downloaded: Callable[[str], bool] = _model_downloaded
+        self.clock: Callable[[], float] = time.monotonic
+        self._provider_check: tuple[float, bool] | None = None
+        self._provider_lock = threading.Lock()
         self.status = "starting"  # starting | ready | busy | degraded (07 §2)
         self.route("GET", "/health", lambda request: self.health(), auth=False)
         self.route("POST", "/shutdown", self._handle_shutdown)
+        self.route("GET", "/models", lambda request: self._models())
+        self.route("GET", "/translations", lambda request: self._translations())
+        self.route("POST", "/resolve", self._resolve)
 
     @property
     def server_address(self) -> tuple[str, int]:
@@ -313,6 +369,7 @@ class SidecarServer:
     def attach_jobs(self, service: JobService) -> None:
         """Register the ``/jobs`` routes (07 section 2) backed by ``service``."""
         self.jobs = service
+        self.active_jobs = service.active_count
         self.route("POST", "/jobs", service.start)
         self.route("GET", "/jobs/{id}", service.status)
         self.route("GET", "/jobs/{id}/result", service.result)
@@ -378,21 +435,135 @@ class SidecarServer:
 
         return EventStream(chunks())
 
+    def attach_provider(self, provider: BibleProvider) -> None:
+        """Set the Bible provider behind ``/translations``, ``/resolve`` and ``/health``."""
+        self.provider = provider
+        self._provider_check = None
+
+    def _require_provider(self) -> BibleProvider:
+        if self.provider is None:
+            raise ApiError(
+                503,
+                "provider_unavailable",
+                "No Bible text provider is configured.",
+                retryable=True,
+            )
+        return self.provider
+
+    def _models(self) -> dict[str, Any]:
+        """``GET /models`` (07 section 2)."""
+        recommended = str(self.config.transcription.get("model", ""))
+        return {
+            "models": [
+                {
+                    "name": name,
+                    "word_timestamp_quality": quality,
+                    "supported_quantizations": {k: list(v) for k, v in _QUANTIZATIONS.items()},
+                    "downloaded": self.model_downloaded(name),
+                    "recommended": name == recommended,
+                }
+                for name, quality in _MODELS
+            ]
+        }
+
+    def _translations(self) -> dict[str, Any]:
+        """``GET /translations`` (07 section 2)."""
+        provider = self._require_provider()
+        try:
+            translations = provider.list_translations()
+        except BibleError as exc:
+            raise ApiError(503, "provider_unavailable", exc.message, retryable=True) from exc
+        return {"provider": provider.id, "translations": [t.to_json() for t in translations]}
+
+    def _resolve(self, request: Request) -> dict[str, Any]:
+        """``POST /resolve`` (07 section 2): one reference to a ``Passage``."""
+        body = request.json()
+        if not isinstance(body, dict):
+            raise ApiError(400, "bad_request", "The request body must be a JSON object.")
+        reference = body.get("reference")
+        if not isinstance(reference, (str, dict)):
+            raise ApiError(400, "bad_request", "A reference (text or object) is required.")
+        provider = self._require_provider()
+        canon = load_canon()
+        try:
+            ref = parse_reference(reference, canon)
+            if ref.verse is None:
+                # D12: a chapter alone has no single passage to show.
+                raise InvalidReference(
+                    "Add a verse; a whole chapter can't be shown as one passage."
+                )
+            translations = provider.list_translations()
+            translation: Translation | None
+            wanted = body.get("translation_id")
+            if wanted is None:
+                default = str(self.config.bible.get("default_translation", "")).lower()
+                chosen = [t for t in translations if t.abbreviation.lower() == default]
+                translation = (chosen + translations)[0] if translations else None
+            else:
+                translation = next((t for t in translations if t.id == wanted), None)
+            if translation is None:
+                raise TranslationNotLicensed()
+            raw = provider.fetch(ref, translation.id)
+            passage = format_passage(
+                raw,
+                translation,
+                canon,
+                max_verses=int(self.config.bible.get("max_verses_per_passage", 6)),
+                source="local" if provider.id == "local" else "provider",
+            )
+        except InvalidReference as exc:
+            raise ApiError(400, "bad_request", str(exc)) from exc
+        except TranslationNotLicensed as exc:
+            raise ApiError(400, "translation_not_licensed", exc.message) from exc
+        except BibleError as exc:
+            if exc.code in ("provider_unavailable", "rate_limited"):
+                raise ApiError(503, "provider_unavailable", exc.message, retryable=True) from exc
+            raise ApiError(400, "bad_request", exc.message) from exc
+        return passage.to_json()
+
+    def _provider_reachable(self) -> bool:
+        """Whether ``list_translations`` works, re-checked at most every PROVIDER_CHECK_TTL_S."""
+        provider = self._require_provider()
+        with self._provider_lock:
+            now = self.clock()
+            if self._provider_check is not None and now - self._provider_check[0] < (
+                PROVIDER_CHECK_TTL_S
+            ):
+                return self._provider_check[1]
+            try:
+                provider.list_translations()
+                reachable = True
+            except (BibleError, OSError):
+                reachable = False
+            self._provider_check = (now, reachable)
+            return reachable
+
     def mark_ready(self) -> None:
         """Move ``/health`` from ``starting`` to ``ready``."""
         self.status = "ready"
 
     def health(self) -> dict[str, Any]:
         """The ``/health`` body (07 §2). Subclasses and the entry point override the pieces."""
+        active = self.active_jobs()
+        device = self.config.transcription.get("device")
+        provider = None
+        if self.provider is not None:
+            provider = {"id": self.provider.id, "reachable": self._provider_reachable()}
+        status = self.status
+        if status == "ready":
+            if active > 0:
+                status = "busy"
+            elif device == "cpu" or (provider is not None and not provider["reachable"]):
+                status = "degraded"
         return {
-            "status": self.status,
+            "status": status,
             "api_version": API_VERSION,
             "sidecar_version": SIDECAR_VERSION,
-            "device": None,
-            "model_loaded": None,
-            "gpu": None,
-            "provider": None,
-            "active_jobs": 0,
+            "device": device,
+            "model_loaded": None,  # the backend loads lazily, on the first job (T-20.2)
+            "gpu": None,  # no GPU probe without importing torch; the panel treats null as unknown
+            "provider": provider,
+            "active_jobs": active,
         }
 
     def _handle_shutdown(self, request: Request) -> RouteResult:

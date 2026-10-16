@@ -528,9 +528,7 @@ class JobService:
             raise ApiError(
                 status, error["code"], error["message"], hint=error["hint"], detail=error["detail"]
             ) from exc
-        cached = (
-            TranscriptCache().get(media_hash, opts) if options.get("use_cache", True) else None
-        )
+        cached = TranscriptCache().get(media_hash, opts) if options.get("use_cache", True) else None
         factors: dict[str, Any] = dict(self.config.server.get("estimate_factor") or {})
         factor = float(factors.get(opts.device, factors.get("default", 0.5)))
         if cached is not None:
