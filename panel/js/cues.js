@@ -214,7 +214,40 @@
     return result;
   }
 
-  var Cues = { load: load, validateCue: validateCue };
+  // The saved file: the schema-shaped document as pretty JSON with a trailing newline.
+  function serialize(model) {
+    return JSON.stringify(model.toJSON(), null, 2) + '\n';
+  }
+
+  // VerseFlow block format (docs/06 §2): reference line, body on one line, blank line between
+  // blocks. Only enabled cues with a body are written, in source anchor order (stable, so cues
+  // with equal anchors keep document order).
+  function exportVerseFlowTxt(model) {
+    var picked = [];
+    var all = model.cues();
+    for (var i = 0; i < all.length; i++) {
+      var cue = all[i];
+      if (cue.enabled && cue.body.replace(/\s+/g, ' ').trim() !== '') {
+        picked.push({ cue: cue, index: i });
+      }
+    }
+    picked.sort(function (a, b) {
+      return (a.cue.source_anchor_s - b.cue.source_anchor_s) || (a.index - b.index);
+    });
+    var blocks = [];
+    for (var j = 0; j < picked.length; j++) {
+      blocks.push(picked[j].cue.reference_display.trim() + '\n' +
+        picked[j].cue.body.replace(/\s+/g, ' ').trim() + '\n');
+    }
+    return blocks.join('\n');
+  }
+
+  var Cues = {
+    load: load,
+    validateCue: validateCue,
+    serialize: serialize,
+    exportVerseFlowTxt: exportVerseFlowTxt
+  };
 
   if (typeof module !== 'undefined' && module.exports) { module.exports = Cues; }
   else { root.VSCues = Cues; }
