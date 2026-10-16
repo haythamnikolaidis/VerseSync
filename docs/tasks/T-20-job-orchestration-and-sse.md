@@ -22,7 +22,7 @@ to it.
 
 ### T-20.1 · Progress accounting and the job registry
 
-**Executor** agent · **Size** S · **Prereqs** T-05.4 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-05.4 · **Status** in-progress
 
 - **Read:** [07 §2](../07-sidecar-api.md) (`GET /jobs/{id}`) · [07 §4](../07-sidecar-api.md)
 - **Touches:** `sidecar/versesync/jobs.py` (new) · `tests/test_jobs_progress.py` (new)
