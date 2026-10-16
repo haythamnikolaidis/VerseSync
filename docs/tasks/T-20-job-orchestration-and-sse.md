@@ -159,7 +159,7 @@ to it.
 
 ### T-20.5 · `/models`, `/translations`, `/resolve`, and `/health` status
 
-**Executor** agent · **Size** S · **Prereqs** T-20.3, T-48.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-20.3, T-48.1 · **Status** in-progress
 
 - **Read:** [07 §2](../07-sidecar-api.md) (`/health`, `/models`, `/translations`, `/resolve`)
 - **Touches:** `sidecar/versesync/server.py` · `sidecar/versesync/sidecar.py` ·
