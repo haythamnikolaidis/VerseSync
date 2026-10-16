@@ -215,7 +215,7 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
 
 ### T-29.7 · Reference editing and re-resolve
 
-**Executor** agent · **Size** S · **Prereqs** T-29.6 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-29.6 · **Status** done
 
 - **Read:** [09 §5.3](../09-ui-spec.md) (the Reference field) · [07 §2](../07-sidecar-api.md)
   (`POST /resolve`)
@@ -242,8 +242,8 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
      Commit.
 - **Verify:** `node --test tests/panel/review-reference.test.js`
 - **Done when:**
-  - [ ] Editing a reference re-resolves it and updates the text and the duration.
-  - [ ] Errors appear inline.
+  - [x] Editing a reference re-resolves it and updates the text and the duration.
+  - [x] Errors appear inline.
 
 ### T-29.8 · Timing edits: nudges, set-to-playhead, duration override
 
