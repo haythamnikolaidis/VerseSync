@@ -67,7 +67,7 @@ So the manifest **must** enable Node: `--enable-nodejs` and `--mixed-context` un
 
 ### T-22.2 · `bridge.js` port
 
-**Executor** agent · **Size** S · **Prereqs** T-22.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-22.1 · **Status** done
 
 - **Read:** [08 §1](../08-premiere-host-api.md) · `reference/verseflow/js/bridge.js`
 - **Touches:** `panel/js/bridge.js` (new) · `tests/panel/bridge.test.js` (new)
@@ -99,8 +99,8 @@ So the manifest **must** enable Node: `--enable-nodejs` and `--mixed-context` un
      Commit.
 - **Verify:** `node --test tests/panel/bridge.test.js`
 - **Done when:**
-  - [ ] The bridge never throws or rejects, in any test.
-  - [ ] `loadJSX` happens at init.
+  - [x] The bridge never throws or rejects, in any test.
+  - [x] `loadJSX` happens at init.
 
 ### T-22.H · Panel loads in Premiere
 
