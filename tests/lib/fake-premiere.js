@@ -298,7 +298,14 @@ function createFakePremiere() {
     });
     const base = String(path).split(/[\\/]/).pop().replace(/\.[^.]*$/, '');
     const clip = createClip({ name: base, startTicks: start, endTicks: end, projectItem: false });
-    clip.getMGTComponent = function () { return buildMgtComponent(tpl.fields); };
+    // One component per clip, so what the host writes can be read back.
+    let mgt = null;
+    clip.getMGTComponent = function () {
+      if (mgt === null) {
+        mgt = buildMgtComponent(tpl.fields);
+      }
+      return mgt;
+    };
     attach(track, clip);
     return clip;
   }
