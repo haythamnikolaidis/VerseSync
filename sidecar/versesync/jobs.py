@@ -19,6 +19,7 @@ from versesync.cache import TranscriptCache, hash_media
 from versesync.config import Config
 from versesync.cues import write_document
 from versesync.detect.detector import DetectConfig
+from versesync.errors import CATALOGUE, render
 from versesync.paths import app_home
 from versesync.pipeline import Cancelled, PipelineConfig, run_pipeline
 from versesync.server import ApiError, Request
@@ -140,7 +141,7 @@ class JobRegistry:
         with self._lock:
             job = self._jobs.get(job_id)
         if job is None:
-            raise ApiError(404, "job_not_found", f"No job with id {job_id}")
+            raise ApiError.of("job_not_found", job_id=job_id)
         return job
 
     def subscribe(self, job_id: str) -> Queue[tuple[str, dict[str, Any]]]:
@@ -184,49 +185,27 @@ PHASE_MESSAGES = {
 _PROVIDER_JOB_CODES = frozenset({"provider_unavailable", "translation_not_licensed"})
 
 
-def _error(
-    code: str,
-    message: str,
-    *,
-    hint: str | None = None,
-    detail: str | None = None,
-    retryable: bool = False,
-) -> dict[str, Any]:
-    """The 07 §3 envelope's inner object, the same shape ``ApiError.body()`` renders."""
-    return {
-        "code": code,
-        "message": message,
-        "detail": detail,
-        "retryable": retryable,
-        "hint": hint,
-    }
+def _error(key: str, **fields: Any) -> dict[str, Any]:
+    """The 07 §3 inner object for catalogue ``key``, shaped as ``ApiError.body()`` renders it."""
+    inner = render(key, **fields)
+    del inner["status"]
+    return inner
 
 
 class _MediaError(Exception):
     """A media file that is missing or unreadable, already mapped to its 07 §3 code."""
 
-    def __init__(self, error: dict[str, Any]) -> None:
-        super().__init__(error["message"])
-        self.error = error
+    def __init__(self, key: str, path: Path, detail: str | None = None) -> None:
+        self.key = key
+        self.path = path
+        self.error = _error(key, path=path, detail=detail)
+        super().__init__(self.error["message"])
 
 
 def _media_error(path: Path, exc: OSError) -> _MediaError:
     if isinstance(exc, FileNotFoundError):
-        return _MediaError(
-            _error(
-                "media_not_found",
-                f"The media file could not be found: {path}",
-                hint="Check that the drive is connected and the file has not moved.",
-            )
-        )
-    return _MediaError(
-        _error(
-            "media_unreadable",
-            f"The media file could not be read: {path}",
-            detail=str(exc),
-            hint="Check that the file is not open in another program and that you can read it.",
-        )
-    )
+        return _MediaError("media_not_found", path)
+    return _MediaError("media_unreadable", path, detail=str(exc))
 
 
 def _overrides(cls: type, *sources: dict[str, Any]) -> dict[str, Any]:
@@ -339,28 +318,26 @@ def run_job(
     except Cancelled:
         job.status = "cancelled"
         job.message = "Cancelled"
-        error = _error("cancelled", "The job was cancelled.")
+        error = _error("cancelled")
         registry.publish(job.id, "failed", {"job_id": job.id, "error": error})
         return
     except _MediaError as exc:
         _fail(job, registry, exc.error)
         return
     except TranscriptionError as exc:
-        _fail(job, registry, _error(exc.code, exc.message, hint=exc.hint))
+        _fail(job, registry, _transcription_error(exc))
         return
     except BibleError as exc:
-        code = exc.code if exc.code in _PROVIDER_JOB_CODES else "internal"
-        _fail(job, registry, _error(code, exc.message, retryable=code == "provider_unavailable"))
+        if exc.code in _PROVIDER_JOB_CODES:
+            _fail(job, registry, _error(exc.code, reason=exc.message))
+        else:
+            _fail(job, registry, _error("internal.job", detail=f"{type(exc).__name__}: {exc}"))
         return
     except Exception as exc:  # noqa: BLE001 - a job must always end in a terminal event
         _fail(
             job,
             registry,
-            _error(
-                "internal",
-                "VerseSync hit an unexpected problem while analysing the media.",
-                detail=f"{type(exc).__name__}: {exc}",
-            ),
+            _error("internal.job", detail=f"{type(exc).__name__}: {exc}"),
         )
         return
     job.status = "done"
@@ -368,6 +345,19 @@ def run_job(
     job.progress = 1.0
     job.message = "Done"
     registry.publish(job.id, "done", {"job_id": job.id, "cue_count": cue_count})
+
+
+def _transcription_error(exc: TranscriptionError) -> dict[str, Any]:
+    """A backend failure as an envelope; codes outside 07 §3 keep the backend's own text."""
+    if exc.code in CATALOGUE:
+        return _error(exc.code, message=exc.message, hint=exc.hint, reason=exc.message)
+    return {
+        "code": exc.code,
+        "message": exc.message,
+        "detail": None,
+        "retryable": False,
+        "hint": exc.hint,
+    }
 
 
 def _fail(job: Job, registry: JobRegistry, error: dict[str, Any]) -> None:
@@ -509,25 +499,15 @@ class JobService:
 
     def _validated_media(self, raw: Any) -> Path:
         if not isinstance(raw, str) or not raw:
-            raise ApiError(400, "bad_request", "The request needs a media_path.")
+            raise ApiError.of("bad_request.media_path_missing")
         path = Path(raw)
         roots = [Path(str(r)) for r in self.config.server.get("allowed_media_roots") or []]
         if roots:
             resolved = path.resolve()
             if not any(resolved.is_relative_to(root.resolve()) for root in roots):
-                raise ApiError(
-                    400,
-                    "bad_request",
-                    "That media file is outside the folders VerseSync may read.",
-                    hint="Pick a file from one of the allowed media folders.",
-                )
+                raise ApiError.of("bad_request.media_outside_roots")
         if not path.is_file():
-            raise ApiError(
-                404,
-                "media_not_found",
-                f"The media file could not be found: {raw}",
-                hint="Check that the drive is connected and the file has not moved.",
-            )
+            raise ApiError.of("media_not_found", path=raw)
         return path
 
     def _estimate(self, body: dict[str, Any], media: Path) -> tuple[bool, float]:
@@ -538,11 +518,8 @@ class JobService:
             media_hash = hash_media(media)
             size = media.stat().st_size
         except OSError as exc:
-            error = _media_error(media, exc).error
-            status = 404 if error["code"] == "media_not_found" else 400
-            raise ApiError(
-                status, error["code"], error["message"], hint=error["hint"], detail=error["detail"]
-            ) from exc
+            failure = _media_error(media, exc)
+            raise ApiError.of(failure.key, path=media, detail=failure.error["detail"]) from exc
         cached = TranscriptCache().get(media_hash, opts) if options.get("use_cache", True) else None
         factors: dict[str, Any] = dict(self.config.server.get("estimate_factor") or {})
         factor = float(factors.get(opts.device, factors.get("default", 0.5)))
@@ -554,12 +531,12 @@ class JobService:
     def start(self, request: Request) -> tuple[int, dict[str, Any]]:
         body = request.json()
         if not isinstance(body, dict):
-            raise ApiError(400, "bad_request", "The request body must be a JSON object.")
+            raise ApiError.of("bad_request.body_not_object")
         translation_id = body.get("translation_id")
         if not isinstance(translation_id, str) or not translation_id:
-            raise ApiError(400, "bad_request", "The request needs a translation_id.")
+            raise ApiError.of("bad_request.translation_missing")
         if not isinstance(body.get("options", {}), dict):
-            raise ApiError(400, "bad_request", "options must be a JSON object.")
+            raise ApiError.of("bad_request.options_not_object")
         media = self._validated_media(body.get("media_path"))
         cache_hit, estimate = self._estimate(body, media)
         job = self.registry.create()
@@ -590,22 +567,14 @@ class JobService:
     def _finished_job(self, request: Request) -> Job:
         job = self.registry.get(request.params["id"])
         if job.status != "done" or job.result_path is None:
-            raise ApiError(
-                409,
-                "job_not_finished",
-                f"Job {job.id} is {job.status}, not done.",
-                hint="Wait for the job to finish.",
-                retryable=True,
-            )
+            raise ApiError.of("job_not_finished", job_id=job.id, state=job.status)
         return job
 
     def _read_json(self, path: Path) -> Any:
         try:
             return json.loads(path.read_text(encoding="utf-8"))
         except (OSError, ValueError) as exc:
-            raise ApiError(
-                404, "job_not_found", "The result of that job is no longer available."
-            ) from exc
+            raise ApiError.of("job_not_found.result_gone") from exc
 
     def result(self, request: Request) -> Any:
         job = self._finished_job(request)

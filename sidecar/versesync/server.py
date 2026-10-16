@@ -26,6 +26,7 @@ from versesync.bible.format import format_passage
 from versesync.config import Config
 from versesync.detect.canon import load_canon
 from versesync.detect.parse import InvalidReference, parse_reference
+from versesync.errors import render
 
 if TYPE_CHECKING:
     from versesync.jobs import JobService
@@ -94,6 +95,31 @@ class ApiError(Exception):
         self.detail = detail
         self.retryable = retryable
 
+    @classmethod
+    def of(
+        cls,
+        key: str,
+        *,
+        status: int | None = None,
+        message: str | None = None,
+        hint: str | None = None,
+        detail: str | None = None,
+        retryable: bool | None = None,
+        **params: Any,
+    ) -> ApiError:
+        """Build the error for catalogue ``key`` (see ``versesync.errors``)."""
+        fields = render(
+            key, message=message, hint=hint, detail=detail, retryable=retryable, **params
+        )
+        return cls(
+            fields["status"] if status is None else status,
+            fields["code"],
+            fields["message"],
+            hint=fields["hint"],
+            detail=fields["detail"],
+            retryable=fields["retryable"],
+        )
+
     def body(self) -> dict[str, Any]:
         return {
             "error": {
@@ -124,7 +150,7 @@ class Request:
         try:
             return json.loads(self.raw_body.decode("utf-8"))
         except (UnicodeDecodeError, ValueError) as exc:
-            raise ApiError(400, "bad_request", "The request body is not valid JSON.") from exc
+            raise ApiError.of("bad_request.invalid_json") from exc
 
 
 @dataclass
@@ -262,11 +288,11 @@ class _Handler(BaseHTTPRequestHandler):
         try:
             length = int(self.headers.get("Content-Length", "0") or "0")
         except ValueError as exc:
-            raise ApiError(400, "bad_request", "The Content-Length header is invalid.") from exc
+            raise ApiError.of("bad_request.invalid_length") from exc
         if length < 0:
-            raise ApiError(400, "bad_request", "The Content-Length header is invalid.")
+            raise ApiError.of("bad_request.invalid_length")
         if length > MAX_BODY_BYTES:
-            raise ApiError(413, "bad_request", "The request body is too large.")
+            raise ApiError.of("bad_request.body_too_large")
         return self.rfile.read(length) if length else b""
 
     def _dispatch(self) -> None:
@@ -280,8 +306,8 @@ class _Handler(BaseHTTPRequestHandler):
                     return
             if matched is None:
                 if path_known:
-                    raise ApiError(405, "bad_request", f"{method} is not allowed here.")
-                raise ApiError(404, "bad_request", "No such endpoint.")
+                    raise ApiError.of("bad_request.method_not_allowed", method=method)
+                raise ApiError.of("bad_request.no_endpoint")
             route, params = matched
             request = Request(
                 method=method,
@@ -305,12 +331,7 @@ class _Handler(BaseHTTPRequestHandler):
         except Exception:
             # Full detail goes to the log only; the client sees nothing of the cause.
             _log.exception("unhandled error serving %s %s", self.command, self.path.split("?")[0])
-            error = ApiError(
-                500,
-                "internal",
-                "Something went wrong inside VerseSync.",
-                hint="Check the VerseSync log for details.",
-            )
+            error = ApiError.of("internal")
             self._send_json(error.status, error.body())
 
 
@@ -442,12 +463,7 @@ class SidecarServer:
 
     def _require_provider(self) -> BibleProvider:
         if self.provider is None:
-            raise ApiError(
-                503,
-                "provider_unavailable",
-                "No Bible text provider is configured.",
-                retryable=True,
-            )
+            raise ApiError.of("provider_unavailable.not_configured")
         return self.provider
 
     def _models(self) -> dict[str, Any]:
@@ -472,17 +488,17 @@ class SidecarServer:
         try:
             translations = provider.list_translations()
         except BibleError as exc:
-            raise ApiError(503, "provider_unavailable", exc.message, retryable=True) from exc
+            raise ApiError.of("provider_unavailable", reason=exc.message) from exc
         return {"provider": provider.id, "translations": [t.to_json() for t in translations]}
 
     def _resolve(self, request: Request) -> dict[str, Any]:
         """``POST /resolve`` (07 section 2): one reference to a ``Passage``."""
         body = request.json()
         if not isinstance(body, dict):
-            raise ApiError(400, "bad_request", "The request body must be a JSON object.")
+            raise ApiError.of("bad_request.body_not_object")
         reference = body.get("reference")
         if not isinstance(reference, (str, dict)):
-            raise ApiError(400, "bad_request", "A reference (text or object) is required.")
+            raise ApiError.of("bad_request.reference_missing")
         provider = self._require_provider()
         canon = load_canon()
         try:
@@ -512,13 +528,13 @@ class SidecarServer:
                 source="local" if provider.id == "local" else "provider",
             )
         except InvalidReference as exc:
-            raise ApiError(400, "bad_request", str(exc)) from exc
+            raise ApiError.of("bad_request", problem=str(exc)) from exc
         except TranslationNotLicensed as exc:
-            raise ApiError(400, "translation_not_licensed", exc.message) from exc
+            raise ApiError.of("translation_not_licensed", reason=exc.message) from exc
         except BibleError as exc:
             if exc.code in ("provider_unavailable", "rate_limited"):
-                raise ApiError(503, "provider_unavailable", exc.message, retryable=True) from exc
-            raise ApiError(400, "bad_request", exc.message) from exc
+                raise ApiError.of("provider_unavailable", reason=exc.message) from exc
+            raise ApiError.of("bad_request", problem=exc.message) from exc
         return passage.to_json()
 
     def _provider_reachable(self) -> bool:
