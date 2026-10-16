@@ -126,7 +126,7 @@ unit tests. **Render functions** are thin, are tested under jsdom, and are check
 
 ### T-27.4 · Status strip and progress view
 
-**Executor** agent · **Size** S · **Prereqs** T-27.3, T-26.3, T-49 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-27.3, T-26.3, T-49 · **Status** in-progress
 
 - **Read:** [09 §2, §4](../09-ui-spec.md)
 - **Touches:** `panel/js/progress.js` (new) · `panel/js/main.js` (wiring) · `panel/index.html` ·
