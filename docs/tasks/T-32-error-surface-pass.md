@@ -16,7 +16,7 @@ be removed with one Ctrl+Z.**
 
 ### T-32.1 · Sidecar error catalogue
 
-**Executor** agent · **Size** S · **Prereqs** T-20.5 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-20.5 · **Status** in-progress
 
 - **Read:** [07 §3](../07-sidecar-api.md) · [03 §8](../03-architecture.md) (the sidecar rows)
 - **Touches:** `sidecar/versesync/errors.py` (new; one table of messages and hints by `code`) ·
