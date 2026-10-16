@@ -26,6 +26,7 @@ test('scripts load in the required order', () => {
     'js/bridge.js',
     'js/state.js',
     'js/setup.js',
+    'js/progress.js',
     'js/main.js'
   ]);
 });

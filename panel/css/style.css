@@ -326,6 +326,33 @@ select.vf-select:focus { outline: 2px solid var(--accent); outline-offset: 1px; 
 }
 .vf-status--error { color: var(--text-error); }
 
+.vf-status-details-btn { margin-left: 8px; }
+.vf-status-details {
+  margin-top: 4px;
+  color: var(--text-dim);
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 10px;
+  word-break: break-all;
+}
+.vf-status-details[hidden] { display: none; }
+
+/* ── Progress view and collapsed setup ───────────────────────────────────── */
+.vf-progress-phase { color: var(--text); }
+.vf-progress-cache { color: var(--accent); font-size: 11px; }
+.vf-progress-cancel { align-self: flex-start; }
+.vf-setup-summary {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  padding: 4px 8px;
+  text-align: left;
+}
+.vf-setup-summary:hover { background: var(--btn-hover); }
+.vf-setup-summary[hidden] { display: none; }
+
 /* ── Diagnostic output ───────────────────────────────────────────────────── */
 .vf-diag {
   background: #0d0d0d;
