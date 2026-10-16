@@ -92,7 +92,7 @@ Config defaults come from [05 §2](../05-timing-and-placement.md): `MIN_VISIBLE_
 
 ### T-28.3 · Overlap sweep
 
-**Executor** agent · **Size** XS · **Prereqs** T-28.2 · **Status** in-progress
+**Executor** agent · **Size** XS · **Prereqs** T-28.2 · **Status** done
 
 - **Read:** [05 §8](../05-timing-and-placement.md)
 - **Touches:** `panel/js/timemap.js` · `tests/panel/timemap-overlap.test.js` (new)
@@ -112,8 +112,8 @@ Config defaults come from [05 §2](../05-timing-and-placement.md): `MIN_VISIBLE_
      Commit.
 - **Verify:** `node --test tests/panel/timemap-overlap.test.js`
 - **Done when:**
-  - [ ] Every [11 §2](../11-testing.md) "Overlap sweep" case passes.
-  - [ ] After the sweep, no enabled pair overlaps. This is the guarantee T-25 depends on.
+  - [x] Every [11 §2](../11-testing.md) "Overlap sweep" case passes.
+  - [x] After the sweep, no enabled pair overlaps. This is the guarantee T-25 depends on.
 
 ### T-28.4 · `mapCueDocument`, manual offset, worked example
 
