@@ -87,10 +87,145 @@
     };
   }
 
+  function el(doc, tag, cls, text) {
+    var node = doc.createElement(tag);
+    if (cls) { node.className = cls; }
+    if (text !== undefined) { node.textContent = text; }
+    return node;
+  }
+
+  function buildRow(doc, vm) {
+    var row = el(doc, 'div', 'row');
+    row.setAttribute('data-cue-id', vm.id);
+
+    var line1 = el(doc, 'div', 'vf-row-main');
+    var box = el(doc, 'input', 'vf-row-check');
+    box.type = 'checkbox';
+    box.setAttribute('aria-label', 'Enable ' + vm.reference);
+    var tc = el(doc, 'span', 'vf-row-timecode', vm.timecode);
+    var ref = el(doc, 'span', 'vf-row-reference', vm.reference);
+    var flags = el(doc, 'span', 'vf-row-flags');
+    line1.appendChild(box);
+    line1.appendChild(tc);
+    line1.appendChild(ref);
+    line1.appendChild(flags);
+
+    var line2 = el(doc, 'div', 'vf-row-meta');
+    line2.appendChild(el(doc, 'span', 'vf-row-badge', vm.badge));
+    line2.appendChild(el(doc, 'span', 'vf-row-sep', ' \u00B7 '));
+    line2.appendChild(el(doc, 'span', 'vf-row-confidence' + (vm.confidence.amber ? ' vf-flag--amber' : ''),
+      vm.confidence.text));
+    line2.appendChild(el(doc, 'span', 'vf-row-sep', ' \u00B7 '));
+    line2.appendChild(el(doc, 'span', 'vf-row-duration', vm.duration));
+
+    var snip = el(doc, 'div', 'vf-row-snippet');
+    snip.appendChild(doc.createTextNode(vm.snippet.before));
+    if (vm.snippet.match) { snip.appendChild(el(doc, 'mark', 'vf-row-match', vm.snippet.match)); }
+    snip.appendChild(doc.createTextNode(vm.snippet.after));
+
+    row.appendChild(line1);
+    row.appendChild(line2);
+    row.appendChild(snip);
+    return row;
+  }
+
+  // Applies the parts of a view model that change when a cue is toggled or re-flagged.
+  function updateRow(doc, row, vm) {
+    row.className = 'row' + (vm.enabled ? '' : ' vf-row--disabled');
+    row.querySelector('.vf-row-check').checked = vm.enabled;
+    var holder = row.querySelector('.vf-row-flags');
+    while (holder.firstChild) { holder.removeChild(holder.firstChild); }
+    vm.flags.forEach(function (f) {
+      holder.appendChild(el(doc, 'span', 'vf-flag vf-flag--' + f.color + ' vf-flag-' + f.flag,
+        '\u2691 ' + f.label));
+    });
+  }
+
+  // opts: { root, model, getPlacements, bridge, threshold }. getPlacements() returns the
+  // VSTimemap.mapCueDocument placements map. bridge is accepted for the expanded row (T-29.6).
+  function create(opts) {
+    var container = opts.root;
+    var doc = container.ownerDocument;
+    var model = opts.model;
+    var threshold = opts.threshold;
+    var rows = {};
+
+    var header = el(doc, 'div', 'vf-review-header');
+    var list = el(doc, 'div', 'vf-review-list');
+    container.appendChild(header);
+    container.appendChild(list);
+
+    function placementOf(id) {
+      var all = opts.getPlacements ? opts.getPlacements() : null;
+      return all ? all[id] : undefined;
+    }
+
+    function flaggedCount(cues) {
+      var n = 0;
+      cues.forEach(function (cue) {
+        if (rowViewModel(cue, placementOf(cue.id), threshold).flags.length > 0) { n++; }
+      });
+      return n;
+    }
+
+    function updateHeader() {
+      var cues = model.cues();
+      header.textContent = 'REVIEW \u2014 ' + cues.length + ' found \u00B7 ' +
+        model.enabledCount() + ' enabled [\u2691 ' + flaggedCount(cues) + ']';
+    }
+
+    function sorted(cues) {
+      var items = cues.map(function (cue, i) {
+        var p = placementOf(cue.id);
+        var placed = !!(p && p.timecode);
+        return { cue: cue, index: i, placed: placed, ticks: placed ? Number(p.atTicks) : 0 };
+      });
+      items.sort(function (a, b) {
+        if (a.placed !== b.placed) { return a.placed ? -1 : 1; }
+        if (a.ticks !== b.ticks) { return a.ticks - b.ticks; }
+        return a.index - b.index;
+      });
+      return items;
+    }
+
+    function refreshRow(id) {
+      var vm = rowViewModel(model.get(id), placementOf(id), threshold);
+      updateRow(doc, rows[id], vm);
+      return vm;
+    }
+
+    function onToggle(id, checked) {
+      model.setEnabled(id, checked);
+      refreshRow(id);
+      updateHeader();
+    }
+
+    // Full render: rebuilds every row, sorted by sequence timecode, cut cues last.
+    function render() {
+      while (list.firstChild) { list.removeChild(list.firstChild); }
+      rows = {};
+      sorted(model.cues()).forEach(function (item) {
+        var vm = rowViewModel(item.cue, placementOf(item.cue.id), threshold);
+        var row = buildRow(doc, vm);
+        row.querySelector('.vf-row-check').addEventListener('change', function (e) {
+          onToggle(item.cue.id, e.target.checked);
+        });
+        rows[item.cue.id] = row;
+        updateRow(doc, row, vm);
+        list.appendChild(row);
+      });
+      updateHeader();
+    }
+
+    render();
+    return { render: render, refreshRow: refreshRow, updateHeader: updateHeader };
+  }
+
   var Review = {
     FLAGS: FLAGS,
     NO_TIMECODE: NO_TIMECODE,
-    rowViewModel: rowViewModel
+    rowViewModel: rowViewModel,
+    create: create
   };
 
   if (typeof module !== 'undefined' && module.exports) { module.exports = Review; }

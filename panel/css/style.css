@@ -384,4 +384,33 @@ button:focus-visible, select:focus-visible, input:focus-visible {
 .vf-flag--red   { color: var(--flag-red); }
 .vf-flag--grey  { color: var(--flag-grey); }
 
+/* ── Review rows (docs/09 §5.1) ──────────────────────────────────────────── */
+.vf-review-header { font-weight: bold; margin-bottom: 6px; }
+.vf-review-list { display: flex; flex-direction: column; gap: 4px; }
+
+.row {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  max-height: 64px; /* docs/09 §8: collapsed rows stay under ~64px */
+  overflow: hidden;
+  padding: 3px 6px;
+}
+.row.vf-row--disabled { opacity: 0.5; }
+
+.vf-row-main { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.vf-row-timecode { font-family: 'Consolas', 'Courier New', monospace; }
+.vf-row-reference { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vf-row-flags { display: flex; gap: 6px; white-space: nowrap; }
+.vf-row-meta { color: var(--text-dim); padding-left: 24px; }
+.vf-row-snippet {
+  color: var(--text-dim);
+  font-style: italic;
+  overflow: hidden;
+  padding-left: 24px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.vf-row-match { background: none; color: var(--text); font-weight: bold; }
+
 section[hidden] { display: none; }

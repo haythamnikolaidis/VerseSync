@@ -85,3 +85,103 @@ test('fixtures: every cue yields a view model', () => {
     });
   });
 });
+
+// ── Rendering ───────────────────────────────────────────────────────────────
+
+const { JSDOM } = require('jsdom');
+const VSTimemap = require('../../panel/js/timemap.js');
+
+const SEQ_INFO = { timebase: '10160640000', zeroPointTicks: '0', sequenceId: 'seq-1' };
+
+function mount(name) {
+  const model = loadModel(name);
+  const doc = new JSDOM('<section id="review"></section>').window.document;
+  const rootEl = doc.getElementById('review');
+  const mapped = VSTimemap.mapCueDocument(model.toJSON(), {
+    seqInfo: SEQ_INFO,
+    manualOffsetTicks: '0'
+  });
+  model.applyPanelFlags(mapped.placements);
+  VSReview.create({
+    root: rootEl, model, getPlacements: () => mapped.placements, bridge: null
+  });
+  return { model, rootEl, placements: mapped.placements, doc };
+}
+
+test('all four fixtures render one row per cue', () => {
+  const counts = { 'alternatives.json': 2, 'empty.json': 0, 'flagged.json': 12, 'happy-18-cues.json': 18 };
+  Object.keys(counts).forEach((name) => {
+    const m = mount(name);
+    assert.equal(m.rootEl.querySelectorAll('.row').length, counts[name], name);
+    assert.ok(m.rootEl.querySelector('.vf-review-header').textContent.indexOf(counts[name] + ' found') >= 0);
+  });
+});
+
+test('rows are sorted by sequence timecode, cut cues last', () => {
+  const m = mount('flagged.json');
+  const order = Array.from(m.rootEl.querySelectorAll('.row')).map((r) => r.getAttribute('data-cue-id'));
+  let lastTicks = -1;
+  order.forEach((id) => {
+    const t = Number(m.placements[id].atTicks);
+    assert.ok(t >= lastTicks);
+    lastTicks = t;
+  });
+});
+
+test('cut cues sort to the end', () => {
+  const model = loadModel('happy-18-cues.json');
+  const doc = new JSDOM('<section id="review"></section>').window.document;
+  const cues = model.cues();
+  const placements = {};
+  cues.forEach((c, i) => {
+    placements[c.id] = { timecode: '00:00:00:00', atTicks: String(1000 - i), panelFlags: [] };
+  });
+  placements[cues[17].id] = { timecode: '', atTicks: '0', panelFlags: ['cut_from_edit'] };
+  placements[cues[0].id] = { timecode: '', atTicks: '0', panelFlags: ['cut_from_edit'] };
+  VSReview.create({ root: doc.getElementById('review'), model, getPlacements: () => placements });
+  const ids = Array.from(doc.querySelectorAll('.row')).map((r) => r.getAttribute('data-cue-id'));
+  assert.equal(ids[0], cues[16].id);
+  assert.deepEqual(ids.slice(-2), [cues[0].id, cues[17].id]);
+});
+
+test('each of the 11 flags renders with its colour class and text label', () => {
+  const doc = new JSDOM('<section id="review"></section>').window.document;
+  const model = loadModel('happy-18-cues.json');
+  const flags = Object.keys(VSReview.FLAGS);
+  const placements = {};
+  placements[model.cues()[0].id] = { timecode: '00:00:00:00', atTicks: '0', panelFlags: flags };
+  VSReview.create({ root: doc.getElementById('review'), model, getPlacements: () => placements });
+  const row = doc.querySelector('.row');
+  flags.forEach((flag) => {
+    const badge = row.querySelector('.vf-flag-' + flag);
+    assert.ok(badge, flag);
+    assert.ok(badge.className.indexOf('vf-flag--' + VSReview.FLAGS[flag].color) >= 0, flag);
+    assert.ok(badge.textContent.indexOf(VSReview.FLAGS[flag].label) >= 0, flag);
+  });
+});
+
+function toggle(m, row, checked) {
+  const box = row.querySelector('.vf-row-check');
+  box.checked = checked;
+  box.dispatchEvent(new m.doc.defaultView.Event('change', { bubbles: true }));
+}
+
+test('a disabled row dims and the header counts follow the checkbox', () => {
+  const m = mount('happy-18-cues.json');
+  const first = m.rootEl.querySelector('.row');
+  const id = first.getAttribute('data-cue-id');
+  assert.equal(first.classList.contains('vf-row--disabled'), false);
+  toggle(m, first, false);
+  assert.equal(m.model.get(id).enabled, false);
+  assert.equal(first.classList.contains('vf-row--disabled'), true);
+  assert.ok(m.rootEl.querySelector('.vf-review-header').textContent.indexOf('17 enabled') >= 0);
+});
+
+test('toggling a checkbox does not replace other rows', () => {
+  const m = mount('happy-18-cues.json');
+  const before = Array.from(m.rootEl.querySelectorAll('.row'));
+  toggle(m, before[3], false);
+  const after = Array.from(m.rootEl.querySelectorAll('.row'));
+  assert.equal(after.length, before.length);
+  after.forEach((row, i) => assert.strictEqual(row, before[i]));
+});
