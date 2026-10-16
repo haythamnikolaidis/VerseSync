@@ -21,6 +21,8 @@ test('scripts load in the required order', () => {
   assert.deepStrictEqual(srcs, [
     'js/lib/CSInterface.js',
     'js/lib/host-stub.js',
+    'js/lib/sidecar-stub.js',
+    'js/sidecar.js',
     'js/bridge.js',
     'js/main.js'
   ]);
