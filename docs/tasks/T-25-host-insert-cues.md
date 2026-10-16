@@ -55,7 +55,7 @@ stands as written. T-03 also found two hazards that this epic must design around
 
 ### T-25.2 · `insertCues` placement loop
 
-**Executor** agent · **Size** S · **Prereqs** T-25.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-25.1 · **Status** done
 
 - **Read:** [08 §6](../08-premiere-host-api.md) (the per-cue body) ·
   `reference/verseflow/jsx/VerseFlow.jsx` (`_setTextField`, `_setClipDuration`, and the CSXS
@@ -87,9 +87,9 @@ stands as written. T-03 also found two hazards that this epic must design around
      Commit.
 - **Verify:** `node --test tests/host/insert-cues.test.js`
 - **Done when:**
-  - [ ] Exactly one undo group, which always closes.
-  - [ ] Failures are isolated per cue.
-  - [ ] `fontTextRunLength` is written.
+  - [x] Exactly one undo group, which always closes.
+  - [x] Failures are isolated per cue.
+  - [x] `fontTextRunLength` is written.
 
 ### T-25.3 · `VS.validateTrack`
 
