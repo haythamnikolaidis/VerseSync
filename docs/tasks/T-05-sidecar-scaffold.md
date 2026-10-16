@@ -93,7 +93,7 @@ The mock accepts any non-empty Origin, so the contract tests (T-42) send this va
 
 ### T-05.3 · HTTP server core: bind, auth, Origin, headers, errors, `/health`, `/shutdown`
 
-**Executor** agent · **Size** S · **Prereqs** T-05.2 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-05.2 · **Status** done
 
 - **Read:** [07 §1.2, §1.3, §2 (`/health`, `/shutdown`), §3](../07-sidecar-api.md) ·
   `tools/mock_sidecar.py` (the `Handler` auth path and the error-envelope helper only)
@@ -131,8 +131,8 @@ The mock accepts any non-empty Origin, so the contract tests (T-42) send this va
      Commit.
 - **Verify:** `pytest tests/test_server_auth.py -q`
 - **Done when:**
-  - [ ] Every assertion above passes.
-  - [ ] The server never binds `0.0.0.0`.
+  - [x] Every assertion above passes.
+  - [x] The server never binds `0.0.0.0`.
 
 ### T-05.4 · Entry point, logging, idle self-exit
 
