@@ -1,0 +1,322 @@
+{
+ "schema_version": "1.0",
+ "generated_at": "2026-09-14T10:00:00Z",
+ "job": {
+  "id": "job_golden_numbers-and-ordinals",
+  "media_path": "D:/Sermons/numbers-and-ordinals.MXF",
+  "media_hash": "sha256:abababababababababababababababababababababababababababababababab",
+  "media_duration_s": 600.0,
+  "model": "distil-large-v3",
+  "quantization": "float16",
+  "device": "cpu",
+  "language": "en",
+  "options": {}
+ },
+ "translation": {
+  "id": "kjv",
+  "abbreviation": "KJV",
+  "name": "King James Version",
+  "attribution": "Public domain."
+ },
+ "transcript": {
+  "word_count": 166,
+  "words_ref": "transcript_job_golden_numbers-and-ordinals.json"
+ },
+ "cues": [
+  {
+   "id": "cue_001",
+   "enabled": true,
+   "origin": "detected",
+   "reference": {
+    "book": "1 Corinthians",
+    "osis": "1Cor",
+    "chapter": 6,
+    "verse": 19,
+    "verse_end": 20
+   },
+   "reference_display": "1 Corinthians 6:19-20 (KJV)",
+   "body": "19 What? know ye not that your body is the temple of the Holy Ghost which is in you, which ye have of God, and ye are not your own? 20 For ye are bought with a price: therefore glorify God in your body, and in your spirit, which are God’s.",
+   "body_word_count": 51,
+   "body_truncated": false,
+   "source_anchor_s": 11.1,
+   "source_duration_s": 20.0,
+   "mention_start_s": 11.6,
+   "mention_end_s": 14.34,
+   "classification": "paraphrase",
+   "read_coverage": 0.07894736842105263,
+   "confidence": 0.93,
+   "detection": {
+    "pattern": "P6",
+    "contextual": false,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     4,
+     10
+    ],
+    "word_span": [
+     4,
+     9
+    ]
+   },
+   "snippet": "Turn with me to First Corinthians six, nineteen and twenty. Or do you not know…",
+   "flags": [],
+   "alternatives": []
+  },
+  {
+   "id": "cue_002",
+   "enabled": true,
+   "origin": "detected",
+   "reference": {
+    "book": "2 Timothy",
+    "osis": "2Tim",
+    "chapter": 1,
+    "verse": 7
+   },
+   "reference_display": "2 Timothy 1:7 (KJV)",
+   "body": "7 For God hath not given us the spirit of fear; but of power, and of love, and of a sound mind.",
+   "body_word_count": 22,
+   "body_truncated": false,
+   "source_anchor_s": 52.1,
+   "source_duration_s": 14.0,
+   "mention_start_s": 52.6,
+   "mention_end_s": 55.26,
+   "classification": "read",
+   "read_coverage": 0.8461538461538461,
+   "read_start_s": 57.34,
+   "read_end_s": 65.1,
+   "confidence": 1.0,
+   "detection": {
+    "pattern": "P4",
+    "contextual": false,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     44,
+     49
+    ],
+    "word_span": [
+     41,
+     46
+    ]
+   },
+   "snippet": "…are not your own? Now Second Timothy chapter one verse seven tells us that God hath…",
+   "flags": [],
+   "alternatives": []
+  },
+  {
+   "id": "cue_003",
+   "enabled": false,
+   "origin": "detected",
+   "reference": {
+    "book": "Romans",
+    "osis": "Rom",
+    "chapter": 8
+   },
+   "reference_display": "Romans 8 (KJV)",
+   "body": "",
+   "body_word_count": 0,
+   "body_truncated": false,
+   "source_anchor_s": 122.5,
+   "source_duration_s": 8.0,
+   "mention_start_s": 123.0,
+   "mention_end_s": 124.36,
+   "classification": "paraphrase",
+   "confidence": 0.88,
+   "detection": {
+    "pattern": "P5",
+    "contextual": false,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     96,
+     98
+    ],
+    "word_span": [
+     89,
+     91
+    ]
+   },
+   "snippet": "…have your Bibles, turn to Romans chapter eight. Turn to Psalm chapter one…",
+   "flags": [
+    "chapter_only"
+   ],
+   "alternatives": []
+  },
+  {
+   "id": "cue_004",
+   "enabled": false,
+   "origin": "detected",
+   "reference": {
+    "book": "Psalms",
+    "osis": "Ps",
+    "chapter": 119
+   },
+   "reference_display": "Psalm 119 (KJV)",
+   "body": "",
+   "body_word_count": 0,
+   "body_truncated": false,
+   "source_anchor_s": 149.7,
+   "source_duration_s": 8.0,
+   "mention_start_s": 150.2,
+   "mention_end_s": 152.88,
+   "classification": "paraphrase",
+   "confidence": 0.88,
+   "detection": {
+    "pattern": "P5",
+    "contextual": false,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     101,
+     103
+    ],
+    "word_span": [
+     94,
+     99
+    ]
+   },
+   "snippet": "…Romans chapter eight. Turn to Psalm chapter one hundred and nineteen, verse one hundred and seventy…",
+   "flags": [
+    "chapter_only"
+   ],
+   "alternatives": []
+  },
+  {
+   "id": "cue_005",
+   "enabled": true,
+   "origin": "detected",
+   "reference": {
+    "book": "Psalms",
+    "osis": "Ps",
+    "chapter": 119,
+    "verse": 176
+   },
+   "reference_display": "Psalm 119:176 (KJV)",
+   "body": "176 I have gone astray like a lost sheep; seek thy servant; for I do not forget thy commandments.",
+   "body_word_count": 19,
+   "body_truncated": false,
+   "source_anchor_s": 152.42,
+   "source_duration_s": 12.16,
+   "mention_start_s": 152.92,
+   "mention_end_s": 155.5,
+   "classification": "read",
+   "read_coverage": 1.0,
+   "read_start_s": 156.04,
+   "read_end_s": 163.58,
+   "confidence": 0.9550000000000001,
+   "detection": {
+    "pattern": "P12",
+    "contextual": true,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     105,
+     106
+    ],
+    "word_span": [
+     100,
+     105
+    ]
+   },
+   "snippet": "…chapter one hundred and nineteen, verse one hundred and seventy six. I have gone astray like…",
+   "flags": [],
+   "alternatives": []
+  },
+  {
+   "id": "cue_006",
+   "enabled": true,
+   "origin": "detected",
+   "reference": {
+    "book": "Philippians",
+    "osis": "Phil",
+    "chapter": 4,
+    "verse": 13
+   },
+   "reference_display": "Philippians 4:13 (KJV)",
+   "body": "13 I can do all things through Christ which strengtheneth me.",
+   "body_word_count": 11,
+   "body_truncated": false,
+   "source_anchor_s": 192.72,
+   "source_duration_s": 7.66,
+   "mention_start_s": 193.22,
+   "mention_end_s": 194.66,
+   "classification": "read",
+   "read_coverage": 1.0,
+   "read_start_s": 195.1,
+   "read_end_s": 199.38,
+   "confidence": 1.0,
+   "detection": {
+    "pattern": "P8",
+    "contextual": false,
+    "book_match": {
+     "tier": "alias",
+     "distance": 0
+    },
+    "token_span": [
+     129,
+     131
+    ],
+    "word_span": [
+     128,
+     130
+    ]
+   },
+   "snippet": "…commandments. Turn with me to Philippines four thirteen. I can do all things…",
+   "flags": [],
+   "alternatives": []
+  },
+  {
+   "id": "cue_007",
+   "enabled": true,
+   "origin": "detected",
+   "reference": {
+    "book": "Philippians",
+    "osis": "Phil",
+    "chapter": 4,
+    "verse": 2
+   },
+   "reference_display": "Philippians 4:2 (KJV)",
+   "body": "2 I beseech Euodias, and beseech Syntyche, that they be of the same mind in the Lord.",
+   "body_word_count": 17,
+   "body_truncated": false,
+   "source_anchor_s": 226.6,
+   "source_duration_s": 7.9,
+   "mention_start_s": 227.1,
+   "mention_end_s": 227.92,
+   "classification": "paraphrase",
+   "read_coverage": 0.2,
+   "confidence": 0.795,
+   "detection": {
+    "pattern": "P12",
+    "contextual": true,
+    "book_match": {
+     "tier": "alias",
+     "distance": 0
+    },
+    "token_span": [
+     147,
+     148
+    ],
+    "word_span": [
+     145,
+     146
+    ]
+   },
+   "snippet": "…me. Turn to Third John, verse two. Beloved, I wish above all…",
+   "flags": [],
+   "alternatives": []
+  }
+ ],
+ "warnings": []
+}

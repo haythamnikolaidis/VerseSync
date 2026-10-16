@@ -1,0 +1,241 @@
+{
+ "schema_version": "1.0",
+ "generated_at": "2026-09-14T10:00:00Z",
+ "job": {
+  "id": "job_golden_long-sermon-filler",
+  "media_path": "D:/Sermons/long-sermon-filler.MXF",
+  "media_hash": "sha256:abababababababababababababababababababababababababababababababab",
+  "media_duration_s": 600.0,
+  "model": "distil-large-v3",
+  "quantization": "float16",
+  "device": "cpu",
+  "language": "en",
+  "options": {}
+ },
+ "translation": {
+  "id": "kjv",
+  "abbreviation": "KJV",
+  "name": "King James Version",
+  "attribution": "Public domain."
+ },
+ "transcript": {
+  "word_count": 7015,
+  "words_ref": "transcript_job_golden_long-sermon-filler.json"
+ },
+ "cues": [
+  {
+   "id": "cue_001",
+   "enabled": false,
+   "origin": "detected",
+   "reference": {
+    "book": "John",
+    "osis": "John",
+    "chapter": 3
+   },
+   "reference_display": "John 3 (KJV)",
+   "body": "",
+   "body_word_count": 0,
+   "body_truncated": false,
+   "source_anchor_s": 542.03,
+   "source_duration_s": 8.0,
+   "mention_start_s": 542.53,
+   "mention_end_s": 543.85,
+   "classification": "paraphrase",
+   "confidence": 0.88,
+   "detection": {
+    "pattern": "P5",
+    "contextual": false,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     1269,
+     1271
+    ],
+    "word_span": [
+     1214,
+     1216
+    ]
+   },
+   "snippet": "…you. Turn with me to John chapter three, verse sixteen. For God so…",
+   "flags": [
+    "chapter_only"
+   ],
+   "alternatives": []
+  },
+  {
+   "id": "cue_002",
+   "enabled": true,
+   "origin": "detected",
+   "reference": {
+    "book": "John",
+    "osis": "John",
+    "chapter": 3,
+    "verse": 16
+   },
+   "reference_display": "John 3:16 (KJV)",
+   "body": "16 For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.",
+   "body_word_count": 26,
+   "body_truncated": false,
+   "source_anchor_s": 543.39,
+   "source_duration_s": 13.72,
+   "mention_start_s": 543.89,
+   "mention_end_s": 544.79,
+   "classification": "read",
+   "read_coverage": 1.0,
+   "read_start_s": 545.33,
+   "read_end_s": 556.11,
+   "confidence": 0.9550000000000001,
+   "detection": {
+    "pattern": "P12",
+    "contextual": true,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     1273,
+     1274
+    ],
+    "word_span": [
+     1217,
+     1218
+    ]
+   },
+   "snippet": "…me to John chapter three, verse sixteen. For God so loved the…",
+   "flags": [],
+   "alternatives": []
+  },
+  {
+   "id": "cue_003",
+   "enabled": false,
+   "origin": "detected",
+   "reference": {
+    "book": "John",
+    "osis": "John",
+    "chapter": 3,
+    "verse": 16
+   },
+   "reference_display": "John 3:16 (KJV)",
+   "body": "16 For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.",
+   "body_word_count": 26,
+   "body_truncated": false,
+   "source_anchor_s": 576.45,
+   "source_duration_s": 3.0,
+   "mention_start_s": 576.95,
+   "mention_end_s": 578.27,
+   "classification": "read",
+   "read_coverage": 1.0,
+   "read_start_s": 545.33,
+   "read_end_s": 556.11,
+   "confidence": 1.0,
+   "detection": {
+    "pattern": "P8",
+    "contextual": false,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     1304,
+     1306
+    ],
+    "word_span": [
+     1246,
+     1248
+    ]
+   },
+   "snippet": "…have everlasting life. Again — John three sixteen. Good morning, church, it is…",
+   "flags": [
+    "suppressed_duplicate"
+   ],
+   "alternatives": []
+  },
+  {
+   "id": "cue_004",
+   "enabled": false,
+   "origin": "detected",
+   "reference": {
+    "book": "John",
+    "osis": "John",
+    "chapter": 3
+   },
+   "reference_display": "John 3 (KJV)",
+   "body": "",
+   "body_word_count": 0,
+   "body_truncated": false,
+   "source_anchor_s": 1282.36,
+   "source_duration_s": 8.0,
+   "mention_start_s": 1282.86,
+   "mention_end_s": 1284.18,
+   "classification": "paraphrase",
+   "confidence": 0.88,
+   "detection": {
+    "pattern": "P5",
+    "contextual": false,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     2986,
+     2988
+    ],
+    "word_span": [
+     2856,
+     2858
+    ]
+   },
+   "snippet": "…back with me again to John chapter three, verse sixteen. For God so…",
+   "flags": [
+    "chapter_only"
+   ],
+   "alternatives": []
+  },
+  {
+   "id": "cue_005",
+   "enabled": true,
+   "origin": "detected",
+   "reference": {
+    "book": "John",
+    "osis": "John",
+    "chapter": 3,
+    "verse": 16
+   },
+   "reference_display": "John 3:16 (KJV)",
+   "body": "16 For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.",
+   "body_word_count": 26,
+   "body_truncated": false,
+   "source_anchor_s": 1283.72,
+   "source_duration_s": 13.72,
+   "mention_start_s": 1284.22,
+   "mention_end_s": 1285.12,
+   "classification": "read",
+   "read_coverage": 1.0,
+   "read_start_s": 1285.66,
+   "read_end_s": 1296.44,
+   "confidence": 0.9550000000000001,
+   "detection": {
+    "pattern": "P12",
+    "contextual": true,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     2990,
+     2991
+    ],
+    "word_span": [
+     2859,
+     2860
+    ]
+   },
+   "snippet": "…again to John chapter three, verse sixteen. For God so loved the…",
+   "flags": [],
+   "alternatives": []
+  }
+ ],
+ "warnings": []
+}

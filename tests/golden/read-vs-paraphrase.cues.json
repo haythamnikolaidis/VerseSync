@@ -1,0 +1,156 @@
+{
+ "schema_version": "1.0",
+ "generated_at": "2026-09-14T10:00:00Z",
+ "job": {
+  "id": "job_golden_read-vs-paraphrase",
+  "media_path": "D:/Sermons/read-vs-paraphrase.MXF",
+  "media_hash": "sha256:abababababababababababababababababababababababababababababababab",
+  "media_duration_s": 600.0,
+  "model": "distil-large-v3",
+  "quantization": "float16",
+  "device": "cpu",
+  "language": "en",
+  "options": {}
+ },
+ "translation": {
+  "id": "kjv",
+  "abbreviation": "KJV",
+  "name": "King James Version",
+  "attribution": "Public domain."
+ },
+ "transcript": {
+  "word_count": 128,
+  "words_ref": "transcript_job_golden_read-vs-paraphrase.json"
+ },
+ "cues": [
+  {
+   "id": "cue_001",
+   "enabled": true,
+   "origin": "detected",
+   "reference": {
+    "book": "1 Corinthians",
+    "osis": "1Cor",
+    "chapter": 13,
+    "verse": 4,
+    "verse_end": 7
+   },
+   "reference_display": "1 Corinthians 13:4-7 (KJV)",
+   "body": "4 Charity suffereth long, and is kind; charity envieth not; charity vaunteth not itself, is not puffed up, 5 Doth not behave itself unseemly, seeketh not her own, is not easily provoked, thinketh no evil; 6 Rejoiceth not in iniquity, but rejoiceth in the truth; 7 Beareth all things, believeth all things, hopeth all things, endureth all things.",
+   "body_word_count": 58,
+   "body_truncated": false,
+   "source_anchor_s": 9.5,
+   "source_duration_s": 28.86,
+   "mention_start_s": 10.0,
+   "mention_end_s": 12.82,
+   "classification": "read",
+   "read_coverage": 1.0,
+   "read_start_s": 13.36,
+   "read_end_s": 37.36,
+   "confidence": 1.0,
+   "detection": {
+    "pattern": "P6",
+    "contextual": false,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     0,
+     6
+    ],
+    "word_span": [
+     0,
+     5
+    ]
+   },
+   "snippet": "First Corinthians thirteen, four through seven. Charity suffereth long, and is…",
+   "flags": [],
+   "alternatives": []
+  },
+  {
+   "id": "cue_002",
+   "enabled": false,
+   "origin": "detected",
+   "reference": {
+    "book": "1 Corinthians",
+    "osis": "1Cor",
+    "chapter": 13
+   },
+   "reference_display": "1 Corinthians 13 (KJV)",
+   "body": "",
+   "body_word_count": 0,
+   "body_truncated": false,
+   "source_anchor_s": 86.94,
+   "source_duration_s": 8.0,
+   "mention_start_s": 87.44,
+   "mention_end_s": 88.88,
+   "classification": "paraphrase",
+   "confidence": 0.88,
+   "detection": {
+    "pattern": "P9",
+    "contextual": false,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     84,
+     86
+    ],
+    "word_span": [
+     72,
+     74
+    ]
+   },
+   "snippet": "…Paul talks about back in First Corinthians thirteen — love that's patient, love…",
+   "flags": [
+    "chapter_only"
+   ],
+   "alternatives": []
+  },
+  {
+   "id": "cue_003",
+   "enabled": true,
+   "origin": "detected",
+   "reference": {
+    "book": "Joshua",
+    "osis": "Josh",
+    "chapter": 1,
+    "verse": 9
+   },
+   "reference_display": "Joshua 1:9 (KJV)",
+   "body": "9 Have not I commanded thee? Be strong and of a good courage; be not afraid, neither be thou dismayed: for the Lord thy God is with thee whithersoever thou goest.",
+   "body_word_count": 31,
+   "body_truncated": false,
+   "source_anchor_s": 126.06,
+   "source_duration_s": 16.84,
+   "mention_start_s": 126.56,
+   "mention_end_s": 128.74,
+   "classification": "read",
+   "read_coverage": 1.0,
+   "read_start_s": 129.18,
+   "read_end_s": 141.9,
+   "confidence": 1.0,
+   "detection": {
+    "pattern": "P4",
+    "contextual": false,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     106,
+     110
+    ],
+    "word_span": [
+     93,
+     97
+    ]
+   },
+   "snippet": "…up. Turn with me to Joshua chapter one verse nine. Have not I commanded thee?…",
+   "flags": [],
+   "alternatives": []
+  }
+ ],
+ "warnings": []
+}
