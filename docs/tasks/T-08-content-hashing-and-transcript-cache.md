@@ -1,6 +1,6 @@
 # T-08 · Content hashing and transcript cache
 
-**Executor** agent · **Size** S · **Prereqs** T-07.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-07.1 · **Status** in-progress
 
 | | |
 |---|---|
