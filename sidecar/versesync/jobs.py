@@ -7,12 +7,23 @@ import secrets
 import threading
 import time
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field, fields, replace
 from pathlib import Path
 from queue import Queue
 from typing import Any
 
+from versesync.bible.base import BibleError, BibleProvider, Translation, TranslationNotLicensed
+from versesync.cache import TranscriptCache, hash_media
+from versesync.config import Config
+from versesync.cues import write_document
+from versesync.detect.detector import DetectConfig
+from versesync.paths import app_home
+from versesync.pipeline import Cancelled, PipelineConfig, run_pipeline
 from versesync.server import ApiError
+from versesync.timing.align import AlignConfig
+from versesync.timing.anchor import TimingConfig
+from versesync.transcribe import Backend, TranscribeOptions, TranscriptionError
+from versesync.types import Word
 
 # 07 §4: transcribing dominates; the other phases share the remainder.
 PHASE_WEIGHTS: tuple[tuple[str, float], ...] = (
@@ -68,6 +79,10 @@ class Job:
     cache_hit: bool = False
     created: float = 0.0
     result_path: Path | None = None
+    # Set by whoever cancels the job (DELETE /jobs/{id}); the runner polls it between steps.
+    cancel_event: threading.Event = field(
+        default_factory=threading.Event, repr=False, compare=False
+    )
 
     def snapshot(self, now: float | None = None) -> dict[str, Any]:
         """The ``GET /jobs/{id}`` body (07 §2)."""
@@ -144,3 +159,277 @@ class JobRegistry:
     def active_count(self) -> int:
         with self._lock:
             return sum(1 for j in self._jobs.values() if j.status in ("queued", "running"))
+
+
+# 07 §2 (SSE): within a phase, progress events are at most twice a second.
+PROGRESS_MIN_INTERVAL_S = 0.5
+
+PHASE_MESSAGES = {
+    "hashing": "Reading media",
+    "transcribing": "Transcribing",
+    "detecting": "Detecting references",
+    "resolving": "Fetching verse text",
+    "timing": "Timing cues",
+}
+
+# 07 §3 codes that a Bible provider error may carry onto a job; any other code is `internal`.
+_PROVIDER_JOB_CODES = frozenset({"provider_unavailable", "translation_not_licensed"})
+
+
+def _error(
+    code: str,
+    message: str,
+    *,
+    hint: str | None = None,
+    detail: str | None = None,
+    retryable: bool = False,
+) -> dict[str, Any]:
+    """The 07 §3 envelope's inner object, the same shape ``ApiError.body()`` renders."""
+    return {
+        "code": code,
+        "message": message,
+        "detail": detail,
+        "retryable": retryable,
+        "hint": hint,
+    }
+
+
+class _MediaError(Exception):
+    """A media file that is missing or unreadable, already mapped to its 07 §3 code."""
+
+    def __init__(self, error: dict[str, Any]) -> None:
+        super().__init__(error["message"])
+        self.error = error
+
+
+def _media_error(path: Path, exc: OSError) -> _MediaError:
+    if isinstance(exc, FileNotFoundError):
+        return _MediaError(
+            _error(
+                "media_not_found",
+                f"The media file could not be found: {path}",
+                hint="Check that the drive is connected and the file has not moved.",
+            )
+        )
+    return _MediaError(
+        _error(
+            "media_unreadable",
+            f"The media file could not be read: {path}",
+            detail=str(exc),
+            hint="Check that the file is not open in another program and that you can read it.",
+        )
+    )
+
+
+def _overrides(cls: type, *sources: dict[str, Any]) -> dict[str, Any]:
+    """The entries of ``sources`` (later wins) whose keys are fields of dataclass ``cls``."""
+    names = {f.name for f in fields(cls)}
+    merged: dict[str, Any] = {}
+    for source in sources:
+        merged.update({k: v for k, v in source.items() if k in names})
+    return merged
+
+
+def _pipeline_config(config: Config, options: dict[str, Any]) -> PipelineConfig:
+    """Config sections overlaid by the request's ``options.detection`` and ``options.timing``."""
+    detection = dict(options.get("detection") or {})
+    timing = dict(options.get("timing") or {})
+    base = PipelineConfig()
+    # config.timing holds duplicate_cooldown_s (05 §2), so it is the first fallback for detection.
+    detect = replace(
+        base.detect,
+        **_overrides(DetectConfig, config.timing, config.detection, detection),
+    )
+    align = replace(base.align, **_overrides(AlignConfig, config.timing, timing))
+    timing_cfg = replace(base.timing, **_overrides(TimingConfig, config.timing, timing))
+    max_verses = int(config.bible.get("max_verses_per_passage", base.max_verses))
+    return PipelineConfig(detect=detect, align=align, timing=timing_cfg, max_verses=max_verses)
+
+
+def _transcribe_options(config: Config, options: dict[str, Any]) -> TranscribeOptions:
+    return replace(TranscribeOptions.from_config(config), **_overrides(TranscribeOptions, options))
+
+
+def _find_translation(provider: BibleProvider, translation_id: str) -> Translation:
+    """The requested translation, or ``TranslationNotLicensed`` (06 §3.2: fail fast at start)."""
+    for translation in provider.list_translations():
+        if translation.id == translation_id:
+            return translation
+    raise TranslationNotLicensed()
+
+
+class _Reporter:
+    """Keeps the job's live fields current and publishes throttled ``progress`` events."""
+
+    def __init__(self, job: Job, registry: JobRegistry, clock: Callable[[], float]) -> None:
+        self._job = job
+        self._registry = registry
+        self._clock = clock
+        self._progress = Progress()
+        self._last_phase: str | None = None
+        self._last_published = 0.0
+
+    def skip_transcribing(self) -> None:
+        """Renormalise the bar once a cache hit is known (after hashing, so hashing is done)."""
+        self._progress = Progress(skip=frozenset({"transcribing"}))
+        self.report("hashing", 1.0)
+
+    def report(self, phase: str, fraction: float, message: str | None = None) -> None:
+        job = self._job
+        now = self._clock()
+        value = self._progress.update(phase, fraction)
+        changed = phase != self._last_phase
+        job.phase = phase
+        job.progress = max(job.progress, value)
+        job.message = message or PHASE_MESSAGES.get(phase)
+        if not changed and now - self._last_published < PROGRESS_MIN_INTERVAL_S:
+            return
+        self._last_phase = phase
+        self._last_published = now
+        data: dict[str, Any] = {
+            "phase": phase,
+            "progress": round(job.progress, 4),
+            "eta_s": job.snapshot(now)["eta_s"],
+        }
+        if job.message is not None:
+            data["message"] = job.message
+        self._registry.publish(job.id, "progress", data)
+
+
+def run_job(
+    job: Job,
+    req: dict[str, Any],
+    *,
+    config: Config,
+    backend: Backend,
+    provider: BibleProvider,
+    registry: JobRegistry,
+    clock: Callable[[], float],
+) -> None:
+    """Run ``hash -> transcribe (or cache) -> run_pipeline`` for one job on a worker thread.
+
+    Fills in ``job.status``, ``job.error`` and ``job.result_path`` and publishes exactly one
+    terminal event: ``done``, or ``failed`` (a cancelled job fails with the ``cancelled`` code).
+    """
+    job.status = "running"
+    try:
+        cue_count = _run_phases(job, req, config, backend, provider, registry, clock)
+    except Cancelled:
+        job.status = "cancelled"
+        job.message = "Cancelled"
+        error = _error("cancelled", "The job was cancelled.")
+        registry.publish(job.id, "failed", {"job_id": job.id, "error": error})
+        return
+    except _MediaError as exc:
+        _fail(job, registry, exc.error)
+        return
+    except TranscriptionError as exc:
+        _fail(job, registry, _error(exc.code, exc.message, hint=exc.hint))
+        return
+    except BibleError as exc:
+        code = exc.code if exc.code in _PROVIDER_JOB_CODES else "internal"
+        _fail(job, registry, _error(code, exc.message, retryable=code == "provider_unavailable"))
+        return
+    except Exception as exc:  # noqa: BLE001 - a job must always end in a terminal event
+        _fail(
+            job,
+            registry,
+            _error(
+                "internal",
+                "VerseSync hit an unexpected problem while analysing the media.",
+                detail=f"{type(exc).__name__}: {exc}",
+            ),
+        )
+        return
+    job.status = "done"
+    job.phase = None
+    job.progress = 1.0
+    job.message = "Done"
+    registry.publish(job.id, "done", {"job_id": job.id, "cue_count": cue_count})
+
+
+def _fail(job: Job, registry: JobRegistry, error: dict[str, Any]) -> None:
+    job.status = "failed"
+    job.error = error
+    job.message = error["message"]
+    registry.publish(job.id, "failed", {"job_id": job.id, "error": error})
+
+
+def _run_phases(
+    job: Job,
+    req: dict[str, Any],
+    config: Config,
+    backend: Backend,
+    provider: BibleProvider,
+    registry: JobRegistry,
+    clock: Callable[[], float],
+) -> int:
+    """Everything between ``running`` and the terminal event; returns the cue count."""
+    options: dict[str, Any] = dict(req.get("options") or {})
+    is_cancelled = job.cancel_event.is_set
+
+    def check_cancelled() -> None:
+        if is_cancelled():
+            raise Cancelled()
+
+    translation = _find_translation(provider, str(req["translation_id"]))
+    media_path = Path(str(req["media_path"]))
+    opts = _transcribe_options(config, options)
+    cfg = _pipeline_config(config, options)
+    reporter = _Reporter(job, registry, clock)
+
+    check_cancelled()
+    reporter.report("hashing", 0.0)
+    try:
+        media_hash = hash_media(media_path, lambda f: reporter.report("hashing", f))
+    except OSError as exc:
+        raise _media_error(media_path, exc) from exc
+
+    check_cancelled()
+    cache = TranscriptCache()
+    cached = cache.get(media_hash, opts) if options.get("use_cache", True) else None
+    words: list[Word]
+    if cached is not None:
+        words, duration_s = cached
+        job.cache_hit = True
+        reporter.skip_transcribing()
+    else:
+        reporter.report("transcribing", 0.0)
+        try:
+            words, duration_s = backend.transcribe(
+                media_path, opts, lambda f: reporter.report("transcribing", f), is_cancelled
+            )
+        except OSError as exc:
+            raise _media_error(media_path, exc) from exc
+        reporter.report("transcribing", 1.0)
+        check_cancelled()  # a cancelled job must not leave a cached transcript behind
+        # use_cache: false skips the lookup only; the fresh transcript still replaces the entry,
+        # so a later cached run does not pick up the transcript the editor was avoiding.
+        cache.put(media_hash, opts, words, duration_s)
+
+    job_info: dict[str, Any] = {
+        "id": job.id,
+        "media_path": str(req["media_path"]),
+        "media_hash": media_hash,
+        "media_duration_s": duration_s,
+        "model": opts.model,
+        "quantization": opts.quantization,
+        "device": opts.device,
+        "language": opts.language,
+        "options": options,
+    }
+    doc = run_pipeline(
+        words,
+        translation=translation,
+        provider=provider,
+        job=job_info,
+        generated_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(clock())),
+        cfg=cfg,
+        on_phase=reporter.report,
+        is_cancelled=is_cancelled,
+    )
+    check_cancelled()
+    result_path = app_home() / "jobs" / job.id / "cues.json"
+    write_document(doc, words, result_path)
+    job.result_path = result_path
+    return len(doc["cues"])
