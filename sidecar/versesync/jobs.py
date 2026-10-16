@@ -349,6 +349,11 @@ def run_job(
             ),
         )
         return
+    # Throttling may have dropped the last in-phase report, so a stream that ends without this
+    # would stop short of 1.0 (07 section 2: progress ends at 1.0).
+    final: dict[str, Any] = {"phase": job.phase, "progress": 1.0, "eta_s": 0}
+    if job.phase is not None:
+        registry.publish(job.id, "progress", final)
     job.status = "done"
     job.phase = None
     job.progress = 1.0

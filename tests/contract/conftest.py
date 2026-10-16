@@ -1,8 +1,8 @@
 """Fixtures for the sidecar contract suite (T-42).
 
 One suite, parameterised over the server under test. ``mock`` launches
-``tools/mock_sidecar.py``; ``real`` launches ``python -m versesync.sidecar`` and is enabled by
-T-42.2. Tests assert shape, status and ordering only, never cue content.
+``tools/mock_sidecar.py``; ``real`` launches ``python -m versesync.sidecar`` and 
+both run in CI. Tests assert shape, status and ordering only, never cue content.
 """
 
 from __future__ import annotations
@@ -27,10 +27,17 @@ MOCK_SCRIPT = REPO_ROOT / "tools" / "mock_sidecar.py"
 # D21: the panel's CEP origin, sent on every valid request.
 ORIGIN = "cep://com.versesync.panel"
 
+# Any existing file will do as media: the real sidecar only hashes it (the fixture backend
+# supplies the words) and the mock ignores it.
+MEDIA_FILE = REPO_ROOT / "pyproject.toml"
+
 # Seconds a mock job runs. Keeps the whole suite well under 30 s (T-42.1).
 MOCK_JOB_DURATION_S = 2
 
 STARTUP_TIMEOUT_S = 15.0
+
+# Transcript the real sidecar replays through its fixture backend (T-07).
+REAL_TRANSCRIPT = "numbers-and-ordinals.words.json"
 
 ResponseHook = Callable[[str, str, Any], Any]
 
@@ -124,7 +131,7 @@ class Sidecar:
         resp = self.request(
             "POST",
             "/jobs",
-            body={"media_path": str(REPO_ROOT / "pyproject.toml"), "translation_id": "any"},
+            body={"media_path": str(MEDIA_FILE), "translation_id": "kjv"},
         )
         assert resp.status == 202, resp.status
         job_id = resp.body["job_id"]
@@ -139,6 +146,7 @@ class Sidecar:
             if resp.body["status"] == wanted:
                 body: dict[str, Any] = resp.body
                 return body
+            assert resp.body["status"] != "failed" or wanted == "failed", resp.body
             assert time.monotonic() < deadline, f"job never reached {wanted}: {resp.body}"
             time.sleep(0.1)
 
@@ -179,14 +187,52 @@ def _launch_mock(home: Path) -> Sidecar:
     return Sidecar("mock", port, token, proc)
 
 
+def _launch_real(home: Path) -> Sidecar:
+    # The fixture backend replays a recorded transcript (T-07), so no model or GPU is needed;
+    # the bundled local Bible provider is the only provider the sidecar wires up.
+    transcript = REPO_ROOT / "tests" / "fixtures" / "transcripts" / REAL_TRANSCRIPT
+    config_path = home / "contract-config.yaml"
+    config_path.write_text(
+        json.dumps(
+            {
+                "transcription": {"backend": f"fixture:{transcript.as_posix()}"},
+                "bible": {"provider": "local"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    env = dict(os.environ, VERSESYNC_HOME=str(home))
+    env.pop("APPDATA", None)
+    proc = subprocess.Popen(
+        [sys.executable, "-m", "versesync.sidecar", "--config", str(config_path)],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        text=True,
+        env=env,
+    )
+    assert proc.stdout is not None
+    port: int | None = None
+    deadline = time.monotonic() + STARTUP_TIMEOUT_S
+    while port is None and time.monotonic() < deadline:
+        line = proc.stdout.readline()
+        if not line:
+            break
+        m = re.search(r"VERSESYNC_READY port=(\d+)", line)
+        if m:
+            port = int(m.group(1))
+    if port is None:
+        proc.kill()
+        raise RuntimeError("real sidecar did not report readiness")
+    lock = json.loads((home / "sidecar.json").read_text(encoding="utf-8"))
+    return Sidecar("real", port, str(lock["token"]), proc)
+
+
 @pytest.fixture(scope="module", params=["mock", "real"])
 def server(
     request: pytest.FixtureRequest, tmp_path_factory: pytest.TempPathFactory
 ) -> Iterator[Sidecar]:
-    if request.param == "real":
-        pytest.skip("real sidecar parameter is enabled by T-42.2")
     home = tmp_path_factory.mktemp("home")
-    sidecar = _launch_mock(home)
+    sidecar = _launch_real(home) if request.param == "real" else _launch_mock(home)
     try:
         yield sidecar
     finally:

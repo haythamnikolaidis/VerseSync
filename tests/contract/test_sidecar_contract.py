@@ -11,7 +11,7 @@ from collections.abc import Callable
 from typing import Any
 
 import pytest
-from conftest import Response, Sidecar
+from conftest import MEDIA_FILE, Response, Sidecar
 from validate_cue_document import validate
 
 ERROR_CODES = {
@@ -36,7 +36,7 @@ HEALTH_STATUSES = {"starting", "ready", "busy", "degraded"}
 PROTECTED_ROUTES: list[tuple[str, str, Any]] = [
     ("GET", "/models", None),
     ("GET", "/translations", None),
-    ("POST", "/jobs", {"media_path": "x", "translation_id": "y"}),
+    ("POST", "/jobs", {"media_path": "x", "translation_id": "kjv"}),
     ("GET", "/jobs/job_unknown", None),
     ("GET", "/jobs/job_unknown/events", None),
     ("GET", "/jobs/job_unknown/result", None),
@@ -122,7 +122,7 @@ ENDPOINT_CHECKS: list[EndpointCheck] = [
     (
         "POST",
         "/jobs",
-        {"media_path": "x", "translation_id": "y"},
+        {"media_path": str(MEDIA_FILE), "translation_id": "kjv"},
         check_job_accepted,
         ["job_id", "status", "cache_hit"],
     ),
