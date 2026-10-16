@@ -104,7 +104,7 @@ client.health() / models() / translations() / startJob(req) / job(id) / result(i
 
 ### T-26.3 · Job watcher: SSE, polling fallback, rejoin after reload
 
-**Executor** agent · **Size** S · **Prereqs** T-26.2 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-26.2 · **Status** done
 
 - **Read:** [07 §2](../07-sidecar-api.md) (`/events` and `GET /jobs/{id}`) · NFR-3 in
   [01](../01-requirements.md)
@@ -133,8 +133,8 @@ client.health() / models() / translations() / startJob(req) / job(id) / result(i
      Commit.
 - **Verify:** `node --test tests/panel/job-watcher.test.js`
 - **Done when:**
-  - [ ] A dropped stream is transparent to the caller.
-  - [ ] A panel reload mid-job rejoins the job.
+  - [x] A dropped stream is transparent to the caller.
+  - [x] A panel reload mid-job rejoins the job.
 
 ### T-26.4 · Integration against the real mock process
 
