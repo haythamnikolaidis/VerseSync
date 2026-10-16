@@ -93,7 +93,7 @@ stands as written. T-03 also found two hazards that this epic must design around
 
 ### T-25.3 · `VS.validateTrack`
 
-**Executor** agent · **Size** XS · **Prereqs** T-25.1 · **Status** in-progress
+**Executor** agent · **Size** XS · **Prereqs** T-25.1 · **Status** done
 
 - **Read:** [08 §8](../08-premiere-host-api.md)
 - **Touches:** `panel/jsx/VerseSync.jsx` · `tests/host/validate-track.test.js` (new)
@@ -105,7 +105,7 @@ stands as written. T-03 also found two hazards that this epic must design around
      3 conflicts, a clip that only touches a range, and an invalid track. Commit.
 - **Verify:** `node --test tests/host/validate-track.test.js`
 - **Done when:**
-  - [ ] Conflicts are reported correctly on a populated fake track.
+  - [x] Conflicts are reported correctly on a populated fake track.
 
 ### T-25.H · Host verification on real Premiere (covers T-23, T-24, T-25 and D20)
 
