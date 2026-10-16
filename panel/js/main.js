@@ -57,7 +57,7 @@
     return dir + (String(p).charAt(dir.length) === '\\' ? '\\' : '/') + name;
   }
 
-  // deps: { document, bridge, client, transport, storage, fs, sleep, pollMs, watchJob }.
+  // deps: { document, bridge, client, transport, storage, fs, sleep, pollMs, watchJob, confirm }.
   // client may be null when no sidecar is available; setup then keeps Analyse disabled.
   function createApp(deps) {
     var doc = deps.document;
@@ -70,12 +70,20 @@
     var Timemap = load('VSTimemap', './timemap.js');
     var Review = load('VSReview', './review.js');
     var Sidecar = load('VSSidecar', './sidecar.js');
+    var Insert = load('VSInsert', './insert.js');
     var watchJob = deps.watchJob || Sidecar.watchJob;
 
     var app = {};
     var statusEl = doc.getElementById('status');
     var setupEl = doc.getElementById('setup');
     var reviewEl = doc.getElementById('review');
+    var insertEl = doc.getElementById('insert');
+    var setupState = State.create({ storage: deps.storage });
+    var confirmFn = deps.confirm || function (text) {
+      return typeof root.confirm === 'function' ? root.confirm(text) : false;
+    };
+    var inserting = false;
+    var undoNoteShown = false;
     var hasSequence = false;
     var lastHealth = { state: 'starting', detail: null };
     var lastRequest = null;
@@ -107,6 +115,8 @@
     function resetReview() {
       clear(reviewEl);
       reviewEl.hidden = true;
+      clear(insertEl);
+      insertEl.hidden = true;
     }
 
     // Before any analysis the review area holds only the prompt (docs/09 §7).
@@ -208,9 +218,130 @@
         onChange: function () { remap(); },
         onSave: saveDocument,
         onLoad: loadDocument,
-        onExport: exportTxt
+        onExport: exportTxt,
+        onInsert: function () { return startInsert(null); }
       });
       reviewEl.hidden = false;
+    }
+
+    // ---- Insert (docs/09 §6) --------------------------------------------------------------
+
+    function showInsert(nodes) {
+      clear(insertEl);
+      nodes.forEach(function (n) { insertEl.appendChild(n); });
+      insertEl.hidden = nodes.length === 0;
+    }
+
+    function insertError(lines) {
+      var box = el(doc, 'div', 'vf-inline-error vf-insert-error');
+      box.setAttribute('role', 'alert');
+      lines.forEach(function (line) { box.appendChild(el(doc, 'div', 'vf-insert-error-line', line)); });
+      showInsert([box]);
+    }
+
+    // Setup and review stay inert while the batch runs. Only controls that were live are
+    // touched, so unlocking cannot enable one that was disabled for its own reason.
+    function lockControls() {
+      var locked = [];
+      [setupEl, reviewEl].forEach(function (area) {
+        var found = area.querySelectorAll('button, input, select');
+        for (var i = 0; i < found.length; i++) {
+          if (!found[i].disabled) { found[i].disabled = true; locked.push(found[i]); }
+        }
+        area.setAttribute('aria-busy', 'true');
+      });
+      return function unlock() {
+        locked.forEach(function (c) { c.disabled = false; });
+        [setupEl, reviewEl].forEach(function (area) { area.removeAttribute('aria-busy'); });
+        if (app.session && app.session.review) { app.session.review.updateHeader(); }
+      };
+    }
+
+    function insertButton() { return reviewEl.querySelector('.vf-review-insert'); }
+
+    function showProgress(done, total) {
+      var btn = insertButton();
+      if (btn) { btn.textContent = Insert.progressText(done, total); }
+    }
+
+    // CSXS progress events: data is the JSON the host wrote, index is zero-based.
+    var insertTotal = 0;
+    function onInsertProgress(evt) {
+      if (!inserting) { return; }
+      try {
+        var d = JSON.parse(evt.data);
+        showProgress(d.index + 1, d.total || insertTotal);
+      } catch (e) {
+        // an unreadable event only loses one tick of the counter
+      }
+    }
+    if (bridge.onEvent) { bridge.onEvent('com.versesync.progress', onInsertProgress); }
+
+    function renderSummary(run, firstUndo) {
+      var s = app.session;
+      var placed = Insert.placedCount(run);
+      var text = Insert.summaryText(placed, run.order.length);
+      if (firstUndo) { text += ' ' + Insert.UNDO_NOTE; }
+      var nodes = [el(doc, 'div', 'vf-insert-summary', text)];
+      nodes[0].setAttribute('role', 'status');
+      var failed = Insert.failedIds(run);
+      if (failed.length > 0) {
+        var details = el(doc, 'details', 'vf-insert-details');
+        details.appendChild(el(doc, 'summary', 'vf-insert-details-title', 'Details'));
+        var list = el(doc, 'ul', 'vf-insert-failures');
+        failed.forEach(function (id) {
+          var cue = s.model.get(id);
+          list.appendChild(el(doc, 'li', 'vf-insert-failure',
+            (cue ? cue.reference_display : id) + ' — ' + run.failures[id]));
+        });
+        details.appendChild(list);
+        nodes.push(details);
+        var retry = el(doc, 'button', 'vf-btn vf-btn--small vf-insert-retry', 'Retry failed');
+        retry.type = 'button';
+        retry.addEventListener('click', function () { startInsert(failed); });
+        nodes.push(retry);
+      }
+      showInsert(nodes);
+    }
+
+    // The Insert click flow. retryIds is null for a whole batch, or the failed cue ids of the
+    // current run for Retry failed. The review state is never touched.
+    function startInsert(retryIds) {
+      var s = app.session;
+      if (inserting || !s) { return Promise.resolve(); }
+      var ctx = {
+        settings: setupState.get(),
+        sequenceId: s.sequenceId,
+        model: s.model,
+        placements: s.mapping.placements
+      };
+      var stop = Insert.blockers(ctx);
+      if (stop.length > 0) { insertError(stop); return Promise.resolve(); }
+      var payload = Insert.buildPayload(s.model, s.mapping.placements, ctx);
+      if (retryIds) { payload = Insert.onlyCues(payload, retryIds); }
+      if (payload.cues.length === 0) {
+        insertError(['None of the failed cues are still enabled.']);
+        return Promise.resolve();
+      }
+      var run = retryIds && s.insertRun ? s.insertRun : Insert.newRun(payload);
+      inserting = true;
+      insertTotal = payload.cues.length;
+      var unlock = lockControls();
+      showInsert([]);
+      showProgress(0, insertTotal);
+      return Insert.execute({ bridge: bridge, payload: payload, confirm: confirmFn }).then(function (out) {
+        inserting = false;
+        unlock();
+        if (out.state === 'error') { insertError([out.error]); return; }
+        if (out.state === 'cancelled') { showInsert([]); return; }
+        s.insertRun = Insert.recordResults(run, out.results);
+        var firstUndo = !undoNoteShown && Insert.placedCount(s.insertRun) > 0;
+        if (firstUndo) { undoNoteShown = true; }
+        renderSummary(s.insertRun, firstUndo);
+      }).then(null, function (e) {
+        if (inserting) { inserting = false; unlock(); }
+        insertError(['Unexpected error: ' + (e && e.message)]);
+      });
     }
 
     // ---- Save, Load, Export (docs/09 §5.4) ------------------------------------------------
@@ -391,6 +522,7 @@
             manualOffsetTicks: null,
             mapping: null,
             review: null,
+            insertRun: null,
             transcriptWords: null
           };
           var mapping = remap();
@@ -449,7 +581,7 @@
 
     app.setup = Setup.create({
       root: setupEl,
-      state: State.create({ storage: deps.storage }),
+      state: setupState,
       bridge: bridge,
       fs: deps.fs,
       client: client,

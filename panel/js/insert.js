@@ -1,9 +1,10 @@
 (function (root) {
   'use strict';
 
-  // Journey B, steps 1-2 (docs/03 §4, docs/08 §6, docs/09 §6): decide whether Insert may run,
-  // build the single VS.insertCues payload, and word the overwrite confirmation. Pure functions
-  // only; the click flow that calls the host lives elsewhere.
+  // Journey B (docs/03 §4, docs/08 §6, docs/09 §6): decide whether Insert may run, build the
+  // single VS.insertCues payload, word the overwrite confirmation, run the batch against the
+  // host and keep the tally of what landed. Everything here is pure or takes the bridge as an
+  // argument; the buttons and text live in main.js.
   //
   // ctx is { settings, sequenceId, model, placements } where settings is VSState's get() result,
   // sequenceId comes from the analysis (session.sequenceId), model is the VSCues model and
@@ -138,10 +139,137 @@
     return count + ' of your cues will overwrite existing clips on ' + track + '. Continue?';
   }
 
+  // ---- running the batch --------------------------------------------------------------------
+
+  var UNDO_NOTE = 'One Ctrl+Z reverts the whole batch.';
+  var MISSING_RESULT = 'The host did not report this cue.';
+
+  function progressText(done, total) {
+    return 'Inserting\u2026 ' + done + ' / ' + total;
+  }
+
+  function summaryText(placed, total) {
+    var failed = total - placed;
+    if (failed === 0) { return 'Placed ' + placed + ' of ' + total + '.'; }
+    return 'Placed ' + placed + ' of ' + total + ' \u2014 ' + failed + ' failed, see details.';
+  }
+
+  // Exact sum of two tick strings (docs/08 §1: ticks are digit strings that may outgrow a double).
+  function addTicks(a, b) {
+    var out = '';
+    var carry = 0;
+    var i = a.length - 1;
+    var j = b.length - 1;
+    while (i >= 0 || j >= 0 || carry) {
+      var sum = carry + (i >= 0 ? a.charCodeAt(i) - 48 : 0) + (j >= 0 ? b.charCodeAt(j) - 48 : 0);
+      out = String(sum % 10) + out;
+      carry = sum >= 10 ? 1 : 0;
+      i--;
+      j--;
+    }
+    return out === '' ? '0' : out;
+  }
+
+  // The ranges VS.validateTrack checks: where each cue is about to write.
+  function rangesOf(payload) {
+    var out = [];
+    for (var i = 0; i < payload.cues.length; i++) {
+      var c = payload.cues[i];
+      out.push({ startTicks: c.atTicks, endTicks: addTicks(c.atTicks, c.durationTicks) });
+    }
+    return out;
+  }
+
+  // The same payload narrowed to the given cue ids, keeping its order (and so its sort).
+  function onlyCues(payload, ids) {
+    var out = {};
+    Object.keys(payload).forEach(function (k) { out[k] = payload[k]; });
+    out.cues = payload.cues.filter(function (c) { return ids.indexOf(c.id) !== -1; });
+    return out;
+  }
+
+  // One Insert click after the blockers have passed (docs/09 §6): ask the host which clips the
+  // cues would overwrite, confirm if there are any, then make the one insertCues call.
+  // opts: { bridge, payload, confirm(text) -> boolean | Promise<boolean> }.
+  // Resolves to { state: 'cancelled' } (the editor declined; nothing was inserted),
+  // { state: 'error', error } (a host or bridge message, shown verbatim; nothing was inserted
+  // unless the host says otherwise) or { state: 'done', results } with the host's per-cue results.
+  function execute(opts) {
+    var payload = opts.payload;
+    return opts.bridge.call('validateTrack', {
+      sequenceId: payload.sequenceId,
+      trackIndex: payload.trackIndex,
+      ranges: rangesOf(payload)
+    }).then(function (check) {
+      if (!check || !check.ok) {
+        return { state: 'error', error: (check && check.error) || 'Could not check the target track.' };
+      }
+      var conflicts = check.data && check.data.conflicts ? check.data.conflicts : [];
+      var go = conflicts.length === 0 ? true : opts.confirm(confirmText(conflicts, payload.trackIndex));
+      return Promise.resolve(go).then(function (yes) {
+        if (!yes) { return { state: 'cancelled' }; }
+        return opts.bridge.call('insertCues', payload).then(function (res) {
+          if (!res || !res.ok) {
+            return { state: 'error', error: (res && res.error) || 'The insert failed.' };
+          }
+          return { state: 'done', results: res.data.results || [] };
+        });
+      });
+    });
+  }
+
+  // The tally of one Insert, kept across Retry failed so the summary always reads against the
+  // original batch. failures maps a cue id to the host's message for it.
+  function newRun(payload) {
+    return { order: payload.cues.map(function (c) { return c.id; }), placed: {}, failures: {} };
+  }
+
+  function recordResults(run, results) {
+    var seen = {};
+    results.forEach(function (r) {
+      seen[r.id] = true;
+      if (r.ok) {
+        run.placed[r.id] = true;
+        delete run.failures[r.id];
+      } else {
+        delete run.placed[r.id];
+        run.failures[r.id] = r.error || 'Insert failed.';
+      }
+    });
+    // A cue the host never mentioned was not placed, whatever else it said.
+    run.order.forEach(function (id) {
+      if (!seen[id] && !run.placed[id] && !Object.prototype.hasOwnProperty.call(run.failures, id)) {
+        run.failures[id] = MISSING_RESULT;
+      }
+    });
+    return run;
+  }
+
+  function placedCount(run) {
+    return run.order.filter(function (id) { return run.placed[id]; }).length;
+  }
+
+  function failedIds(run) {
+    return run.order.filter(function (id) {
+      return Object.prototype.hasOwnProperty.call(run.failures, id);
+    });
+  }
+
   var Insert = {
+    UNDO_NOTE: UNDO_NOTE,
     blockers: blockers,
     buildPayload: buildPayload,
-    confirmText: confirmText
+    confirmText: confirmText,
+    progressText: progressText,
+    summaryText: summaryText,
+    addTicks: addTicks,
+    rangesOf: rangesOf,
+    onlyCues: onlyCues,
+    execute: execute,
+    newRun: newRun,
+    recordResults: recordResults,
+    placedCount: placedCount,
+    failedIds: failedIds
   };
 
   if (typeof module !== 'undefined' && module.exports) { module.exports = Insert; }

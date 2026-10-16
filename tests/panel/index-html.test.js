@@ -31,6 +31,7 @@ test('scripts load in the required order', () => {
     'js/cues.js',
     'js/duration.js',
     'js/review.js',
+    'js/insert.js',
     'js/main.js'
   ]);
 });

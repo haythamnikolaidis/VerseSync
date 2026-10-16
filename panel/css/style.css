@@ -415,6 +415,10 @@ button:focus-visible, select:focus-visible, input:focus-visible {
 .row[hidden] { display: none; }
 .vf-review-notice, .vf-failure, .vf-manual-offset { margin-bottom: 6px; }
 .vf-failure .vf-btn, .vf-manual-offset .vf-btn { margin-top: 4px; }
+.vf-insert-summary { margin-bottom: 4px; }
+.vf-insert-details { margin-bottom: 4px; }
+.vf-insert-failures { margin: 4px 0 0 16px; padding: 0; }
+.vf-insert-error-line + .vf-insert-error-line { margin-top: 2px; }
 .vf-review-list { display: flex; flex-direction: column; gap: 4px; }
 
 .row {
