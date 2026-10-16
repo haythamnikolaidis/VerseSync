@@ -93,7 +93,7 @@ The mock accepts any non-empty Origin, so the contract tests (T-42) send this va
 
 ### T-05.3 · HTTP server core: bind, auth, Origin, headers, errors, `/health`, `/shutdown`
 
-**Executor** agent · **Size** S · **Prereqs** T-05.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-05.2 · **Status** in-progress
 
 - **Read:** [07 §1.2, §1.3, §2 (`/health`, `/shutdown`), §3](../07-sidecar-api.md) ·
   `tools/mock_sidecar.py` (the `Handler` auth path and the error-envelope helper only)
