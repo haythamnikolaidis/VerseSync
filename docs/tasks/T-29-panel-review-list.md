@@ -184,7 +184,7 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
 
 ### T-29.6 · Expanded row (read-only parts)
 
-**Executor** agent · **Size** S · **Prereqs** T-29.5, T-50 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-29.5, T-50 · **Status** in-progress
 
 - **Read:** [09 §5.3](../09-ui-spec.md)
 - **Touches:** `panel/js/review.js` · `tests/panel/review-expand.test.js` (new)
