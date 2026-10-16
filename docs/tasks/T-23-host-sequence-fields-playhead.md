@@ -59,7 +59,7 @@ swapping the stub for the real host changes nothing.
 
 ### T-23.2 · `VS.getMogrtFields` (ported unchanged)
 
-**Executor** agent · **Size** S · **Prereqs** T-23.1, T-45.2 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-23.1, T-45.2 · **Status** done
 
 - **Read:** [08 §5](../08-premiere-host-api.md) · `reference/verseflow/jsx/VerseFlow.jsx`
   (`getMogrtFields` and its helpers) · `tests/fixtures/host/mogrt-fields.json`
@@ -83,8 +83,8 @@ swapping the stub for the real host changes nothing.
      Commit.
 - **Verify:** `node --test tests/host/mogrt-fields.test.js`
 - **Done when:**
-  - [ ] The output equals `mogrt-fields.json` for the reference template.
-  - [ ] The undo groups balance.
+  - [x] The output equals `mogrt-fields.json` for the reference template.
+  - [x] The undo groups balance.
 
 ## Traps
 
