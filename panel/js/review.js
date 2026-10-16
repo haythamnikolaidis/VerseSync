@@ -141,8 +141,9 @@
     });
   }
 
-  // opts: { root, model, getPlacements, bridge, threshold }. getPlacements() returns the
-  // VSTimemap.mapCueDocument placements map. bridge is accepted for the expanded row (T-29.6).
+  // opts: { root, model, getPlacements, bridge, threshold, onSave, onLoad, onExport, onInsert }.
+  // getPlacements() returns the VSTimemap.mapCueDocument placements map. bridge is accepted for
+  // the expanded row (T-29.6). The on* callbacks run the Save menu entries and the Insert button.
   function create(opts) {
     var container = opts.root;
     var doc = container.ownerDocument;
@@ -150,9 +151,49 @@
     var threshold = opts.threshold;
     var rows = {};
 
+    var flaggedOnly = false;
+
     var header = el(doc, 'div', 'vf-review-header');
+    var title = el(doc, 'div', 'vf-review-title');
+    var toolbar = el(doc, 'div', 'vf-review-actions');
+    var message = el(doc, 'div', 'vf-review-message');
+    message.setAttribute('role', 'status');
+    message.hidden = true;
     var list = el(doc, 'div', 'vf-review-list');
+
+    function button(cls, text) {
+      var b = el(doc, 'button', 'vf-btn vf-btn--small ' + cls, text);
+      b.type = 'button';
+      return b;
+    }
+
+    var allBtn = button('vf-review-all', 'All');
+    var noneBtn = button('vf-review-none', 'None');
+    var flaggedBtn = button('vf-review-flagged', 'Flagged only');
+    flaggedBtn.setAttribute('aria-pressed', 'false');
+    var saveBtn = button('vf-review-save', 'Save \u25BE');
+    saveBtn.setAttribute('aria-haspopup', 'true');
+    saveBtn.setAttribute('aria-expanded', 'false');
+    var menu = el(doc, 'div', 'vf-review-menu');
+    menu.hidden = true;
+    var menuItems = [
+      { cls: 'vf-review-save-doc', text: 'Save cue document', run: 'onSave' },
+      { cls: 'vf-review-load-doc', text: 'Load cue document', run: 'onLoad' },
+      { cls: 'vf-review-export-txt', text: 'Export as VerseFlow .txt', run: 'onExport' }
+    ];
+    var saveWrap = el(doc, 'span', 'vf-review-save-wrap');
+    saveWrap.appendChild(saveBtn);
+    saveWrap.appendChild(menu);
+    var insertBtn = button('vf-btn--accent vf-review-insert', 'Insert');
+    var insertHint = el(doc, 'div', 'vf-hint vf-review-insert-hint',
+      'Enable at least one scripture to insert.');
+
+    [allBtn, noneBtn, flaggedBtn, saveWrap, insertBtn].forEach(function (n) { toolbar.appendChild(n); });
+    header.appendChild(title);
+    header.appendChild(toolbar);
+    header.appendChild(insertHint);
     container.appendChild(header);
+    container.appendChild(message);
     container.appendChild(list);
 
     function placementOf(id) {
@@ -170,9 +211,62 @@
 
     function updateHeader() {
       var cues = model.cues();
-      header.textContent = 'REVIEW \u2014 ' + cues.length + ' found \u00B7 ' +
-        model.enabledCount() + ' enabled [\u2691 ' + flaggedCount(cues) + ']';
+      var enabled = model.enabledCount();
+      title.textContent = 'REVIEW \u2014 ' + cues.length + ' found \u00B7 ' +
+        enabled + ' enabled [\u2691 ' + flaggedCount(cues) + ']';
+      insertBtn.textContent = 'Insert ' + enabled + (enabled === 1 ? ' scripture' : ' scriptures');
+      insertBtn.disabled = enabled === 0;
+      insertHint.hidden = enabled !== 0;
     }
+
+    // "Flagged only" hides the rows that carry no flag (docs/09 §5.4).
+    function applyFilter() {
+      Object.keys(rows).forEach(function (id) {
+        var hasFlags = rowViewModel(model.get(id), placementOf(id), threshold).flags.length > 0;
+        rows[id].hidden = flaggedOnly && !hasFlags;
+      });
+    }
+
+    // Status text above the list (a failed save or load); '' clears it.
+    function setMessage(text, isError) {
+      message.textContent = text || '';
+      message.className = 'vf-review-message' + (isError ? ' vf-inline-error' : ' vf-hint');
+      message.hidden = !text;
+    }
+
+    function setAll(enabled) {
+      model.cues().forEach(function (cue) { model.setEnabled(cue.id, enabled); });
+      Object.keys(rows).forEach(refreshRow);
+      updateHeader();
+    }
+
+    function closeMenu() {
+      menu.hidden = true;
+      saveBtn.setAttribute('aria-expanded', 'false');
+    }
+
+    allBtn.addEventListener('click', function () { setAll(true); });
+    noneBtn.addEventListener('click', function () { setAll(false); });
+    flaggedBtn.addEventListener('click', function () {
+      flaggedOnly = !flaggedOnly;
+      flaggedBtn.setAttribute('aria-pressed', flaggedOnly ? 'true' : 'false');
+      flaggedBtn.classList.toggle('vf-btn--active', flaggedOnly);
+      applyFilter();
+    });
+    saveBtn.addEventListener('click', function () {
+      menu.hidden = !menu.hidden;
+      saveBtn.setAttribute('aria-expanded', menu.hidden ? 'false' : 'true');
+    });
+    menuItems.forEach(function (item) {
+      var b = el(doc, 'button', 'vf-review-menu-item ' + item.cls, item.text);
+      b.type = 'button';
+      b.addEventListener('click', function () {
+        closeMenu();
+        if (opts[item.run]) { opts[item.run](); }
+      });
+      menu.appendChild(b);
+    });
+    insertBtn.addEventListener('click', function () { if (opts.onInsert) { opts.onInsert(); } });
 
     function sorted(cues) {
       var items = cues.map(function (cue, i) {
@@ -191,6 +285,7 @@
     function refreshRow(id) {
       var vm = rowViewModel(model.get(id), placementOf(id), threshold);
       updateRow(doc, rows[id], vm);
+      rows[id].hidden = flaggedOnly && vm.flags.length === 0;
       return vm;
     }
 
@@ -214,11 +309,17 @@
         updateRow(doc, row, vm);
         list.appendChild(row);
       });
+      applyFilter();
       updateHeader();
     }
 
     render();
-    return { render: render, refreshRow: refreshRow, updateHeader: updateHeader };
+    return {
+      render: render,
+      refreshRow: refreshRow,
+      updateHeader: updateHeader,
+      setMessage: setMessage
+    };
   }
 
   var Review = {

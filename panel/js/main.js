@@ -44,6 +44,19 @@
     return { ticks: String(ticks) };
   }
 
+  // Directory part of a path and a sibling of it, keeping whichever separator the path uses
+  // (cep.fs hands back Windows paths on Windows and POSIX paths on macOS).
+  function dirname(p) {
+    var i = Math.max(String(p).lastIndexOf('/'), String(p).lastIndexOf('\\'));
+    return i === -1 ? '' : String(p).slice(0, i);
+  }
+
+  function sibling(p, name) {
+    var dir = dirname(p);
+    if (dir === '') { return name; }
+    return dir + (String(p).charAt(dir.length) === '\\' ? '\\' : '/') + name;
+  }
+
   // deps: { document, bridge, client, transport, storage, fs, sleep, pollMs, watchJob }.
   // client may be null when no sidecar is available; setup then keeps Analyse disabled.
   function createApp(deps) {
@@ -145,10 +158,95 @@
           root: body,
           model: s.model,
           getPlacements: function () { return s.mapping.placements; },
-          bridge: bridge
+          bridge: bridge,
+          onSave: saveDocument,
+          onLoad: loadDocument,
+          onExport: exportTxt
         });
       }
       reviewEl.hidden = false;
+    }
+
+    // ---- Save, Load, Export (docs/09 §5.4) ------------------------------------------------
+
+    function say(text, isError) {
+      if (app.session && app.session.review) { app.session.review.setMessage(text, isError); }
+    }
+
+    // cep.fs answers { err: 0, data } and uses a non-zero err (or no data) for a cancelled dialog.
+    function chooseSavePath(title, extension, defaultName) {
+      if (!deps.fs || !deps.fs.showSaveDialog) { return null; }
+      var res = deps.fs.showSaveDialog(title, null, [extension], defaultName);
+      return res && res.err === 0 && res.data ? res.data : null;
+    }
+
+    function writeText(path, text) {
+      var res = deps.fs.writeFile(path, text, 'utf8');
+      return !!res && res.err === 0;
+    }
+
+    // The transcript sibling named by words_ref (D22): fetched from the sidecar for a job
+    // result, read from the loaded file's directory for a loaded document. Resolves to the text
+    // to write, or null when there is none.
+    function transcriptText(s) {
+      if (s.jobId && client) {
+        return client.transcript(s.jobId).then(function (res) {
+          return res && res.ok ? JSON.stringify(res.data) : null;
+        });
+      }
+      if (s.loadedFrom) {
+        var read = deps.fs.readFile(sibling(s.loadedFrom, s.model.toJSON().transcript.words_ref), 'utf8');
+        return Promise.resolve(read && read.err === 0 ? read.data : null);
+      }
+      return Promise.resolve(null);
+    }
+
+    function saveDocument() {
+      var s = app.session;
+      var path = chooseSavePath('Save cue document', 'json', 'cues.json');
+      if (!path) { return Promise.resolve(); }
+      if (!writeText(path, Cues.serialize(s.model))) {
+        say('The cue document could not be saved.', true);
+        return Promise.resolve();
+      }
+      var ref = sibling(path, s.model.toJSON().transcript.words_ref);
+      return transcriptText(s).then(function (text) {
+        if (text !== null && !writeText(ref, text)) {
+          say('The cue document was saved, but its transcript could not be written.', true);
+          return;
+        }
+        say('Saved ' + basename(path) + '.', false);
+      });
+    }
+
+    function exportTxt() {
+      var path = chooseSavePath('Export as VerseFlow .txt', 'txt', 'scriptures.txt');
+      if (!path) { return; }
+      if (writeText(path, Cues.exportVerseFlowTxt(app.session.model))) {
+        say('Exported ' + basename(path) + '.', false);
+      } else {
+        say('The export could not be saved.', true);
+      }
+    }
+
+    // Load trusts nothing positional: the file holds source seconds only, so the sequence and the
+    // media placements are read afresh and the document is mapped against them.
+    function loadDocument() {
+      if (!deps.fs || !deps.fs.showOpenDialog) { return Promise.resolve(); }
+      var picked = deps.fs.showOpenDialog(false, false, 'Load cue document', null, ['json']);
+      if (!picked || picked.err !== 0 || !picked.data || !picked.data[0]) { return Promise.resolve(); }
+      var path = picked.data[0];
+      var read = deps.fs.readFile(path, 'utf8');
+      if (!read || read.err !== 0) { say('That file could not be read.', true); return Promise.resolve(); }
+      var loaded = Cues.load(read.data);
+      if (!loaded.ok) { say(loaded.error, true); return Promise.resolve(); }
+      var request = { media_path: loaded.model.toJSON().job.media_path };
+      return place(loaded.model, request, null, loadDocument, path).then(function (mapping) {
+        if (!mapping) { return; }
+        renderReview(loaded.warning || null);
+      }).then(null, function (e) {
+        say('Unexpected error: ' + (e && e.message), true);
+      });
     }
 
     // docs/09 §7 "Media not in the sequence": nothing can be placed until the editor says where
@@ -200,14 +298,15 @@
     // ---- Analyse -> review ----------------------------------------------------------------
 
     // Steps 11-12 of Journey A: where do the media's frames sit in the open sequence?
-    function place(model, request, jobId) {
+    function place(model, request, jobId, retry, loadedFrom) {
+      var again = retry || retryAnalyse;
       return bridge.call('getSequenceInfo', {}).then(function (info) {
         if (!info || !info.ok) {
-          showProblem((info && info.error) || 'Could not read the sequence.', '', retryAnalyse);
+          showProblem((info && info.error) || 'Could not read the sequence.', '', again);
           return null;
         }
         if (!info.data.hasActiveSequence) {
-          showProblem('Open a sequence in Premiere first.', '', retryAnalyse);
+          showProblem('Open a sequence in Premiere first.', '', again);
           return null;
         }
         var seqInfo = info.data;
@@ -217,11 +316,12 @@
         }).then(function (segs) {
           if (!segs || !segs.ok) {
             showProblem((segs && segs.error) || 'Could not read the media placements.', '',
-              retryAnalyse);
+              again);
             return null;
           }
           app.session = {
             jobId: jobId,
+            loadedFrom: loadedFrom || null,
             request: request,
             sequenceId: seqInfo.sequenceId,
             seqInfo: seqInfo,
@@ -245,7 +345,7 @@
         if (!res.ok) { showJobError(res.error); return; }
         var loaded = Cues.load(JSON.stringify(res.data));
         if (!loaded.ok) { showProblem(loaded.error, '', retryAnalyse); return; }
-        return place(loaded.model, request, jobId).then(function (mapping) {
+        return place(loaded.model, request, jobId, retryAnalyse, null).then(function (mapping) {
           if (mapping) { renderReview(loaded.warning || null); }
         });
       }).then(null, function (e) {

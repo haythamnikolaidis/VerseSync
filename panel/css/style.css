@@ -396,7 +396,23 @@ button:focus-visible, select:focus-visible, input:focus-visible {
 .vf-flag--grey  { color: var(--flag-grey); }
 
 /* ── Review rows (docs/09 §5.1) ──────────────────────────────────────────── */
-.vf-review-header { font-weight: bold; margin-bottom: 6px; }
+.vf-review-header { margin-bottom: 6px; }
+.vf-review-title { font-weight: bold; margin-bottom: 4px; }
+.vf-review-actions { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.vf-review-actions .vf-btn { width: auto; }
+.vf-review-actions .vf-btn--active { border-color: var(--btn-accent-hover); }
+.vf-review-save-wrap { position: relative; display: inline-block; }
+.vf-review-menu {
+  position: absolute; z-index: 5; left: 0; top: 100%; min-width: 170px;
+  background: var(--bg-raised); border: 1px solid var(--border); border-radius: var(--radius);
+}
+.vf-review-menu-item {
+  display: block; width: 100%; text-align: left; padding: 4px 8px; font-size: 11px;
+  background: none; border: 0; color: inherit; cursor: pointer;
+}
+.vf-review-menu-item:hover { background: var(--border); }
+.vf-review-message { margin-bottom: 6px; }
+.row[hidden] { display: none; }
 .vf-review-notice, .vf-failure, .vf-manual-offset { margin-bottom: 6px; }
 .vf-failure .vf-btn, .vf-manual-offset .vf-btn { margin-top: 4px; }
 .vf-review-list { display: flex; flex-direction: column; gap: 4px; }
