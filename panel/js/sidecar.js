@@ -252,10 +252,164 @@
     };
   }
 
+  // ---- lifecycle ------------------------------------------------------------------------
+  // Discovery, launch and health polling (docs/03 §3, docs/07 §1.1). The sidecar outlives
+  // the panel, so nothing here ever stops it except an explicit restart().
+
+  var POLL_MS = 500;
+  // restart() waits this long for the old sidecar to go away; a chosen bound, the spec gives none.
+  var SHUTDOWN_WAIT_MS = 10000;
+
+  function joinPath(platform, parts) {
+    return parts.join(platform === 'win32' ? '\\' : '/');
+  }
+
+  function createLifecycle(opts) {
+    var fs = opts.fs;
+    var childProcess = opts.childProcess;
+    var env = opts.env || {};
+    var platform = opts.platform;
+    var clientFactory = opts.clientFactory;
+    var now = opts.now;
+    var sleep = opts.sleep;
+    var healthTimeoutMs = opts.healthTimeoutMs === undefined ? 30000 : opts.healthTimeoutMs;
+    var isAlive = opts.isProcessAlive || function (pid) {
+      try { process.kill(pid, 0); return true; } catch (e) { return e && e.code === 'EPERM'; }
+    };
+    var listeners = [];
+    var current = null;
+
+    var home = env.VERSESYNC_HOME ||
+      (env.APPDATA ? env.APPDATA + (platform === 'win32' ? '\\' : '/') + 'VerseSync' : '');
+    var lockPath = joinPath(platform, [home, 'sidecar.json']);
+    var logPath = joinPath(platform, [home, 'logs', 'sidecar.log']);
+    // Assumption: the panel's venv lives under the app home. Callers with a configured venv
+    // pass launchCommand explicitly.
+    var launchCommand = opts.launchCommand ||
+      [joinPath(platform, [home, 'venv', 'Scripts', 'pythonw.exe']), '-m', 'versesync.sidecar', '--port', '0'];
+
+    function emit(state, detail) {
+      for (var i = 0; i < listeners.length; i++) {
+        try { listeners[i](state, detail); } catch (e) { /* listener failed; keep going */ }
+      }
+    }
+
+    function readLock() {
+      try {
+        var lock = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
+        if (lock && typeof lock.port === 'number' && typeof lock.pid === 'number' &&
+            typeof lock.token === 'string') {
+          return lock;
+        }
+      } catch (e) { /* missing or unreadable lock */ }
+      return null;
+    }
+
+    function deleteLock() {
+      try { fs.unlinkSync(lockPath); } catch (e) { /* already gone */ }
+    }
+
+    // Maps one /health reply to a lifecycle result, or null when the sidecar is still starting.
+    function judge(client, res) {
+      if (!res.ok) {
+        if (res.error && res.error.code === 'api_version_mismatch') {
+          return { state: 'version_mismatch', client: client, detail: res.error.message };
+        }
+        return null;
+      }
+      var status = res.data && res.data.status;
+      if (status === 'starting') { return null; }
+      if (status === 'degraded') { return { state: 'degraded', client: client, detail: res.data }; }
+      return { state: 'ready', client: client, detail: res.data };
+    }
+
+    function probe(lock) {
+      var client = clientFactory({ port: lock.port, token: lock.token });
+      return client.health().then(function (res) { return judge(client, res); });
+    }
+
+    function finish(result) {
+      current = result.client && result.state !== 'unreachable' ? result : null;
+      emit(result.state, result.detail);
+      return result;
+    }
+
+    function unreachable() {
+      return finish({ state: 'unreachable', detail: logPath });
+    }
+
+    function launch() {
+      var failed = false;
+      try {
+        var child = childProcess.spawn(launchCommand[0], launchCommand.slice(1),
+          { detached: true, stdio: 'ignore' });
+        if (child && child.on) { child.on('error', function () { failed = true; }); }
+        if (child && child.unref) { child.unref(); }
+      } catch (e) {
+        return unreachable();
+      }
+      var started = now();
+      function poll() {
+        if (failed) { return unreachable(); }
+        var lock = readLock();
+        var attempt = lock && isAlive(lock.pid) ? probe(lock) : Promise.resolve(null);
+        return attempt.then(function (result) {
+          if (result) { return finish(result); }
+          if (now() - started >= healthTimeoutMs) { return unreachable(); }
+          return Promise.resolve(sleep(POLL_MS)).then(poll);
+        });
+      }
+      return poll();
+    }
+
+    function connect() {
+      emit('starting');
+      var lock = readLock();
+      if (lock && isAlive(lock.pid)) {
+        return probe(lock).then(function (result) {
+          if (result) { return finish(result); }
+          // Alive process that is not answering: treat the lock as stale.
+          deleteLock();
+          return launch();
+        });
+      }
+      if (lock) { deleteLock(); }
+      return launch();
+    }
+
+    function restart() {
+      emit('starting');
+      var lock = readLock();
+      if (!lock) { return launch(); }
+      var client = clientFactory({ port: lock.port, token: lock.token });
+      return client.shutdown().then(function () {
+        var started = now();
+        function waitGone() {
+          if (!isAlive(lock.pid) || now() - started >= SHUTDOWN_WAIT_MS) { return null; }
+          return Promise.resolve(sleep(POLL_MS)).then(waitGone);
+        }
+        return waitGone();
+      }).then(function () {
+        deleteLock();
+        return launch();
+      });
+    }
+
+    return {
+      connect: connect,
+      restart: restart,
+      onState: function (cb) { listeners.push(cb); },
+      current: function () { return current; },
+      // The sidecar outlives the panel: unloading only drops listeners, never shuts it down.
+      dispose: function () { listeners = []; }
+    };
+  }
+
   var VSSidecarClient = { create: create };
   var VSSidecar = {
     PANEL_ORIGIN: PANEL_ORIGIN,
     createNodeTransport: createNodeTransport,
+    createLifecycle: createLifecycle,
     VSSidecarClient: VSSidecarClient
   };
 
