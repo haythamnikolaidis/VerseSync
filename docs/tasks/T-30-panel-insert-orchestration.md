@@ -48,7 +48,7 @@ landed. **This is where Journey A completes.**
 
 ### T-30.2 · Insert execution, progress, summary, partial re-run
 
-**Executor** agent · **Size** S · **Prereqs** T-30.1, T-25.2, T-25.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-30.1, T-25.2, T-25.3 · **Status** in-progress
 
 - **Read:** [09 §6](../09-ui-spec.md)
 - **Touches:** `panel/js/insert.js` · `panel/js/main.js` · `tests/panel/insert-run.test.js` (new)
