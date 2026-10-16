@@ -104,7 +104,7 @@ client.health() / models() / translations() / startJob(req) / job(id) / result(i
 
 ### T-26.3 · Job watcher: SSE, polling fallback, rejoin after reload
 
-**Executor** agent · **Size** S · **Prereqs** T-26.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-26.2 · **Status** in-progress
 
 - **Read:** [07 §2](../07-sidecar-api.md) (`/events` and `GET /jobs/{id}`) · NFR-3 in
   [01](../01-requirements.md)
