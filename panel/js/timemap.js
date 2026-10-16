@@ -43,12 +43,76 @@
     return pad2(hh) + ':' + pad2(mm) + ':' + pad2(ss) + ':' + pad2(ff);
   }
 
+  // docs/05 §5.1. Segments arrive from VS.getMediaSegments (docs/08 §4) with tick fields as
+  // strings. Each one is a linear window onto the source: it covers source ticks
+  // [inPoint, inPoint + length), where length = seqEnd - seqStart. Segments are ordered by
+  // seqStart (ties keep their input order) so that "earliest placement" is the first match.
+  // Speed-changed segments arrive in `unsupported`, which is kept on the map for callers that need
+  // to explain a cut, but they are never part of the linear mapping (docs/05 §5.3).
+  function toWindow(seg, index) {
+    var seqStart = Number(seg.seqStartTicks);
+    return {
+      seqStart: seqStart,
+      seqEnd: Number(seg.seqEndTicks),
+      inPoint: Number(seg.inPointTicks),
+      length: Number(seg.seqEndTicks) - seqStart,
+      index: index
+    };
+  }
+
+  function buildMap(segmentsResponse) {
+    var response = segmentsResponse || {};
+    var windows = (response.segments || []).map(toWindow);
+    windows.sort(function (a, b) {
+      return a.seqStart - b.seqStart || a.index - b.index;
+    });
+    return {
+      matched: response.matched === true,
+      segments: windows,
+      unsupported: (response.unsupported || []).map(toWindow)
+    };
+  }
+
+  // docs/05 §5.2. Returns null when the source time is cut from the edit. Otherwise ticks is the
+  // earliest placement and placements lists every distinct sequence position, earliest first. A
+  // video clip and its linked audio clip share a seqStart and are one placement, not two: counting
+  // them twice would flag every ordinary cue as multiple_placements.
+  function toSequence(map, tSrcSeconds) {
+    var tSrc = secondsToTicks(tSrcSeconds);
+    var placements = [];
+    for (var i = 0; i < map.segments.length; i++) {
+      var seg = map.segments[i];
+      if (seg.inPoint <= tSrc && tSrc < seg.inPoint + seg.length) {
+        var tSeq = seg.seqStart + (tSrc - seg.inPoint);
+        if (placements.indexOf(tSeq) === -1) { placements.push(tSeq); }
+      }
+    }
+    if (placements.length === 0) { return null; }
+    return { ticks: placements[0], placements: placements };
+  }
+
+  // Inverse of the mapping, in source seconds, for the first segment containing seqTicks. Null
+  // outside every segment.
+  function toSource(map, seqTicks) {
+    var tSeq = Number(seqTicks);
+    for (var i = 0; i < map.segments.length; i++) {
+      var seg = map.segments[i];
+      if (seg.seqStart <= tSeq && tSeq < seg.seqEnd) {
+        return ticksToSeconds(seg.inPoint + (tSeq - seg.seqStart));
+      }
+    }
+    return null;
+  }
+
   var Timemap = {
     TICKS_PER_SECOND: TICKS_PER_SECOND,
     secondsToTicks: secondsToTicks,
     ticksToSeconds: ticksToSeconds,
     snapToFrame: snapToFrame,
-    timecode: timecode
+    timecode: timecode,
+    buildMap: buildMap,
+    toSequence: toSequence,
+    toSource: toSource
   };
 
   if (typeof module !== 'undefined' && module.exports) { module.exports = Timemap; }
