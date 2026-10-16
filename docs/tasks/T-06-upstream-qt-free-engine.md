@@ -27,7 +27,7 @@ when the upstream PR merges.
 
 ### T-06.1 · Extract `core/transcription/engine.py`
 
-**Executor** agent · **Size** S · **Prereqs** T-44 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-44 · **Status** in-progress
 
 - **Read:** [02 §2.2](../02-source-project-audit.md) Gaps 1, 2 and 6 ·
   `reference/fwt/core/transcription/service.py`
