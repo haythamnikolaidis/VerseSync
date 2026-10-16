@@ -9,9 +9,10 @@ from __future__ import annotations
 import hmac
 import json
 import logging
+import queue
 import re
 import threading
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import TYPE_CHECKING, Any
@@ -35,6 +36,16 @@ MAX_BODY_BYTES = 16 * 1024 * 1024
 
 # Chosen: stdlib default is 0.5 s, which makes every shutdown (and test teardown) wait that long.
 SHUTDOWN_POLL_S = 0.05
+
+# Chosen: how often a quiet stream re-checks whether its job has finished, and so how soon a
+# stream whose queue missed the terminal event still closes.
+SSE_POLL_S = 1.0
+
+# Chosen: a quiet stream writes an SSE comment after this many polls, so a client that has gone
+# away is noticed (the write fails) instead of holding a thread until the job ends.
+SSE_KEEPALIVE_POLLS = 15
+
+_TERMINAL_STATUSES = ("done", "failed", "cancelled")
 
 _log = logging.getLogger("versesync.server")
 
@@ -91,6 +102,18 @@ class Request:
             return json.loads(self.raw_body.decode("utf-8"))
         except (UnicodeDecodeError, ValueError) as exc:
             raise ApiError(400, "bad_request", "The request body is not valid JSON.") from exc
+
+
+@dataclass
+class EventStream:
+    """A ``text/event-stream`` response: each item of ``chunks`` is written and flushed at once."""
+
+    chunks: Iterator[bytes]
+
+
+def format_sse(event: str, data: dict[str, Any]) -> bytes:
+    """One server-sent event frame (07 §2)."""
+    return f"event: {event}\ndata: {json.dumps(data)}\n\n".encode()
 
 
 # A handler returns the JSON payload (status 200) or a ``(status, payload)`` pair.
@@ -164,6 +187,26 @@ class _Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _send_stream(self, stream: EventStream) -> None:
+        """Write ``stream`` until it ends or the client goes away; the connection then closes."""
+        self.close_connection = True  # no Content-Length: the end of the stream is the close
+        try:
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream")
+            self.send_header("Cache-Control", "no-cache")
+            self.end_headers()
+            self.wfile.flush()
+            for chunk in stream.chunks:
+                self.wfile.write(chunk)
+                self.wfile.flush()
+        except OSError:
+            # The client dropped the stream (a panel reload); it falls back to polling (NFR-3).
+            _log.debug("event stream closed by the client")
+        finally:
+            close = getattr(stream.chunks, "close", None)
+            if close is not None:
+                close()
+
     def _send_unauthorized(self) -> None:
         self.send_response(401)
         self.send_header("Content-Length", "0")
@@ -203,6 +246,9 @@ class _Handler(BaseHTTPRequestHandler):
                 raw_body=self._read_body(),
             )
             result = route.handler(request)
+            if isinstance(result, EventStream):
+                self._send_stream(result)
+                return
             if isinstance(result, tuple):
                 status, payload = result
             else:
@@ -272,6 +318,65 @@ class SidecarServer:
         self.route("GET", "/jobs/{id}/result", service.result)
         self.route("GET", "/jobs/{id}/transcript", service.transcript)
         self.route("DELETE", "/jobs/{id}", service.cancel)
+        self.route("GET", "/jobs/{id}/events", lambda request: self._job_events(service, request))
+
+    @staticmethod
+    def _job_events(service: JobService, request: Request) -> EventStream:
+        """``GET /jobs/{id}/events`` (07 §2): the snapshot, live progress, one terminal event."""
+        registry = service.registry
+        job = registry.get(request.params["id"])  # 404 job_not_found while still a plain response
+        # Subscribe before reading the snapshot, so no event can fall between the two.
+        events = registry.subscribe(job.id)
+        status = job.status
+        snapshot = job.snapshot(service.clock())
+        progress: dict[str, Any] = {
+            "phase": snapshot["phase"],
+            "progress": snapshot["progress"],
+            "eta_s": snapshot["eta_s"],
+        }
+        if snapshot["message"] is not None:
+            progress["message"] = snapshot["message"]
+
+        def terminal() -> tuple[str, dict[str, Any]]:
+            """The terminal event of a finished job, rebuilt from its state."""
+            if job.status == "done":
+                cue_count = len(service.result(request)["cues"])
+                return "done", {"job_id": job.id, "cue_count": cue_count}
+            error = job.error or {
+                "code": "cancelled",
+                "message": "The job was cancelled.",
+                "detail": None,
+                "retryable": False,
+                "hint": None,
+            }
+            return "failed", {"job_id": job.id, "error": error}
+
+        finished = terminal() if status in _TERMINAL_STATUSES else None
+
+        def chunks() -> Iterator[bytes]:
+            yield format_sse("progress", progress)
+            if finished is not None:
+                yield format_sse(*finished)
+                return
+            idle = 0
+            while True:
+                try:
+                    event, data = events.get(timeout=SSE_POLL_S)
+                except queue.Empty:
+                    if job.status in _TERMINAL_STATUSES:
+                        # The runner sets the status just before it publishes; a full poll with
+                        # nothing queued means the terminal event will not reach this queue.
+                        yield format_sse(*terminal())
+                        return
+                    idle += 1
+                    if idle % SSE_KEEPALIVE_POLLS == 0:
+                        yield b": keepalive\n\n"
+                    continue
+                yield format_sse(event, data)
+                if event in ("done", "failed"):
+                    return
+
+        return EventStream(chunks())
 
     def mark_ready(self) -> None:
         """Move ``/health`` from ``starting`` to ``ready``."""
