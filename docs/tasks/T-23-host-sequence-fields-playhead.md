@@ -59,7 +59,7 @@ swapping the stub for the real host changes nothing.
 
 ### T-23.2 · `VS.getMogrtFields` (ported unchanged)
 
-**Executor** agent · **Size** S · **Prereqs** T-23.1, T-45.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-23.1, T-45.2 · **Status** in-progress
 
 - **Read:** [08 §5](../08-premiere-host-api.md) · `reference/verseflow/jsx/VerseFlow.jsx`
   (`getMogrtFields` and its helpers) · `tests/fixtures/host/mogrt-fields.json`

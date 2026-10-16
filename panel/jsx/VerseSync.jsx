@@ -168,3 +168,143 @@ VS.setPlayhead = _wrap('setPlayhead', function (args) {
     seq.setPlayerPosition(args.ticks);
     return _ok({ ticks: args.ticks });
 });
+
+// ---- VS.getMogrtFields ------------------------------------------------------
+
+// docs/08 section 9, with the em dash written as -- to keep this file ASCII.
+var VS_MSG_FIELDS_NO_SEQUENCE =
+    'Open a sequence in Premiere first -- reading a template\'s fields requires an active sequence.';
+var VS_MSG_IMPORT_NULL =
+    'Premiere could not insert the template. Check the .mogrt path is still valid.';
+var VS_MSG_NO_MGT_COMPONENT =
+    'This template has no Motion Graphics component -- it may not be an After Effects template.';
+
+// Seconds the scratch clip is placed beyond the end of the sequence, so that it
+// cannot overwrite anything. Copied from the VerseFlow reference.
+var VS_SCRATCH_OFFSET_SECONDS = 60;
+
+// Iterate mgt.properties, return editable text fields with index + group label.
+//
+// Detection strategy (in order):
+//   1. propertyType === 6  -- source text per MOGRT definition.json spec
+//   2. propertyType === 5  -- some Premiere versions use 5 for source text
+//   3. getValue() contains "textEditValue" -- reliable cross-version probe;
+//      Premiere stores text properties as a JSON blob with this key
+//
+// Group detection: type 10 (spec) or type 4 (seen in some Premiere builds).
+var _iterateProperties = function (mgt) {
+    var props = mgt.properties;
+    var count = 0;
+    try { count = props.numItems; } catch (e) { return []; }
+
+    var results = [];
+    var currentGroup = '';
+
+    for (var i = 0; i < count; i++) {
+        var p;
+        try { p = props[i]; } catch (e) { continue; }
+        if (!p) continue;
+
+        var pType = -1;
+        var pName = '';
+        try { pType = Number(p.propertyType); } catch (e) {}
+        try { pName = p.displayName; } catch (e) {}
+
+        // Group / folder nodes: track the current group, do not add to results
+        if (pType === 10 || pType === 4) {
+            currentGroup = pName;
+            continue;
+        }
+
+        // Strategy 1 and 2: known source-text type numbers
+        var isText = (pType === 6 || pType === 5);
+
+        // Strategy 3: probe the raw value blob for the textEditValue key
+        if (!isText) {
+            try {
+                var raw = p.getValue();
+                if (typeof raw === 'string' && raw.indexOf('textEditValue') >= 0) {
+                    isText = true;
+                }
+            } catch (e) {}
+        }
+
+        if (isText) {
+            var lbl = currentGroup ? (currentGroup + ' > ' + pName) : pName;
+            results.push({ index: i, name: pName, group: currentGroup, label: lbl });
+        }
+    }
+
+    if (results.length > 0) {
+        var allNoGroup = true;
+        for (var k = 0; k < results.length; k++) {
+            if (results[k].group !== '') { allNoGroup = false; break; }
+        }
+        if (allNoGroup) {
+            for (var j = 0; j < results.length; j++) {
+                results[j].label = results[j].name + ' #' + (j + 1);
+            }
+        }
+    }
+
+    return results;
+};
+
+// Inserts one scratch instance past the end of the sequence inside an undo
+// group, enumerates its properties, and removes it again.
+VS.getMogrtFields = function (argsJson) {
+    try {
+        var args = JSON.parse(argsJson);
+        var path = args.path;
+        if (!path) return _err('No path provided');
+
+        var seq = app.project.activeSequence;
+        if (!seq) return _err(VS_MSG_FIELDS_NO_SEQUENCE);
+
+        var seqEndTicks = seq.end ? Number(seq.end.ticks) : VS_TICKS_PER_SECOND * 3600;
+        var scratchTicks = String(seqEndTicks + VS_TICKS_PER_SECOND * VS_SCRATCH_OFFSET_SECONDS);
+        var scratchTrack = seq.videoTracks.numTracks - 1;
+
+        var clip = null;
+        var fields = [];
+
+        try { app.beginUndoGroup('VS_scratch'); } catch (e) {}
+
+        try {
+            clip = seq.importMGT(path, scratchTicks, scratchTrack, 0);
+        } catch (e) {
+            try { app.endUndoGroup(); } catch (e2) {}
+            return _err('importMGT failed: ' + e);
+        }
+
+        if (!clip) {
+            try { app.endUndoGroup(); } catch (e) {}
+            return _err(VS_MSG_IMPORT_NULL);
+        }
+
+        var mgtErr = '';
+        try {
+            var mgt = clip.getMGTComponent();
+            if (mgt) {
+                fields = _iterateProperties(mgt);
+            } else {
+                mgtErr = VS_MSG_NO_MGT_COMPONENT;
+            }
+        } catch (e) {
+            mgtErr = 'getMGTComponent() threw: ' + e;
+        }
+
+        try { clip.remove(false, true); } catch (e) {}
+        try { app.endUndoGroup(); } catch (e) {}
+
+        // Surface getMGTComponent failures so the panel can show a real error
+        if (mgtErr && fields.length === 0) {
+            return _err(mgtErr);
+        }
+
+        return _ok({ fields: fields });
+    } catch (e) {
+        try { app.endUndoGroup(); } catch (e2) {}
+        return _err('getMogrtFields: ' + e);
+    }
+};
