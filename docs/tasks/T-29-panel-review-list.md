@@ -98,7 +98,7 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
 
 ### T-29.3 · Collapsed rows
 
-**Executor** agent · **Size** S · **Prereqs** T-29.1, T-28.4 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-29.1, T-28.4 · **Status** in-progress
 
 - **Read:** [09 §5.1, §5.2, §8](../09-ui-spec.md)
 - **Touches:** `panel/js/review.js` (new) · `panel/css/style.css` ·
