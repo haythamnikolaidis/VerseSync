@@ -1,6 +1,6 @@
 # T-24 · Host: `VS.getMediaSegments`
 
-**Executor** agent · **Size** S · **Prereqs** T-23.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-23.1 · **Status** in-progress
 
 | | |
 |---|---|
