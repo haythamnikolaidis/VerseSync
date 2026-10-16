@@ -39,9 +39,7 @@ def _request(server: SidecarServer, path: str, body: Any = None) -> Any:
 
 def _http_document(translation_id: str) -> dict[str, Any]:
     base = load_config()
-    config = replace(
-        base, transcription={**base.transcription, "backend": f"fixture:{WORDS_FILE}"}
-    )
+    config = replace(base, transcription={**base.transcription, "backend": f"fixture:{WORDS_FILE}"})
     now = datetime.fromisoformat(GENERATED_AT.replace("Z", "+00:00")).timestamp()
     registry = JobRegistry(id_factory=lambda: JOB_ID, clock=lambda: now)
     service = JobService(

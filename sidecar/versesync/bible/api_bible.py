@@ -11,11 +11,13 @@ import json
 import logging
 import re
 import time
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
+from functools import partial
 from typing import Any
 from urllib.parse import quote
 
 from versesync.bible.base import (
+    BibleError,
     PassageNotFound,
     ProviderUnavailable,
     RateLimited,
@@ -54,6 +56,9 @@ _VERSE_MARKER = re.compile(
     r"<span\b(?=[^>]*\bclass=[\"']v[\"'])[^>]*>\s*(\d+)\s*</span>", re.IGNORECASE
 )
 _TIMEOUT_S = 10.0  # the 06 section 8 default for bible.api_bible.timeout_s
+# Chosen, not specified: a merged request never spans more verses than this, so one batched
+# request stays well inside a provider's per-request verse limit (06 section 4, "Batching").
+_MAX_MERGED_VERSES = 30
 # Chosen, not specified: one short pause before the single retry after a 429 (06 section 3.2).
 _RATE_LIMIT_BACKOFF_S = 2.0
 
@@ -121,6 +126,50 @@ class ApiBibleProvider:
         ref = Reference(name, book_osis, chapter)
         return self._passage(ref, translation_id, f"{_usfm(book_osis)}.{chapter}")
 
+    def fetch_many(
+        self, refs: Sequence[Reference], translation_id: str
+    ) -> dict[Reference, RawPassage | BibleError]:
+        """Fetch every reference, merging contiguous or overlapping verse ranges of a chapter.
+
+        One request serves each merged range, so N references never cost more than N requests
+        (06 section 4, "Batching"). A failed request gives every reference it covered the same
+        error; ``TranslationNotLicensed`` is the job-level failure and is raised outright.
+        """
+        out: dict[Reference, RawPassage | BibleError] = {}
+        spans: dict[tuple[str, int], list[tuple[int, int, Reference]]] = {}
+        for ref in refs:
+            if ref in out:
+                continue
+            if ref.verse is None:
+                out[ref] = self._attempt(
+                    partial(self.fetch_chapter, ref.osis, ref.chapter, translation_id)
+                )
+                continue
+            last = ref.verse if ref.verse_end is None else ref.verse_end
+            spans.setdefault((ref.osis, ref.chapter), []).append((ref.verse, last, ref))
+            out[ref] = PassageNotFound()  # replaced below once its group is fetched
+        for (osis, chapter), items in spans.items():
+            for group in _merge(items):
+                first = min(i[0] for i in group)
+                last = max(i[1] for i in group)
+                merged = Reference(
+                    group[0][2].book, osis, chapter, first, last if last > first else None
+                )
+                result = self._attempt(partial(self.fetch, merged, translation_id))
+                for lo, hi, ref in group:
+                    out[ref] = (
+                        result if isinstance(result, BibleError) else _slice(result, ref, lo, hi)
+                    )
+        return out
+
+    def _attempt(self, call: Callable[[], RawPassage]) -> RawPassage | BibleError:
+        try:
+            return call()
+        except TranslationNotLicensed:
+            raise
+        except BibleError as err:
+            return err
+
     def _passage(self, ref: Reference, translation_id: str, passage_id: str) -> RawPassage:
         path = (
             f"/bibles/{quote(translation_id, safe='')}/passages/{quote(passage_id, safe='.-')}"
@@ -176,3 +225,32 @@ def parse_verses(content: str) -> tuple[RawVerse, ...]:
         end = marks[i + 1].start() if i + 1 < len(marks) else len(content)
         verses.append(RawVerse(int(m.group(1)), content[m.end() : end]))
     return tuple(verses)
+
+
+def _merge(
+    items: list[tuple[int, int, Reference]],
+) -> list[list[tuple[int, int, Reference]]]:
+    """Group verse ranges of one chapter that overlap or touch, up to ``_MAX_MERGED_VERSES``."""
+    groups: list[list[tuple[int, int, Reference]]] = []
+    group_end = 0
+    group_start = 0
+    for item in sorted(items, key=lambda i: (i[0], i[1])):
+        lo, hi, _ = item
+        if (
+            groups
+            and lo <= group_end + 1
+            and max(hi, group_end) - group_start + 1 <= _MAX_MERGED_VERSES
+        ):
+            groups[-1].append(item)
+            group_end = max(group_end, hi)
+        else:
+            groups.append([item])
+            group_start, group_end = lo, hi
+    return groups
+
+
+def _slice(raw: RawPassage, ref: Reference, lo: int, hi: int) -> RawPassage | BibleError:
+    verses = tuple(v for v in raw.verses if lo <= v.verse <= hi)
+    if not verses:
+        return PassageNotFound(f"{ref.osis} {ref.chapter}:{lo} returned no verses.")
+    return RawPassage(raw.provider_id, raw.translation_id, ref, verses, raw.payload)

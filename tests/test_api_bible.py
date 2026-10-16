@@ -15,6 +15,7 @@ from versesync.bible.base import (
     PassageNotFound,
     ProviderUnavailable,
     RateLimited,
+    RawPassage,
     TranslationNotLicensed,
 )
 from versesync.bible.format import format_passage, to_verseflow_block
@@ -253,3 +254,66 @@ def test_other_errors_are_not_retried() -> None:
             provider.fetch(_ref("John", 3, 16), KJV_ID)
         assert len(transport.calls) == 1
     assert sleeps == []
+
+
+def _batch_transport(calls: list[str]) -> Any:
+    """Answers any passage request with the verses its id asks for, from the KJV fixture."""
+
+    def transport(
+        url: str, headers: Mapping[str, str], timeout: float
+    ) -> tuple[int, dict[str, Any]]:
+        calls.append(url)
+        pid = url.split("/passages/")[1].split("?")[0]
+        first, _, last = pid.partition("-")
+        lo = int(first.split(".")[2])
+        hi = int(last.split(".")[2]) if last else lo
+        html = "".join(
+            f'<p><span data-number="{n}" class="v">{n}</span>verse {n} </p>'
+            for n in range(lo, hi + 1)
+        )
+        return 200, {"data": {"id": pid, "content": html}}
+
+    return transport
+
+
+def test_adjacent_and_overlapping_verses_cost_one_request() -> None:
+    calls: list[str] = []
+    provider = ApiBibleProvider(KEY, BASE, _batch_transport(calls), CONFIG)
+    refs = [_ref("John", 3, 16), _ref("John", 3, 17), _ref("John", 3, 17, 19), _ref("John", 3, 18)]
+    result = provider.fetch_many(refs, KJV_ID)
+    assert len(calls) == 1
+    assert "/passages/JHN.3.16-JHN.3.19?" in calls[0]
+    for ref in refs:
+        raw = result[ref]
+        assert isinstance(raw, RawPassage)
+        last = ref.verse_end or ref.verse
+        assert [v.verse for v in raw.verses] == list(range(ref.verse or 0, (last or 0) + 1))
+        assert raw.reference == ref
+
+
+def test_twenty_references_cost_at_most_twenty_requests() -> None:
+    calls: list[str] = []
+    provider = ApiBibleProvider(KEY, BASE, _batch_transport(calls), CONFIG)
+    refs = [_ref("John", c, v) for c in range(1, 11) for v in (3, 9)]
+    result = provider.fetch_many(refs, KJV_ID)
+    assert len(refs) == 20
+    assert len(calls) <= 20
+    assert len(calls) == 20  # gaps and different chapters are never merged
+    assert all(isinstance(result[r], RawPassage) for r in refs)
+
+
+def test_fetch_many_reports_errors_per_reference_and_keeps_going() -> None:
+    provider, transport = _provider(
+        {"JHN.3.16": (200, "passage_single.json"), "1CO.6.19-1CO.6.20": (503, "error_503.json")}
+    )
+    good, bad = _ref("John", 3, 16), _ref("1Cor", 6, 19, 20)
+    result = provider.fetch_many([good, bad], KJV_ID)
+    assert isinstance(result[good], RawPassage)
+    assert isinstance(result[bad], ProviderUnavailable)
+    assert len(transport.calls) == 2
+
+
+def test_fetch_many_raises_translation_not_licensed() -> None:
+    provider, _ = _provider({"JHN.3.16": (403, "error_404.json")})
+    with pytest.raises(TranslationNotLicensed):
+        provider.fetch_many([_ref("John", 3, 16)], KJV_ID)
