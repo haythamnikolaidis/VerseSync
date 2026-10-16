@@ -38,7 +38,7 @@ with **dry-run and fake-filesystem modes**. Proving it on a clean machine is T-3
 
 ### T-36.2 · Panel installer
 
-**Executor** agent · **Size** XS · **Prereqs** T-22.1 · **Status** in-progress
+**Executor** agent · **Size** XS · **Prereqs** T-22.1 · **Status** done
 
 - **Read:** `reference/verseflow/README.md` (the debug-mode install section)
 - **Touches:** `tools/install_panel.ps1` (new) · `tools/install_panel.reg` (new) ·
@@ -53,8 +53,8 @@ with **dry-run and fake-filesystem modes**. Proving it on a clean machine is T-3
      references the right paths and excludes the stub. Commit.
 - **Verify:** `pytest tests/test_install_panel.py -q`
 - **Done when:**
-  - [ ] Both CSXS versions are covered.
-  - [ ] The stub is never deployed.
+  - [x] Both CSXS versions are covered.
+  - [x] The stub is never deployed.
 
 ### T-36.3 · README and INSTALL
 
