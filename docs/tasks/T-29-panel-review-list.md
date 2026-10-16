@@ -247,7 +247,7 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
 
 ### T-29.8 · Timing edits: nudges, set-to-playhead, duration override
 
-**Executor** agent · **Size** S · **Prereqs** T-29.6 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-29.6 · **Status** done
 
 - **Read:** [09 §5.3](../09-ui-spec.md) (the Timing row)
 - **Touches:** `panel/js/review.js` · `tests/panel/review-timing.test.js` (new)
@@ -271,8 +271,8 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
      Commit.
 - **Verify:** `node --test tests/panel/review-timing.test.js`
 - **Done when:**
-  - [ ] Every timing edit re-runs overlap resolution across the list.
-  - [ ] Edits are stored in source seconds.
+  - [x] Every timing edit re-runs overlap resolution across the list.
+  - [x] Edits are stored in source seconds.
 
 ### T-29.9 · Add cue, placement alternatives, empty and edge states
 
