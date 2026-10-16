@@ -193,6 +193,17 @@ select.vf-select:focus { outline: 2px solid var(--accent); outline-offset: 1px; 
 .vf-input-num:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 .vf-input-num:disabled { opacity: 0.4; }
 
+.vf-input-text {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: 4px 6px;
+  font-size: 11px;
+  width: 110px;
+}
+.vf-input-text:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
 .vf-hint {
   color: var(--text-dim);
   font-size: 10px;
@@ -386,6 +397,8 @@ button:focus-visible, select:focus-visible, input:focus-visible {
 
 /* ── Review rows (docs/09 §5.1) ──────────────────────────────────────────── */
 .vf-review-header { font-weight: bold; margin-bottom: 6px; }
+.vf-review-notice, .vf-failure, .vf-manual-offset { margin-bottom: 6px; }
+.vf-failure .vf-btn, .vf-manual-offset .vf-btn { margin-top: 4px; }
 .vf-review-list { display: flex; flex-direction: column; gap: 4px; }
 
 .row {

@@ -27,6 +27,9 @@ test('scripts load in the required order', () => {
     'js/state.js',
     'js/setup.js',
     'js/progress.js',
+    'js/timemap.js',
+    'js/cues.js',
+    'js/review.js',
     'js/main.js'
   ]);
 });
