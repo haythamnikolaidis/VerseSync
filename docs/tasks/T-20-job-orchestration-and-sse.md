@@ -22,7 +22,7 @@ to it.
 
 ### T-20.1 · Progress accounting and the job registry
 
-**Executor** agent · **Size** S · **Prereqs** T-05.4 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-05.4 · **Status** done
 
 - **Read:** [07 §2](../07-sidecar-api.md) (`GET /jobs/{id}`) · [07 §4](../07-sidecar-api.md)
 - **Touches:** `sidecar/versesync/jobs.py` (new) · `tests/test_jobs_progress.py` (new)
@@ -56,7 +56,7 @@ to it.
      Commit.
 - **Verify:** `pytest tests/test_jobs_progress.py -q`
 - **Done when:**
-  - [ ] Progress never goes down and ends at exactly 1.0, with or without a skipped phase.
+  - [x] Progress never goes down and ends at exactly 1.0, with or without a skipped phase.
 
 ### T-20.2 · Job runner
 
