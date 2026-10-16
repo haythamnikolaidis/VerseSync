@@ -43,7 +43,7 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
 
 ### T-29.1 · `cues.js` model
 
-**Executor** agent · **Size** S · **Prereqs** T-22.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-22.1 · **Status** in-progress
 
 - **Read:** [07 §5.1, §5.2](../07-sidecar-api.md) · [09 §5.2](../09-ui-spec.md) (the flags
   table)
