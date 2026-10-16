@@ -30,7 +30,7 @@ swapping the stub for the real host changes nothing.
 
 ### T-23.1 · `VerseSync.jsx` skeleton, ES3 lint, `ping`, `getSequenceInfo`, `setPlayhead`
 
-**Executor** agent · **Size** S · **Prereqs** T-45.1, T-47 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-45.1, T-47 · **Status** in-progress
 
 - **Read:** [08 §1, §2, §3, §7, §9](../08-premiere-host-api.md) ·
   `reference/verseflow/jsx/VerseFlow.jsx` (the header comment, the JSON polyfill, and

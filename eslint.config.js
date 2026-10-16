@@ -20,6 +20,23 @@ module.exports = [
     }
   },
   {
+    files: ['panel/jsx/**/*.jsx'],
+    languageOptions: {
+      ecmaVersion: 3,
+      sourceType: 'script',
+      globals: {
+        app: 'readonly',
+        $: 'readonly',
+        CSXSEvent: 'readonly',
+        File: 'readonly',
+        Time: 'readonly'
+      }
+    },
+    rules: {
+      'func-style': ['error', 'expression']
+    }
+  },
+  {
     files: ['tests/**/*.js'],
     languageOptions: {
       ecmaVersion: 2022,
