@@ -21,7 +21,7 @@ unit tests. **Render functions** are thin, are tested under jsdom, and are check
 
 ### T-27.1 · `state.js`: persistence, smart defaults, Analyse blockers
 
-**Executor** agent · **Size** S · **Prereqs** T-22.2 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-22.2 · **Status** done
 
 - **Read:** [09 §3](../09-ui-spec.md) · `reference/verseflow/js/state.js` (the persistence
   pattern and the smart-default regexes)
@@ -58,8 +58,8 @@ unit tests. **Render functions** are thin, are tested under jsdom, and are check
      Commit.
 - **Verify:** `node --test tests/panel/state.test.js`
 - **Done when:**
-  - [ ] Every blocker and the persistence rules are tested.
-  - [ ] Indices are stored, never display names (R-8).
+  - [x] Every blocker and the persistence rules are tested.
+  - [x] Indices are stored, never display names (R-8).
 
 ### T-27.2 · Setup view (part 1): media, template, field mapping
 
