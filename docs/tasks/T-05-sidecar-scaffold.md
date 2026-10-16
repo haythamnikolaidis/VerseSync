@@ -136,7 +136,7 @@ The mock accepts any non-empty Origin, so the contract tests (T-42) send this va
 
 ### T-05.4 · Entry point, logging, idle self-exit
 
-**Executor** agent · **Size** S · **Prereqs** T-05.3 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-05.3 · **Status** done
 
 - **Read:** [03 §3](../03-architecture.md) (the lifecycle) · [03 §8](../03-architecture.md) (the
   log path in errors)
@@ -159,9 +159,9 @@ The mock accepts any non-empty Origin, so the contract tests (T-42) send this va
      Commit.
 - **Verify:** `pytest tests/test_sidecar_process.py -q`
 - **Done when:**
-  - [ ] `python -m versesync.sidecar` works and `python -m versesync` is an alias for it.
-  - [ ] Idle exit, shutdown, and refusing a second instance are all tested.
-  - [ ] The token is never written to the log.
+  - [x] `python -m versesync.sidecar` works and `python -m versesync` is an alias for it.
+  - [x] Idle exit, shutdown, and refusing a second instance are all tested.
+  - [x] The token is never written to the log.
 
 ## Traps
 
