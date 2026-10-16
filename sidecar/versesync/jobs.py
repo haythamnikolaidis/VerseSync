@@ -545,7 +545,7 @@ class JobService:
         translation_id = body.get("translation_id")
         if not isinstance(translation_id, str) or not translation_id:
             raise ApiError(400, "bad_request", "The request needs a translation_id.")
-        if not isinstance(body.get("options") or {}, dict):
+        if not isinstance(body.get("options", {}), dict):
             raise ApiError(400, "bad_request", "options must be a JSON object.")
         media = self._validated_media(body.get("media_path"))
         cache_hit, estimate = self._estimate(body, media)
