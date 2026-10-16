@@ -43,7 +43,7 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
 
 ### T-29.1 · `cues.js` model
 
-**Executor** agent · **Size** S · **Prereqs** T-22.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-22.1 · **Status** done
 
 - **Read:** [07 §5.1, §5.2](../07-sidecar-api.md) · [09 §5.2](../09-ui-spec.md) (the flags
   table)
@@ -70,8 +70,8 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
      Commit.
 - **Verify:** `node --test tests/panel/cues-model.test.js`
 - **Done when:**
-  - [ ] Every mutation keeps `toJSON()` schema-valid.
-  - [ ] The version rules match 07 §5.2.
+  - [x] Every mutation keeps `toJSON()` schema-valid.
+  - [x] The version rules match 07 §5.2.
 
 ### T-29.2 · Save, load, and VerseFlow `.txt` export
 
