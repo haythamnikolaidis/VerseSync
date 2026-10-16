@@ -36,7 +36,7 @@ be removed with one Ctrl+Z.**
 
 ### T-32.2 · Panel failure states and never-settling promises
 
-**Executor** agent · **Size** S · **Prereqs** T-32.1, T-30.2 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-32.1, T-30.2 · **Status** done
 
 - **Read:** [03 §8](../03-architecture.md) (the panel and host rows) · [09 §7](../09-ui-spec.md)
 - **Touches:** `tests/panel/failure-states.test.js` (new) · `docs/qa/error-reproduction.md` ·
@@ -61,9 +61,9 @@ be removed with one Ctrl+Z.**
      found. Add every row to `docs/qa/error-reproduction.md`. Commit.
 - **Verify:** `node --test tests/panel/failure-states.test.js`
 - **Done when:**
-  - [ ] Every row can be reproduced by a test and shows the exact message.
-  - [ ] No spinner can hang forever.
-  - [ ] With the sidecar down, load-and-insert still works.
+  - [x] Every row can be reproduced by a test and shows the exact message.
+  - [x] No spinner can hang forever.
+  - [x] With the sidecar down, load-and-insert still works.
 
 ### T-32.H · Manual failure-mode pass
 
