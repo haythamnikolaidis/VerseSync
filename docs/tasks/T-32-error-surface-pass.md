@@ -16,7 +16,7 @@ be removed with one Ctrl+Z.**
 
 ### T-32.1 · Sidecar error catalogue
 
-**Executor** agent · **Size** S · **Prereqs** T-20.5 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-20.5 · **Status** done
 
 - **Read:** [07 §3](../07-sidecar-api.md) · [03 §8](../03-architecture.md) (the sidecar rows)
 - **Touches:** `sidecar/versesync/errors.py` (new; one table of messages and hints by `code`) ·
@@ -31,8 +31,8 @@ be removed with one Ctrl+Z.**
      with one row per code: how to trigger it, and the expected message. Commit.
 - **Verify:** `pytest tests/test_error_catalogue.py -q`
 - **Done when:**
-  - [ ] Every [07 §3] code is triggered by a test.
-  - [ ] No message leaks a stack trace.
+  - [x] Every [07 §3] code is triggered by a test.
+  - [x] No message leaks a stack trace.
 
 ### T-32.2 · Panel failure states and never-settling promises
 
