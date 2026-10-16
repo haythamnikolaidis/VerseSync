@@ -28,7 +28,7 @@ logged and never serialised.
 
 ### T-15.1 · Client, response parsing, translations
 
-**Executor** agent · **Size** S · **Prereqs** T-14.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-14.3 · **Status** in-progress
 
 - **Read:** [06 §3.1, §5, §8](../06-bible-text-service.md) · [07 §2](../07-sidecar-api.md)
   (`GET /translations`). The API.Bible public reference for `GET /v1/bibles` and
