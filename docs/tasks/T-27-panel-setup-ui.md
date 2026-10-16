@@ -21,7 +21,7 @@ unit tests. **Render functions** are thin, are tested under jsdom, and are check
 
 ### T-27.1 · `state.js`: persistence, smart defaults, Analyse blockers
 
-**Executor** agent · **Size** S · **Prereqs** T-22.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-22.2 · **Status** in-progress
 
 - **Read:** [09 §3](../09-ui-spec.md) · `reference/verseflow/js/state.js` (the persistence
   pattern and the smart-default regexes)
