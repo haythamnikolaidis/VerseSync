@@ -304,7 +304,9 @@
       show('');
       sync();
       var started = alt ? editor.choose(alt) : editor.resolve(input.value);
-      started.then(function (message) {
+      started.then(null, function (e) {
+        return 'Unexpected error: ' + (e && e.message);
+      }).then(function (message) {
         busy = false;
         if (message) { show(message); }
         sync();
@@ -376,7 +378,11 @@
     }
     function done(promise) {
       show('');
-      Promise.resolve(promise).then(function (text) { if (text) { show(text); } });
+      Promise.resolve(promise).then(function (text) {
+        if (text) { show(text); }
+      }, function (e) {
+        show('Unexpected error: ' + (e && e.message));
+      });
     }
     var back = timingButton('vf-detail-nudge-back', '-1f', 'Move one frame earlier',
       function () { done(editor.timing.nudge(-1)); });
@@ -685,7 +691,9 @@
             .then(function (text) { failure = text; });
         });
       });
-      return chain.then(function () {
+      return chain.then(null, function (e) {
+        failure = 'Unexpected error: ' + (e && e.message);
+      }).then(function () {
         retryBtn.disabled = false;
         render();
         if (failure) { setMessage(failure, true); }
@@ -742,6 +750,9 @@
           if (failure) { showAddError(failure); return; }
           if (opts.onChange) { opts.onChange(null); }
           render();
+        }).then(null, function (e) {
+          addGo.disabled = false;
+          showAddError('Unexpected error: ' + (e && e.message));
         });
     }
     addBtn.addEventListener('click', function () {

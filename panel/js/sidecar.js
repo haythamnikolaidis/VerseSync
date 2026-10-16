@@ -21,7 +21,22 @@
     }
   }
 
-  function createNodeTransport(http) {
+  // A call the sidecar never answers must still end, or the spinner it started never goes away.
+  // Both bounds are chosen, the spec gives none. Every route answers from memory or disk, except
+  // /resolve, which waits on the Bible provider: timeout_s 10 and max_retries 2 (docs/06, the
+  // bible: config block) is up to 30 s plus backoff, so 60 s leaves room for that and no more.
+  // The sidecar sends an SSE keepalive every 15 s (SSE_POLL_S
+  // x SSE_KEEPALIVE_POLLS in the sidecar), so a stream silent for 60 s, four keepalives, is dead.
+  var REQUEST_TIMEOUT_MS = 60000;
+  var STREAM_IDLE_MS = 60000;
+
+  // options: { requestTimeoutMs, streamIdleMs } override the bounds above (tests shorten them).
+  function createNodeTransport(http, options) {
+    var requestTimeoutMs = options && options.requestTimeoutMs !== undefined ?
+      options.requestTimeoutMs : REQUEST_TIMEOUT_MS;
+    var streamIdleMs = options && options.streamIdleMs !== undefined ?
+      options.streamIdleMs : STREAM_IDLE_MS;
+
     // request() resolves {status, headers, json}; a network error resolves status 0.
     function request(opts) {
       return new Promise(function (resolve) {
@@ -60,6 +75,10 @@
             res.on('error', function () { finish({ status: 0, headers: {}, json: null }); });
           });
           req.on('error', function () { finish({ status: 0, headers: {}, json: null }); });
+          req.setTimeout(requestTimeoutMs, function () {
+            finish({ status: 0, headers: {}, json: null });
+            req.destroy();
+          });
           if (payload !== null) { req.write(payload); }
           req.end();
         } catch (e) {
@@ -144,6 +163,10 @@
           res.on('aborted', function () { end('error'); });
         });
         req.on('error', function () { end('error'); });
+        req.setTimeout(streamIdleMs, function () {
+          end('error');
+          req.destroy();
+        });
         req.end();
       } catch (e) {
         end('error');

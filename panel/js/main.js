@@ -119,10 +119,28 @@
       insertEl.hidden = true;
     }
 
+    // Load cue document, for the states that have no review toolbar to hold it. With the sidecar
+    // down nothing else can start, so this is the way in to load-and-insert (docs/03 §8). A failed
+    // load reports into the note beside the button.
+    var loadNote = null;
+    function loadPrompt() {
+      var wrap = el(doc, 'div', 'vf-load-prompt');
+      var btn = el(doc, 'button', 'vf-btn vf-btn--small vf-load-doc', 'Load cue document');
+      btn.type = 'button';
+      btn.addEventListener('click', function () { loadDocument(); });
+      loadNote = el(doc, 'div', 'vf-inline-error vf-load-note');
+      loadNote.setAttribute('role', 'alert');
+      loadNote.hidden = true;
+      wrap.appendChild(btn);
+      wrap.appendChild(loadNote);
+      return wrap;
+    }
+
     // Before any analysis the review area holds only the prompt (docs/09 §7).
     function showIdle() {
       clear(reviewEl);
       reviewEl.appendChild(el(doc, 'div', 'vf-hint vf-review-idle', Review.IDLE_TEXT));
+      reviewEl.appendChild(loadPrompt());
       reviewEl.hidden = false;
     }
     showIdle();
@@ -142,6 +160,7 @@
         box.appendChild(btn);
       }
       reviewEl.appendChild(box);
+      reviewEl.appendChild(loadPrompt());
       reviewEl.hidden = false;
     }
 
@@ -347,7 +366,12 @@
     // ---- Save, Load, Export (docs/09 §5.4) ------------------------------------------------
 
     function say(text, isError) {
-      if (app.session && app.session.review) { app.session.review.setMessage(text, isError); }
+      if (app.session && app.session.review) {
+        app.session.review.setMessage(text, isError);
+      } else if (loadNote && reviewEl.contains(loadNote)) {
+        loadNote.textContent = text || '';
+        loadNote.hidden = !text;
+      }
     }
 
     // cep.fs answers { err: 0, data } and uses a non-zero err (or no data) for a cancelled dialog.
@@ -552,6 +576,10 @@
       app.session = null;
       activeJobId = null;
       resetReview();
+      if (!client) {
+        showProblem("Transcription service isn't ready.", '', retryAnalyse);
+        return Promise.resolve();
+      }
       app.progress.begin(basename(request.media_path));
       return client.startJob(request).then(function (res) {
         if (!res.ok) { showJobError(res.error); return; }
@@ -570,6 +598,8 @@
           onFailed: showJobError,
           onCancelled: function () { showProblem('The analysis was cancelled.', '', retryAnalyse); }
         });
+      }).then(null, function (e) {
+        showProblem('Unexpected error: ' + (e && e.message), '', retryAnalyse);
       });
     };
 
@@ -597,6 +627,9 @@
         return bridge.call('getSequenceInfo', {});
       }).then(function (res) {
         hasSequence = !!(res && res.ok && res.data && res.data.hasActiveSequence);
+        drawStatus();
+      }).then(null, function () {
+        hasSequence = false;
         drawStatus();
       });
     };

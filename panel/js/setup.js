@@ -174,6 +174,11 @@
           clearMessage();
         }
         updateAnalyse();
+      }).then(null, function () {
+        if (token !== readToken) { return; }
+        setBusy(false);
+        showMessage('Could not read the template.', 'vf-inline-error');
+        updateAnalyse();
       });
     }
 
@@ -249,6 +254,10 @@
           translationSelect.disabled = true;
         }
         updateAnalyse();
+      }).then(null, function () {
+        state.set({ sidecarReady: false });
+        translationSelect.disabled = true;
+        updateAnalyse();
       });
     }
 
@@ -275,6 +284,10 @@
         var open = !!(info && info.hasActiveSequence);
         state.set({ sequenceOpen: open });
         renderTracks(open ? (info.videoTrackCount || 0) : 0);
+        updateAnalyse();
+      }).then(null, function () {
+        state.set({ sequenceOpen: false });
+        renderTracks(0);
         updateAnalyse();
       });
     }

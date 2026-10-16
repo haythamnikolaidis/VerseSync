@@ -415,6 +415,8 @@ button:focus-visible, select:focus-visible, input:focus-visible {
 .row[hidden] { display: none; }
 .vf-review-notice, .vf-failure, .vf-manual-offset { margin-bottom: 6px; }
 .vf-failure .vf-btn, .vf-manual-offset .vf-btn { margin-top: 4px; }
+.vf-load-prompt { margin-top: 6px; }
+.vf-load-prompt .vf-load-note { margin-top: 4px; }
 .vf-insert-summary { margin-bottom: 4px; }
 .vf-insert-details { margin-bottom: 4px; }
 .vf-insert-failures { margin: 4px 0 0 16px; padding: 0; }
