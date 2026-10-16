@@ -126,7 +126,7 @@ unit tests. **Render functions** are thin, are tested under jsdom, and are check
 
 ### T-27.4 · Status strip and progress view
 
-**Executor** agent · **Size** S · **Prereqs** T-27.3, T-26.3, T-49 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-27.3, T-26.3, T-49 · **Status** done
 
 - **Read:** [09 §2, §4](../09-ui-spec.md)
 - **Touches:** `panel/js/progress.js` (new) · `panel/js/main.js` (wiring) · `panel/index.html` ·
@@ -153,8 +153,8 @@ unit tests. **Render functions** are thin, are tested under jsdom, and are check
      Run `npm run smoke` and look at `artifacts/smoke-happy.png`. Commit.
 - **Verify:** `node --test tests/panel/status-progress.test.js && npm run smoke`
 - **Done when:**
-  - [ ] Every [09 §2] state and the [09 §4] behaviours are tested.
-  - [ ] The smoke screenshot shows setup, the status strip, and the progress bar.
+  - [x] Every [09 §2] state and the [09 §4] behaviours are tested.
+  - [x] The smoke screenshot shows setup, the status strip, and the progress bar.
 
 ## Traps
 
