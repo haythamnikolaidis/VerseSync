@@ -237,6 +237,14 @@
     }
 
     return {
+      // Where an SSE subscription to a job must connect, with the same credentials as call().
+      eventsRequest: function (id) {
+        return {
+          port: port,
+          path: jobPath(id, '/events'),
+          headers: { Authorization: 'Bearer ' + token, Origin: PANEL_ORIGIN }
+        };
+      },
       health: function () { return call('GET', '/health', null, false); },
       models: function () { return call('GET', '/models', null, true); },
       translations: function () { return call('GET', '/translations', null, true); },
@@ -405,11 +413,166 @@
     };
   }
 
+  // ---- job watcher ----------------------------------------------------------------------
+  // SSE first, polling GET /jobs/{id} when the stream ends without a terminal event
+  // (docs/07 §2, NFR-3). The mock sends no terminal SSE event for failed or cancelled jobs,
+  // so polling is also how those are detected.
+
+  var ACTIVE_JOB_KEY = 'activeJobId';
+  var DEFAULT_POLL_MS = 1000;
+
+  function isTerminal(status) {
+    return status === 'done' || status === 'failed' || status === 'cancelled';
+  }
+
+  function storageWrite(storage, fn) {
+    if (!storage) { return; }
+    try { fn(storage); } catch (e) { /* storage unavailable; rejoin just won't find the job */ }
+  }
+
+  function defaultSleep(ms) {
+    return new Promise(function (resolve) { setTimeout(resolve, ms); });
+  }
+
+  function watchJob(opts) {
+    var client = opts.client;
+    var transport = opts.transport;
+    var storage = opts.storage;
+    var jobId = opts.jobId;
+    var pollMs = opts.pollMs === undefined ? DEFAULT_POLL_MS : opts.pollMs;
+    var sleep = opts.sleep || defaultSleep;
+    var stopped = false;
+    var finished = false;
+    var polling = false;
+    var stream = null;
+    var highest = 0;
+
+    storageWrite(storage, function (st) { st.setItem(ACTIVE_JOB_KEY, jobId); });
+
+    function call(cb, arg) {
+      if (typeof cb !== 'function') { return; }
+      try { cb(arg); } catch (e) { /* caller's handler failed */ }
+    }
+
+    function closeStream() {
+      if (stream) {
+        var s = stream;
+        stream = null;
+        try { s.close(); } catch (e) { /* already closed */ }
+      }
+    }
+
+    function finish(cb, arg) {
+      if (finished || stopped) { return; }
+      finished = true;
+      storageWrite(storage, function (st) { st.removeItem(ACTIVE_JOB_KEY); });
+      closeStream();
+      call(cb, arg);
+    }
+
+    // Progress only ever moves forward on the panel side, whatever order updates arrive in.
+    function progress(data) {
+      if (finished || stopped || !data) { return; }
+      var p = typeof data.progress === 'number' ? data.progress : highest;
+      p = Math.min(1, Math.max(0, p));
+      if (p < highest) { p = highest; }
+      highest = p;
+      var out = {};
+      for (var k in data) {
+        if (Object.prototype.hasOwnProperty.call(data, k)) { out[k] = data[k]; }
+      }
+      out.progress = p;
+      call(opts.onProgress, out);
+    }
+
+    function pollOnce() {
+      return client.job(jobId).then(function (res) {
+        if (finished || stopped) { return true; }
+        if (!res.ok) {
+          // Includes 'unreachable' (sidecar died mid-job) and job_not_found (stale saved id).
+          finish(opts.onFailed, res.error);
+          return true;
+        }
+        var job = res.data || {};
+        if (job.status === 'done') { finish(opts.onDone, job); return true; }
+        if (job.status === 'cancelled') { finish(opts.onCancelled, job); return true; }
+        if (job.status === 'failed') {
+          finish(opts.onFailed, job.error || {
+            code: 'internal', message: job.message || 'The job failed.', hint: '', status: 200
+          });
+          return true;
+        }
+        progress(job);
+        return false;
+      });
+    }
+
+    function pollLoop() {
+      if (polling || finished || stopped) { return; }
+      polling = true;
+      function step() {
+        return pollOnce().then(function (terminal) {
+          if (terminal || finished || stopped) { return null; }
+          return Promise.resolve(sleep(pollMs)).then(function () {
+            return finished || stopped ? null : step();
+          });
+        });
+      }
+      step().then(function () { polling = false; }, function () { polling = false; });
+    }
+
+    function onStreamEvent(name, data) {
+      if (finished || stopped) { return; }
+      if (name === 'progress') { progress(data); }
+      // A done event is confirmed against the job record, so every terminal state takes one path.
+      else if (name === 'done') { pollLoop(); }
+    }
+
+    function onStreamEnd() {
+      stream = null;
+      pollLoop();
+    }
+
+    if (transport && typeof transport.stream === 'function' && typeof client.eventsRequest === 'function') {
+      try {
+        stream = transport.stream(client.eventsRequest(jobId), onStreamEvent, onStreamEnd);
+      } catch (e) {
+        stream = null;
+        pollLoop();
+      }
+    } else {
+      pollLoop();
+    }
+
+    return {
+      // Stops watching without touching the saved job id: the job keeps running and a reload rejoins it.
+      stop: function () {
+        stopped = true;
+        closeStream();
+      }
+    };
+  }
+
+  // Resumes the job saved by a previous panel session, or returns null when there is none.
+  function rejoin(opts) {
+    var jobId = null;
+    try { jobId = opts.storage && opts.storage.getItem(ACTIVE_JOB_KEY); } catch (e) { jobId = null; }
+    if (!jobId) { return null; }
+    var args = {};
+    for (var k in opts) {
+      if (Object.prototype.hasOwnProperty.call(opts, k)) { args[k] = opts[k]; }
+    }
+    args.jobId = jobId;
+    return watchJob(args);
+  }
+
   var VSSidecarClient = { create: create };
   var VSSidecar = {
     PANEL_ORIGIN: PANEL_ORIGIN,
     createNodeTransport: createNodeTransport,
     createLifecycle: createLifecycle,
+    watchJob: watchJob,
+    rejoin: rejoin,
     VSSidecarClient: VSSidecarClient
   };
 
