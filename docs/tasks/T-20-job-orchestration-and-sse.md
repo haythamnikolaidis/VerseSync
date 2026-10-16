@@ -104,7 +104,7 @@ to it.
 
 ### T-20.3 · Job endpoints
 
-**Executor** agent · **Size** S · **Prereqs** T-20.2, T-50 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-20.2, T-50 · **Status** done
 
 - **Read:** [07 §2](../07-sidecar-api.md) (`POST /jobs`, `GET /jobs/{id}`, `/result`,
   `DELETE`)
@@ -127,7 +127,7 @@ to it.
      `409` before done, `DELETE` leading to `cancelled`, and the media-root check. Commit.
 - **Verify:** `pytest tests/test_job_endpoints.py -q`
 - **Done when:**
-  - [ ] A whole job runs over HTTP using the fixture backend and gives a schema-valid document.
+  - [x] A whole job runs over HTTP using the fixture backend and gives a schema-valid document.
 
 ### T-20.4 · SSE endpoint
 
