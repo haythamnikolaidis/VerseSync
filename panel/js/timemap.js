@@ -56,6 +56,7 @@
       seqEnd: Number(seg.seqEndTicks),
       inPoint: Number(seg.inPointTicks),
       length: Number(seg.seqEndTicks) - seqStart,
+      speed: seg.speed === undefined ? 1 : Number(seg.speed),
       index: index
     };
   }
@@ -152,10 +153,110 @@
     return result;
   }
 
+  // docs/05 §5.3. A speed-changed clip consumes `speed` source seconds per sequence second, so
+  // its sequence length understates the source span it covers.
+  function inUnsupported(map, tSrcSeconds) {
+    var tSrc = secondsToTicks(tSrcSeconds);
+    for (var i = 0; i < map.unsupported.length; i++) {
+      var win = map.unsupported[i];
+      if (win.inPoint <= tSrc && tSrc < win.inPoint + win.length * win.speed) { return true; }
+    }
+    return false;
+  }
+
+  function isCueEnabled(cue, enabledById) {
+    if (enabledById && Object.prototype.hasOwnProperty.call(enabledById, cue.id)) {
+      return enabledById[cue.id] === true;
+    }
+    return cue.enabled !== false;
+  }
+
+  // docs/05 §5, §8, §9. Maps every cue's source anchor to a frame-snapped sequence placement.
+  // The document is only read, never changed (T-29.2 owns edits). A cue that has no sequence
+  // position (cut from the edit, or inside a speed-changed clip) still gets an entry, so the
+  // panel can see its flags: its ticks are "0", its timecode is empty, and it takes no part in
+  // the overlap sweep. Disabled cues are placed and snapped but take no part in the sweep.
+  //
+  // When segments.matched is false and manualOffsetTicks is given, docs/05 §5.4 applies:
+  // t_seq = offset + t_src for every cue, and the result is `approximate`. Without an offset
+  // nothing can be placed, so placements is empty and `unmatched` is true.
+  function mapCueDocument(doc, options) {
+    var opts = options || {};
+    var seqInfo = opts.seqInfo;
+    var timebase = seqInfo.timebase;
+    var map = buildMap(opts.segments);
+    var hasOffset = opts.manualOffsetTicks !== undefined && opts.manualOffsetTicks !== null;
+    var manual = !map.matched && hasOffset;
+    var result = { placements: {}, unmatched: !map.matched && !hasOffset, approximate: manual };
+    if (result.unmatched) { return result; }
+
+    var offset = manual ? Number(opts.manualOffsetTicks) : 0;
+    var cues = doc.cues || [];
+    var items = [];
+    var meta = {};
+    cues.forEach(function (cue) {
+      var flags = [];
+      var anchor = null;
+      var alternatives = [];
+      if (manual) {
+        anchor = offset + secondsToTicks(cue.source_anchor_s);
+      } else {
+        var hit = toSequence(map, cue.source_anchor_s);
+        if (hit) {
+          anchor = hit.ticks;
+          alternatives = hit.placements.slice(1);
+          if (alternatives.length > 0) { flags.push('multiple_placements'); }
+        }
+        if (inUnsupported(map, cue.source_anchor_s)) {
+          flags.push('speed_change_unsupported');
+        } else if (!hit) {
+          flags.push('cut_from_edit');
+        }
+      }
+      meta[cue.id] = {
+        flags: flags,
+        placed: anchor !== null,
+        alternatives: alternatives.map(function (t) { return snapToFrame(t, timebase); })
+      };
+      if (anchor !== null) {
+        items.push({
+          id: cue.id,
+          anchor: Number(snapToFrame(anchor, timebase)),
+          end: Number(snapToFrame(anchor + secondsToTicks(cue.source_duration_s), timebase)),
+          enabled: isCueEnabled(cue, opts.enabledById)
+        });
+      }
+    });
+
+    var swept = resolveOverlaps(items, timebase, opts.cfg);
+    cues.forEach(function (cue) {
+      var m = meta[cue.id];
+      var placement = {
+        atTicks: '0',
+        durationTicks: '0',
+        endTicks: '0',
+        timecode: '',
+        alternatives: m.alternatives,
+        panelFlags: m.flags
+      };
+      if (m.placed) {
+        var r = swept[cue.id];
+        placement.atTicks = String(r.anchor);
+        placement.endTicks = String(r.end);
+        placement.durationTicks = String(r.end - r.anchor);
+        placement.timecode = timecode(r.anchor, seqInfo);
+        placement.panelFlags = m.flags.concat(r.flags);
+      }
+      result.placements[cue.id] = placement;
+    });
+    return result;
+  }
+
   var Timemap = {
     MIN_VISIBLE_S: MIN_VISIBLE_S,
     OVERLAP_GAP_S: OVERLAP_GAP_S,
     resolveOverlaps: resolveOverlaps,
+    mapCueDocument: mapCueDocument,
     TICKS_PER_SECOND: TICKS_PER_SECOND,
     secondsToTicks: secondsToTicks,
     ticksToSeconds: ticksToSeconds,
