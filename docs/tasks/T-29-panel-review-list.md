@@ -215,7 +215,7 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
 
 ### T-29.7 · Reference editing and re-resolve
 
-**Executor** agent · **Size** S · **Prereqs** T-29.6 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-29.6 · **Status** in-progress
 
 - **Read:** [09 §5.3](../09-ui-spec.md) (the Reference field) · [07 §2](../07-sidecar-api.md)
   (`POST /resolve`)
