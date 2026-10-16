@@ -84,7 +84,7 @@ otherwise, and its result wins.** The model stays configurable.
 
 ### T-07.2 · faster-whisper adapter via the upstream engine
 
-**Executor** agent · **Size** S · **Prereqs** T-07.1, T-06.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-07.1, T-06.2 · **Status** in-progress
 
 - **Read:** [02 §2.2](../02-source-project-audit.md) Gaps 3–6 · `reference/fwt/core/cuda_setup.py`
 - **Touches:** `pyproject.toml` (add an optional extra `transcribe` that pins the upstream
