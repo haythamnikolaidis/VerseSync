@@ -131,7 +131,7 @@ to it.
 
 ### T-20.4 · SSE endpoint
 
-**Executor** agent · **Size** S · **Prereqs** T-20.3 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-20.3 · **Status** done
 
 - **Read:** [07 §2](../07-sidecar-api.md) (`GET /jobs/{id}/events`) · `tools/mock_sidecar.py`
   (the SSE writer only)
@@ -155,7 +155,7 @@ to it.
      Commit.
 - **Verify:** `pytest tests/test_sse.py -q`
 - **Done when:**
-  - [ ] A dropped stream never loses the job's state (NFR-3).
+  - [x] A dropped stream never loses the job's state (NFR-3).
 
 ### T-20.5 · `/models`, `/translations`, `/resolve`, and `/health` status
 
