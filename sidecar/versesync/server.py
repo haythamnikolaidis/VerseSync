@@ -21,6 +21,7 @@ from versesync.config import Config
 
 API_VERSION = "1.0"
 API_HEADER = "X-VerseSync-Api"
+SIDECAR_VERSION = "1.0.0"  # matches tools/mock_sidecar.py, which the contract tests (T-42) compare
 
 # Loopback only (07 §1, NFR-4). Never "" or "0.0.0.0".
 BIND_HOST = "127.0.0.1"
@@ -28,6 +29,9 @@ BIND_HOST = "127.0.0.1"
 # Chosen, not specified: a request body above this is rejected before it is read. The largest
 # legitimate body is a job-start JSON document (well under 1 MiB); 16 MiB leaves ample headroom.
 MAX_BODY_BYTES = 16 * 1024 * 1024
+
+# Chosen: stdlib default is 0.5 s, which makes every shutdown (and test teardown) wait that long.
+SHUTDOWN_POLL_S = 0.05
 
 _log = logging.getLogger("versesync.server")
 
@@ -230,6 +234,9 @@ class SidecarServer:
         self._lifecycle = threading.Lock()
         self._serving = False
         self._closed = False
+        self.status = "starting"  # starting | ready | busy | degraded (07 §2)
+        self.route("GET", "/health", lambda request: self.health(), auth=False)
+        self.route("POST", "/shutdown", self._handle_shutdown)
 
     @property
     def server_address(self) -> tuple[str, int]:
@@ -253,13 +260,36 @@ class SidecarServer:
                 return (route, params), True
         return None, path_known
 
+    def mark_ready(self) -> None:
+        """Move ``/health`` from ``starting`` to ``ready``."""
+        self.status = "ready"
+
+    def health(self) -> dict[str, Any]:
+        """The ``/health`` body (07 §2). Subclasses and the entry point override the pieces."""
+        return {
+            "status": self.status,
+            "api_version": API_VERSION,
+            "sidecar_version": SIDECAR_VERSION,
+            "device": None,
+            "model_loaded": None,
+            "gpu": None,
+            "provider": None,
+            "active_jobs": 0,
+        }
+
+    def _handle_shutdown(self, request: Request) -> RouteResult:
+        # httpd.shutdown() waits for serve_forever to return, so it must not run on the
+        # request thread that is still answering this call.
+        threading.Thread(target=self.shutdown, name="sidecar-shutdown", daemon=True).start()
+        return {"status": "shutting_down"}
+
     def serve_forever(self) -> None:
         with self._lifecycle:
             if self._closed:
                 return
             self._serving = True
         try:
-            self._httpd.serve_forever()
+            self._httpd.serve_forever(poll_interval=SHUTDOWN_POLL_S)
         finally:
             self._httpd.server_close()
 
