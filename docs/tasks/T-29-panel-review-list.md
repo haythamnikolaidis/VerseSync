@@ -154,7 +154,7 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
 
 ### T-29.5 · List header and actions
 
-**Executor** agent · **Size** S · **Prereqs** T-29.4, T-29.2 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-29.4, T-29.2 · **Status** done
 
 - **Read:** [09 §5.4](../09-ui-spec.md) · [09 §1](../09-ui-spec.md) (the review header)
 - **Touches:** `panel/js/review.js` · `panel/js/main.js` · `tests/panel/review-actions.test.js`
@@ -179,8 +179,8 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
      Commit.
 - **Verify:** `node --test tests/panel/review-actions.test.js`
 - **Done when:**
-  - [ ] Every [09 §5.4] action works.
-  - [ ] Load never trusts stored positions.
+  - [x] Every [09 §5.4] action works.
+  - [x] Load never trusts stored positions.
 
 ### T-29.6 · Expanded row (read-only parts)
 
