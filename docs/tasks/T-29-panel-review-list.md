@@ -98,7 +98,7 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
 
 ### T-29.3 · Collapsed rows
 
-**Executor** agent · **Size** S · **Prereqs** T-29.1, T-28.4 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-29.1, T-28.4 · **Status** done
 
 - **Read:** [09 §5.1, §5.2, §8](../09-ui-spec.md)
 - **Touches:** `panel/js/review.js` (new) · `panel/css/style.css` ·
@@ -120,8 +120,8 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
      Commit.
 - **Verify:** `node --test tests/panel/review-rows.test.js`
 - **Done when:**
-  - [ ] All four golden fixtures render.
-  - [ ] Every flag has its colour and its text label.
+  - [x] All four golden fixtures render.
+  - [x] Every flag has its colour and its text label.
 
 ### T-29.4 · The Analyse → review flow (makes the screen demoable)
 
