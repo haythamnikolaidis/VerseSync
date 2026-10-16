@@ -276,7 +276,7 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
 
 ### T-29.9 · Add cue, placement alternatives, empty and edge states
 
-**Executor** agent · **Size** S · **Prereqs** T-29.7, T-29.8 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-29.7, T-29.8 · **Status** done
 
 - **Read:** [09 §5.4](../09-ui-spec.md) (Add cue) · [09 §7](../09-ui-spec.md) · [05 §5.2](../05-timing-and-placement.md)
   (multiple placements)
@@ -304,7 +304,7 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
      Commit.
 - **Verify:** `node --test tests/panel/review-edge.test.js`
 - **Done when:**
-  - [ ] Every FR-6 behaviour that can be tested with stubs is covered. The real-sermon check is
+  - [x] Every FR-6 behaviour that can be tested with stubs is covered. The real-sermon check is
         T-30.H.
 
 ## Traps
