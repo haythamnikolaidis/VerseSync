@@ -58,7 +58,7 @@ with **dry-run and fake-filesystem modes**. Proving it on a clean machine is T-3
 
 ### T-36.3 · README and INSTALL
 
-**Executor** agent · **Size** S · **Prereqs** T-36.1, T-36.2, T-35.1, T-32.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-36.1, T-36.2, T-35.1, T-32.1 · **Status** done
 
 - **Read:** [06 §5](../06-bible-text-service.md) · `docs/qa/error-reproduction.md` ·
   `docs/qa/performance-results.md`
@@ -77,8 +77,8 @@ with **dry-run and fake-filesystem modes**. Proving it on a clean machine is T-3
      Commit.
 - **Verify:** `grep -c "Troubleshooting\|Privacy\|Licensing" README.md`
 - **Done when:**
-  - [ ] Every config option and every failure state is documented.
-  - [ ] The documentation describes what the code actually does.
+  - [x] Every config option and every failure state is documented.
+  - [x] The documentation describes what the code actually does.
 
 ### T-36.H · Clean-machine install
 
