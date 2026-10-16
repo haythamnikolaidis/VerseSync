@@ -40,7 +40,7 @@ otherwise, and its result wins.** The model stays configurable.
 
 ### T-07.1 · `transcribe.py`: options, backend protocol, fixture and fake backends
 
-**Executor** agent · **Size** S · **Prereqs** T-05.1, T-09.3 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-05.1, T-09.3 · **Status** done
 
 - **Read:** [04 §2](../04-reference-detection.md) · [07 §4](../07-sidecar-api.md) (the
   `transcribing` weight) · `spikes/word_timestamps/RESULTS.md` §1 (the table only)
@@ -79,8 +79,8 @@ otherwise, and its result wins.** The model stays configurable.
      Commit.
 - **Verify:** `pytest tests/test_transcribe.py -q`
 - **Done when:**
-  - [ ] The defaults match the table above.
-  - [ ] The fixture backend can be selected through config.
+  - [x] The defaults match the table above.
+  - [x] The fixture backend can be selected through config.
 
 ### T-07.2 · faster-whisper adapter via the upstream engine
 
