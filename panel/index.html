@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VerseSync</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="vf-panel">
+
+    <header class="vf-header">
+      <h1>VerseSync</h1>
+      <div id="status" class="vf-status" aria-live="polite"></div>
+    </header>
+
+    <section id="setup" class="vf-section" aria-label="Setup"></section>
+
+    <section id="progress" class="vf-section" aria-label="Progress" hidden></section>
+
+    <section id="review" class="vf-section" aria-label="Review" hidden></section>
+
+    <section id="insert" class="vf-section" aria-label="Insert" hidden></section>
+
+  </div>
+
+  <!-- Load order matters -->
+  <script src="js/lib/CSInterface.js"></script>
+  <script src="js/lib/host-stub.js"></script>
+  <script src="js/bridge.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
