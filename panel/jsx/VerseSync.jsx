@@ -261,7 +261,12 @@ VS.getMogrtFields = function (argsJson) {
         var seq = app.project.activeSequence;
         if (!seq) return _err(VS_MSG_FIELDS_NO_SEQUENCE);
 
-        var seqEndTicks = seq.end ? Number(seq.end.ticks) : VS_TICKS_PER_SECOND * 3600;
+        // seq.end is a ticks string (getSequenceInfo reads it the same way); a
+        // Time object is accepted too.
+        var seqEndTicks = VS_TICKS_PER_SECOND * 3600;
+        if (seq.end) {
+            seqEndTicks = Number(seq.end.ticks !== undefined ? seq.end.ticks : seq.end);
+        }
         var scratchTicks = String(seqEndTicks + VS_TICKS_PER_SECOND * VS_SCRATCH_OFFSET_SECONDS);
         var scratchTrack = seq.videoTracks.numTracks - 1;
 
