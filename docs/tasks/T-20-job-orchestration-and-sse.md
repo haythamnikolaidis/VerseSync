@@ -104,7 +104,7 @@ to it.
 
 ### T-20.3 · Job endpoints
 
-**Executor** agent · **Size** S · **Prereqs** T-20.2, T-50 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-20.2, T-50 · **Status** in-progress
 
 - **Read:** [07 §2](../07-sidecar-api.md) (`POST /jobs`, `GET /jobs/{id}`, `/result`,
   `DELETE`)
