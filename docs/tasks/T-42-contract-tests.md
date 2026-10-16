@@ -16,7 +16,7 @@ stops the fake the panel was built against from drifting away from the real thin
 
 ### T-42.1 · The suite, against the mock
 
-**Executor** agent · **Size** S · **Prereqs** T-05.4, T-50 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-05.4, T-50 · **Status** in-progress
 
 - **Read:** [07 §1–4](../07-sidecar-api.md) · `tools/README.md` (the mock's flags and "Known
   simplifications")
