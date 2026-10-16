@@ -92,7 +92,7 @@ Config defaults come from [05 §2](../05-timing-and-placement.md): `MIN_VISIBLE_
 
 ### T-28.3 · Overlap sweep
 
-**Executor** agent · **Size** XS · **Prereqs** T-28.2 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-28.2 · **Status** in-progress
 
 - **Read:** [05 §8](../05-timing-and-placement.md)
 - **Touches:** `panel/js/timemap.js` · `tests/panel/timemap-overlap.test.js` (new)
