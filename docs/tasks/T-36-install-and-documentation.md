@@ -20,7 +20,7 @@ with **dry-run and fake-filesystem modes**. Proving it on a clean machine is T-3
 
 ### T-36.1 · Sidecar installer
 
-**Executor** agent · **Size** S · **Prereqs** T-07.2, T-44 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-07.2, T-44 · **Status** in-progress
 
 - **Read:** `reference/fwt/install.py` (the pinned-wheel pattern) · [02 §2.1](../02-source-project-audit.md)
 - **Touches:** `install.py` (new) · `tests/test_install.py` (new)
