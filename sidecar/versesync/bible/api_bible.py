@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+import time
 from collections.abc import Callable, Mapping
 from typing import Any
 from urllib.parse import quote
@@ -53,6 +54,8 @@ _VERSE_MARKER = re.compile(
     r"<span\b(?=[^>]*\bclass=[\"']v[\"'])[^>]*>\s*(\d+)\s*</span>", re.IGNORECASE
 )
 _TIMEOUT_S = 10.0  # the 06 section 8 default for bible.api_bible.timeout_s
+# Chosen, not specified: one short pause before the single retry after a 429 (06 section 3.2).
+_RATE_LIMIT_BACKOFF_S = 2.0
 
 
 class ApiBibleProvider:
@@ -67,6 +70,8 @@ class ApiBibleProvider:
         fetch_json: FetchJson,
         translations_config: Mapping[str, Mapping[str, Any]] | None = None,
         timeout_s: float = _TIMEOUT_S,
+        sleep: Callable[[float], None] = time.sleep,
+        rate_limit_backoff_s: float = _RATE_LIMIT_BACKOFF_S,
     ) -> None:
         self.__api_key = api_key
         self._base_url = base_url.rstrip("/")
@@ -74,6 +79,8 @@ class ApiBibleProvider:
         # Keyed by API.Bible bible id: {"attribution": str, "cache_allowed": bool}.
         self._config = dict(translations_config or {})
         self._timeout_s = timeout_s
+        self._sleep = sleep
+        self._backoff_s = rate_limit_backoff_s
 
     def __repr__(self) -> str:
         return f"ApiBibleProvider(base_url={self._base_url!r})"
@@ -128,10 +135,21 @@ class ApiBibleProvider:
         return RawPassage(self.id, translation_id, ref, verses, json.dumps(body, sort_keys=True))
 
     def _get(self, path: str) -> dict[str, Any]:
+        """GET with error mapping; one back-off and one retry after a 429 (06 section 3.2)."""
+        try:
+            return self._get_once(path)
+        except RateLimited:
+            self._sleep(self._backoff_s)
+            return self._get_once(path)
+
+    def _get_once(self, path: str) -> dict[str, Any]:
         url = self._base_url + path
         headers = {"api-key": self.__api_key, "accept": "application/json"}
         log.debug("API.Bible GET %s", url)
-        status, body = self._fetch_json(url, headers, self._timeout_s)
+        try:
+            status, body = self._fetch_json(url, headers, self._timeout_s)
+        except OSError as err:  # connection failures and timeouts (TimeoutError is an OSError)
+            raise ProviderUnavailable() from err
         if status == 200:
             return body
         if status == 404:

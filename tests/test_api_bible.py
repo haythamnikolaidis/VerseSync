@@ -11,6 +11,7 @@ import pytest
 
 from versesync.bible.api_bible import OSIS_TO_USFM, ApiBibleProvider, parse_verses
 from versesync.bible.base import (
+    BibleError,
     PassageNotFound,
     ProviderUnavailable,
     RateLimited,
@@ -60,7 +61,7 @@ class FakeTransport:
 
 def _provider(routes: dict[str, tuple[int, str]]) -> tuple[ApiBibleProvider, FakeTransport]:
     transport = FakeTransport(routes)
-    return ApiBibleProvider(KEY, BASE, transport, CONFIG), transport
+    return ApiBibleProvider(KEY, BASE, transport, CONFIG, sleep=lambda _s: None), transport
 
 
 def _ref(osis: str, chapter: int, verse: int | None = None, end: int | None = None) -> Reference:
@@ -202,3 +203,53 @@ def test_key_never_appears_in_logs_or_repr(caplog: pytest.LogCaptureFixture) -> 
     assert KEY not in str(provider)
     assert KEY not in str(err.value)
     assert KEY not in repr(vars(provider).get("_config"))
+
+
+def test_network_failure_and_timeout_map_to_provider_unavailable() -> None:
+    for exc in (ConnectionError("down"), TimeoutError("slow"), socket.gaierror("dns")):
+
+        def failing(
+            url: str, headers: Mapping[str, str], timeout: float, exc: OSError = exc
+        ) -> Any:
+            raise exc
+
+        provider = ApiBibleProvider(KEY, BASE, failing, CONFIG)
+        with pytest.raises(ProviderUnavailable):
+            provider.fetch(_ref("John", 3, 16), KJV_ID)
+
+
+def test_rate_limit_backs_off_once_and_retries_once() -> None:
+    sleeps: list[float] = []
+    responses = [(429, _load("error_429.json")), (200, _load("passage_single.json"))]
+    calls: list[str] = []
+
+    def transport(url: str, headers: Mapping[str, str], timeout: float) -> Any:
+        calls.append(url)
+        return responses[len(calls) - 1]
+
+    provider = ApiBibleProvider(KEY, BASE, transport, CONFIG, sleep=sleeps.append)
+    raw = provider.fetch(_ref("John", 3, 16), KJV_ID)
+    assert [v.verse for v in raw.verses] == [16]
+    assert len(calls) == 2
+    assert len(sleeps) == 1
+
+
+def test_persistent_rate_limit_stops_after_exactly_one_retry() -> None:
+    sleeps: list[float] = []
+    provider, transport = _provider({"JHN.3.16": (429, "error_429.json")})
+    provider = ApiBibleProvider(KEY, BASE, transport, CONFIG, sleep=sleeps.append)
+    with pytest.raises(RateLimited):
+        provider.fetch(_ref("John", 3, 16), KJV_ID)
+    assert len(transport.calls) == 2
+    assert len(sleeps) == 1
+
+
+def test_other_errors_are_not_retried() -> None:
+    sleeps: list[float] = []
+    for status in (404, 503, 401, 403):
+        transport = FakeTransport({"JHN.3.16": (status, "error_404.json")})
+        provider = ApiBibleProvider(KEY, BASE, transport, CONFIG, sleep=sleeps.append)
+        with pytest.raises(BibleError):
+            provider.fetch(_ref("John", 3, 16), KJV_ID)
+        assert len(transport.calls) == 1
+    assert sleeps == []
