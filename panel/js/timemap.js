@@ -208,8 +208,14 @@
       } else {
         var hit = toSequence(map, cue.source_anchor_s);
         if (hit) {
-          anchor = hit.ticks;
-          alternatives = hit.placements.slice(1);
+          // The editor's pick among several placements (a snapped tick string, panel state, never
+          // persisted). It only counts while it still names one of this cue's candidates.
+          var chosen = hit.placements.filter(function (t) {
+            return opts.placementChoice && snapToFrame(t, timebase) === opts.placementChoice[cue.id];
+          })[0];
+          if (chosen === undefined) { chosen = hit.ticks; }
+          anchor = chosen;
+          alternatives = hit.placements.filter(function (t) { return t !== chosen; });
           if (alternatives.length > 0) { flags.push('multiple_placements'); }
         }
         if (inUnsupported(map, cue.source_anchor_s)) {

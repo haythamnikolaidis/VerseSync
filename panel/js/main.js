@@ -109,6 +109,14 @@
       reviewEl.hidden = true;
     }
 
+    // Before any analysis the review area holds only the prompt (docs/09 §7).
+    function showIdle() {
+      clear(reviewEl);
+      reviewEl.appendChild(el(doc, 'div', 'vf-hint vf-review-idle', Review.IDLE_TEXT));
+      reviewEl.hidden = false;
+    }
+    showIdle();
+
     // A message in the review area, optionally with a hint line and a Retry button.
     function showProblem(message, hint, retry) {
       app.progress.done();
@@ -139,7 +147,8 @@
       s.mapping = Timemap.mapCueDocument(s.model.toJSON(), {
         seqInfo: s.seqInfo,
         segments: s.segments,
-        manualOffsetTicks: s.manualOffsetTicks
+        manualOffsetTicks: s.manualOffsetTicks,
+        placementChoice: s.placementChoice
       });
       return s.mapping;
     }
@@ -175,31 +184,32 @@
       var s = app.session;
       clear(reviewEl);
       if (notice) { reviewEl.appendChild(el(doc, 'div', 'vf-warning vf-review-notice', notice)); }
-      if (s.model.cues().length === 0) {
-        reviewEl.appendChild(el(doc, 'div', 'vf-hint vf-review-empty',
-          'No scripture references found. Check the audio has speech, or try a larger model.'));
-      } else {
-        var body = el(doc, 'div', 'vf-review-body');
-        reviewEl.appendChild(body);
-        s.review = Review.create({
-          root: body,
-          model: s.model,
-          getPlacements: function () { return s.mapping.placements; },
-          bridge: bridge,
-          getTranscript: function () { return loadTranscript(s); },
-          client: client,
-          getTranslationId: function () { return s.request.translation_id; },
-          getDurationMode: function () {
-            var timing = s.request.options && s.request.options.timing;
-            return timing && timing.duration_mode;
-          },
-          timing: timingFor(s),
-          onChange: function () { remap(); },
-          onSave: saveDocument,
-          onLoad: loadDocument,
-          onExport: exportTxt
-        });
-      }
+      s.placementChoice = {};
+      var body = el(doc, 'div', 'vf-review-body');
+      reviewEl.appendChild(body);
+      s.review = Review.create({
+        root: body,
+        model: s.model,
+        getPlacements: function () { return s.mapping.placements; },
+        bridge: bridge,
+        getTranscript: function () { return loadTranscript(s); },
+        client: client,
+        getTranslationId: function () { return s.request.translation_id; },
+        getDurationMode: function () {
+          var timing = s.request.options && s.request.options.timing;
+          return timing && timing.duration_mode;
+        },
+        timing: timingFor(s),
+        timecodeOf: function (ticks) { return Timemap.timecode(ticks, s.seqInfo); },
+        onChoosePlacement: function (id, ticks) {
+          s.placementChoice[id] = ticks;
+          remap();
+        },
+        onChange: function () { remap(); },
+        onSave: saveDocument,
+        onLoad: loadDocument,
+        onExport: exportTxt
+      });
       reviewEl.hidden = false;
     }
 

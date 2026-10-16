@@ -25,6 +25,13 @@
   // (docs/09 §5.3).
   var RESOLVED_FLAGS = ['text_unavailable', 'passage_not_found', 'chapter_only'];
 
+  // The exact empty-state texts of docs/09 §7.
+  var IDLE_TEXT = 'Select a media file and click Analyse.';
+  var EMPTY_TEXT = 'No scripture references found. Check the audio has speech, or try a larger model.';
+  var INSERT_HINT = 'Enable at least one scripture to insert.';
+  var RETRY_TEXT_LABEL = 'Retry text fetch';
+  var PROVIDER_DOWN_TEXT = 'The Bible text could not be fetched for some cues.';
+
   var NO_TEXT_SERVICE = 'The text service is not running, so references cannot be re-resolved.';
 
   function loadModule(name, file) {
@@ -263,6 +270,20 @@
       box.appendChild(altLine);
     }
 
+    var places = editor.placements;
+    if (places && places.alternatives.length > 0) {
+      var placeLine = el(doc, 'div', 'vf-detail-placements');
+      placeLine.appendChild(el(doc, 'span', 'vf-detail-label', 'Also placed at '));
+      places.alternatives.forEach(function (alt) {
+        var b = el(doc, 'button', 'vf-btn vf-btn--small vf-detail-placement', alt.timecode);
+        b.type = 'button';
+        b.title = 'Use this placement';
+        b.addEventListener('click', function () { places.choose(alt.ticks); });
+        placeLine.appendChild(b);
+      });
+      box.appendChild(placeLine);
+    }
+
     var busy = false;
     function sync() {
       var reason = editor.reason();
@@ -409,7 +430,7 @@
   }
 
   // opts: { root, model, getPlacements, bridge, threshold, client, getTranslationId, getDurationMode,
-  // isAvailable, timing, onChange, onSave, onLoad, onExport, onInsert }. client.resolve edits a cue's
+  // isAvailable, timing, timecodeOf, onChoosePlacement, onTranscript, onChange, onSave, onLoad, onExport, onInsert }. client.resolve edits a cue's
   // reference; onChange(id) runs after each edit so the caller re-maps before the list redraws.
   // getPlacements() returns the VSTimemap.mapCueDocument placements map. bridge moves the playhead
   // (the timecode button); getTranscript() resolves to the transcript words or null. The on* callbacks run the Save menu entries and the Insert button.
@@ -454,14 +475,44 @@
     saveWrap.appendChild(saveBtn);
     saveWrap.appendChild(menu);
     var insertBtn = button('vf-btn--accent vf-review-insert', 'Insert');
-    var insertHint = el(doc, 'div', 'vf-hint vf-review-insert-hint',
-      'Enable at least one scripture to insert.');
+    var insertHint = el(doc, 'div', 'vf-hint vf-review-insert-hint', INSERT_HINT);
+    var addBtn = button('vf-review-add', 'Add cue');
+    var addForm = el(doc, 'div', 'vf-review-add-form');
+    addForm.hidden = true;
+    var addInput = el(doc, 'input', 'vf-review-add-input');
+    addInput.type = 'text';
+    addInput.placeholder = 'Reference, e.g. John 3:16';
+    addInput.setAttribute('aria-label', 'Reference for the new cue');
+    var addGo = button('vf-review-add-go', 'Add at playhead');
+    addForm.appendChild(addInput);
+    addForm.appendChild(addGo);
+    var addError = el(doc, 'div', 'vf-inline-error vf-review-add-error');
+    addError.setAttribute('role', 'alert');
+    addError.hidden = true;
+    var banner = el(doc, 'div', 'vf-warning vf-review-banner');
+    banner.setAttribute('role', 'status');
+    banner.hidden = true;
+    var bannerText = el(doc, 'span', 'vf-review-banner-text', PROVIDER_DOWN_TEXT + ' ');
+    var retryBtn = button('vf-review-retry-text', RETRY_TEXT_LABEL);
+    banner.appendChild(bannerText);
+    banner.appendChild(retryBtn);
+    var emptyNote = el(doc, 'div', 'vf-hint vf-review-empty', EMPTY_TEXT);
+    emptyNote.hidden = true;
+    var transcriptLink = el(doc, 'button', 'vf-link vf-review-transcript-link', 'Open the transcript');
+    transcriptLink.type = 'button';
+    transcriptLink.addEventListener('click', function () { if (opts.onTranscript) { opts.onTranscript(); } });
+    emptyNote.appendChild(doc.createTextNode(' '));
+    emptyNote.appendChild(transcriptLink);
 
-    [allBtn, noneBtn, flaggedBtn, saveWrap, insertBtn].forEach(function (n) { toolbar.appendChild(n); });
+    [allBtn, noneBtn, flaggedBtn, addBtn, saveWrap, insertBtn].forEach(function (n) { toolbar.appendChild(n); });
     header.appendChild(title);
     header.appendChild(toolbar);
     header.appendChild(insertHint);
+    header.appendChild(addForm);
+    header.appendChild(addError);
     container.appendChild(header);
+    container.appendChild(banner);
+    container.appendChild(emptyNote);
     container.appendChild(message);
     container.appendChild(list);
 
@@ -485,7 +536,13 @@
         enabled + ' enabled [\u2691 ' + flaggedCount(cues) + ']';
       insertBtn.textContent = 'Insert ' + enabled + (enabled === 1 ? ' scripture' : ' scriptures');
       insertBtn.disabled = enabled === 0;
-      insertHint.hidden = enabled !== 0;
+      // With no cues at all the empty note speaks instead, so the hint only covers "all off".
+      insertHint.hidden = enabled !== 0 || cues.length === 0;
+      emptyNote.hidden = cues.length !== 0;
+      transcriptLink.hidden = !opts.onTranscript;
+      banner.hidden = !cues.some(function (cue) {
+        return (cue.flags || []).indexOf('text_unavailable') !== -1;
+      });
     }
 
     // "Flagged only" hides the rows that carry no flag (docs/09 §5.4).
@@ -585,7 +642,7 @@
     // Resolves one reference for a cue. Success edits the cue, re-maps, and rebuilds the list
     // (the cue may move) with the row still open; the promise then yields ''. Failure yields the
     // message to show inline and leaves the cue unchanged.
-    function resolveCue(id, request, fallbackReference) {
+    function resolveCue(id, request, fallbackReference, batch) {
       var translationId = opts.getTranslationId ? opts.getTranslationId() : null;
       return opts.client.resolve(request, translationId).then(function (res) {
         if (!res.ok) {
@@ -603,11 +660,99 @@
           return e.message;
         }
         if (opts.onChange) { opts.onChange(id); }
+        if (batch) { return ''; }
         render();
         toggleExpanded(id);
         return '';
       });
     }
+
+    // Re-resolves every cue the provider could not supply text for, one at a time, then redraws
+    // once. Stops at the first failure so a dead provider costs one request, not one per cue.
+    function retryTextFetch() {
+      var ids = model.cues().filter(function (cue) {
+        return (cue.flags || []).indexOf('text_unavailable') !== -1;
+      }).map(function (cue) { return cue.id; });
+      if (editingOff()) { setMessage(editingOff(), true); return Promise.resolve(); }
+      retryBtn.disabled = true;
+      setMessage('', false);
+      var failure = '';
+      var chain = Promise.resolve();
+      ids.forEach(function (id) {
+        chain = chain.then(function () {
+          if (failure) { return undefined; }
+          return resolveCue(id, model.get(id).reference, model.get(id).reference, true)
+            .then(function (text) { failure = text; });
+        });
+      });
+      return chain.then(function () {
+        retryBtn.disabled = false;
+        render();
+        if (failure) { setMessage(failure, true); }
+      });
+    }
+    retryBtn.addEventListener('click', function () { retryTextFetch(); });
+
+    // Add cue (docs/09 §5.4): the typed reference at the current playhead. Origin manual,
+    // confidence 1.0. The duration is the paraphrase default for the verse's length.
+    var NO_ADD_PLAYHEAD = 'Move the playhead over the media first.';
+    function showAddError(text) {
+      addError.textContent = text || '';
+      addError.hidden = !text;
+    }
+    function addCue() {
+      var Duration = loadModule('VSDuration', './duration.js');
+      var text = addInput.value.trim();
+      showAddError('');
+      var off = editingOff();
+      if (off) { showAddError(off); return Promise.resolve(); }
+      if (text === '') { showAddError('Type a reference first.'); return Promise.resolve(); }
+      if (!opts.timing) { showAddError(NO_ADD_PLAYHEAD); return Promise.resolve(); }
+      addGo.disabled = true;
+      return Promise.resolve().then(function () { return opts.timing.playheadSource(); })
+        .then(function (seconds) {
+          if (seconds === null || seconds === undefined) { return NO_ADD_PLAYHEAD; }
+          var translationId = opts.getTranslationId ? opts.getTranslationId() : null;
+          return opts.client.resolve(text, translationId).then(function (res) {
+            if (!res.ok) {
+              if (res.error && res.error.code === 'unreachable') { textServiceDown = res.error.message; }
+              return (res.error && res.error.message) || 'Could not look up that reference.';
+            }
+            var reference = res.data.reference || referenceFromDisplay(res.data.reference_display);
+            if (!reference) { return 'Could not read the reference the text service returned.'; }
+            try {
+              model.addManual({
+                reference: reference,
+                reference_display: res.data.reference_display,
+                body: res.data.body,
+                body_word_count: res.data.word_count,
+                source_anchor_s: seconds,
+                source_duration_s: Duration.resolveDurationSeconds({ wordCount: res.data.word_count }, null)
+              });
+            } catch (e) {
+              return e.message;
+            }
+            addInput.value = '';
+            addForm.hidden = true;
+            return '';
+          });
+        }, function () { return NO_ADD_PLAYHEAD; })
+        .then(function (failure) {
+          addGo.disabled = false;
+          if (failure) { showAddError(failure); return; }
+          if (opts.onChange) { opts.onChange(null); }
+          render();
+        });
+    }
+    addBtn.addEventListener('click', function () {
+      addForm.hidden = !addForm.hidden;
+      showAddError('');
+      if (!addForm.hidden) { addInput.focus(); }
+    });
+    addGo.addEventListener('click', function () { addCue(); });
+    addInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); addCue(); }
+    });
 
     function referenceFromDisplay(display) {
       var Cues = loadModule('VSCues', './cues.js');
@@ -659,6 +804,24 @@
       };
     }
 
+    // The other sequence positions of a multiple-placements cue, as timecodes. Choosing one hands
+    // its (snapped) ticks to opts.onChoosePlacement, which keeps the pick in panel state and
+    // re-maps; the list then redraws with the row open.
+    function placementsFor(id, p) {
+      if (!p || !p.alternatives || p.alternatives.length === 0 || !opts.timecodeOf ||
+          !opts.onChoosePlacement) { return null; }
+      return {
+        alternatives: p.alternatives.map(function (ticks) {
+          return { ticks: ticks, timecode: opts.timecodeOf(ticks) };
+        }),
+        choose: function (ticks) {
+          opts.onChoosePlacement(id, ticks);
+          render();
+          toggleExpanded(id);
+        }
+      };
+    }
+
     function editorFor(id) {
       var p = placementOf(id);
       return {
@@ -667,6 +830,7 @@
         choose: function (alt) { return resolveCue(id, alt.reference, alt.reference); },
         timecode: p && p.timecode ? p.timecode : '',
         timing: timingFor(id),
+        placements: placementsFor(id, p),
         // The duration is stored as typed, in seconds; the re-map clips it to the frame grid.
         setDuration: function (text) {
           var seconds = Number(String(text).trim());
@@ -740,6 +904,10 @@
   var Review = {
     FLAGS: FLAGS,
     NO_TIMECODE: NO_TIMECODE,
+    IDLE_TEXT: IDLE_TEXT,
+    EMPTY_TEXT: EMPTY_TEXT,
+    INSERT_HINT: INSERT_HINT,
+    RETRY_TEXT_LABEL: RETRY_TEXT_LABEL,
     rowViewModel: rowViewModel,
     contextViewModel: contextViewModel,
     resolvePatch: resolvePatch,
