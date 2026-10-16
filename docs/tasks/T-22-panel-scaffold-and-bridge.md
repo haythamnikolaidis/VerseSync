@@ -67,7 +67,7 @@ So the manifest **must** enable Node: `--enable-nodejs` and `--mixed-context` un
 
 ### T-22.2 · `bridge.js` port
 
-**Executor** agent · **Size** S · **Prereqs** T-22.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-22.1 · **Status** in-progress
 
 - **Read:** [08 §1](../08-premiere-host-api.md) · `reference/verseflow/js/bridge.js`
 - **Touches:** `panel/js/bridge.js` (new) · `tests/panel/bridge.test.js` (new)
