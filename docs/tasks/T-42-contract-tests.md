@@ -49,7 +49,7 @@ stops the fake the panel was built against from drifting away from the real thin
 
 ### T-42.2 · The suite, against the real sidecar, in CI
 
-**Executor** agent · **Size** XS · **Prereqs** T-42.1, T-20.5 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-42.1, T-20.5 · **Status** in-progress
 
 - **Read:** this card · T-07's `fixture:` backend
 - **Touches:** `tests/contract/conftest.py` · `.github/workflows/ci.yml`
