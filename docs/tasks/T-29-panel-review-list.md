@@ -184,7 +184,7 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
 
 ### T-29.6 · Expanded row (read-only parts)
 
-**Executor** agent · **Size** S · **Prereqs** T-29.5, T-50 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-29.5, T-50 · **Status** done
 
 - **Read:** [09 §5.3](../09-ui-spec.md)
 - **Touches:** `panel/js/review.js` · `tests/panel/review-expand.test.js` (new)
@@ -210,8 +210,8 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
      Commit.
 - **Verify:** `node --test tests/panel/review-expand.test.js`
 - **Done when:**
-  - [ ] Clicking a timecode moves the playhead.
-  - [ ] The read span is underlined, and `read_coverage` is shown.
+  - [x] Clicking a timecode moves the playhead.
+  - [x] The read span is underlined, and `read_coverage` is shown.
 
 ### T-29.7 · Reference editing and re-resolve
 
