@@ -15,7 +15,7 @@ iterated on, how the accuracy harness runs, and how support issues get reproduce
 
 ### T-21.1 · `detect`, `resolve` and `analyse` commands
 
-**Executor** agent · **Size** S · **Prereqs** T-20.2, T-48.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-20.2, T-48.1 · **Status** done
 
 - **Read:** [07 §6](../07-sidecar-api.md)
 - **Touches:** `sidecar/versesync/cli.py` (new) · `cli/versesync_cli.py` (a shim calling
@@ -41,7 +41,7 @@ iterated on, how the accuracy harness runs, and how support issues get reproduce
      `analyse` on a fixture `.words.json` produces a schema-valid document. Commit.
 - **Verify:** `pytest tests/test_cli.py -q`
 - **Done when:**
-  - [ ] All three commands work as documented, with no GPU.
+  - [x] All three commands work as documented, with no GPU.
 
 ### T-21.2 · CLI and HTTP parity test
 
