@@ -63,7 +63,7 @@ unit tests. **Render functions** are thin, are tested under jsdom, and are check
 
 ### T-27.2 · Setup view (part 1): media, template, field mapping
 
-**Executor** agent · **Size** S · **Prereqs** T-27.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-27.1 · **Status** done
 
 - **Read:** [09 §3](../09-ui-spec.md) (the Media, Template and dropdown rows)
 - **Touches:** `panel/js/setup.js` (new) · `panel/index.html` (the `#setup` markup) ·
@@ -87,8 +87,8 @@ unit tests. **Render functions** are thin, are tested under jsdom, and are check
      Commit.
 - **Verify:** `node --test tests/panel/setup-fields.test.js`
 - **Done when:**
-  - [ ] The listed jsdom tests pass.
-  - [ ] It uses `cep.fs.showOpenDialog`, never ExtendScript's `File.openDialog`.
+  - [x] The listed jsdom tests pass.
+  - [x] It uses `cep.fs.showOpenDialog`, never ExtendScript's `File.openDialog`.
 
 ### T-27.3 · Setup view (part 2): translation, track, duration, lead-in, Analyse
 
