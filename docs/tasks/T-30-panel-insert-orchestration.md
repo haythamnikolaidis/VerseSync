@@ -15,7 +15,7 @@ landed. **This is where Journey A completes.**
 
 ### T-30.1 · Pre-insert validation, payload, overwrite confirmation
 
-**Executor** agent · **Size** S · **Prereqs** T-29.5, T-25.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-29.5, T-25.1 · **Status** in-progress
 
 - **Read:** [03 §4](../03-architecture.md) (pre-insert validation) · [08 §6, §8](../08-premiere-host-api.md) ·
   [09 §6](../09-ui-spec.md)
