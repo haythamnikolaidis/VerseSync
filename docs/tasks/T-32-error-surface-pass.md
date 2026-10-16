@@ -36,7 +36,7 @@ be removed with one Ctrl+Z.**
 
 ### T-32.2 · Panel failure states and never-settling promises
 
-**Executor** agent · **Size** S · **Prereqs** T-32.1, T-30.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-32.1, T-30.2 · **Status** in-progress
 
 - **Read:** [03 §8](../03-architecture.md) (the panel and host rows) · [09 §7](../09-ui-spec.md)
 - **Touches:** `tests/panel/failure-states.test.js` (new) · `docs/qa/error-reproduction.md` ·
