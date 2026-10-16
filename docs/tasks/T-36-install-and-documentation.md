@@ -58,7 +58,7 @@ with **dry-run and fake-filesystem modes**. Proving it on a clean machine is T-3
 
 ### T-36.3 · README and INSTALL
 
-**Executor** agent · **Size** S · **Prereqs** T-36.1, T-36.2, T-35.1, T-32.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-36.1, T-36.2, T-35.1, T-32.1 · **Status** in-progress
 
 - **Read:** [06 §5](../06-bible-text-service.md) · `docs/qa/error-reproduction.md` ·
   `docs/qa/performance-results.md`
