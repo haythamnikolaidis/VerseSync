@@ -154,7 +154,7 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
 
 ### T-29.5 · List header and actions
 
-**Executor** agent · **Size** S · **Prereqs** T-29.4, T-29.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-29.4, T-29.2 · **Status** in-progress
 
 - **Read:** [09 §5.4](../09-ui-spec.md) · [09 §1](../09-ui-spec.md) (the review header)
 - **Touches:** `panel/js/review.js` · `panel/js/main.js` · `tests/panel/review-actions.test.js`
