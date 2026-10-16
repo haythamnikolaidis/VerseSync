@@ -440,3 +440,80 @@ VS.getMediaSegments = _wrap('getMediaSegments', function (args) {
         unsupported: unsupported
     });
 });
+
+// ---- VS.insertCues ----------------------------------------------------------
+
+var VS_MSG_UNSORTED_CUES = 'Internal error: cues must be sorted by time. Please report this.';
+
+var _isInteger = function (v) {
+    return typeof v === 'number' && isFinite(v) && Math.floor(v) === v;
+};
+
+var _isTicksString = function (v) {
+    return typeof v === 'string' && /^\d+$/.test(v);
+};
+
+// Compares two non-negative decimal strings numerically without converting
+// them to numbers (tick values exceed 2^53). Returns -1, 0 or 1.
+var _compareTicks = function (a, b) {
+    var x = a.replace(/^0+(?=\d)/, '');
+    var y = b.replace(/^0+(?=\d)/, '');
+    if (x.length !== y.length) return x.length < y.length ? -1 : 1;
+    if (x === y) return 0;
+    return x < y ? -1 : 1;
+};
+
+// Every check VS.insertCues needs before it may open an undo group. A fatal
+// ExtendScript error (such as an out-of-range track index) skips try/catch, so
+// nothing may touch a track or the DOM until this has returned null. Returns an
+// error message, or null when the arguments are usable.
+var _validateInsertArgs = function (args, seq) {
+    if (!seq) return VS_MSG_NO_SEQUENCE;
+    if (typeof args.sequenceId !== 'string' || args.sequenceId === '') {
+        return VS_MSG_NO_SEQUENCE;
+    }
+    if (String(seq.sequenceID) !== args.sequenceId) {
+        var name = _sequenceNameById(args.sequenceId);
+        if (name === null) return VS_MSG_NO_SEQUENCE;
+        return VS_MSG_SEQUENCE_CHANGED_PREFIX + name + VS_MSG_SEQUENCE_CHANGED_SUFFIX;
+    }
+    var t = args.trackIndex;
+    if (!_isInteger(t) || t < 0 || t >= seq.videoTracks.numTracks) {
+        return 'Track V' + (_isInteger(t) ? t + 1 : '?') +
+            ' no longer exists in this sequence. Click Refresh.';
+    }
+    if (typeof args.mogrtPath !== 'string' || args.mogrtPath === '') {
+        return 'insertCues: mogrtPath must be a non-empty string';
+    }
+    var m = args.mapping;
+    if (!m || !_isInteger(m.referenceIndex) || !_isInteger(m.bodyIndex)) {
+        return 'insertCues: mapping.referenceIndex and mapping.bodyIndex must be integers';
+    }
+    if (m.referenceIndex === m.bodyIndex) {
+        return 'insertCues: mapping.referenceIndex and mapping.bodyIndex must differ';
+    }
+    var cues = args.cues;
+    if (!cues || typeof cues.length !== 'number') {
+        return 'insertCues: cues must be an array';
+    }
+    for (var i = 0; i < cues.length; i++) {
+        var c = cues[i];
+        if (!c || !_isTicksString(c.atTicks) || !_isTicksString(c.durationTicks)) {
+            return 'insertCues: cue ' + i + ' needs atTicks and durationTicks as digit strings';
+        }
+        if (_compareTicks(c.durationTicks, '0') <= 0) {
+            return 'insertCues: cue ' + i + ' durationTicks must be greater than zero';
+        }
+        if (i > 0 && _compareTicks(cues[i - 1].atTicks, c.atTicks) > 0) {
+            return VS_MSG_UNSORTED_CUES;
+        }
+    }
+    return null;
+};
+
+VS.insertCues = _wrap('insertCues', function (args) {
+    var seq = app.project.activeSequence;
+    var invalid = _validateInsertArgs(args, seq);
+    if (invalid !== null) return _err(invalid);
+    return _err('insertCues: placement is not available in this build');
+});

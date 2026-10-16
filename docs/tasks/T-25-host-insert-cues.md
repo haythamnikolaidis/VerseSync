@@ -29,7 +29,7 @@ stands as written. T-03 also found two hazards that this epic must design around
 
 ### T-25.1 · `insertCues` input validation (everything before the undo group)
 
-**Executor** agent · **Size** S · **Prereqs** T-23.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-23.2 · **Status** in-progress
 
 - **Read:** [08 §6](../08-premiere-host-api.md) (the "Contract" bullets) · [08 §9](../08-premiere-host-api.md) ·
   the T-03 risks section
