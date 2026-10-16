@@ -33,7 +33,7 @@ So the manifest **must** enable Node: `--enable-nodejs` and `--mixed-context` un
 
 ### T-22.1 · Panel skeleton: manifest, debug file, `index.html`, CSS, `main.js`, jsdom
 
-**Executor** agent · **Size** S · **Prereqs** T-43 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-43 · **Status** in-progress
 
 - **Read:** [03 §5](../03-architecture.md) (the `panel/` part) · [09 §1, §8](../09-ui-spec.md) ·
   `reference/verseflow/CSXS/manifest.xml` · `reference/verseflow/index.html` (its structure only)
