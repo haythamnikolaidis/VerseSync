@@ -92,7 +92,7 @@ unit tests. **Render functions** are thin, are tested under jsdom, and are check
 
 ### T-27.3 · Setup view (part 2): translation, track, duration, lead-in, Analyse
 
-**Executor** agent · **Size** S · **Prereqs** T-27.2, T-26.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-27.2, T-26.1 · **Status** done
 
 - **Read:** [09 §3](../09-ui-spec.md) (the Translation, Target track, Duration, Lead-in and
   Analyse rows)
@@ -121,7 +121,7 @@ unit tests. **Render functions** are thin, are tested under jsdom, and are check
      Commit.
 - **Verify:** `node --test tests/panel/setup-controls.test.js`
 - **Done when:**
-  - [ ] Analyse enables exactly according to the blocker rules, and a disabled Analyse always
+  - [x] Analyse enables exactly according to the blocker rules, and a disabled Analyse always
         shows its reason.
 
 ### T-27.4 · Status strip and progress view
