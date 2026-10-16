@@ -20,6 +20,7 @@ versesync = ["data/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = ["perf: NFR-2 budget tests that run in the container (cheap, run by default)"]
 
 [tool.ruff]
 src = ["sidecar"]
