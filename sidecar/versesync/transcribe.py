@@ -9,6 +9,7 @@ docs/tasks/T-07-transcription-in-sidecar.md (the defaults, measured by spike T-0
 
 from __future__ import annotations
 
+import importlib.util
 from collections.abc import Callable, Sequence
 from dataclasses import asdict, dataclass, fields
 from pathlib import Path
@@ -211,6 +212,18 @@ def _backend_unavailable() -> TranscriptionError:
     )
 
 
+def _upstream_installed() -> bool:
+    """Whether the upstream package can be found, without importing the engine or CUDA.
+
+    Only the empty ``core`` and ``core.models`` packages are imported; ``core.models.loader``,
+    which loads ctranslate2, is not, so this is safe to call before ``core.cuda_setup`` has run.
+    """
+    try:
+        return importlib.util.find_spec("core.models.loader") is not None
+    except ImportError:
+        return False
+
+
 def _import_upstream() -> tuple[Callable[..., Any], Callable[..., Any], type[BaseException]]:
     """Import the upstream engine, running ``core.cuda_setup`` before anything that loads CUDA.
 
@@ -365,6 +378,8 @@ def get_backend(config: Config) -> Backend:
     if name.startswith(FIXTURE_PREFIX):
         return FixtureBackend(Path(name[len(FIXTURE_PREFIX) :]))
     if name == "faster_whisper":
+        if not _upstream_installed():
+            raise _backend_unavailable()
         return FasterWhisperBackend()
     raise TranscriptionError(
         "unknown_backend",
