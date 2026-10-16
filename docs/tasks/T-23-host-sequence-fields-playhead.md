@@ -30,7 +30,7 @@ swapping the stub for the real host changes nothing.
 
 ### T-23.1 · `VerseSync.jsx` skeleton, ES3 lint, `ping`, `getSequenceInfo`, `setPlayhead`
 
-**Executor** agent · **Size** S · **Prereqs** T-45.1, T-47 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-45.1, T-47 · **Status** done
 
 - **Read:** [08 §1, §2, §3, §7, §9](../08-premiere-host-api.md) ·
   `reference/verseflow/jsx/VerseFlow.jsx` (the header comment, the JSON polyfill, and
@@ -53,9 +53,9 @@ swapping the stub for the real host changes nothing.
      `setPlayhead` moves the fake's playhead, and the "no sequence" message is exact. Commit.
 - **Verify:** `node --test tests/host/sequence.test.js && npm run lint`
 - **Done when:**
-  - [ ] Responses are deep-equal to the T-39 fixtures.
-  - [ ] ES3 lint is enforced on `panel/jsx`.
-  - [ ] No function declarations, and no non-ASCII bytes.
+  - [x] Responses are deep-equal to the T-39 fixtures.
+  - [x] ES3 lint is enforced on `panel/jsx`.
+  - [x] No function declarations, and no non-ASCII bytes.
 
 ### T-23.2 · `VS.getMogrtFields` (ported unchanged)
 
