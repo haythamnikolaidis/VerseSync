@@ -55,7 +55,7 @@ stands as written. T-03 also found two hazards that this epic must design around
 
 ### T-25.2 · `insertCues` placement loop
 
-**Executor** agent · **Size** S · **Prereqs** T-25.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-25.1 · **Status** in-progress
 
 - **Read:** [08 §6](../08-premiere-host-api.md) (the per-cue body) ·
   `reference/verseflow/jsx/VerseFlow.jsx` (`_setTextField`, `_setClipDuration`, and the CSXS
