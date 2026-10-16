@@ -93,7 +93,7 @@ stands as written. T-03 also found two hazards that this epic must design around
 
 ### T-25.3 · `VS.validateTrack`
 
-**Executor** agent · **Size** XS · **Prereqs** T-25.1 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-25.1 · **Status** in-progress
 
 - **Read:** [08 §8](../08-premiere-host-api.md)
 - **Touches:** `panel/jsx/VerseSync.jsx` · `tests/host/validate-track.test.js` (new)

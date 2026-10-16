@@ -463,11 +463,13 @@ var _compareTicks = function (a, b) {
     return x < y ? -1 : 1;
 };
 
+// The sequence and track checks shared by VS.insertCues and VS.validateTrack
+// live in _validateSequenceAndTrack; _validateInsertArgs adds the rest.
 // Every check VS.insertCues needs before it may open an undo group. A fatal
 // ExtendScript error (such as an out-of-range track index) skips try/catch, so
 // nothing may touch a track or the DOM until this has returned null. Returns an
 // error message, or null when the arguments are usable.
-var _validateInsertArgs = function (args, seq) {
+var _validateSequenceAndTrack = function (args, seq) {
     if (!seq) return VS_MSG_NO_SEQUENCE;
     if (typeof args.sequenceId !== 'string' || args.sequenceId === '') {
         return VS_MSG_NO_SEQUENCE;
@@ -482,6 +484,12 @@ var _validateInsertArgs = function (args, seq) {
         return 'Track V' + (_isInteger(t) ? t + 1 : '?') +
             ' no longer exists in this sequence. Click Refresh.';
     }
+    return null;
+};
+
+var _validateInsertArgs = function (args, seq) {
+    var base = _validateSequenceAndTrack(args, seq);
+    if (base !== null) return base;
     if (typeof args.mogrtPath !== 'string' || args.mogrtPath === '') {
         return 'insertCues: mogrtPath must be a non-empty string';
     }
@@ -622,4 +630,41 @@ VS.insertCues = _wrap('insertCues', function (args) {
     }
 
     return _ok({ results: results, insertedCount: insertedCount, failedCount: failedCount });
+});
+
+// ---- VS.validateTrack -------------------------------------------------------
+
+// Reports every existing clip on the track that overlaps one of the ranges the
+// panel is about to write. Clips that only touch a range at its boundary do
+// not conflict. Read-only: it opens no undo group.
+VS.validateTrack = _wrap('validateTrack', function (args) {
+    var seq = app.project.activeSequence;
+    var invalid = _validateSequenceAndTrack(args, seq);
+    if (invalid !== null) return _err(invalid);
+
+    var ranges = args.ranges;
+    if (!ranges || typeof ranges.length !== 'number') {
+        return _err('validateTrack: ranges must be an array');
+    }
+    for (var r = 0; r < ranges.length; r++) {
+        var rg = ranges[r];
+        if (!rg || !_isTicksString(rg.startTicks) || !_isTicksString(rg.endTicks)) {
+            return _err('validateTrack: range ' + r + ' needs startTicks and endTicks as digit strings');
+        }
+    }
+
+    var clips = seq.videoTracks[args.trackIndex].clips;
+    // Premiere's TrackItemCollection exposes numItems; a plain array has length.
+    var count = clips.numItems !== undefined ? clips.numItems : clips.length;
+    var conflicts = [];
+    for (var i = 0; i < ranges.length; i++) {
+        for (var j = 0; j < count; j++) {
+            var clip = clips[j];
+            if (_compareTicks(String(clip.start.ticks), ranges[i].endTicks) < 0 &&
+                _compareTicks(ranges[i].startTicks, String(clip.end.ticks)) < 0) {
+                conflicts.push({ rangeIndex: i, existingClipName: String(clip.name) });
+            }
+        }
+    }
+    return _ok({ conflicts: conflicts });
 });
