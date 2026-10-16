@@ -62,7 +62,7 @@ client.health() / models() / translations() / startJob(req) / job(id) / result(i
 
 ### T-26.2 · Discovery, launch, health polling, lifecycle states
 
-**Executor** agent · **Size** S · **Prereqs** T-26.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-26.1 · **Status** in-progress
 
 - **Read:** [03 §3](../03-architecture.md) · [07 §1.1](../07-sidecar-api.md) ·
   [09 §2](../09-ui-spec.md) (the status table)
