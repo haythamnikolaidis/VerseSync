@@ -104,7 +104,58 @@
     return null;
   }
 
+  // docs/05 §2 defaults. Seconds, converted to ticks per call.
+  var MIN_VISIBLE_S = 2.0;
+  var OVERLAP_GAP_S = 0.25;
+
+  // docs/05 §8. items are [{id, anchor, end, enabled?}] with Number ticks; an item with
+  // enabled === false takes no part and is returned untouched. One sweep in anchor order (ties
+  // keep input order): when a runs into b, a is truncated to snap(b.anchor - gap) if that still
+  // lasts min_visible, otherwise both are flagged `overlap`. cfg may carry minVisibleS and
+  // overlapGapS. Returns { [id]: {anchor, end, flags} }.
+  function resolveOverlaps(items, timebase, cfg) {
+    var config = cfg || {};
+    var minVisible = secondsToTicks(config.minVisibleS === undefined ? MIN_VISIBLE_S : config.minVisibleS);
+    var gap = secondsToTicks(config.overlapGapS === undefined ? OVERLAP_GAP_S : config.overlapGapS);
+    var result = {};
+    var active = [];
+    items.forEach(function (item, index) {
+      var enabled = item.enabled !== false;
+      var entry = {
+        anchor: enabled ? Number(snapToFrame(item.anchor, timebase)) : item.anchor,
+        end: enabled ? Number(snapToFrame(item.end, timebase)) : item.end,
+        flags: []
+      };
+      result[item.id] = entry;
+      if (enabled) { active.push({ entry: entry, index: index }); }
+    });
+    active.sort(function (x, y) {
+      return x.entry.anchor - y.entry.anchor || x.index - y.index;
+    });
+    function addFlag(entry, flag) {
+      if (entry.flags.indexOf(flag) === -1) { entry.flags.push(flag); }
+    }
+    for (var i = 0; i + 1 < active.length; i++) {
+      var a = active[i].entry;
+      var b = active[i + 1].entry;
+      if (a.end > b.anchor) {
+        var proposedEnd = Number(snapToFrame(b.anchor - gap, timebase));
+        if (proposedEnd - a.anchor >= minVisible) {
+          a.end = proposedEnd;
+          addFlag(a, 'truncated');
+        } else {
+          addFlag(a, 'overlap');
+          addFlag(b, 'overlap');
+        }
+      }
+    }
+    return result;
+  }
+
   var Timemap = {
+    MIN_VISIBLE_S: MIN_VISIBLE_S,
+    OVERLAP_GAP_S: OVERLAP_GAP_S,
+    resolveOverlaps: resolveOverlaps,
     TICKS_PER_SECOND: TICKS_PER_SECOND,
     secondsToTicks: secondsToTicks,
     ticksToSeconds: ticksToSeconds,
