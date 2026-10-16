@@ -60,7 +60,7 @@ to it.
 
 ### T-20.2 · Job runner
 
-**Executor** agent · **Size** S · **Prereqs** T-20.1, T-08, T-19.3, T-16 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-20.1, T-08, T-19.3, T-16 · **Status** done
 
 - **Read:** [07 §3](../07-sidecar-api.md) (the code list) · [06 §3.2](../06-bible-text-service.md)
 - **Touches:** `sidecar/versesync/jobs.py` · `tests/test_job_runner.py` (new)
@@ -98,9 +98,9 @@ to it.
      Commit.
 - **Verify:** `pytest tests/test_job_runner.py -q`
 - **Done when:**
-  - [ ] A provider outage is a successful job (FR-4.5).
-  - [ ] Cancellation leaves no cached transcript and no result.
-  - [ ] Exactly one terminal event is published per job.
+  - [x] A provider outage is a successful job (FR-4.5).
+  - [x] Cancellation leaves no cached transcript and no result.
+  - [x] Exactly one terminal event is published per job.
 
 ### T-20.3 · Job endpoints
 
