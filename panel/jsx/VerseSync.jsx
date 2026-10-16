@@ -428,8 +428,14 @@ VS.getMediaSegments = _wrap('getMediaSegments', function (args) {
     var unsupported = [];
     _walkTracksForMedia(seq.videoTracks, 'video', target, segments, unsupported);
     _walkTracksForMedia(seq.audioTracks, 'audio', target, segments, unsupported);
+    // matched means the file is in this sequence at all (docs/08 section 4), so
+    // a speed-changed placement counts even though it is not a usable segment.
+    var matched = segments.length > 0;
+    for (var i = 0; i < unsupported.length; i++) {
+        if (unsupported[i].reason === 'speed_change') matched = true;
+    }
     return _ok({
-        matched:     segments.length > 0,
+        matched:     matched,
         segments:    segments,
         unsupported: unsupported
     });
