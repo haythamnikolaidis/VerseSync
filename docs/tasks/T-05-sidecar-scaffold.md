@@ -136,7 +136,7 @@ The mock accepts any non-empty Origin, so the contract tests (T-42) send this va
 
 ### T-05.4 · Entry point, logging, idle self-exit
 
-**Executor** agent · **Size** S · **Prereqs** T-05.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-05.3 · **Status** in-progress
 
 - **Read:** [03 §3](../03-architecture.md) (the lifecycle) · [03 §8](../03-architecture.md) (the
   log path in errors)
