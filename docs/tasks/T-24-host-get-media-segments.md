@@ -1,6 +1,6 @@
 # T-24 · Host: `VS.getMediaSegments`
 
-**Executor** agent · **Size** S · **Prereqs** T-23.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-23.1 · **Status** done
 
 | | |
 |---|---|
@@ -59,6 +59,6 @@ something wrong.**
 
 ## Done when
 
-- [ ] Every T-39 segments fixture is reproduced exactly from an equivalent fake timeline.
-- [ ] Both video and audio tracks are walked, in a single pass.
-- [ ] Unresolvable constructs go to `unsupported` with a reason. None are dropped silently.
+- [x] Every T-39 segments fixture is reproduced exactly from an equivalent fake timeline.
+- [x] Both video and audio tracks are walked, in a single pass.
+- [x] Unresolvable constructs go to `unsupported` with a reason. None are dropped silently.
