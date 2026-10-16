@@ -58,7 +58,7 @@ when the upstream PR merges.
 
 ### T-06.2 · Route `TranscriptionService` through the engine; delete dead code
 
-**Executor** agent · **Size** S · **Prereqs** T-06.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-06.1 · **Status** in-progress
 
 - **Read:** [02 §2.2](../02-source-project-audit.md) Gaps 5 and 7
 - **Touches (upstream):** `core/transcription/service.py` · `core/models/metadata.py` ·
