@@ -33,7 +33,7 @@ So the manifest **must** enable Node: `--enable-nodejs` and `--mixed-context` un
 
 ### T-22.1 · Panel skeleton: manifest, debug file, `index.html`, CSS, `main.js`, jsdom
 
-**Executor** agent · **Size** S · **Prereqs** T-43 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-43 · **Status** done
 
 - **Read:** [03 §5](../03-architecture.md) (the `panel/` part) · [09 §1, §8](../09-ui-spec.md) ·
   `reference/verseflow/CSXS/manifest.xml` · `reference/verseflow/index.html` (its structure only)
@@ -62,8 +62,8 @@ So the manifest **must** enable Node: `--enable-nodejs` and `--mixed-context` un
      container exists and the script order is right. Commit.
 - **Verify:** `npm test && npm run lint`
 - **Done when:**
-  - [ ] The manifest is valid XML, with Node enabled and debug port 7781.
-  - [ ] The jsdom test passes.
+  - [x] The manifest is valid XML, with Node enabled and debug port 7781.
+  - [x] The jsdom test passes.
 
 ### T-22.2 · `bridge.js` port
 
