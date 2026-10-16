@@ -60,7 +60,7 @@ to it.
 
 ### T-20.2 · Job runner
 
-**Executor** agent · **Size** S · **Prereqs** T-20.1, T-08, T-19.3, T-16 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-20.1, T-08, T-19.3, T-16 · **Status** in-progress
 
 - **Read:** [07 §3](../07-sidecar-api.md) (the code list) · [06 §3.2](../06-bible-text-service.md)
 - **Touches:** `sidecar/versesync/jobs.py` · `tests/test_job_runner.py` (new)
