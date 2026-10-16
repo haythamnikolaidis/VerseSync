@@ -131,7 +131,7 @@ to it.
 
 ### T-20.4 · SSE endpoint
 
-**Executor** agent · **Size** S · **Prereqs** T-20.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-20.3 · **Status** in-progress
 
 - **Read:** [07 §2](../07-sidecar-api.md) (`GET /jobs/{id}/events`) · `tools/mock_sidecar.py`
   (the SSE writer only)
