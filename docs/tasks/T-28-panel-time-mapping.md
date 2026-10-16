@@ -117,7 +117,7 @@ Config defaults come from [05 §2](../05-timing-and-placement.md): `MIN_VISIBLE_
 
 ### T-28.4 · `mapCueDocument`, manual offset, worked example
 
-**Executor** agent · **Size** S · **Prereqs** T-28.3 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-28.3 · **Status** done
 
 - **Read:** [05 §5.4, §9](../05-timing-and-placement.md)
 - **Touches:** `panel/js/timemap.js` · `tests/panel/timemap-document.test.js` (new)
@@ -153,9 +153,9 @@ Config defaults come from [05 §2](../05-timing-and-placement.md): `MIN_VISIBLE_
      Commit.
 - **Verify:** `node --test tests/panel/timemap-document.test.js`
 - **Done when:**
-  - [ ] The worked example reproduces exactly.
-  - [ ] All three panel-owned flags are assigned correctly from the fixtures.
-  - [ ] The document is never changed.
+  - [x] The worked example reproduces exactly.
+  - [x] All three panel-owned flags are assigned correctly from the fixtures.
+  - [x] The document is never changed.
 
 ## Traps
 
