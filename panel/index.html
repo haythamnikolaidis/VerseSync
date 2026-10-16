@@ -34,6 +34,38 @@
         <label class="vf-label" for="setup-body">Scripture</label>
         <select id="setup-body" class="vf-select" disabled></select>
       </div>
+      <div class="vf-mapping-row">
+        <label class="vf-label" for="setup-translation">Translation</label>
+        <select id="setup-translation" class="vf-select" disabled></select>
+        <div id="setup-attribution" class="vf-hint"></div>
+      </div>
+      <div class="vf-mapping-row">
+        <label class="vf-label" for="setup-track">Target track</label>
+        <div class="vf-track-row">
+          <select id="setup-track" class="vf-select" disabled></select>
+          <button id="setup-track-refresh" class="vf-btn vf-btn--small" type="button">Refresh</button>
+        </div>
+      </div>
+      <div class="vf-mapping-row">
+        <div class="vf-label">Duration</div>
+        <div class="vf-radio-row">
+          <input type="radio" id="setup-duration-auto" name="setup-duration" value="auto" checked>
+          <label for="setup-duration-auto">Auto</label>
+          <input type="radio" id="setup-duration-fixed" name="setup-duration" value="fixed">
+          <label for="setup-duration-fixed">Fixed</label>
+          <input type="number" id="setup-duration-sec" class="vf-input-num" min="1" step="0.5"
+                 aria-label="Fixed duration in seconds" disabled>
+          <span class="vf-hint">seconds</span>
+        </div>
+      </div>
+      <div class="vf-mapping-row">
+        <label class="vf-label" for="setup-leadin">Lead-in (seconds)</label>
+        <input type="number" id="setup-leadin" class="vf-input-num" min="0" max="3" step="0.1">
+      </div>
+      <div class="vf-mapping-row">
+        <button id="setup-analyse" class="vf-btn vf-btn--accent" type="button" disabled>Analyse</button>
+        <div id="setup-analyse-reason" class="vf-hint" role="status"></div>
+      </div>
     </section>
 
     <section id="progress" class="vf-section" aria-label="Progress" hidden></section>
