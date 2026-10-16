@@ -29,7 +29,7 @@ stands as written. T-03 also found two hazards that this epic must design around
 
 ### T-25.1 · `insertCues` input validation (everything before the undo group)
 
-**Executor** agent · **Size** S · **Prereqs** T-23.2 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-23.2 · **Status** done
 
 - **Read:** [08 §6](../08-premiere-host-api.md) (the "Contract" bullets) · [08 §9](../08-premiere-host-api.md) ·
   the T-03 risks section
@@ -51,7 +51,7 @@ stands as written. T-03 also found two hazards that this epic must design around
      so the fake's `FatalHostError` is never triggered. Commit.
 - **Verify:** `node --test tests/host/insert-validation.test.js`
 - **Done when:**
-  - [ ] Every invalid input is rejected with no undo group opened and no DOM write made.
+  - [x] Every invalid input is rejected with no undo group opened and no DOM write made.
 
 ### T-25.2 · `insertCues` placement loop
 
