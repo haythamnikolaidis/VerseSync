@@ -30,7 +30,7 @@ Config defaults come from [05 §2](../05-timing-and-placement.md): `MIN_VISIBLE_
 
 ### T-28.1 · Tick helpers, snapping, timecode, `duration.js` port
 
-**Executor** agent · **Size** S · **Prereqs** T-22.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-22.1 · **Status** in-progress
 
 - **Read:** [05 §1, §7](../05-timing-and-placement.md) · `reference/verseflow/js/duration.js`
 - **Touches:** `panel/js/timemap.js` (new) · `panel/js/duration.js` (new, ported) ·
