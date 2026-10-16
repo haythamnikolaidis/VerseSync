@@ -138,7 +138,7 @@ client.health() / models() / translations() / startJob(req) / job(id) / result(i
 
 ### T-26.4 · Integration against the real mock process
 
-**Executor** agent · **Size** S · **Prereqs** T-26.3 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-26.3 · **Status** done
 
 - **Read:** `tools/README.md` (the mock's flags)
 - **Touches:** `tests/panel/sidecar-mock-integration.test.js` (new) ·
@@ -160,7 +160,7 @@ client.health() / models() / translations() / startJob(req) / job(id) / result(i
      Skip the whole file with a clear message if `python3` isn't on `PATH`. Commit.
 - **Verify:** `node --test tests/panel/sidecar-mock-integration.test.js`
 - **Done when:**
-  - [ ] Every listed mock scenario passes end to end.
+  - [x] Every listed mock scenario passes end to end.
 
 ## Traps
 
