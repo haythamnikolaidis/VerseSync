@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import json
 import queue
 import secrets
+import shutil
 import threading
 import time
 from collections.abc import Callable
@@ -19,7 +21,7 @@ from versesync.cues import write_document
 from versesync.detect.detector import DetectConfig
 from versesync.paths import app_home
 from versesync.pipeline import Cancelled, PipelineConfig, run_pipeline
-from versesync.server import ApiError
+from versesync.server import ApiError, Request
 from versesync.timing.align import AlignConfig
 from versesync.timing.anchor import TimingConfig
 from versesync.transcribe import Backend, TranscribeOptions, TranscriptionError
@@ -155,6 +157,12 @@ class JobRegistry:
             listeners = list(self._subscribers[job_id])
         for listener in listeners:
             listener.put((event, data))
+
+    def remove(self, job_id: str) -> None:
+        """Forget a finished job; its subscribers (if any) keep their queues."""
+        with self._lock:
+            self._jobs.pop(job_id, None)
+            self._subscribers.pop(job_id, None)
 
     def active_count(self) -> int:
         with self._lock:
@@ -433,3 +441,175 @@ def _run_phases(
     write_document(doc, words, result_path)
     job.result_path = result_path
     return len(doc["cues"])
+
+
+# Chosen, not specified: with no probe tool in the sidecar, an uncached file's duration is
+# guessed from its size at 1 MB/s (8 Mbit/s, a typical sermon proxy bitrate). It only feeds the
+# `estimated_duration_s` hint on POST /jobs.
+ASSUMED_BYTES_PER_MEDIA_S = 1_000_000
+
+
+class _DeferredBackend:
+    """Builds the real backend on first use, so a backend problem fails the job, not startup."""
+
+    def __init__(self, factory: Callable[[], Backend]) -> None:
+        self._factory = factory
+        self._backend: Backend | None = None
+        self._lock = threading.Lock()
+
+    def transcribe(
+        self,
+        media_path: Path,
+        opts: TranscribeOptions,
+        progress: Callable[[float], None],
+        is_cancelled: Callable[[], bool],
+    ) -> tuple[list[Word], float]:
+        with self._lock:
+            if self._backend is None:
+                self._backend = self._factory()
+            backend = self._backend
+        return backend.transcribe(media_path, opts, progress, is_cancelled)
+
+
+class JobService:
+    """The ``/jobs`` endpoints (07 section 2): validates requests and runs jobs on threads."""
+
+    def __init__(
+        self,
+        *,
+        config: Config,
+        backend_factory: Callable[[], Backend],
+        provider: BibleProvider,
+        registry: JobRegistry | None = None,
+        clock: Callable[[], float] = time.time,
+    ) -> None:
+        self.config = config
+        self.provider = provider
+        self.clock = clock
+        self.registry = registry if registry is not None else JobRegistry(clock=clock)
+        self._backend = _DeferredBackend(backend_factory)
+
+    def active_count(self) -> int:
+        return self.registry.active_count()
+
+    def _validated_media(self, raw: Any) -> Path:
+        if not isinstance(raw, str) or not raw:
+            raise ApiError(400, "bad_request", "The request needs a media_path.")
+        path = Path(raw)
+        roots = [Path(str(r)) for r in self.config.server.get("allowed_media_roots") or []]
+        if roots:
+            resolved = path.resolve()
+            if not any(resolved.is_relative_to(root.resolve()) for root in roots):
+                raise ApiError(
+                    400,
+                    "bad_request",
+                    "That media file is outside the folders VerseSync may read.",
+                    hint="Pick a file from one of the allowed media folders.",
+                )
+        if not path.is_file():
+            raise ApiError(
+                404,
+                "media_not_found",
+                f"The media file could not be found: {raw}",
+                hint="Check that the drive is connected and the file has not moved.",
+            )
+        return path
+
+    def _estimate(self, body: dict[str, Any], media: Path) -> tuple[bool, float]:
+        """``(cache_hit, estimated_duration_s)``; the cache is checked here, synchronously."""
+        options: dict[str, Any] = dict(body.get("options") or {})
+        opts = _transcribe_options(self.config, options)
+        try:
+            media_hash = hash_media(media)
+            size = media.stat().st_size
+        except OSError as exc:
+            error = _media_error(media, exc).error
+            status = 404 if error["code"] == "media_not_found" else 400
+            raise ApiError(
+                status, error["code"], error["message"], hint=error["hint"], detail=error["detail"]
+            ) from exc
+        cached = (
+            TranscriptCache().get(media_hash, opts) if options.get("use_cache", True) else None
+        )
+        factors: dict[str, Any] = dict(self.config.server.get("estimate_factor") or {})
+        factor = float(factors.get(opts.device, factors.get("default", 0.5)))
+        if cached is not None:
+            # No transcription: only the detection, resolving and timing phases remain.
+            return True, 0.0
+        return False, size / ASSUMED_BYTES_PER_MEDIA_S * factor
+
+    def start(self, request: Request) -> tuple[int, dict[str, Any]]:
+        body = request.json()
+        if not isinstance(body, dict):
+            raise ApiError(400, "bad_request", "The request body must be a JSON object.")
+        translation_id = body.get("translation_id")
+        if not isinstance(translation_id, str) or not translation_id:
+            raise ApiError(400, "bad_request", "The request needs a translation_id.")
+        if not isinstance(body.get("options") or {}, dict):
+            raise ApiError(400, "bad_request", "options must be a JSON object.")
+        media = self._validated_media(body.get("media_path"))
+        cache_hit, estimate = self._estimate(body, media)
+        job = self.registry.create()
+        job.cache_hit = cache_hit
+        threading.Thread(
+            target=run_job,
+            args=(job, body),
+            kwargs={
+                "config": self.config,
+                "backend": self._backend,
+                "provider": self.provider,
+                "registry": self.registry,
+                "clock": self.clock,
+            },
+            name=f"job-{job.id}",
+            daemon=True,
+        ).start()
+        return 202, {
+            "job_id": job.id,
+            "status": "queued",
+            "cache_hit": cache_hit,
+            "estimated_duration_s": round(estimate),
+        }
+
+    def status(self, request: Request) -> dict[str, Any]:
+        return self.registry.get(request.params["id"]).snapshot(self.clock())
+
+    def _finished_job(self, request: Request) -> Job:
+        job = self.registry.get(request.params["id"])
+        if job.status != "done" or job.result_path is None:
+            raise ApiError(
+                409,
+                "job_not_finished",
+                f"Job {job.id} is {job.status}, not done.",
+                hint="Wait for the job to finish.",
+                retryable=True,
+            )
+        return job
+
+    def _read_json(self, path: Path) -> Any:
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            raise ApiError(
+                404, "job_not_found", "The result of that job is no longer available."
+            ) from exc
+
+    def result(self, request: Request) -> Any:
+        job = self._finished_job(request)
+        assert job.result_path is not None
+        return self._read_json(job.result_path)
+
+    def transcript(self, request: Request) -> Any:
+        job = self._finished_job(request)
+        assert job.result_path is not None
+        doc = self._read_json(job.result_path)
+        return self._read_json(job.result_path.parent / doc["transcript"]["words_ref"])
+
+    def cancel(self, request: Request) -> dict[str, Any]:
+        job = self.registry.get(request.params["id"])
+        if job.status in ("queued", "running"):
+            job.cancel_event.set()
+            return {"job_id": job.id, "status": "cancelling"}
+        self.registry.remove(job.id)
+        shutil.rmtree(app_home() / "jobs" / job.id, ignore_errors=True)
+        return {"job_id": job.id, "status": "discarded"}

@@ -50,6 +50,10 @@ _SERVER_DEFAULTS: dict[str, Any] = {
     "idle_exit_s": 1800,
     "allowed_origins": ["cep://com.versesync.panel"],
     "allowed_media_roots": [],
+    # Chosen, not specified: seconds of processing per second of media, per device, used only
+    # for the POST /jobs estimate (07 section 2). Rough figures from the T-02 spike's order of
+    # magnitude; a wrong guess only skews a progress hint. "default" covers unlisted devices.
+    "estimate_factor": {"cuda": 0.05, "cpu": 0.5, "default": 0.5},
 }
 
 # docs/tasks/T-07-transcription-in-sidecar.md (defaults per spike T-02 and decision D19).

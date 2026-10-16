@@ -42,6 +42,7 @@ def test_defaults(app_home: Path) -> None:
         "idle_exit_s": 1800,
         "allowed_origins": ["cep://com.versesync.panel"],
         "allowed_media_roots": [],
+        "estimate_factor": {"cuda": 0.05, "cpu": 0.5, "default": 0.5},
     }
     assert cfg.transcription["model"] == "distil-large-v3"
     assert cfg.transcription["backend"] == "faster_whisper"

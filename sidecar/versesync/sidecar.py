@@ -17,9 +17,13 @@ from types import FrameType
 from typing import Any
 
 from versesync import lockfile
+from versesync.bible.cache import CachingProvider
+from versesync.bible.local import LocalProvider
 from versesync.config import load_config
+from versesync.jobs import JobService
 from versesync.paths import log_path
 from versesync.server import API_VERSION, SIDECAR_VERSION, SidecarServer, _Route
+from versesync.transcribe import get_backend
 
 # Chosen, not specified: how often the idle watcher re-checks the clock. Small enough that a
 # 1 s idle limit is honoured promptly; large enough to cost nothing.
@@ -38,7 +42,7 @@ class _TrackedServer(SidecarServer):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.last_request = time.monotonic()
-        # T-20 replaces this with a count of running jobs; idle exit waits while it is non-zero.
+        # Idle exit waits while this is non-zero; attach_jobs() points it at the job registry.
         self.active_jobs: Callable[[], int] = lambda: 0
 
     def match(self, method: str, path: str) -> tuple[tuple[_Route, dict[str, str]] | None, bool]:
@@ -94,6 +98,14 @@ def main(argv: Sequence[str] | None = None) -> int:
             file=sys.stderr,
         )
         return 1
+
+    service = JobService(
+        config=config,
+        backend_factory=lambda: get_backend(config),
+        provider=CachingProvider(LocalProvider()),
+    )
+    server.attach_jobs(service)
+    server.active_jobs = service.active_count
 
     pid = os.getpid()
     info = lockfile.LockInfo(

@@ -14,10 +14,13 @@ import threading
 from collections.abc import Callable
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from urllib.parse import parse_qs, unquote, urlsplit
 
 from versesync.config import Config
+
+if TYPE_CHECKING:
+    from versesync.jobs import JobService
 
 API_VERSION = "1.0"
 API_HEADER = "X-VerseSync-Api"
@@ -234,6 +237,7 @@ class SidecarServer:
         self._lifecycle = threading.Lock()
         self._serving = False
         self._closed = False
+        self.jobs: JobService | None = None
         self.status = "starting"  # starting | ready | busy | degraded (07 §2)
         self.route("GET", "/health", lambda request: self.health(), auth=False)
         self.route("POST", "/shutdown", self._handle_shutdown)
@@ -259,6 +263,15 @@ class SidecarServer:
                 params = {name: unquote(value) for name, value in found.groupdict().items()}
                 return (route, params), True
         return None, path_known
+
+    def attach_jobs(self, service: JobService) -> None:
+        """Register the ``/jobs`` routes (07 section 2) backed by ``service``."""
+        self.jobs = service
+        self.route("POST", "/jobs", service.start)
+        self.route("GET", "/jobs/{id}", service.status)
+        self.route("GET", "/jobs/{id}/result", service.result)
+        self.route("GET", "/jobs/{id}/transcript", service.transcript)
+        self.route("DELETE", "/jobs/{id}", service.cancel)
 
     def mark_ready(self) -> None:
         """Move ``/health`` from ``starting`` to ``ready``."""
