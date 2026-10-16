@@ -420,13 +420,7 @@ class SidecarServer:
             if job.status == "done":
                 cue_count = len(service.result(request)["cues"])
                 return "done", {"job_id": job.id, "cue_count": cue_count}
-            error = job.error or {
-                "code": "cancelled",
-                "message": "The job was cancelled.",
-                "detail": None,
-                "retryable": False,
-                "hint": None,
-            }
+            error = job.error or {k: v for k, v in render("cancelled").items() if k != "status"}
             return "failed", {"job_id": job.id, "error": error}
 
         finished = terminal() if status in _TERMINAL_STATUSES else None
