@@ -20,7 +20,7 @@ from versesync.detect.detector import detect
 from versesync.detect.parse import InvalidReference, parse_reference
 from versesync.jobs import Job, JobRegistry, new_job_id, run_job
 from versesync.paths import app_home
-from versesync.transcribe import Backend, FixtureBackend, get_backend
+from versesync.transcribe import Backend, FixtureBackend, TranscriptionError, get_backend
 from versesync.types import load_words
 
 EXIT_OK = 0
@@ -119,7 +119,10 @@ def cmd_analyse(args: argparse.Namespace) -> int:
         # A transcript replays through the fixture backend, as `transcription.backend: fixture:`.
         backend = FixtureBackend(args.input)
     else:
-        backend = get_backend(config)
+        try:
+            backend = get_backend(config)
+        except TranscriptionError as exc:
+            raise UsageError(f"{exc.message} {exc.hint or ''}".strip()) from exc
     job_id: str = args.job_id or new_job_id()
     now = _epoch(args.generated_at) if args.generated_at else datetime.now(timezone.utc).timestamp()
     registry = JobRegistry(id_factory=lambda: job_id, clock=lambda: now)
