@@ -10,6 +10,7 @@ docs/tasks/T-07-transcription-in-sidecar.md (the defaults, measured by spike T-0
 from __future__ import annotations
 
 import importlib.util
+import logging
 from collections.abc import Callable, Sequence
 from dataclasses import asdict, dataclass, fields
 from pathlib import Path
@@ -37,6 +38,8 @@ SCRIPTURE_PROMPT = (
 FIXTURE_PREFIX = "fixture:"
 
 _GIB = 1024**3
+
+_log = logging.getLogger("versesync.transcribe")
 
 # The upstream loader builds its Hugging Face repo name from the model name, and lists the
 # distil-large-v3 that spike T-02 measured as distil-whisper-large-v3 (upstream
@@ -332,6 +335,13 @@ class FasterWhisperBackend:
     ) -> tuple[list[Word], float]:
         if is_cancelled():
             raise Cancelled()
+        if opts.device == "cpu":
+            # R-10 (docs/12-decisions-and-risks.md): a long recording on the CPU can take longer
+            # than its own length, so say so in the log instead of grinding silently.
+            _log.warning(
+                "Transcribing %s on the CPU; a long recording can take longer than it plays for",
+                media_path.name,
+            )
         load_model, transcribe_with_words, upstream_cancelled = _import_upstream()
         try:
             model = load_model(

@@ -6,6 +6,7 @@ is served by a meta path finder, so the tests also see *when* each module is imp
 
 import importlib.abc
 import importlib.machinery
+import logging
 import re
 import sys
 import tomllib
@@ -256,6 +257,17 @@ def test_cancellation_inside_the_engine_raises_cancelled(upstream: FakeUpstream)
     upstream.transcribe_error = UpstreamCancelled("Transcription cancelled")
     with pytest.raises(Cancelled):
         run()
+
+
+def test_a_cpu_run_is_warned_about_in_the_log(
+    upstream: FakeUpstream, caplog: pytest.LogCaptureFixture
+) -> None:
+    with caplog.at_level(logging.WARNING, logger="versesync.transcribe"):
+        run(TranscribeOptions(device="cuda"))
+        assert caplog.records == []
+        run(TranscribeOptions(device="cpu", quantization="float32"))
+    (record,) = caplog.records
+    assert "on the CPU" in record.getMessage() and MEDIA.name in record.getMessage()
 
 
 def test_cancelled_before_start_touches_nothing(upstream: FakeUpstream) -> None:
