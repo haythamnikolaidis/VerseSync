@@ -138,7 +138,7 @@ client.health() / models() / translations() / startJob(req) / job(id) / result(i
 
 ### T-26.4 · Integration against the real mock process
 
-**Executor** agent · **Size** S · **Prereqs** T-26.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-26.3 · **Status** in-progress
 
 - **Read:** `tools/README.md` (the mock's flags)
 - **Touches:** `tests/panel/sidecar-mock-integration.test.js` (new) ·
