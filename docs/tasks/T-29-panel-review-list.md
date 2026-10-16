@@ -75,7 +75,7 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
 
 ### T-29.2 · Save, load, and VerseFlow `.txt` export
 
-**Executor** agent · **Size** XS · **Prereqs** T-29.1, T-43 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-29.1, T-43 · **Status** in-progress
 
 - **Read:** [09 §5.4](../09-ui-spec.md) (Save ▾) · `reference/verseflow/js/scripture-parser.js`
   (the block format)
