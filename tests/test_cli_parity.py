@@ -6,7 +6,7 @@ import json
 import threading
 import urllib.request
 from dataclasses import replace
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
