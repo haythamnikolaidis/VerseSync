@@ -45,7 +45,7 @@ iterated on, how the accuracy harness runs, and how support issues get reproduce
 
 ### T-21.2 · CLI and HTTP parity test
 
-**Executor** agent · **Size** XS · **Prereqs** T-21.1, T-20.4 · **Status** in-progress
+**Executor** agent · **Size** XS · **Prereqs** T-21.1, T-20.4 · **Status** done
 
 - **Read:** [07 §6](../07-sidecar-api.md) (the last paragraph)
 - **Touches:** `tests/test_cli_parity.py` (new)
@@ -55,7 +55,7 @@ iterated on, how the accuracy harness runs, and how support issues get reproduce
      the two Cue Documents for equality, ignoring `job.media_path`. Commit.
 - **Verify:** `pytest tests/test_cli_parity.py -q`
 - **Done when:**
-  - [ ] The documents are identical.
+  - [x] The documents are identical.
 
 ## Traps
 
