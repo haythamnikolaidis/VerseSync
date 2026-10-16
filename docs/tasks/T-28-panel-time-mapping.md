@@ -61,7 +61,7 @@ Config defaults come from [05 §2](../05-timing-and-placement.md): `MIN_VISIBLE_
 
 ### T-28.2 · Segment map: source→sequence, inverse, flags
 
-**Executor** agent · **Size** S · **Prereqs** T-28.1, T-47 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-28.1, T-47 · **Status** in-progress
 
 - **Read:** [05 §5.1, §5.2, §5.3](../05-timing-and-placement.md) · [08 §4](../08-premiere-host-api.md)
   (the response shape)
