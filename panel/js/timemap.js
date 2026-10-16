@@ -22,6 +22,11 @@
     return String(Math.round(Number(ticks) / ticksPerFrame) * ticksPerFrame);
   }
 
+  // ticks moved by a whole number of frames (negative moves earlier); a string, like snapToFrame.
+  function shiftFrames(ticks, frames, timebase) {
+    return String(Number(ticks) + frames * Number(timebase));
+  }
+
   function pad2(n) {
     return (n < 10 ? '0' : '') + n;
   }
@@ -261,6 +266,7 @@
     secondsToTicks: secondsToTicks,
     ticksToSeconds: ticksToSeconds,
     snapToFrame: snapToFrame,
+    shiftFrames: shiftFrames,
     timecode: timecode,
     buildMap: buildMap,
     toSequence: toSequence,

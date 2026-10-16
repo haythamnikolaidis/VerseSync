@@ -225,7 +225,8 @@
 
   // The expanded part of a row: reference, verse text (read-only), transcript context and the
   // classification line. getTranscript() resolves to the word array or null.
-  // editor: { reason() -> string|null (why editing is off), resolve(text), choose(alternative) }.
+  // editor: { reason() -> string|null (why editing is off), resolve(text), choose(alternative),
+  // timecode, timing, setDuration(text), remove() }.
   function buildDetail(doc, cue, getTranscript, editor) {
     var box = el(doc, 'div', 'vf-row-detail');
     var refLine = el(doc, 'div', 'vf-detail-reference');
@@ -313,10 +314,82 @@
       });
     }
 
+    box.appendChild(buildTiming(doc, cue, editor));
+
     var cls = el(doc, 'div', 'vf-detail-classification');
     cls.appendChild(el(doc, 'span', 'vf-detail-label', 'Classification '));
     cls.appendChild(el(doc, 'span', 'vf-detail-value', classificationLine(cue)));
     box.appendChild(cls);
+
+    var del = el(doc, 'button', 'vf-btn vf-btn--small vf-detail-delete', 'Delete');
+    del.type = 'button';
+    del.addEventListener('click', function () { editor.remove(); });
+    box.appendChild(del);
+    return box;
+  }
+
+  // The Timing row of the expanded row (docs/09 §5.3): anchor timecode, frame nudges, set to the
+  // playhead, and the duration override. editor.timing is null when the panel cannot read the
+  // sequence, which leaves the anchor controls disabled.
+  function buildTiming(doc, cue, editor) {
+    var box = el(doc, 'div', 'vf-detail-timing');
+    var anchorLine = el(doc, 'div', 'vf-detail-anchor');
+    anchorLine.appendChild(el(doc, 'span', 'vf-detail-label', 'Timing '));
+    anchorLine.appendChild(el(doc, 'span', 'vf-detail-anchor-value',
+      'anchor ' + (editor.timecode || NO_TIMECODE) + ' '));
+    var live = !!editor.timing && !!editor.timecode;
+    function timingButton(cls, text, label, run) {
+      var b = el(doc, 'button', 'vf-btn vf-btn--small ' + cls, text);
+      b.type = 'button';
+      b.setAttribute('aria-label', label);
+      b.addEventListener('click', function () { run(b); });
+      anchorLine.appendChild(b);
+      return b;
+    }
+    var error = el(doc, 'div', 'vf-inline-error vf-detail-timing-error');
+    error.setAttribute('role', 'alert');
+    error.hidden = true;
+    function show(text) {
+      error.textContent = text || '';
+      error.hidden = !text;
+    }
+    function done(promise) {
+      show('');
+      Promise.resolve(promise).then(function (text) { if (text) { show(text); } });
+    }
+    var back = timingButton('vf-detail-nudge-back', '-1f', 'Move one frame earlier',
+      function () { done(editor.timing.nudge(-1)); });
+    var fwd = timingButton('vf-detail-nudge-forward', '+1f', 'Move one frame later',
+      function () { done(editor.timing.nudge(1)); });
+    var head = timingButton('vf-detail-playhead', '\u2316', 'Set the anchor to the playhead',
+      function () { done(editor.timing.toPlayhead()); });
+    back.disabled = !live;
+    fwd.disabled = !live;
+    head.disabled = !editor.timing;
+    box.appendChild(anchorLine);
+
+    var durLine = el(doc, 'div', 'vf-detail-duration');
+    durLine.appendChild(el(doc, 'span', 'vf-detail-label', 'Duration '));
+    var dur = el(doc, 'input', 'vf-detail-duration-input');
+    dur.type = 'text';
+    dur.value = cue.source_duration_s.toFixed(1);
+    dur.setAttribute('aria-label', 'Duration in seconds');
+    durLine.appendChild(dur);
+    durLine.appendChild(el(doc, 'span', 'vf-detail-unit', ' s'));
+    if (cue.classification === 'read' && typeof cue.read_coverage === 'number') {
+      durLine.appendChild(el(doc, 'span', 'vf-detail-read', '  read ' + Math.round(cue.read_coverage * 100) + '%'));
+    }
+    function commit() {
+      show('');
+      var text = editor.setDuration(dur.value);
+      if (text) { show(text); }
+    }
+    dur.addEventListener('change', commit);
+    dur.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); commit(); }
+    });
+    box.appendChild(durLine);
+    box.appendChild(error);
     return box;
   }
 
@@ -336,7 +409,7 @@
   }
 
   // opts: { root, model, getPlacements, bridge, threshold, client, getTranslationId, getDurationMode,
-  // isAvailable, onChange, onSave, onLoad, onExport, onInsert }. client.resolve edits a cue's
+  // isAvailable, timing, onChange, onSave, onLoad, onExport, onInsert }. client.resolve edits a cue's
   // reference; onChange(id) runs after each edit so the caller re-maps before the list redraws.
   // getPlacements() returns the VSTimemap.mapCueDocument placements map. bridge moves the playhead
   // (the timecode button); getTranscript() resolves to the transcript words or null. The on* callbacks run the Save menu entries and the Insert button.
@@ -541,11 +614,78 @@
       return Cues.referenceFromDisplay(display);
     }
 
+    // After a timing edit: re-map the whole list (so the overlap sweep runs again), redraw in the
+    // new order and keep the row open.
+    function afterTiming(id) {
+      if (opts.onChange) { opts.onChange(id); }
+      render();
+      toggleExpanded(id);
+    }
+
+    // Stores a new anchor, in source seconds. Yields '' on success or the message to show.
+    function setAnchor(id, seconds) {
+      if (seconds === null || seconds === undefined) { return null; }
+      try {
+        model.edit(id, { source_anchor_s: seconds });
+      } catch (e) {
+        return e.message;
+      }
+      afterTiming(id);
+      return '';
+    }
+
+    var OFF_MEDIA = 'That frame is outside the media.';
+    var NO_PLAYHEAD = 'The playhead isn\'t over this media.';
+
+    // The timing actions of a row; null when the panel has no sequence to measure against.
+    // opts.timing: { nudgedSource(atTicks, frames) -> seconds|null,
+    // playheadSource() -> Promise<seconds|null> }; seconds are source seconds.
+    function timingFor(id) {
+      var t = opts.timing;
+      if (!t) { return null; }
+      return {
+        nudge: function (frames) {
+          var p = placementOf(id);
+          if (!p || !p.timecode) { return Promise.resolve(OFF_MEDIA); }
+          var result = setAnchor(id, t.nudgedSource(p.atTicks, frames));
+          return Promise.resolve(result === null ? OFF_MEDIA : result);
+        },
+        toPlayhead: function () {
+          return Promise.resolve(t.playheadSource()).then(function (seconds) {
+            var result = setAnchor(id, seconds);
+            return result === null ? NO_PLAYHEAD : result;
+          }, function () { return NO_PLAYHEAD; });
+        }
+      };
+    }
+
     function editorFor(id) {
+      var p = placementOf(id);
       return {
         reason: editingOff,
         resolve: function (text) { return resolveCue(id, String(text).trim(), null); },
-        choose: function (alt) { return resolveCue(id, alt.reference, alt.reference); }
+        choose: function (alt) { return resolveCue(id, alt.reference, alt.reference); },
+        timecode: p && p.timecode ? p.timecode : '',
+        timing: timingFor(id),
+        // The duration is stored as typed, in seconds; the re-map clips it to the frame grid.
+        setDuration: function (text) {
+          var seconds = Number(String(text).trim());
+          if (String(text).trim() === '' || !isFinite(seconds) || seconds <= 0) {
+            return 'Enter a duration in seconds, greater than zero.';
+          }
+          try {
+            model.edit(id, { source_duration_s: seconds });
+          } catch (e) {
+            return e.message;
+          }
+          afterTiming(id);
+          return '';
+        },
+        remove: function () {
+          model.remove(id);
+          if (opts.onChange) { opts.onChange(id); }
+          render();
+        }
       };
     }
 

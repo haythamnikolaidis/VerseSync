@@ -144,6 +144,33 @@
       return s.mapping;
     }
 
+    // Source seconds for a sequence position: through the media segments, or through the typed
+    // start offset when the media could not be matched (docs/05 §5.4). Null when the position is
+    // not over this media.
+    function sourceAt(s, ticks) {
+      if (s.manualOffsetTicks !== null && s.manualOffsetTicks !== undefined &&
+          !(s.segments && s.segments.matched)) {
+        var seconds = Timemap.ticksToSeconds(Number(ticks) - Number(s.manualOffsetTicks));
+        return seconds < 0 ? null : seconds;
+      }
+      return Timemap.toSource(Timemap.buildMap(s.segments), ticks);
+    }
+
+    // The timing edits of the review rows (docs/09 §5.3): one frame is the sequence timebase.
+    function timingFor(s) {
+      return {
+        nudgedSource: function (atTicks, frames) {
+          return sourceAt(s, Timemap.shiftFrames(atTicks, frames, s.seqInfo.timebase));
+        },
+        playheadSource: function () {
+          return bridge.call('getSequenceInfo', {}).then(function (res) {
+            if (!res || !res.ok || !res.data || !res.data.hasActiveSequence) { return null; }
+            return sourceAt(s, res.data.playheadTicks);
+          });
+        }
+      };
+    }
+
     function renderReview(notice) {
       var s = app.session;
       clear(reviewEl);
@@ -166,6 +193,7 @@
             var timing = s.request.options && s.request.options.timing;
             return timing && timing.duration_mode;
           },
+          timing: timingFor(s),
           onChange: function () { remap(); },
           onSave: saveDocument,
           onLoad: loadDocument,
