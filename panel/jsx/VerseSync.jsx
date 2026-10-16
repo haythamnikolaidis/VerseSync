@@ -511,9 +511,115 @@ var _validateInsertArgs = function (args, seq) {
     return null;
 };
 
+// Writes text to a MOGRT field by index using the JSON textEditValue dance.
+// Lifted unchanged from VerseFlow.jsx. fontTextRunLength must be written with
+// the text: leaving it out is the most common cause of a silent failure.
+var _setTextField = function (mgt, fieldIndex, text) {
+    var p = mgt.properties[fieldIndex];
+    if (!p) throw new Error('No property at index ' + fieldIndex);
+
+    var raw = '';
+    try { raw = p.getValue(); } catch (e) {}
+
+    var data = null;
+    try { data = JSON.parse(raw); } catch (e) {}
+
+    if (data && typeof data === 'object') {
+        data.textEditValue     = text;
+        data.fontTextRunLength = [text.length];
+        p.setValue(JSON.stringify(data), true);
+    } else {
+        p.setValue(text, true);
+    }
+};
+
+var _buildTimeFromTicks = function (ticksStr) {
+    var t = new Time();
+    t.ticks = ticksStr;
+    return t;
+};
+
+// Sets a clip's timeline length by adjusting its end time. Lifted unchanged
+// from VerseFlow.jsx. It does not resolve overlaps (T-03): the panel guarantees
+// the duration fits before the host is called.
+var _setClipDuration = function (clip, durationTicksStr) {
+    var startNum = Number(clip.start.ticks);
+    var endNum   = startNum + Number(durationTicksStr);
+    var endTime  = _buildTimeFromTicks(String(endNum));
+    try {
+        clip.end = endTime;
+    } catch (e) {
+        try { clip.outPoint = endTime; } catch (e2) {
+            throw new Error('setClipDuration failed: ' + e2);
+        }
+    }
+};
+
+// Tells the panel how far the loop has got. index is the cue's zero-based
+// position in args.cues. A failed dispatch must never stop the insert.
+var _dispatchProgress = function (index, total, id, ok) {
+    try {
+        var evt  = new CSXSEvent();
+        evt.type = 'com.versesync.progress';
+        evt.data = JSON.stringify({ index: index, total: total, id: id, ok: ok });
+        evt.dispatch();
+    } catch (e) {}
+};
+
+// Places one cue at its own absolute time. Returns the clip's start ticks as
+// Premiere reports them. Throws on any failure; the caller isolates it.
+var _insertOneCue = function (seq, args, cue) {
+    var clip = seq.importMGT(args.mogrtPath, cue.atTicks, args.trackIndex, 0);
+    if (!clip) throw new Error(VS_MSG_IMPORT_NULL);
+
+    var mgt = clip.getMGTComponent();
+    if (!mgt) throw new Error(VS_MSG_NO_MGT_COMPONENT);
+
+    _setTextField(mgt, args.mapping.referenceIndex, cue.reference);
+    _setTextField(mgt, args.mapping.bodyIndex,      cue.body);
+    _setClipDuration(clip, cue.durationTicks);
+
+    return String(clip.start.ticks);
+};
+
+// An Error carries its message in .message; String(e) would prefix "Error: ".
+var _errorText = function (e) {
+    return (e && e.message !== undefined) ? String(e.message) : String(e);
+};
+
 VS.insertCues = _wrap('insertCues', function (args) {
     var seq = app.project.activeSequence;
     var invalid = _validateInsertArgs(args, seq);
     if (invalid !== null) return _err(invalid);
-    return _err('insertCues: placement is not available in this build');
+
+    var cues          = args.cues;
+    var results       = [];
+    var insertedCount = 0;
+    var failedCount   = 0;
+    var opened        = false;
+
+    try { app.beginUndoGroup('VerseSync: Insert scriptures'); opened = true; } catch (e) {}
+
+    try {
+        for (var i = 0; i < cues.length; i++) {
+            var cue = cues[i];
+            var ok  = false;
+            try {
+                var actualStartTicks = _insertOneCue(seq, args, cue);
+                results.push({ id: cue.id, ok: true, actualStartTicks: actualStartTicks });
+                insertedCount++;
+                ok = true;
+            } catch (cueErr) {
+                results.push({ id: cue.id, ok: false, error: _errorText(cueErr) });
+                failedCount++;
+            }
+            _dispatchProgress(i, cues.length, cue.id, ok);
+        }
+    } finally {
+        if (opened) {
+            try { app.endUndoGroup(); } catch (e) {}
+        }
+    }
+
+    return _ok({ results: results, insertedCount: insertedCount, failedCount: failedCount });
 });

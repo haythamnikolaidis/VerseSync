@@ -115,5 +115,7 @@ test('equal atTicks are accepted by validation', () => {
   args.cues[1].atTicks = args.cues[0].atTicks;
   const res = JSON.parse(loadJsx(JSX, fake).VS.insertCues(JSON.stringify(args)));
   assert.notStrictEqual(res.error, UNSORTED);
-  assert.deepStrictEqual(fake.undoLog, []);
+  // Validation passed, so the placement loop ran and left no undo group open.
+  assert.strictEqual(res.ok, true);
+  assert.strictEqual(fake.openUndoGroups(), 0);
 });

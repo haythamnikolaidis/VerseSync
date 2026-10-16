@@ -2,8 +2,8 @@
 
 // Loads panel/jsx/VerseSync.jsx (or any ES3 host script) into a fresh vm
 // context that looks like Premiere's ExtendScript engine: the globals are
-// app, $, CSXSEvent and File, and there is no native JSON, so the script's own
-// polyfill is what gets exercised (docs/08 section 1).
+// app, $, CSXSEvent, Time and File, and there is no native JSON, so the
+// script's own polyfill is what gets exercised (docs/08 section 1).
 
 const fs = require('fs');
 const vm = require('vm');
@@ -34,6 +34,7 @@ function loadJsx(jsxPath, fake) {
     app: fake.app,
     $: fake.$,
     CSXSEvent: fake.CSXSEvent || notModelled('CSXSEvent'),
+    Time: fake.Time || notModelled('Time'),
     File: fake.File || notModelled('File')
   };
   const context = vm.createContext(sandbox);

@@ -338,6 +338,11 @@ function createFakePremiere() {
     fake.events.push({ type: this.type, data: this.data, scope: this.scope });
   };
 
+  // ExtendScript usage: var t = new Time(); t.ticks = '254016000000';
+  fake.Time = function Time() {
+    this.ticks = '0';
+  };
+
   // app.project.activeSequence follows UI focus between calls (R-13).
   fake.focusSequence = function (id) {
     for (let i = 0; i < sequences.length; i++) {
