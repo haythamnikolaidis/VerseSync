@@ -58,6 +58,54 @@
     return errors;
   }
 
+  // Canonical books with their OSIS ids, for turning a resolved Passage back into the cue's
+  // reference object (the Passage carries only reference_display, docs/06 §1). Display names
+  // that differ from the canonical name ("Psalm", "Song of Solomon") are listed as aliases.
+  var BOOKS = [
+    ['Genesis', 'Gen'], ['Exodus', 'Exod'], ['Leviticus', 'Lev'], ['Numbers', 'Num'],
+    ['Deuteronomy', 'Deut'], ['Joshua', 'Josh'], ['Judges', 'Judg'], ['Ruth', 'Ruth'],
+    ['1 Samuel', '1Sam'], ['2 Samuel', '2Sam'], ['1 Kings', '1Kgs'], ['2 Kings', '2Kgs'],
+    ['1 Chronicles', '1Chr'], ['2 Chronicles', '2Chr'], ['Ezra', 'Ezra'], ['Nehemiah', 'Neh'],
+    ['Esther', 'Esth'], ['Job', 'Job'], ['Psalms', 'Ps', 'Psalm'], ['Proverbs', 'Prov'],
+    ['Ecclesiastes', 'Eccl'], ['Song of Solomon', 'Song', 'Song of Songs'],
+    ['Isaiah', 'Isa'], ['Jeremiah', 'Jer'], ['Lamentations', 'Lam'], ['Ezekiel', 'Ezek'],
+    ['Daniel', 'Dan'], ['Hosea', 'Hos'], ['Joel', 'Joel'], ['Amos', 'Amos'],
+    ['Obadiah', 'Obad'], ['Jonah', 'Jonah'], ['Micah', 'Mic'], ['Nahum', 'Nah'],
+    ['Habakkuk', 'Hab'], ['Zephaniah', 'Zeph'], ['Haggai', 'Hag'], ['Zechariah', 'Zech'],
+    ['Malachi', 'Mal'], ['Matthew', 'Matt'], ['Mark', 'Mark'], ['Luke', 'Luke'],
+    ['John', 'John'], ['Acts', 'Acts'], ['Romans', 'Rom'], ['1 Corinthians', '1Cor'],
+    ['2 Corinthians', '2Cor'], ['Galatians', 'Gal'], ['Ephesians', 'Eph'],
+    ['Philippians', 'Phil'], ['Colossians', 'Col'], ['1 Thessalonians', '1Thess'],
+    ['2 Thessalonians', '2Thess'], ['1 Timothy', '1Tim'], ['2 Timothy', '2Tim'],
+    ['Titus', 'Titus'], ['Philemon', 'Phlm'], ['Hebrews', 'Heb'], ['James', 'Jas'],
+    ['1 Peter', '1Pet'], ['2 Peter', '2Pet'], ['1 John', '1John'], ['2 John', '2John'],
+    ['3 John', '3John'], ['Jude', 'Jude'], ['Revelation', 'Rev']
+  ];
+
+  function findBook(name) {
+    var key = String(name).toLowerCase().replace(/\s+/g, ' ').trim();
+    for (var i = 0; i < BOOKS.length; i++) {
+      if (BOOKS[i][0].toLowerCase() === key ||
+          (BOOKS[i][2] && BOOKS[i][2].toLowerCase() === key)) {
+        return { book: BOOKS[i][0], osis: BOOKS[i][1] };
+      }
+    }
+    return null;
+  }
+
+  // "1 Corinthians 6:19-20 (KJV)" -> { book, osis, chapter, verse, verse_end }; null when the
+  // display text is not a reference this table understands.
+  function referenceFromDisplay(display) {
+    var m = /^(.+?)\s+(\d+)(?::(\d+)(?:\s*[-\u2013]\s*(\d+))?)?\s*(?:\(.*\))?\s*$/.exec(String(display));
+    if (!m) { return null; }
+    var book = findBook(m[1]);
+    if (!book) { return null; }
+    var ref = { book: book.book, osis: book.osis, chapter: parseInt(m[2], 10) };
+    if (m[3] !== undefined) { ref.verse = parseInt(m[3], 10); }
+    if (m[4] !== undefined && parseInt(m[4], 10) > ref.verse) { ref.verse_end = parseInt(m[4], 10); }
+    return ref;
+  }
+
   function parseVersion(text) {
     var m = /^(\d+)\.(\d+)$/.exec(String(text));
     return m ? { major: m[1], minor: parseInt(m[2], 10) } : null;
@@ -245,6 +293,7 @@
   var Cues = {
     load: load,
     validateCue: validateCue,
+    referenceFromDisplay: referenceFromDisplay,
     serialize: serialize,
     exportVerseFlowTxt: exportVerseFlowTxt
   };

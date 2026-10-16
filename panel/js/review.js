@@ -21,6 +21,17 @@
 
   var NO_TIMECODE = '--:--:--:--';
 
+  // Flags a successful re-resolve clears: the new text exists, so these no longer apply
+  // (docs/09 §5.3).
+  var RESOLVED_FLAGS = ['text_unavailable', 'passage_not_found', 'chapter_only'];
+
+  var NO_TEXT_SERVICE = 'The text service is not running, so references cannot be re-resolved.';
+
+  function loadModule(name, file) {
+    if (root[name]) { return root[name]; }
+    return typeof require !== 'undefined' ? require(file) : undefined;
+  }
+
   // Words that can follow a book name inside a spoken reference ("six, nineteen and twenty",
   // "8, 28", "verses 1 through 4"). Chosen so the emphasised span covers the whole mention.
   var REF_WORD = /^(\d+|zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|and|through|to|verse|verses|chapter|uh|um)$/i;
@@ -118,6 +129,33 @@
     return out;
   }
 
+  // The cue fields a successful resolve replaces (docs/09 §5.3). passage is the sidecar's
+  // Passage, reference the canonical reference object (from the editor's choice or parsed from the
+  // passage). timing is { durationMode } - the paraphrase duration is recomputed only in auto mode,
+  // because a fixed duration is the editor's own choice. Pure; the caller applies it with
+  // model.edit, which also marks the cue edited.
+  function resolvePatch(cue, reference, passage, timing) {
+    var Duration = loadModule('VSDuration', './duration.js');
+    var patch = {
+      reference: reference,
+      reference_display: passage.reference_display,
+      body: passage.body,
+      body_word_count: passage.word_count,
+      body_truncated: !!passage.truncated,
+      flags: (cue.flags || []).filter(function (f) { return RESOLVED_FLAGS.indexOf(f) === -1; })
+    };
+    var auto = !timing || timing.durationMode !== 'fixed';
+    if (auto && cue.classification === 'paraphrase') {
+      patch.source_duration_s = Duration.resolveDurationSeconds({ wordCount: passage.word_count }, null);
+    }
+    return patch;
+  }
+
+  // The editable reference text: the display without its "(KJV)" suffix.
+  function referenceText(cue) {
+    return String(cue.reference_display).replace(/\s*\([^)]*\)\s*$/, '');
+  }
+
   function classificationLine(cue) {
     if (cue.classification !== 'read') { return 'PARAPHRASE'; }
     var cov = typeof cue.read_coverage === 'number' ? ' (coverage ' + cue.read_coverage.toFixed(2) + ')' : '';
@@ -187,12 +225,74 @@
 
   // The expanded part of a row: reference, verse text (read-only), transcript context and the
   // classification line. getTranscript() resolves to the word array or null.
-  function buildDetail(doc, cue, getTranscript) {
+  // editor: { reason() -> string|null (why editing is off), resolve(text), choose(alternative) }.
+  function buildDetail(doc, cue, getTranscript, editor) {
     var box = el(doc, 'div', 'vf-row-detail');
     var refLine = el(doc, 'div', 'vf-detail-reference');
     refLine.appendChild(el(doc, 'span', 'vf-detail-label', 'Reference '));
-    refLine.appendChild(el(doc, 'span', 'vf-detail-value', cue.reference_display));
+    var input = el(doc, 'input', 'vf-detail-reference-input');
+    input.type = 'text';
+    input.value = referenceText(cue);
+    input.setAttribute('aria-label', 'Reference');
+    var redo = el(doc, 'button', 'vf-btn vf-btn--small vf-detail-resolve', '\u21BB');
+    redo.type = 'button';
+    redo.title = 'Look up this reference';
+    redo.setAttribute('aria-label', 'Re-resolve reference');
+    refLine.appendChild(input);
+    refLine.appendChild(redo);
     box.appendChild(refLine);
+    var refError = el(doc, 'div', 'vf-inline-error vf-detail-reference-error');
+    refError.setAttribute('role', 'alert');
+    refError.hidden = true;
+    box.appendChild(refError);
+
+    var alts = [];
+    (cue.alternatives || []).forEach(function (alt) {
+      var b = el(doc, 'button', 'vf-btn vf-btn--small vf-detail-alternative',
+        alt.reference_display + ' \u00B7 ' + Math.round(alt.confidence * 100) + '%');
+      b.type = 'button';
+      b.title = alt.reason || '';
+      b.addEventListener('click', function () { run(alt); });
+      alts.push(b);
+    });
+    if (alts.length > 0) {
+      var altLine = el(doc, 'div', 'vf-detail-alternatives');
+      altLine.appendChild(el(doc, 'span', 'vf-detail-label', 'Or '));
+      alts.forEach(function (b) { altLine.appendChild(b); });
+      box.appendChild(altLine);
+    }
+
+    var busy = false;
+    function sync() {
+      var reason = editor.reason();
+      var off = busy || !!reason;
+      input.disabled = !!reason;
+      redo.disabled = off;
+      alts.forEach(function (b) { b.disabled = off; });
+      if (reason) { show(reason); }
+    }
+    function show(text) {
+      refError.textContent = text || '';
+      refError.hidden = !text;
+    }
+    // The row is rebuilt after a successful edit, so only a failure has anything to update here.
+    function run(alt) {
+      if (busy) { return; }
+      busy = true;
+      show('');
+      sync();
+      var started = alt ? editor.choose(alt) : editor.resolve(input.value);
+      started.then(function (message) {
+        busy = false;
+        if (message) { show(message); }
+        sync();
+      });
+    }
+    redo.addEventListener('click', function () { run(null); });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); run(null); }
+    });
+    sync();
 
     var verse = el(doc, 'div', 'vf-detail-verse');
     verse.appendChild(el(doc, 'span', 'vf-detail-body', cue.body));
@@ -235,7 +335,9 @@
     });
   }
 
-  // opts: { root, model, getPlacements, bridge, threshold, onSave, onLoad, onExport, onInsert }.
+  // opts: { root, model, getPlacements, bridge, threshold, client, getTranslationId, getDurationMode,
+  // isAvailable, onChange, onSave, onLoad, onExport, onInsert }. client.resolve edits a cue's
+  // reference; onChange(id) runs after each edit so the caller re-maps before the list redraws.
   // getPlacements() returns the VSTimemap.mapCueDocument placements map. bridge moves the playhead
   // (the timecode button); getTranscript() resolves to the transcript words or null. The on* callbacks run the Save menu entries and the Insert button.
   function create(opts) {
@@ -393,8 +495,58 @@
         row.classList.remove('vf-row--expanded');
         return;
       }
-      row.appendChild(buildDetail(doc, model.get(id), opts.getTranscript));
+      row.appendChild(buildDetail(doc, model.get(id), opts.getTranscript, editorFor(id)));
       row.classList.add('vf-row--expanded');
+    }
+
+    // Why reference editing is off, or null. Once a call finds the sidecar unreachable the
+    // reason sticks, so every row says so without another failed request.
+    var textServiceDown = null;
+    function editingOff() {
+      if (textServiceDown) { return textServiceDown; }
+      if (!opts.client) { return NO_TEXT_SERVICE; }
+      if (opts.isAvailable && !opts.isAvailable()) { return NO_TEXT_SERVICE; }
+      return null;
+    }
+
+    // Resolves one reference for a cue. Success edits the cue, re-maps, and rebuilds the list
+    // (the cue may move) with the row still open; the promise then yields ''. Failure yields the
+    // message to show inline and leaves the cue unchanged.
+    function resolveCue(id, request, fallbackReference) {
+      var translationId = opts.getTranslationId ? opts.getTranslationId() : null;
+      return opts.client.resolve(request, translationId).then(function (res) {
+        if (!res.ok) {
+          if (res.error && res.error.code === 'unreachable') { textServiceDown = res.error.message; }
+          return (res.error && res.error.message) || 'Could not look up that reference.';
+        }
+        var reference = fallbackReference || res.data.reference ||
+          referenceFromDisplay(res.data.reference_display);
+        if (!reference) { return 'Could not read the reference the text service returned.'; }
+        var cue = model.get(id);
+        try {
+          model.edit(id, resolvePatch(cue, reference, res.data,
+            { durationMode: opts.getDurationMode ? opts.getDurationMode() : 'auto' }));
+        } catch (e) {
+          return e.message;
+        }
+        if (opts.onChange) { opts.onChange(id); }
+        render();
+        toggleExpanded(id);
+        return '';
+      });
+    }
+
+    function referenceFromDisplay(display) {
+      var Cues = loadModule('VSCues', './cues.js');
+      return Cues.referenceFromDisplay(display);
+    }
+
+    function editorFor(id) {
+      return {
+        reason: editingOff,
+        resolve: function (text) { return resolveCue(id, String(text).trim(), null); },
+        choose: function (alt) { return resolveCue(id, alt.reference, alt.reference); }
+      };
     }
 
     function movePlayhead(id) {
@@ -450,6 +602,7 @@
     NO_TIMECODE: NO_TIMECODE,
     rowViewModel: rowViewModel,
     contextViewModel: contextViewModel,
+    resolvePatch: resolvePatch,
     create: create
   };
 

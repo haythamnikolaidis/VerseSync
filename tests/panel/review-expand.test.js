@@ -158,7 +158,7 @@ test('clicking the row body expands it, with read-only verse text and the classi
   var detail = row.querySelector('.vf-row-detail');
   assert.ok(detail);
   assert.strictEqual(detail.querySelector('.vf-detail-body').textContent, t.app.session.model.get('cue_001').body);
-  assert.strictEqual(detail.querySelector('textarea, input'), null);
+  assert.strictEqual(detail.querySelector('.vf-detail-verse textarea, .vf-detail-verse input'), null);
   assert.strictEqual(detail.querySelector('.vf-detail-classification .vf-detail-value').textContent,
     'READ (coverage 0.91)');
   assert.strictEqual(detail.querySelector('.vf-detail-truncated'), null);

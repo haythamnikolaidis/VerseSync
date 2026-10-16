@@ -160,6 +160,13 @@
           getPlacements: function () { return s.mapping.placements; },
           bridge: bridge,
           getTranscript: function () { return loadTranscript(s); },
+          client: client,
+          getTranslationId: function () { return s.request.translation_id; },
+          getDurationMode: function () {
+            var timing = s.request.options && s.request.options.timing;
+            return timing && timing.duration_mode;
+          },
+          onChange: function () { remap(); },
           onSave: saveDocument,
           onLoad: loadDocument,
           onExport: exportTxt
