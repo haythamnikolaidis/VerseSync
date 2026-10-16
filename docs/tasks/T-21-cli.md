@@ -45,7 +45,7 @@ iterated on, how the accuracy harness runs, and how support issues get reproduce
 
 ### T-21.2 · CLI and HTTP parity test
 
-**Executor** agent · **Size** XS · **Prereqs** T-21.1, T-20.4 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-21.1, T-20.4 · **Status** in-progress
 
 - **Read:** [07 §6](../07-sidecar-api.md) (the last paragraph)
 - **Touches:** `tests/test_cli_parity.py` (new)
