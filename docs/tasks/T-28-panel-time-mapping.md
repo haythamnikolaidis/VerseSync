@@ -117,7 +117,7 @@ Config defaults come from [05 §2](../05-timing-and-placement.md): `MIN_VISIBLE_
 
 ### T-28.4 · `mapCueDocument`, manual offset, worked example
 
-**Executor** agent · **Size** S · **Prereqs** T-28.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-28.3 · **Status** in-progress
 
 - **Read:** [05 §5.4, §9](../05-timing-and-placement.md)
 - **Touches:** `panel/js/timemap.js` · `tests/panel/timemap-document.test.js` (new)
