@@ -30,7 +30,7 @@ Config defaults come from [05 §2](../05-timing-and-placement.md): `MIN_VISIBLE_
 
 ### T-28.1 · Tick helpers, snapping, timecode, `duration.js` port
 
-**Executor** agent · **Size** S · **Prereqs** T-22.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-22.1 · **Status** done
 
 - **Read:** [05 §1, §7](../05-timing-and-placement.md) · `reference/verseflow/js/duration.js`
 - **Touches:** `panel/js/timemap.js` (new) · `panel/js/duration.js` (new, ported) ·
@@ -56,7 +56,7 @@ Config defaults come from [05 §2](../05-timing-and-placement.md): `MIN_VISIBLE_
      Commit.
 - **Verify:** `node --test tests/panel/timemap-ticks.test.js tests/panel/duration.test.js`
 - **Done when:**
-  - [ ] The ticks-per-frame value is never derived from `frameRate`, and a test asserts that
+  - [x] The ticks-per-frame value is never derived from `frameRate`, and a test asserts that
         (grep the file for `frameRate` usage outside `timecode`).
 
 ### T-28.2 · Segment map: source→sequence, inverse, flags
