@@ -6,6 +6,7 @@ the search text of that view, and the first pattern to match a span consumes it.
 
 from __future__ import annotations
 
+import math
 import re
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, replace
@@ -403,5 +404,7 @@ def _candidate(
         word_span=word_span(tokens, first, last),
         source_start=start,
         source_end=end,
-        asr_prob=sum(t.prob for t in covered) / len(covered),
+        # fsum, not sum: sum() of floats rounds differently before Python 3.12, and the golden
+        # files are compared byte for byte on every supported version.
+        asr_prob=math.fsum(t.prob for t in covered) / len(covered),
     )
