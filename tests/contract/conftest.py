@@ -1,7 +1,8 @@
 """Fixtures for the sidecar contract suite (T-42).
 
 One suite, parameterised over the server under test. ``mock`` launches
-``tools/mock_sidecar.py``; ``real`` launches ``python -m versesync.sidecar`` and 
+``tools/mock_sidecar.py``; ``real`` launches ``versesync.sidecar`` through
+``paced_sidecar.py``, which only holds each job running for ``REAL_JOB_HOLD_S``; and
 both run in CI. Tests assert shape, status and ordering only, never cue content.
 """
 
@@ -23,6 +24,7 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 MOCK_SCRIPT = REPO_ROOT / "tools" / "mock_sidecar.py"
+PACED_SIDECAR_SCRIPT = Path(__file__).resolve().parent / "paced_sidecar.py"
 
 # D21: the panel's CEP origin, sent on every valid request.
 ORIGIN = "cep://com.versesync.panel"
@@ -33,6 +35,10 @@ MEDIA_FILE = REPO_ROOT / "pyproject.toml"
 
 # Seconds a mock job runs. Keeps the whole suite well under 30 s (T-42.1).
 MOCK_JOB_DURATION_S = 2
+
+# Seconds a real job is held running (tests/contract/paced_sidecar.py). The fixture backend
+# finishes in about 20 ms, which a slow runner can outlast between two requests.
+REAL_JOB_HOLD_S = 1
 
 STARTUP_TIMEOUT_S = 15.0
 
@@ -203,10 +209,14 @@ def _launch_real(home: Path) -> Sidecar:
         ),
         encoding="utf-8",
     )
-    env = dict(os.environ, VERSESYNC_HOME=str(home))
+    env = dict(
+        os.environ,
+        VERSESYNC_HOME=str(home),
+        VERSESYNC_CONTRACT_JOB_HOLD_S=str(REAL_JOB_HOLD_S),
+    )
     env.pop("APPDATA", None)
     proc = subprocess.Popen(
-        [sys.executable, "-m", "versesync.sidecar", "--config", str(config_path)],
+        [sys.executable, str(PACED_SIDECAR_SCRIPT), "--config", str(config_path)],
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
         text=True,
