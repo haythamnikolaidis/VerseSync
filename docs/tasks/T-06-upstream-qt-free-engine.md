@@ -27,7 +27,7 @@ when the upstream PR merges.
 
 ### T-06.1 · Extract `core/transcription/engine.py`
 
-**Executor** agent · **Size** S · **Prereqs** T-44 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-44 · **Status** done
 
 - **Read:** [02 §2.2](../02-source-project-audit.md) Gaps 1, 2 and 6 ·
   `reference/fwt/core/transcription/service.py`
@@ -53,12 +53,12 @@ when the upstream PR merges.
      `PyQt*` or `PySide*` (assert on `sys.modules`). Commit.
 - **Verify (upstream):** `pytest tests/test_engine.py -q`
 - **Done when:**
-  - [ ] The engine runs with no `QApplication`, and its words carry `start`, `end`, `text` and
+  - [x] The engine runs with no `QApplication`, and its words carry `start`, `end`, `text` and
         `probability`.
 
 ### T-06.2 · Route `TranscriptionService` through the engine; delete dead code
 
-**Executor** agent · **Size** S · **Prereqs** T-06.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-06.1 · **Status** done
 
 - **Read:** [02 §2.2](../02-source-project-audit.md) Gaps 5 and 7
 - **Touches (upstream):** `core/transcription/service.py` · `core/models/metadata.py` ·
@@ -73,7 +73,7 @@ when the upstream PR merges.
 - **Verify (upstream):** the upstream test suite passes, and `python -c "import core.transcription.engine"`
   works with Qt uninstalled.
 - **Done when:**
-  - [ ] `core/service.py` is gone and nothing imports it.
+  - [x] `core/service.py` is gone and nothing imports it.
   - [ ] The PR is open upstream, and its body says GUI parity needs T-06.H.
 
 ### T-06.H · Upstream GUI parity check

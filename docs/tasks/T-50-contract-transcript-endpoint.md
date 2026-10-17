@@ -1,6 +1,6 @@
 # T-50 · Contract: transcript retrieval (`words_ref`)
 
-**Executor** agent · **Size** S · **Prereqs** — · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** — · **Status** done
 
 | | |
 |---|---|

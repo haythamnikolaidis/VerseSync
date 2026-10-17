@@ -1,0 +1,47 @@
+{
+  "synthetic": true,
+  "data": [
+    {
+      "id": "de4e12af7f28f599-01",
+      "dblId": "de4e12af7f28f599",
+      "abbreviation": "KJV",
+      "abbreviationLocal": "KJV",
+      "name": "King James (Authorised) Version",
+      "nameLocal": "King James Version",
+      "description": "Protestant",
+      "language": {
+        "id": "eng",
+        "name": "English"
+      },
+      "type": "text"
+    },
+    {
+      "id": "06125adad2d5898a-01",
+      "dblId": "06125adad2d5898a",
+      "abbreviation": "ASV",
+      "abbreviationLocal": "ASV",
+      "name": "American Standard Version",
+      "nameLocal": "American Standard Version",
+      "description": "Protestant",
+      "language": {
+        "id": "eng",
+        "name": "English"
+      },
+      "type": "text"
+    },
+    {
+      "id": "9879dbb7cfe39e4d-04",
+      "dblId": "9879dbb7cfe39e4d",
+      "abbreviation": "WEB",
+      "abbreviationLocal": "WEB",
+      "name": "World English Bible",
+      "nameLocal": "World English Bible",
+      "description": "Protestant",
+      "language": {
+        "id": "eng",
+        "name": "English"
+      },
+      "type": "text"
+    }
+  ]
+}

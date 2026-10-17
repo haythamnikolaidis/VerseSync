@@ -22,7 +22,7 @@ way to get this module wrong**, because it's how a regex match ends up as a time
 
 ### T-10.1 · Spoken-number and ordinal parser
 
-**Executor** agent · **Size** S · **Prereqs** T-09.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-09.3 · **Status** done
 
 - **Read:** [04 §3.1](../04-reference-detection.md)
 - **Touches:** `sidecar/versesync/detect/numbers.py` (new) · `tests/test_numbers.py` (new)
@@ -45,13 +45,13 @@ way to get this module wrong**, because it's how a regex match ends up as a time
   2. Implement `parse_ordinal` and test it. Commit.
 - **Verify:** `pytest tests/test_numbers.py -q`
 - **Done when:**
-  - [ ] Every number from 1 to 176 round-trips from its spelled-out form. Generate the inputs
+  - [x] Every number from 1 to 176 round-trips from its spelled-out form. Generate the inputs
         in the test from a small number-to-words helper written in the test file.
-  - [ ] `parse_cardinal(["and"], 0)` is `None`.
+  - [x] `parse_cardinal(["and"], 0)` is `None`.
 
 ### T-10.2 · `Token` and the normalisation pass
 
-**Executor** agent · **Size** S · **Prereqs** T-10.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-10.1 · **Status** done
 
 - **Read:** [04 §3](../04-reference-detection.md) (the `Token` dataclass and steps 1–6)
 - **Touches:** `sidecar/versesync/detect/types.py` (new) · `sidecar/versesync/detect/normalize.py`
@@ -88,15 +88,15 @@ way to get this module wrong**, because it's how a regex match ends up as a time
      it into the test. Commit.
 - **Verify:** `pytest tests/test_normalize.py -q`
 - **Done when:**
-  - [ ] "First Corinthians six, nineteen and twenty" gives
+  - [x] "First Corinthians six, nineteen and twenty" gives
         `[ordinal 1, word corinthians, number 6, punct ',', number 19, word and, number 20]`.
-  - [ ] Digits and spelled-out forms of the same number produce equal `text` and `value`.
-  - [ ] Every token's `word_ids` is non-empty and ascending, and the union over all tokens
+  - [x] Digits and spelled-out forms of the same number produce equal `text` and `value`.
+  - [x] Every token's `word_ids` is non-empty and ascending, and the union over all tokens
         covers every word that produced a token.
 
 ### T-10.3 · Search string, offset map and span round-trip
 
-**Executor** agent · **Size** S · **Prereqs** T-10.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-10.2 · **Status** done
 
 - **Read:** [04 §3](../04-reference-detection.md) (the last paragraph, on the search string)
 - **Touches:** `sidecar/versesync/detect/normalize.py` · `tests/test_search_text.py` (new)
@@ -120,9 +120,9 @@ way to get this module wrong**, because it's how a regex match ends up as a time
      to the right source seconds. Commit.
 - **Verify:** `pytest tests/test_search_text.py -q`
 - **Done when:**
-  - [ ] The fuzz test passes. The offset map is exact, including for spaces, which map to the
+  - [x] The fuzz test passes. The offset map is exact, including for spaces, which map to the
         token before them.
-  - [ ] A token span converts back to the correct word span and source seconds.
+  - [x] A token span converts back to the correct word span and source seconds.
 
 ## Traps
 

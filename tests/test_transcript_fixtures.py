@@ -73,14 +73,12 @@ def test_every_t41_step_2_bullet_is_covered_somewhere() -> None:
     assert "Third John" in corpus
 
     # a verse range, a single verse, a chapter-only reference
-    all_labels = [
-        label for name in FIXTURE_NAMES for label in load_labels(name)
-    ]
+    all_labels = [label for name in FIXTURE_NAMES for label in load_labels(name)]
     references = [label["reference"] for label in all_labels if label.get("reference")]
     assert any("-" in ref for ref in references), "no verse-range reference labelled"
-    assert any(
-        ":" in ref and "-" not in ref for ref in references
-    ), "no single-verse reference labelled"
+    assert any(":" in ref and "-" not in ref for ref in references), (
+        "no single-verse reference labelled"
+    )
     assert any(":" not in ref for ref in references), "no chapter-only reference labelled"
 
     # context-carried verse
@@ -115,15 +113,12 @@ def test_duplicate_suppression_window_is_exercised() -> None:
 
     first = john_316[0]["mention_span_s"][0]
     inside_cooldown = [
-        label for label in labels
-        if "Expected: suppressed" in (label.get("note") or "")
+        label for label in labels if "Expected: suppressed" in (label.get("note") or "")
     ]
     assert len(inside_cooldown) == 1
     gap_to_suppressed = inside_cooldown[0]["mention_span_s"][0] - first
     assert 0 < gap_to_suppressed < 60, "the suppressed duplicate must be inside the 60s cooldown"
 
-    second_read = [
-        label for label in john_316 if label.get("expected_classification") == "read"
-    ][1]
+    second_read = [label for label in john_316 if label.get("expected_classification") == "read"][1]
     gap_to_second = second_read["mention_span_s"][0] - first
     assert gap_to_second > 60, "the un-suppressed repeat must fall outside the 60s cooldown"

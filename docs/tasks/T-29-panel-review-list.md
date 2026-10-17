@@ -43,7 +43,7 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
 
 ### T-29.1 · `cues.js` model
 
-**Executor** agent · **Size** S · **Prereqs** T-22.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-22.1 · **Status** done
 
 - **Read:** [07 §5.1, §5.2](../07-sidecar-api.md) · [09 §5.2](../09-ui-spec.md) (the flags
   table)
@@ -70,12 +70,12 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
      Commit.
 - **Verify:** `node --test tests/panel/cues-model.test.js`
 - **Done when:**
-  - [ ] Every mutation keeps `toJSON()` schema-valid.
-  - [ ] The version rules match 07 §5.2.
+  - [x] Every mutation keeps `toJSON()` schema-valid.
+  - [x] The version rules match 07 §5.2.
 
 ### T-29.2 · Save, load, and VerseFlow `.txt` export
 
-**Executor** agent · **Size** XS · **Prereqs** T-29.1, T-43 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-29.1, T-43 · **Status** done
 
 - **Read:** [09 §5.4](../09-ui-spec.md) (Save ▾) · `reference/verseflow/js/scripture-parser.js`
   (the block format)
@@ -93,12 +93,12 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
      Commit.
 - **Verify:** `node --test tests/panel/cues-io.test.js`
 - **Done when:**
-  - [ ] The round trip is lossless.
-  - [ ] The `.txt` export parses with VerseFlow's parser.
+  - [x] The round trip is lossless.
+  - [x] The `.txt` export parses with VerseFlow's parser.
 
 ### T-29.3 · Collapsed rows
 
-**Executor** agent · **Size** S · **Prereqs** T-29.1, T-28.4 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-29.1, T-28.4 · **Status** done
 
 - **Read:** [09 §5.1, §5.2, §8](../09-ui-spec.md)
 - **Touches:** `panel/js/review.js` (new) · `panel/css/style.css` ·
@@ -120,12 +120,12 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
      Commit.
 - **Verify:** `node --test tests/panel/review-rows.test.js`
 - **Done when:**
-  - [ ] All four golden fixtures render.
-  - [ ] Every flag has its colour and its text label.
+  - [x] All four golden fixtures render.
+  - [x] Every flag has its colour and its text label.
 
 ### T-29.4 · The Analyse → review flow (makes the screen demoable)
 
-**Executor** agent · **Size** S · **Prereqs** T-29.3, T-27.4 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-29.3, T-27.4 · **Status** done
 
 - **Read:** [03 §4](../03-architecture.md) (Journey A, steps 1–4) · [09 §7](../09-ui-spec.md)
 - **Touches:** `panel/js/main.js` · `tests/panel/analyse-flow.test.js` (new)
@@ -149,12 +149,12 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
      Then run `npm run smoke -- --expect '#review .row' --count 18`. Commit.
 - **Verify:** `node --test tests/panel/analyse-flow.test.js && npm run smoke`
 - **Done when:**
-  - [ ] **The review list can be demoed in a browser against the stubs** (the old Wave 1 exit
+  - [x] **The review list can be demoed in a browser against the stubs** (the old Wave 1 exit
         criterion).
 
 ### T-29.5 · List header and actions
 
-**Executor** agent · **Size** S · **Prereqs** T-29.4, T-29.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-29.4, T-29.2 · **Status** done
 
 - **Read:** [09 §5.4](../09-ui-spec.md) · [09 §1](../09-ui-spec.md) (the review header)
 - **Touches:** `panel/js/review.js` · `panel/js/main.js` · `tests/panel/review-actions.test.js`
@@ -179,12 +179,12 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
      Commit.
 - **Verify:** `node --test tests/panel/review-actions.test.js`
 - **Done when:**
-  - [ ] Every [09 §5.4] action works.
-  - [ ] Load never trusts stored positions.
+  - [x] Every [09 §5.4] action works.
+  - [x] Load never trusts stored positions.
 
 ### T-29.6 · Expanded row (read-only parts)
 
-**Executor** agent · **Size** S · **Prereqs** T-29.5, T-50 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-29.5, T-50 · **Status** done
 
 - **Read:** [09 §5.3](../09-ui-spec.md)
 - **Touches:** `panel/js/review.js` · `tests/panel/review-expand.test.js` (new)
@@ -210,12 +210,12 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
      Commit.
 - **Verify:** `node --test tests/panel/review-expand.test.js`
 - **Done when:**
-  - [ ] Clicking a timecode moves the playhead.
-  - [ ] The read span is underlined, and `read_coverage` is shown.
+  - [x] Clicking a timecode moves the playhead.
+  - [x] The read span is underlined, and `read_coverage` is shown.
 
 ### T-29.7 · Reference editing and re-resolve
 
-**Executor** agent · **Size** S · **Prereqs** T-29.6 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-29.6 · **Status** done
 
 - **Read:** [09 §5.3](../09-ui-spec.md) (the Reference field) · [07 §2](../07-sidecar-api.md)
   (`POST /resolve`)
@@ -242,12 +242,12 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
      Commit.
 - **Verify:** `node --test tests/panel/review-reference.test.js`
 - **Done when:**
-  - [ ] Editing a reference re-resolves it and updates the text and the duration.
-  - [ ] Errors appear inline.
+  - [x] Editing a reference re-resolves it and updates the text and the duration.
+  - [x] Errors appear inline.
 
 ### T-29.8 · Timing edits: nudges, set-to-playhead, duration override
 
-**Executor** agent · **Size** S · **Prereqs** T-29.6 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-29.6 · **Status** done
 
 - **Read:** [09 §5.3](../09-ui-spec.md) (the Timing row)
 - **Touches:** `panel/js/review.js` · `tests/panel/review-timing.test.js` (new)
@@ -271,12 +271,12 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
      Commit.
 - **Verify:** `node --test tests/panel/review-timing.test.js`
 - **Done when:**
-  - [ ] Every timing edit re-runs overlap resolution across the list.
-  - [ ] Edits are stored in source seconds.
+  - [x] Every timing edit re-runs overlap resolution across the list.
+  - [x] Edits are stored in source seconds.
 
 ### T-29.9 · Add cue, placement alternatives, empty and edge states
 
-**Executor** agent · **Size** S · **Prereqs** T-29.7, T-29.8 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-29.7, T-29.8 · **Status** done
 
 - **Read:** [09 §5.4](../09-ui-spec.md) (Add cue) · [09 §7](../09-ui-spec.md) · [05 §5.2](../05-timing-and-placement.md)
   (multiple placements)
@@ -304,7 +304,7 @@ model.toJSON() -> doc                     // schema-valid; panel-only state stri
      Commit.
 - **Verify:** `node --test tests/panel/review-edge.test.js`
 - **Done when:**
-  - [ ] Every FR-6 behaviour that can be tested with stubs is covered. The real-sermon check is
+  - [x] Every FR-6 behaviour that can be tested with stubs is covered. The real-sermon check is
         T-30.H.
 
 ## Traps

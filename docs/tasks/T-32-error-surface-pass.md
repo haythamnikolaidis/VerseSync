@@ -16,7 +16,7 @@ be removed with one Ctrl+Z.**
 
 ### T-32.1 · Sidecar error catalogue
 
-**Executor** agent · **Size** S · **Prereqs** T-20.5 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-20.5 · **Status** done
 
 - **Read:** [07 §3](../07-sidecar-api.md) · [03 §8](../03-architecture.md) (the sidecar rows)
 - **Touches:** `sidecar/versesync/errors.py` (new; one table of messages and hints by `code`) ·
@@ -31,12 +31,12 @@ be removed with one Ctrl+Z.**
      with one row per code: how to trigger it, and the expected message. Commit.
 - **Verify:** `pytest tests/test_error_catalogue.py -q`
 - **Done when:**
-  - [ ] Every [07 §3] code is triggered by a test.
-  - [ ] No message leaks a stack trace.
+  - [x] Every [07 §3] code is triggered by a test.
+  - [x] No message leaks a stack trace.
 
 ### T-32.2 · Panel failure states and never-settling promises
 
-**Executor** agent · **Size** S · **Prereqs** T-32.1, T-30.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-32.1, T-30.2 · **Status** done
 
 - **Read:** [03 §8](../03-architecture.md) (the panel and host rows) · [09 §7](../09-ui-spec.md)
 - **Touches:** `tests/panel/failure-states.test.js` (new) · `docs/qa/error-reproduction.md` ·
@@ -61,9 +61,9 @@ be removed with one Ctrl+Z.**
      found. Add every row to `docs/qa/error-reproduction.md`. Commit.
 - **Verify:** `node --test tests/panel/failure-states.test.js`
 - **Done when:**
-  - [ ] Every row can be reproduced by a test and shows the exact message.
-  - [ ] No spinner can hang forever.
-  - [ ] With the sidecar down, load-and-insert still works.
+  - [x] Every row can be reproduced by a test and shows the exact message.
+  - [x] No spinner can hang forever.
+  - [x] With the sidecar down, load-and-insert still works.
 
 ### T-32.H · Manual failure-mode pass
 

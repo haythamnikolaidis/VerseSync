@@ -49,7 +49,7 @@ bonus, so the cue builder (T-19.1) assigns it.
 
 ### T-13.1 · Canon validation rules
 
-**Executor** agent · **Size** S · **Prereqs** T-12.4 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-12.4 · **Status** done
 
 - **Read:** [04 §5](../04-reference-detection.md)
 - **Touches:** `sidecar/versesync/detect/validate.py` (new) · `tests/test_validation.py` (new)
@@ -72,11 +72,11 @@ bonus, so the cue builder (T-19.1) assigns it.
      reversed range swaps; a range over 30 drops its end. Commit.
 - **Verify:** `pytest tests/test_validation.py -q`
 - **Done when:**
-  - [ ] Every rule has at least one passing and one failing case.
+  - [x] Every rule has at least one passing and one failing case.
 
 ### T-13.2 · Confidence scoring
 
-**Executor** agent · **Size** XS · **Prereqs** T-13.1 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-13.1 · **Status** done
 
 - **Read:** [04 §6](../04-reference-detection.md)
 - **Touches:** `sidecar/versesync/detect/confidence.py` (new) · `tests/test_confidence.py` (new)
@@ -93,12 +93,12 @@ bonus, so the cue builder (T-19.1) assigns it.
      that the same input always gives the same output. Commit.
 - **Verify:** `pytest tests/test_confidence.py -q`
 - **Done when:**
-  - [ ] The structure scores match §6: 1.0, 0.75, 0.55 and 0.45.
-  - [ ] Every weight is a named constant.
+  - [x] The structure scores match §6: 1.0, 0.75, 0.55 and 0.45.
+  - [x] Every weight is a named constant.
 
 ### T-13.3 · Duplicate suppression, snippets and `detect()`
 
-**Executor** agent · **Size** S · **Prereqs** T-13.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-13.2 · **Status** done
 
 - **Read:** [04 §6](../04-reference-detection.md) (the "Duplicate suppression" bullet) ·
   [04 §7](../04-reference-detection.md)
@@ -123,8 +123,8 @@ bonus, so the cue builder (T-19.1) assigns it.
      Commit.
 - **Verify:** `pytest tests/test_detector.py -q`
 - **Done when:**
-  - [ ] Suppressed rows survive, with their flag set.
-  - [ ] `detect()` is deterministic, and its `to_json` matches the 04 §7 keys.
+  - [x] Suppressed rows survive, with their flag set.
+  - [x] `detect()` is deterministic, and its `to_json` matches the 04 §7 keys.
 
 ## Traps
 

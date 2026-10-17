@@ -1,0 +1,250 @@
+{
+ "schema_version": "1.0",
+ "generated_at": "2026-09-14T10:00:00Z",
+ "job": {
+  "id": "job_golden_context-and-ambiguity",
+  "media_path": "D:/Sermons/context-and-ambiguity.MXF",
+  "media_hash": "sha256:abababababababababababababababababababababababababababababababab",
+  "media_duration_s": 600.0,
+  "model": "distil-large-v3",
+  "quantization": "float16",
+  "device": "cpu",
+  "language": "en",
+  "options": {}
+ },
+ "translation": {
+  "id": "kjv",
+  "abbreviation": "KJV",
+  "name": "King James Version",
+  "attribution": "Public domain."
+ },
+ "transcript": {
+  "word_count": 88,
+  "words_ref": "transcript_job_golden_context-and-ambiguity.json"
+ },
+ "cues": [
+  {
+   "id": "cue_001",
+   "enabled": false,
+   "origin": "detected",
+   "reference": {
+    "book": "Romans",
+    "osis": "Rom",
+    "chapter": 8
+   },
+   "reference_display": "Romans 8 (KJV)",
+   "body": "",
+   "body_word_count": 0,
+   "body_truncated": false,
+   "source_anchor_s": 10.74,
+   "source_duration_s": 8.0,
+   "mention_start_s": 11.24,
+   "mention_end_s": 12.6,
+   "classification": "paraphrase",
+   "confidence": 0.88,
+   "detection": {
+    "pattern": "P5",
+    "contextual": false,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     3,
+     5
+    ],
+    "word_span": [
+     3,
+     5
+    ]
+   },
+   "snippet": "Let's look at Romans chapter eight, verse twenty eight. And we…",
+   "flags": [
+    "chapter_only"
+   ],
+   "alternatives": []
+  },
+  {
+   "id": "cue_002",
+   "enabled": true,
+   "origin": "detected",
+   "reference": {
+    "book": "Romans",
+    "osis": "Rom",
+    "chapter": 8,
+    "verse": 28
+   },
+   "reference_display": "Romans 8:28 (KJV)",
+   "body": "28 And we know that all things work together for good to them that love God, to them who are the called according to his purpose.",
+   "body_word_count": 26,
+   "body_truncated": false,
+   "source_anchor_s": 12.14,
+   "source_duration_s": 13.86,
+   "mention_start_s": 12.64,
+   "mention_end_s": 13.96,
+   "classification": "read",
+   "read_coverage": 1.0,
+   "read_start_s": 14.9,
+   "read_end_s": 25.0,
+   "confidence": 0.9550000000000001,
+   "detection": {
+    "pattern": "P12",
+    "contextual": true,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     7,
+     8
+    ],
+    "word_span": [
+     6,
+     8
+    ]
+   },
+   "snippet": "…look at Romans chapter eight, verse twenty eight. And we know that all…",
+   "flags": [],
+   "alternatives": []
+  },
+  {
+   "id": "cue_003",
+   "enabled": false,
+   "origin": "detected",
+   "reference": {
+    "book": "Romans",
+    "osis": "Rom",
+    "chapter": 12
+   },
+   "reference_display": "Romans 12 (KJV)",
+   "body": "",
+   "body_word_count": 0,
+   "body_truncated": false,
+   "source_anchor_s": 65.32,
+   "source_duration_s": 8.0,
+   "mention_start_s": 65.82,
+   "mention_end_s": 67.2,
+   "classification": "paraphrase",
+   "confidence": 0.88,
+   "detection": {
+    "pattern": "P5",
+    "contextual": false,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     37,
+     39
+    ],
+    "word_span": [
+     36,
+     38
+    ]
+   },
+   "snippet": "…to his purpose. Now in Romans chapter twelve, Paul gives a whole list…",
+   "flags": [
+    "chapter_only"
+   ],
+   "alternatives": []
+  },
+  {
+   "id": "cue_004",
+   "enabled": true,
+   "origin": "detected",
+   "reference": {
+    "book": "Romans",
+    "osis": "Rom",
+    "chapter": 12,
+    "verse": 12
+   },
+   "reference_display": "Romans 12:12 (KJV)",
+   "body": "12 Rejoicing in hope; patient in tribulation; continuing instant in prayer;",
+   "body_word_count": 11,
+   "body_truncated": false,
+   "source_anchor_s": 85.52,
+   "source_duration_s": 5.9,
+   "mention_start_s": 86.02,
+   "mention_end_s": 86.88,
+   "classification": "read",
+   "read_coverage": 0.5714285714285714,
+   "read_start_s": 87.72,
+   "read_end_s": 90.42,
+   "confidence": 0.9550000000000001,
+   "detection": {
+    "pattern": "P12",
+    "contextual": true,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     50,
+     51
+    ],
+    "word_span": [
+     48,
+     49
+    ]
+   },
+   "snippet": "…list of instructions. And in verse twelve he says rejoicing in hope,…",
+   "flags": [],
+   "alternatives": []
+  },
+  {
+   "id": "cue_005",
+   "enabled": false,
+   "origin": "detected",
+   "reference": {
+    "book": "Psalms",
+    "osis": "Ps",
+    "chapter": 122
+   },
+   "reference_display": "Psalm 122 (KJV)",
+   "body": "",
+   "body_word_count": 0,
+   "body_truncated": false,
+   "source_anchor_s": 178.38,
+   "source_duration_s": 8.0,
+   "mention_start_s": 178.88,
+   "mention_end_s": 180.16,
+   "classification": "paraphrase",
+   "confidence": 0.88,
+   "detection": {
+    "pattern": "P8",
+    "contextual": false,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     89,
+     91
+    ],
+    "word_span": [
+     85,
+     87
+    ]
+   },
+   "snippet": "…what it believes. Turn to Psalm twelve two.",
+   "flags": [
+    "chapter_only"
+   ],
+   "alternatives": [
+    {
+     "reference": {
+      "book": "Psalms",
+      "osis": "Ps",
+      "chapter": 12,
+      "verse": 2
+     },
+     "reference_display": "Psalm 12:2 (KJV)",
+     "body": "",
+     "confidence": 0.9925,
+     "reason": "Split chapter:verse reading — 'Psalm N N' is ambiguous"
+    }
+   ]
+  }
+ ],
+ "warnings": []
+}

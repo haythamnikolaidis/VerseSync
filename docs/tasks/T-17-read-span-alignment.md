@@ -51,7 +51,7 @@ numbers.
 
 ### T-17.1 · Alignment normalisation, window and token equality
 
-**Executor** agent · **Size** XS · **Prereqs** T-14.3, T-13.3 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-14.3, T-13.3 · **Status** done
 
 - **Read:** [05 §4.1](../05-timing-and-placement.md) (the "window" line and the normalisation
   paragraph)
@@ -69,12 +69,12 @@ numbers.
      Test each function. Commit.
 - **Verify:** `pytest tests/test_align.py -q`
 - **Done when:**
-  - [ ] The stop list is applied to **both** sides, with a test that proves it.
-  - [ ] The window is clamped to the transcript at both ends.
+  - [x] The stop list is applied to **both** sides, with a test that proves it.
+  - [x] The window is clamped to the transcript at both ends.
 
 ### T-17.2 · Greedy aligner, multi-start, classification
 
-**Executor** agent · **Size** S · **Prereqs** T-17.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-17.1 · **Status** done
 
 - **Read:** [05 §4.1, §4.2, §4.3](../05-timing-and-placement.md) (the pseudocode)
 - **Touches:** `sidecar/versesync/timing/align.py` · `tests/test_align.py`
@@ -95,12 +95,12 @@ numbers.
      Commit.
 - **Verify:** `pytest tests/test_align.py -q`
 - **Done when:**
-  - [ ] Every [11 §1] alignment case passes.
-  - [ ] `coverage` is always reported, including for paraphrases.
+  - [x] Every [11 §1] alignment case passes.
+  - [x] `coverage` is always reported, including for paraphrases.
 
 ### T-17.3 · Calibration against the bootstrap corpus
 
-**Executor** agent · **Size** S · **Prereqs** T-17.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-17.2 · **Status** done
 
 - **Read:** `tests/fixtures/README.md` (the label format) · [05 §4.2](../05-timing-and-placement.md)
   ("Why 0.55")
@@ -119,10 +119,10 @@ numbers.
      in under 1 s in total. Commit.
 - **Verify:** `pytest tests/test_align_corpus.py -q`
 - **Done when:**
-  - [ ] The distributions are documented, and any overlap between them is stated with the data.
+  - [x] The distributions are documented, and any overlap between them is stated with the data.
         Don't move the threshold here. v1 ships 0.55 as specified (D24); the table is the
         evidence for a future tuning pass.
-  - [ ] The performance bound holds.
+  - [x] The performance bound holds.
 
 ## Traps
 

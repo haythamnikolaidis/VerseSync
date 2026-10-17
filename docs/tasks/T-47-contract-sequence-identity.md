@@ -1,6 +1,6 @@
 # T-47 · Contract: host API 1.1, sequence identity (R-13)
 
-**Executor** agent · **Size** S · **Prereqs** — · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** — · **Status** done
 
 | | |
 |---|---|

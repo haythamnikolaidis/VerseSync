@@ -1,0 +1,26 @@
+{
+  "matched": true,
+  "segments": [
+    {
+      "trackType": "video",
+      "trackIndex": 0,
+      "seqStartTicks": "0",
+      "seqEndTicks": "228843014400000",
+      "inPointTicks": "0",
+      "durationTicks": "228843014400000",
+      "speed": 1.0,
+      "name": "SERMON_A014.MXF"
+    },
+    {
+      "trackType": "video",
+      "trackIndex": 0,
+      "seqStartTicks": "228843014400000",
+      "seqEndTicks": "567869702400000",
+      "inPointTicks": "381405024000000",
+      "durationTicks": "339026688000000",
+      "speed": 1.0,
+      "name": "SERMON_A014.MXF"
+    }
+  ],
+  "unsupported": []
+}

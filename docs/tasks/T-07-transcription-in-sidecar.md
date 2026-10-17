@@ -40,7 +40,7 @@ otherwise, and its result wins.** The model stays configurable.
 
 ### T-07.1 · `transcribe.py`: options, backend protocol, fixture and fake backends
 
-**Executor** agent · **Size** S · **Prereqs** T-05.1, T-09.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-05.1, T-09.3 · **Status** done
 
 - **Read:** [04 §2](../04-reference-detection.md) · [07 §4](../07-sidecar-api.md) (the
   `transcribing` weight) · `spikes/word_timestamps/RESULTS.md` §1 (the table only)
@@ -79,12 +79,12 @@ otherwise, and its result wins.** The model stays configurable.
      Commit.
 - **Verify:** `pytest tests/test_transcribe.py -q`
 - **Done when:**
-  - [ ] The defaults match the table above.
-  - [ ] The fixture backend can be selected through config.
+  - [x] The defaults match the table above.
+  - [x] The fixture backend can be selected through config.
 
 ### T-07.2 · faster-whisper adapter via the upstream engine
 
-**Executor** agent · **Size** S · **Prereqs** T-07.1, T-06.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-07.1, T-06.2 · **Status** done
 
 - **Read:** [02 §2.2](../02-source-project-audit.md) Gaps 3–6 · `reference/fwt/core/cuda_setup.py`
 - **Touches:** `pyproject.toml` (add an optional extra `transcribe` that pins the upstream
@@ -111,8 +111,8 @@ otherwise, and its result wins.** The model stays configurable.
      Commit.
 - **Verify:** `pytest tests/test_transcribe_fw.py -q`
 - **Done when:**
-  - [ ] The adapter is covered with no GPU.
-  - [ ] The OOM message matches the format above.
+  - [x] The adapter is covered with no GPU.
+  - [x] The OOM message matches the format above.
 
 ### T-07.H · GPU workstation verification
 

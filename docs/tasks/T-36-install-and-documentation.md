@@ -20,7 +20,7 @@ with **dry-run and fake-filesystem modes**. Proving it on a clean machine is T-3
 
 ### T-36.1 · Sidecar installer
 
-**Executor** agent · **Size** S · **Prereqs** T-07.2, T-44 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-07.2, T-44 · **Status** done
 
 - **Read:** `reference/fwt/install.py` (the pinned-wheel pattern) · [02 §2.1](../02-source-project-audit.md)
 - **Touches:** `install.py` (new) · `tests/test_install.py` (new)
@@ -34,11 +34,11 @@ with **dry-run and fake-filesystem modes**. Proving it on a clean machine is T-3
      expected, and an unsupported Python exits with a clear message. Commit.
 - **Verify:** `pytest tests/test_install.py -q`
 - **Done when:**
-  - [ ] GPU and CPU-only paths are both covered by dry-run tests.
+  - [x] GPU and CPU-only paths are both covered by dry-run tests.
 
 ### T-36.2 · Panel installer
 
-**Executor** agent · **Size** XS · **Prereqs** T-22.1 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-22.1 · **Status** done
 
 - **Read:** `reference/verseflow/README.md` (the debug-mode install section)
 - **Touches:** `tools/install_panel.ps1` (new) · `tools/install_panel.reg` (new) ·
@@ -53,12 +53,12 @@ with **dry-run and fake-filesystem modes**. Proving it on a clean machine is T-3
      references the right paths and excludes the stub. Commit.
 - **Verify:** `pytest tests/test_install_panel.py -q`
 - **Done when:**
-  - [ ] Both CSXS versions are covered.
-  - [ ] The stub is never deployed.
+  - [x] Both CSXS versions are covered.
+  - [x] The stub is never deployed.
 
 ### T-36.3 · README and INSTALL
 
-**Executor** agent · **Size** S · **Prereqs** T-36.1, T-36.2, T-35.1, T-32.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-36.1, T-36.2, T-35.1, T-32.1 · **Status** done
 
 - **Read:** [06 §5](../06-bible-text-service.md) · `docs/qa/error-reproduction.md` ·
   `docs/qa/performance-results.md`
@@ -77,8 +77,8 @@ with **dry-run and fake-filesystem modes**. Proving it on a clean machine is T-3
      Commit.
 - **Verify:** `grep -c "Troubleshooting\|Privacy\|Licensing" README.md`
 - **Done when:**
-  - [ ] Every config option and every failure state is documented.
-  - [ ] The documentation describes what the code actually does.
+  - [x] Every config option and every failure state is documented.
+  - [x] The documentation describes what the code actually does.
 
 ### T-36.H · Clean-machine install
 

@@ -1,6 +1,6 @@
 # T-08 · Content hashing and transcript cache
 
-**Executor** agent · **Size** S · **Prereqs** T-07.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-07.1 · **Status** done
 
 | | |
 |---|---|
@@ -61,9 +61,9 @@ class TranscriptCache:
 
 ## Done when
 
-- [ ] Hashing a 4 GB sparse file takes well under 1 s.
-- [ ] Changing the model misses the cache, and changing a detection option hits it.
-- [ ] The cache lives under `app_home()`, not in a temp directory.
+- [x] Hashing a 4 GB sparse file takes well under 1 s.
+- [x] Changing the model misses the cache, and changing a detection option hits it.
+- [x] The cache lives under `app_home()`, not in a temp directory.
 
 `cache_hit` reporting, phase renormalisation and `use_cache: false` belong to the job runner
 (T-20.2).

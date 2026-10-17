@@ -29,7 +29,7 @@ and scales unchanged to the full one.
 
 ### T-33.1 · Golden-file tests
 
-**Executor** agent · **Size** S · **Prereqs** T-21.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-21.1 · **Status** done
 
 - **Read:** [11 §4](../11-testing.md)
 - **Touches:** `tests/golden/*.cues.json` (new) · `tests/test_golden.py` (new) ·
@@ -43,8 +43,8 @@ and scales unchanged to the full one.
      twice and asserts byte-identical output. Commit.
 - **Verify:** `pytest tests/test_golden.py -q`
 - **Done when:**
-  - [ ] The golden files are checked in and the tests pass with no GPU and no network.
-  - [ ] Output is byte-identical across runs.
+  - [x] The golden files are checked in and the tests pass with no GPU and no network.
+  - [x] Output is byte-identical across runs.
 
 ### T-33.2 · `accuracy_harness.py`: M1, M2, M3, plus diff mode
 

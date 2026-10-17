@@ -73,7 +73,7 @@ job.
 
 ### T-12.1 · Pre-pass, grammar view, framework and P1/P2/P9
 
-**Executor** agent · **Size** S · **Prereqs** T-11.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-11.3 · **Status** done
 
 - **Read:** [04 §4](../04-reference-detection.md) (the table, P1, P2 and P9 rows)
 - **Touches:** `sidecar/versesync/detect/grammar.py` (new) · `tests/test_grammar.py` (new)
@@ -85,13 +85,13 @@ job.
      Add a test that `john 3 : 16 - 18` gives one P1 match and no stray P9. Commit.
 - **Verify:** `pytest tests/test_grammar.py -q`
 - **Done when:**
-  - [ ] P1, P2 and P9 pass with their tabulated examples.
-  - [ ] Consumption is tested.
-  - [ ] `source_start` is the start of the ordinal for "first corinthians…".
+  - [x] P1, P2 and P9 pass with their tabulated examples.
+  - [x] Consumption is tested.
+  - [x] `source_start` is the start of the ordinal for "first corinthians…".
 
 ### T-12.2 · P3–P8: keyword and comma forms
 
-**Executor** agent · **Size** S · **Prereqs** T-12.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-12.1 · **Status** done
 
 - **Read:** [04 §4](../04-reference-detection.md) (the P3–P8 rows)
 - **Touches:** `sidecar/versesync/detect/grammar.py` · `tests/test_grammar.py`
@@ -103,13 +103,13 @@ job.
      pattern, as [11 §1](../11-testing.md) asks. Commit.
 - **Verify:** `pytest tests/test_grammar.py -q`
 - **Done when:**
-  - [ ] Every P3–P8 row has tests with three phrasings each, including its tabulated example.
-  - [ ] The final priority order is P1 > P2 > … > P9, and a test proves it on an input where
+  - [x] Every P3–P8 row has tests with three phrasings each, including its tabulated example.
+  - [x] The final priority order is P1 > P2 > … > P9, and a test proves it on an input where
         two patterns could both match.
 
 ### T-12.3 · P10, and P11/P12 context carry
 
-**Executor** agent · **Size** S · **Prereqs** T-12.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-12.2 · **Status** done
 
 - **Read:** [04 §4](../04-reference-detection.md) (the P10–P12 rows and the "Context carry"
   paragraph)
@@ -132,12 +132,12 @@ job.
      Commit.
 - **Verify:** `pytest tests/test_grammar.py -q`
 - **Done when:**
-  - [ ] P10–P12 pass their tabulated examples.
-  - [ ] Both window bounds are tested independently.
+  - [x] P10–P12 pass their tabulated examples.
+  - [x] Both window bounds are tested independently.
 
 ### T-12.4 · Psalms concatenation, chapter-only, and the bootstrap corpus check
 
-**Executor** agent · **Size** S · **Prereqs** T-12.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-12.3 · **Status** done
 
 - **Read:** [04 §3.1](../04-reference-detection.md) (the first bullet) ·
   `tests/fixtures/README.md` (the label format only) · `tests/fixtures/cue-documents/alternatives.json`
@@ -161,11 +161,11 @@ job.
      the test, mapping the label to a one-line reason. Keep that dict short and honest. Commit.
 - **Verify:** `pytest tests/test_grammar.py tests/test_grammar_corpus.py -q`
 - **Done when:**
-  - [ ] "psalm twelve two" gives Psalm 122 with an alternative of Psalm 12:2, matching
+  - [x] "psalm twelve two" gives Psalm 122 with an alternative of Psalm 12:2, matching
         `alternatives.json`.
-  - [ ] "psalm one nineteen" gives only Psalm 119, because 1:19 is invalid.
-  - [ ] Zero candidates in any negative label span.
-  - [ ] Every miss is listed with a reason.
+  - [x] "psalm one nineteen" gives only Psalm 119, because 1:19 is invalid.
+  - [x] Zero candidates in any negative label span.
+  - [x] Every miss is listed with a reason.
 
 ## Traps
 

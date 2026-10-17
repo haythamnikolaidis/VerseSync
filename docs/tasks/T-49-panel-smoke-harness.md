@@ -1,6 +1,6 @@
 # T-49 · Panel smoke harness (headless Chromium)
 
-**Executor** agent · **Size** S · **Prereqs** T-22.2, T-26.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-22.2, T-26.1 · **Status** done
 
 | | |
 |---|---|
@@ -64,6 +64,6 @@ serves over HTTP from the repo root, so it's same-origin with no CORS involved.
 
 ## Done when
 
-- [ ] `npm run smoke` runs headless in the container, writes the screenshots, and fails on an
+- [x] `npm run smoke` runs headless in the container, writes the screenshots, and fails on an
       injected `console.error`.
-- [ ] Later panel tasks can add selector or count expectations without editing the harness.
+- [x] Later panel tasks can add selector or count expectations without editing the harness.

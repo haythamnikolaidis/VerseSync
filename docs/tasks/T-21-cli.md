@@ -15,7 +15,7 @@ iterated on, how the accuracy harness runs, and how support issues get reproduce
 
 ### T-21.1 · `detect`, `resolve` and `analyse` commands
 
-**Executor** agent · **Size** S · **Prereqs** T-20.2, T-48.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-20.2, T-48.1 · **Status** done
 
 - **Read:** [07 §6](../07-sidecar-api.md)
 - **Touches:** `sidecar/versesync/cli.py` (new) · `cli/versesync_cli.py` (a shim calling
@@ -41,11 +41,11 @@ iterated on, how the accuracy harness runs, and how support issues get reproduce
      `analyse` on a fixture `.words.json` produces a schema-valid document. Commit.
 - **Verify:** `pytest tests/test_cli.py -q`
 - **Done when:**
-  - [ ] All three commands work as documented, with no GPU.
+  - [x] All three commands work as documented, with no GPU.
 
 ### T-21.2 · CLI and HTTP parity test
 
-**Executor** agent · **Size** XS · **Prereqs** T-21.1, T-20.4 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-21.1, T-20.4 · **Status** done
 
 - **Read:** [07 §6](../07-sidecar-api.md) (the last paragraph)
 - **Touches:** `tests/test_cli_parity.py` (new)
@@ -55,7 +55,7 @@ iterated on, how the accuracy harness runs, and how support issues get reproduce
      the two Cue Documents for equality, ignoring `job.media_path`. Commit.
 - **Verify:** `pytest tests/test_cli_parity.py -q`
 - **Done when:**
-  - [ ] The documents are identical.
+  - [x] The documents are identical.
 
 ## Traps
 

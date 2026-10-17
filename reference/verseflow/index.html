@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VerseFlow</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="vf-panel">
+
+    <!-- Header -->
+    <header class="vf-header">
+      <h1>VerseFlow</h1>
+      <button class="vf-btn vf-btn--small" id="btn-diagnose" title="Test ExtendScript bridge connection">Test connection</button>
+    </header>
+
+    <!-- Diagnostic output (hidden until Test connection is clicked) -->
+    <pre id="diag-output" class="vf-diag" hidden></pre>
+
+    <!-- 1. Template -->
+    <section class="vf-section" aria-labelledby="lbl-section-mogrt">
+      <span class="vf-label" id="lbl-section-mogrt">1 · Template</span>
+      <div class="vf-file-row">
+        <button class="vf-btn" id="btn-select-mogrt">Select MOGRT…</button>
+        <span class="vf-filename" id="lbl-mogrt-path" title="">No template selected</span>
+      </div>
+      <div class="vf-warning" id="mogrt-warning" hidden></div>
+    </section>
+
+    <!-- 2. Scripture file -->
+    <section class="vf-section" aria-labelledby="lbl-section-scripture">
+      <span class="vf-label" id="lbl-section-scripture">2 · Scripture file</span>
+      <div class="vf-file-row">
+        <button class="vf-btn" id="btn-select-scripture">Select file…</button>
+        <span class="vf-filename" id="lbl-scripture-path" title="">No file selected</span>
+      </div>
+      <span id="lbl-scripture-count" aria-live="polite"></span>
+    </section>
+
+    <!-- 3. Field mapping -->
+    <section class="vf-section" aria-labelledby="lbl-section-mapping">
+      <span class="vf-label" id="lbl-section-mapping">3 · Field mapping</span>
+      <div class="vf-mapping-row">
+        <label for="sel-ref-field">Reference field</label>
+        <select class="vf-select" id="sel-ref-field">
+          <option value="">— choose field —</option>
+        </select>
+      </div>
+      <div class="vf-mapping-row">
+        <label for="sel-body-field">Scripture text</label>
+        <select class="vf-select" id="sel-body-field">
+          <option value="">— choose field —</option>
+        </select>
+      </div>
+      <span class="vf-inline-error" id="mapping-error" hidden></span>
+    </section>
+
+    <!-- 4. Duration -->
+    <section class="vf-section" aria-labelledby="lbl-section-duration">
+      <span class="vf-label" id="lbl-section-duration">4 · Duration</span>
+      <div class="vf-radio-row">
+        <input type="radio" id="rad-duration-auto" name="duration-mode" value="auto" checked>
+        <label for="rad-duration-auto">Auto (from length)</label>
+      </div>
+      <span class="vf-hint">Length is estimated from the amount of text (~160 words/min).</span>
+      <div class="vf-radio-row">
+        <input type="radio" id="rad-duration-fixed" name="duration-mode" value="fixed">
+        <label for="rad-duration-fixed">Fixed</label>
+        <input type="number" class="vf-input-num" id="inp-duration-fixed"
+               min="0.5" max="120" step="0.1" placeholder="5.0" disabled>
+        <span>sec</span>
+      </div>
+      <span class="vf-inline-error" id="duration-error" hidden></span>
+    </section>
+
+    <!-- 5. Target track -->
+    <section class="vf-section" aria-labelledby="lbl-section-track">
+      <span class="vf-label" id="lbl-section-track">5 · Target track</span>
+      <div class="vf-track-row">
+        <select class="vf-select" id="sel-target-track" style="width:80px">
+          <option>—</option>
+        </select>
+        <button class="vf-btn vf-btn--small" id="btn-refresh-track">Refresh</button>
+        <span class="vf-inline-error" id="track-error" hidden aria-live="polite"></span>
+      </div>
+    </section>
+
+    <!-- 6. Preview -->
+    <section class="vf-section" aria-labelledby="lbl-section-preview">
+      <span class="vf-label" id="lbl-section-preview">6 · Preview (first scripture)</span>
+      <div class="vf-preview-wrap" id="preview-container">
+        <div class="vf-stage vf-stage--empty">
+          <span>Load a scripture file to see a preview.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Insert -->
+    <section class="vf-section">
+      <button class="vf-btn vf-btn--accent" id="btn-insert" disabled>
+        Insert scriptures
+      </button>
+
+      <div class="vf-progress-wrap" id="progress-bar" hidden>
+        <div class="vf-progress-bar">
+          <div class="vf-progress-fill" id="progress-fill"></div>
+        </div>
+        <span class="vf-progress-text" id="progress-text">0 / 0</span>
+      </div>
+
+      <span class="vf-status" id="status-line" aria-live="polite"></span>
+    </section>
+
+  </div><!-- /.vf-panel -->
+
+  <!-- Load order matters -->
+  <script src="js/lib/CSInterface.js"></script>
+  <script src="js/bridge.js"></script>
+  <script src="js/scripture-parser.js"></script>
+  <script src="js/duration.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/preview.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # T-46 · Agent environment bootstrap
 
-**Executor** agent · **Size** XS · **Prereqs** — · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** — · **Status** done
 
 | | |
 |---|---|
@@ -32,6 +32,6 @@ check CI runs.
 
 ## Done when
 
-- [ ] `tools/verify.sh` passes on a clean checkout once dependencies are installed.
-- [ ] A fresh session has `pytest` and `eslint` available without installing anything by hand.
-- [ ] CI runs Python on both Windows and Linux.
+- [x] `tools/verify.sh` passes on a clean checkout once dependencies are installed.
+- [x] A fresh session has `pytest` and `eslint` available without installing anything by hand.
+- [x] CI runs Python on both Windows and Linux.

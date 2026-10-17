@@ -38,7 +38,7 @@ client.health() / models() / translations() / startJob(req) / job(id) / result(i
 
 ### T-26.1 · Node transport and client core
 
-**Executor** agent · **Size** S · **Prereqs** T-22.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-22.1 · **Status** done
 
 - **Read:** [07 §1.2, §1.3, §2, §3](../07-sidecar-api.md)
 - **Touches:** `panel/js/sidecar.js` (new) · `tests/panel/sidecar-client.test.js` (new)
@@ -58,11 +58,11 @@ client.health() / models() / translations() / startJob(req) / job(id) / result(i
      across chunks. Commit.
 - **Verify:** `node --test tests/panel/sidecar-client.test.js`
 - **Done when:**
-  - [ ] No method ever rejects, and every error path has a test.
+  - [x] No method ever rejects, and every error path has a test.
 
 ### T-26.2 · Discovery, launch, health polling, lifecycle states
 
-**Executor** agent · **Size** S · **Prereqs** T-26.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-26.1 · **Status** done
 
 - **Read:** [03 §3](../03-architecture.md) · [07 §1.1](../07-sidecar-api.md) ·
   [09 §2](../09-ui-spec.md) (the status table)
@@ -98,13 +98,13 @@ client.health() / models() / translations() / startJob(req) / job(id) / result(i
      Commit.
 - **Verify:** `node --test tests/panel/sidecar-lifecycle.test.js`
 - **Done when:**
-  - [ ] It reattaches instead of launching a second sidecar.
-  - [ ] A stale lock is recovered from.
-  - [ ] It times out at exactly 30 s, not 5 s.
+  - [x] It reattaches instead of launching a second sidecar.
+  - [x] A stale lock is recovered from.
+  - [x] It times out at exactly 30 s, not 5 s.
 
 ### T-26.3 · Job watcher: SSE, polling fallback, rejoin after reload
 
-**Executor** agent · **Size** S · **Prereqs** T-26.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-26.2 · **Status** done
 
 - **Read:** [07 §2](../07-sidecar-api.md) (`/events` and `GET /jobs/{id}`) · NFR-3 in
   [01](../01-requirements.md)
@@ -133,12 +133,12 @@ client.health() / models() / translations() / startJob(req) / job(id) / result(i
      Commit.
 - **Verify:** `node --test tests/panel/job-watcher.test.js`
 - **Done when:**
-  - [ ] A dropped stream is transparent to the caller.
-  - [ ] A panel reload mid-job rejoins the job.
+  - [x] A dropped stream is transparent to the caller.
+  - [x] A panel reload mid-job rejoins the job.
 
 ### T-26.4 · Integration against the real mock process
 
-**Executor** agent · **Size** S · **Prereqs** T-26.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-26.3 · **Status** done
 
 - **Read:** `tools/README.md` (the mock's flags)
 - **Touches:** `tests/panel/sidecar-mock-integration.test.js` (new) ·
@@ -160,7 +160,7 @@ client.health() / models() / translations() / startJob(req) / job(id) / result(i
      Skip the whole file with a clear message if `python3` isn't on `PATH`. Commit.
 - **Verify:** `node --test tests/panel/sidecar-mock-integration.test.js`
 - **Done when:**
-  - [ ] Every listed mock scenario passes end to end.
+  - [x] Every listed mock scenario passes end to end.
 
 ## Traps
 

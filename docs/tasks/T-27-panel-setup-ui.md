@@ -21,7 +21,7 @@ unit tests. **Render functions** are thin, are tested under jsdom, and are check
 
 ### T-27.1 · `state.js`: persistence, smart defaults, Analyse blockers
 
-**Executor** agent · **Size** S · **Prereqs** T-22.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-22.2 · **Status** done
 
 - **Read:** [09 §3](../09-ui-spec.md) · `reference/verseflow/js/state.js` (the persistence
   pattern and the smart-default regexes)
@@ -58,12 +58,12 @@ unit tests. **Render functions** are thin, are tested under jsdom, and are check
      Commit.
 - **Verify:** `node --test tests/panel/state.test.js`
 - **Done when:**
-  - [ ] Every blocker and the persistence rules are tested.
-  - [ ] Indices are stored, never display names (R-8).
+  - [x] Every blocker and the persistence rules are tested.
+  - [x] Indices are stored, never display names (R-8).
 
 ### T-27.2 · Setup view (part 1): media, template, field mapping
 
-**Executor** agent · **Size** S · **Prereqs** T-27.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-27.1 · **Status** done
 
 - **Read:** [09 §3](../09-ui-spec.md) (the Media, Template and dropdown rows)
 - **Touches:** `panel/js/setup.js` (new) · `panel/index.html` (the `#setup` markup) ·
@@ -87,12 +87,12 @@ unit tests. **Render functions** are thin, are tested under jsdom, and are check
      Commit.
 - **Verify:** `node --test tests/panel/setup-fields.test.js`
 - **Done when:**
-  - [ ] The listed jsdom tests pass.
-  - [ ] It uses `cep.fs.showOpenDialog`, never ExtendScript's `File.openDialog`.
+  - [x] The listed jsdom tests pass.
+  - [x] It uses `cep.fs.showOpenDialog`, never ExtendScript's `File.openDialog`.
 
 ### T-27.3 · Setup view (part 2): translation, track, duration, lead-in, Analyse
 
-**Executor** agent · **Size** S · **Prereqs** T-27.2, T-26.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-27.2, T-26.1 · **Status** done
 
 - **Read:** [09 §3](../09-ui-spec.md) (the Translation, Target track, Duration, Lead-in and
   Analyse rows)
@@ -121,12 +121,12 @@ unit tests. **Render functions** are thin, are tested under jsdom, and are check
      Commit.
 - **Verify:** `node --test tests/panel/setup-controls.test.js`
 - **Done when:**
-  - [ ] Analyse enables exactly according to the blocker rules, and a disabled Analyse always
+  - [x] Analyse enables exactly according to the blocker rules, and a disabled Analyse always
         shows its reason.
 
 ### T-27.4 · Status strip and progress view
 
-**Executor** agent · **Size** S · **Prereqs** T-27.3, T-26.3, T-49 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-27.3, T-26.3, T-49 · **Status** done
 
 - **Read:** [09 §2, §4](../09-ui-spec.md)
 - **Touches:** `panel/js/progress.js` (new) · `panel/js/main.js` (wiring) · `panel/index.html` ·
@@ -153,8 +153,8 @@ unit tests. **Render functions** are thin, are tested under jsdom, and are check
      Run `npm run smoke` and look at `artifacts/smoke-happy.png`. Commit.
 - **Verify:** `node --test tests/panel/status-progress.test.js && npm run smoke`
 - **Done when:**
-  - [ ] Every [09 §2] state and the [09 §4] behaviours are tested.
-  - [ ] The smoke screenshot shows setup, the status strip, and the progress bar.
+  - [x] Every [09 §2] state and the [09 §4] behaviours are tested.
+  - [x] The smoke screenshot shows setup, the status strip, and the progress bar.
 
 ## Traps
 

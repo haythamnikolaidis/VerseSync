@@ -15,7 +15,7 @@ landed. **This is where Journey A completes.**
 
 ### T-30.1 · Pre-insert validation, payload, overwrite confirmation
 
-**Executor** agent · **Size** S · **Prereqs** T-29.5, T-25.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-29.5, T-25.1 · **Status** done
 
 - **Read:** [03 §4](../03-architecture.md) (pre-insert validation) · [08 §6, §8](../08-premiere-host-api.md) ·
   [09 §6](../09-ui-spec.md)
@@ -44,11 +44,11 @@ landed. **This is where Journey A completes.**
      Commit.
 - **Verify:** `node --test tests/panel/insert-plan.test.js`
 - **Done when:**
-  - [ ] The payload always satisfies the host's input contract from T-25.1.
+  - [x] The payload always satisfies the host's input contract from T-25.1.
 
 ### T-30.2 · Insert execution, progress, summary, partial re-run
 
-**Executor** agent · **Size** S · **Prereqs** T-30.1, T-25.2, T-25.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-30.1, T-25.2, T-25.3 · **Status** done
 
 - **Read:** [09 §6](../09-ui-spec.md)
 - **Touches:** `panel/js/insert.js` · `panel/js/main.js` · `tests/panel/insert-run.test.js` (new)
@@ -77,9 +77,9 @@ landed. **This is where Journey A completes.**
      Commit.
 - **Verify:** `node --test tests/panel/insert-run.test.js`
 - **Done when:**
-  - [ ] There is one `insertCues` call per batch.
-  - [ ] A partial failure can be recovered.
-  - [ ] The panel-and-host integration runs on the fake DOM.
+  - [x] There is one `insertCues` call per batch.
+  - [x] A partial failure can be recovered.
+  - [x] The panel-and-host integration runs on the fake DOM.
 
 ### T-30.H · Journey A on a real workstation
 

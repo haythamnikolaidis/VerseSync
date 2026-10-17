@@ -73,7 +73,7 @@ anonymise because nothing real went in.
 ```python
 from transcript_fixtures import load_words, load_labels, FIXTURE_NAMES
 
-words = load_words("numbers-and-ordinals")   # list[dict]
+words = load_words("numbers-and-ordinals")  # list[dict]
 labels = load_labels("numbers-and-ordinals")  # list[dict]
 ```
 

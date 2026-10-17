@@ -34,7 +34,8 @@ SEQUENCE_NAMES.forEach(function (name) {
 SEGMENTS_NAMES.forEach(function (name) {
   test('getMediaSegments scenario "' + name + '" matches tests/fixtures/host/' + name + '.json', function () {
     VS.__setScenario({ sequence: 'sequence-2997', segments: name });
-    var response = JSON.parse(VS.getMediaSegments('{}'));
+    var sequenceId = readFixture('sequence-2997').sequenceId;
+    var response = JSON.parse(VS.getMediaSegments(JSON.stringify({ sequenceId: sequenceId })));
     assert.deepStrictEqual(response, { ok: true, data: readFixture(name) });
   });
 });

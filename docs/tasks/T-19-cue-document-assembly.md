@@ -22,7 +22,7 @@ to them; don't redesign them.** If the schema looks wrong, mark the task blocked
 
 ### T-19.1 · Cue builder
 
-**Executor** agent · **Size** S · **Prereqs** T-18, T-48.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-18, T-48.2 · **Status** done
 
 - **Read:** [07 §5, §5.1](../07-sidecar-api.md) · [09 §5.2](../09-ui-spec.md) (the flags table,
   for `enabled` defaults) · print one cue from `tests/fixtures/cue-documents/happy-18-cues.json`
@@ -62,12 +62,12 @@ to them; don't redesign them.** If the schema looks wrong, mark the task blocked
      Commit.
 - **Verify:** `pytest tests/test_cues.py -q`
 - **Done when:**
-  - [ ] Every built cue is schema-valid.
-  - [ ] The `enabled` defaults match the 09 §5.2 table for sidecar flags.
+  - [x] Every built cue is schema-valid.
+  - [x] The `enabled` defaults match the 09 §5.2 table for sidecar flags.
 
 ### T-19.2 · Document assembly, sibling transcript, validation in the code path
 
-**Executor** agent · **Size** S · **Prereqs** T-19.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-19.1 · **Status** done
 
 - **Read:** [07 §5, §5.2](../07-sidecar-api.md) · `tools/validate_cue_document.py` (its public
   function only)
@@ -100,12 +100,12 @@ to them; don't redesign them.** If the schema looks wrong, mark the task blocked
      Commit.
 - **Verify:** `pytest tests/test_cue_document.py -q`
 - **Done when:**
-  - [ ] Validation happens in the code path, not only in tests.
-  - [ ] The round-trip is lossless.
+  - [x] Validation happens in the code path, not only in tests.
+  - [x] The round-trip is lossless.
 
 ### T-19.3 · `run_pipeline()`: words to Cue Document, offline
 
-**Executor** agent · **Size** S · **Prereqs** T-19.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-19.2 · **Status** done
 
 - **Read:** [07 §4](../07-sidecar-api.md) (the phase names) · [05 §10](../05-timing-and-placement.md)
 - **Touches:** `sidecar/versesync/pipeline.py` (new) · `tests/test_pipeline.py` (new)
@@ -139,8 +139,8 @@ to them; don't redesign them.** If the schema looks wrong, mark the task blocked
      Commit.
 - **Verify:** `pytest tests/test_pipeline.py -q`
 - **Done when:**
-  - [ ] Every fixture produces a schema-valid, deterministic document.
-  - [ ] This is the **only** place the stages are joined. T-20 and T-21 call it.
+  - [x] Every fixture produces a schema-valid, deterministic document.
+  - [x] This is the **only** place the stages are joined. T-20 and T-21 call it.
 
 ## Traps
 

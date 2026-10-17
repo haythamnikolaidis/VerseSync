@@ -3,10 +3,17 @@ name = "versesync"
 version = "0.1.0"
 description = "Automatic scripture-reference detection and timing for Premiere Pro"
 requires-python = ">=3.11,<3.14"
-dependencies = []
+dependencies = ["jellyfish>=1.0", "PyYAML>=6", "jsonschema>=4.18"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11", "jsonschema>=4.18"]
+dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11"]
+# The real transcription backend (T-07.2). The upstream engine is pinned to the commit on
+# upstream main (2644c7f) that merged core/transcription/engine.py; faster-whisper is the
+# version the T-02 spike and the upstream installer both use.
+transcribe = [
+  "faster-whisper==1.2.1",
+  "faster-whisper-transcriber @ git+https://github.com/haythamnikolaidis/Faster-Whisper-Transcriber.git@2644c7f2282564f4fe570474742f3ae58be35a2b",
+]
 
 [build-system]
 requires = ["setuptools>=68"]
@@ -15,12 +22,17 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 where = ["sidecar"]
 
+[tool.setuptools.package-data]
+versesync = ["data/*.json"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = ["perf: NFR-2 budget tests that run in the container (cheap, run by default)"]
 
 [tool.ruff]
 src = ["sidecar"]
 line-length = 100
+extend-exclude = ["reference"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]

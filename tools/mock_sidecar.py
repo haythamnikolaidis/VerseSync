@@ -112,6 +112,37 @@ def load_fixture(scenario: str) -> dict[str, Any]:
     return data
 
 
+# Synthetic transcript shape (T-50): "word<i>" at 0.4 s per word from 0, probability 0.95.
+# The 0.4 s pace and 0.95 probability are arbitrary but fixed so panel tests are deterministic.
+SYNTHETIC_WORD_SECONDS = 0.4
+SYNTHETIC_WORD_PROBABILITY = 0.95
+
+
+def max_word_span_index(doc: dict[str, Any]) -> int:
+    """Highest word_span[1] across every cue and alternative in a Cue Document (-1 if none)."""
+    highest = -1
+    for cue in doc["cues"]:
+        for candidate in [cue] + cue.get("alternatives", []):
+            span = candidate.get("detection", {}).get("word_span")
+            if span:
+                highest = max(highest, int(span[1]))
+    return highest
+
+
+def build_synthetic_transcript(doc: dict[str, Any]) -> list[dict[str, Any]]:
+    """Deterministic word array long enough to cover every word_span index in `doc`."""
+    count = max_word_span_index(doc) + 1
+    return [
+        {
+            "text": f"word{i}",
+            "start": round(i * SYNTHETIC_WORD_SECONDS, 3),
+            "end": round((i + 1) * SYNTHETIC_WORD_SECONDS, 3),
+            "probability": SYNTHETIC_WORD_PROBABILITY,
+        }
+        for i in range(count)
+    ]
+
+
 def build_resolve_index() -> dict[tuple[str, int, int | None], dict[str, Any]]:
     """Index every cue (and alternative) across all four fixtures for POST /resolve.
 
@@ -428,7 +459,7 @@ class Handler(BaseHTTPRequestHandler):
 
     # ---- shared helpers -------------------------------------------------
 
-    def _send_json(self, status: int, payload: dict[str, Any]) -> None:
+    def _send_json(self, status: int, payload: dict[str, Any] | list[Any]) -> None:
         body = json.dumps(payload).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
@@ -487,7 +518,7 @@ class Handler(BaseHTTPRequestHandler):
             self._send_json(200, {"provider": "api_bible", "translations": TRANSLATIONS})
             return
 
-        m = re.match(r"^/jobs/([^/]+)(/events|/result)?$", path)
+        m = re.match(r"^/jobs/([^/]+)(/events|/result|/transcript)?$", path)
         if m:
             job_id, suffix = m.group(1), m.group(2)
             job = self._job_or_404(job_id)
@@ -495,7 +526,7 @@ class Handler(BaseHTTPRequestHandler):
                 return
             if suffix == "/events":
                 self._serve_events(job)
-            elif suffix == "/result":
+            elif suffix in ("/result", "/transcript"):
                 if job.status != "done":
                     self._send_json(
                         409,
@@ -505,6 +536,9 @@ class Handler(BaseHTTPRequestHandler):
                             retryable=True,
                         ),
                     )
+                elif suffix == "/transcript":
+                    assert job.result is not None
+                    self._send_json(200, build_synthetic_transcript(job.result))
                 else:
                     assert job.result is not None
                     self._send_json(200, job.result)

@@ -84,6 +84,10 @@ curl -H "Authorization: Bearer <token>" -H "Origin: http://localhost" \
 curl -H "Authorization: Bearer <token>" -H "Origin: http://localhost" \
      http://127.0.0.1:<port>/jobs/<job_id>/result
 
+# the job's transcript words (409 job_not_finished until the job is done)
+curl -H "Authorization: Bearer <token>" -H "Origin: http://localhost" \
+     http://127.0.0.1:<port>/jobs/<job_id>/transcript
+
 # cancel a running job
 curl -X DELETE -H "Authorization: Bearer <token>" -H "Origin: http://localhost" \
      http://127.0.0.1:<port>/jobs/<job_id>
@@ -107,6 +111,11 @@ curl -X POST -H "Authorization: Bearer <token>" -H "Origin: http://localhost" \
   their `alternatives[]`). Anything else is `bad_request`. It also does not do real per-verse
   decomposition — `verses[]` always carries a single entry covering the whole resolved body,
   even for a range; true per-verse splitting belongs to T-06/T-14.
+- `GET /jobs/{id}/transcript` ([07](../docs/07-sidecar-api.md) §2, D22) serves a synthetic word
+  array, not the fixture's real words: `{"text":"word<i>","start":0.4*i,"end":0.4*(i+1),
+  "probability":0.95}`, as many words as needed to cover the highest `word_span` index in the
+  served fixture (cues and alternatives). It returns `409 job_not_finished` until the job is
+  done.
 - A failed or cancelled job emits no terminal SSE event — [07](../docs/07-sidecar-api.md)'s SSE
   example only shows `progress` and `done`, and inventing an undocumented event type for a
   frozen contract isn't this task's call to make. A client learns the outcome from

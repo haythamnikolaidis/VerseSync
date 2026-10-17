@@ -16,7 +16,7 @@ stops the fake the panel was built against from drifting away from the real thin
 
 ### T-42.1 · The suite, against the mock
 
-**Executor** agent · **Size** S · **Prereqs** T-05.4, T-50 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-05.4, T-50 · **Status** done
 
 - **Read:** [07 §1–4](../07-sidecar-api.md) · `tools/README.md` (the mock's flags and "Known
   simplifications")
@@ -43,13 +43,13 @@ stops the fake the panel was built against from drifting away from the real thin
      Run the mock with `--duration 2`, so the suite takes under 30 s. Commit.
 - **Verify:** `pytest tests/contract -q -k mock`
 - **Done when:**
-  - [ ] The suite passes against the mock.
-  - [ ] Deleting a required key from a response, simulated by a test-only response hook, makes
+  - [x] The suite passes against the mock.
+  - [x] Deleting a required key from a response, simulated by a test-only response hook, makes
         it fail.
 
 ### T-42.2 · The suite, against the real sidecar, in CI
 
-**Executor** agent · **Size** XS · **Prereqs** T-42.1, T-20.5 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-42.1, T-20.5 · **Status** done
 
 - **Read:** this card · T-07's `fixture:` backend
 - **Touches:** `tests/contract/conftest.py` · `.github/workflows/ci.yml`
@@ -63,7 +63,7 @@ stops the fake the panel was built against from drifting away from the real thin
      stays reasonable. Commit.
 - **Verify:** `pytest tests/contract -q`
 - **Done when:**
-  - [ ] The identical suite passes against both servers, in CI.
+  - [x] The identical suite passes against both servers, in CI.
 
 ## Traps
 

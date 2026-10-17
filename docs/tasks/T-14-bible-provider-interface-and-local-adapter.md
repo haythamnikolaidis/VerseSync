@@ -50,7 +50,7 @@ class BibleProvider(Protocol):
 
 ### T-14.1 · Types, protocol and error taxonomy
 
-**Executor** agent · **Size** XS · **Prereqs** T-09.3 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-09.3 · **Status** done
 
 - **Read:** [06 §1, §3, §3.2](../06-bible-text-service.md)
 - **Touches:** `sidecar/versesync/bible/base.py` (new) · `tests/test_bible_base.py` (new)
@@ -61,11 +61,11 @@ class BibleProvider(Protocol):
      against 07's `GET /translations` example keys. Commit.
 - **Verify:** `pytest tests/test_bible_base.py -q`
 - **Done when:**
-  - [ ] Every error is a `BibleError` subclass with a `code`.
+  - [x] Every error is a `BibleError` subclass with a `code`.
 
 ### T-14.2 · `format.py` and the VerseFlow round-trip test
 
-**Executor** agent · **Size** S · **Prereqs** T-14.1, T-43 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-14.1, T-43 · **Status** done
 
 - **Read:** [06 §2](../06-bible-text-service.md) · `reference/verseflow/js/scripture-parser.js`
   (the block format and the regex) · `reference/verseflow/js/duration.js` (the word-count
@@ -96,13 +96,13 @@ class BibleProvider(Protocol):
      which has a numbered book. Commit.
 - **Verify:** `pytest tests/test_format_roundtrip.py -q`
 - **Done when:**
-  - [ ] The round-trip test passes for a single verse, a range, and a numbered book.
-  - [ ] Ranges use a hyphen, never an en-dash.
-  - [ ] Verse numbers stay in the body.
+  - [x] The round-trip test passes for a single verse, a range, and a numbered book.
+  - [x] Ranges use a hyphen, never an en-dash.
+  - [x] Verse numbers stay in the body.
 
 ### T-14.3 · `local.py` over the bundled KJV
 
-**Executor** agent · **Size** S · **Prereqs** T-14.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-14.2 · **Status** done
 
 - **Read:** [06 §3.1](../06-bible-text-service.md) (the `local.py` row)
 - **Touches:** `sidecar/versesync/bible/local.py` (new) · `tests/test_local_provider.py` (new)
@@ -129,8 +129,8 @@ class BibleProvider(Protocol):
      Commit.
 - **Verify:** `pytest tests/test_local_provider.py -q`
 - **Done when:**
-  - [ ] Single verse, range and chapter fetches all work, all offline.
-  - [ ] No bare exceptions escape.
+  - [x] Single verse, range and chapter fetches all work, all offline.
+  - [x] No bare exceptions escape.
 
 ## Traps
 

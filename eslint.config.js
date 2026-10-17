@@ -1,6 +1,7 @@
 'use strict';
 
 module.exports = [
+  { ignores: ['reference/**'] },
   {
     files: ['panel/js/**/*.js'],
     languageOptions: {
@@ -16,6 +17,23 @@ module.exports = [
     rules: {
       'no-var': 'off',
       strict: 'off'
+    }
+  },
+  {
+    files: ['panel/jsx/**/*.jsx'],
+    languageOptions: {
+      ecmaVersion: 3,
+      sourceType: 'script',
+      globals: {
+        app: 'readonly',
+        $: 'readonly',
+        CSXSEvent: 'readonly',
+        File: 'readonly',
+        Time: 'readonly'
+      }
+    },
+    rules: {
+      'func-style': ['error', 'expression']
     }
   },
   {

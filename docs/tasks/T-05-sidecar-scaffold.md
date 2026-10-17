@@ -28,7 +28,7 @@ The mock accepts any non-empty Origin, so the contract tests (T-42) send this va
 
 ### T-05.1 · `paths.py` and `config.py`
 
-**Executor** agent · **Size** S · **Prereqs** T-44 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-44 · **Status** done
 
 - **Read:** [05 §2](../05-timing-and-placement.md) (the config table) ·
   [06 §8](../06-bible-text-service.md) · `reference/fwt/config/manager.py` (the
@@ -59,13 +59,13 @@ The mock accepts any non-empty Origin, so the contract tests (T-42) send this va
      `Config.__repr__` must not include any secret value. Test it. Commit.
 - **Verify:** `pytest tests/test_config.py -q`
 - **Done when:**
-  - [ ] `VERSESYNC_HOME` overrides the home directory, and every test uses `tmp_path`.
-  - [ ] Credentials are read from the environment by variable name, and they never appear in
+  - [x] `VERSESYNC_HOME` overrides the home directory, and every test uses `tmp_path`.
+  - [x] Credentials are read from the environment by variable name, and they never appear in
         `repr`, in logs, or in `config.yaml`.
 
 ### T-05.2 · Lock file
 
-**Executor** agent · **Size** S · **Prereqs** T-05.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-05.1 · **Status** done
 
 - **Read:** [07 §1.1](../07-sidecar-api.md) · `tools/mock_sidecar.py` (the lock-file functions
   only; grep for `lock`)
@@ -89,11 +89,11 @@ The mock accepts any non-empty Origin, so the contract tests (T-42) send this va
      delete another process's lock. Commit.
 - **Verify:** `pytest tests/test_lockfile.py -q`
 - **Done when:**
-  - [ ] Two sidecars can't both hold the lock, and a stale lock is cleared.
+  - [x] Two sidecars can't both hold the lock, and a stale lock is cleared.
 
 ### T-05.3 · HTTP server core: bind, auth, Origin, headers, errors, `/health`, `/shutdown`
 
-**Executor** agent · **Size** S · **Prereqs** T-05.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-05.2 · **Status** done
 
 - **Read:** [07 §1.2, §1.3, §2 (`/health`, `/shutdown`), §3](../07-sidecar-api.md) ·
   `tools/mock_sidecar.py` (the `Handler` auth path and the error-envelope helper only)
@@ -131,12 +131,12 @@ The mock accepts any non-empty Origin, so the contract tests (T-42) send this va
      Commit.
 - **Verify:** `pytest tests/test_server_auth.py -q`
 - **Done when:**
-  - [ ] Every assertion above passes.
-  - [ ] The server never binds `0.0.0.0`.
+  - [x] Every assertion above passes.
+  - [x] The server never binds `0.0.0.0`.
 
 ### T-05.4 · Entry point, logging, idle self-exit
 
-**Executor** agent · **Size** S · **Prereqs** T-05.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-05.3 · **Status** done
 
 - **Read:** [03 §3](../03-architecture.md) (the lifecycle) · [03 §8](../03-architecture.md) (the
   log path in errors)
@@ -159,9 +159,9 @@ The mock accepts any non-empty Origin, so the contract tests (T-42) send this va
      Commit.
 - **Verify:** `pytest tests/test_sidecar_process.py -q`
 - **Done when:**
-  - [ ] `python -m versesync.sidecar` works and `python -m versesync` is an alias for it.
-  - [ ] Idle exit, shutdown, and refusing a second instance are all tested.
-  - [ ] The token is never written to the log.
+  - [x] `python -m versesync.sidecar` works and `python -m versesync` is an alias for it.
+  - [x] Idle exit, shutdown, and refusing a second instance are all tested.
+  - [x] The token is never written to the log.
 
 ## Traps
 

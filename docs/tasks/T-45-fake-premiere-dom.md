@@ -36,7 +36,7 @@ The fake has to reproduce the **spike findings**, not ideal behaviour:
 
 ### T-45.1 · JSX loader, sequence/track/clip model
 
-**Executor** agent · **Size** S · **Prereqs** T-43 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-43 · **Status** done
 
 - **Read:** [08 §1, §3, §4](../08-premiere-host-api.md) · `spikes/media_segments/RESULTS.md`
   (the results table only) · `reference/verseflow/jsx/VerseFlow.jsx` (grep for the
@@ -66,14 +66,14 @@ The fake has to reproduce the **spike findings**, not ideal behaviour:
   3. Write tests that pin each table row down. Commit.
 - **Verify:** `node --test tests/host/fake-premiere.test.js`
 - **Done when:**
-  - [ ] A trivial JSX file (written inline in the test) loads, and it sees `app`, `$` and no
+  - [x] A trivial JSX file (written inline in the test) loads, and it sees `app`, `$` and no
         native `JSON`.
-  - [ ] The null-projectItem, nested/multicam and speed-change behaviours each have a test.
-  - [ ] `focusSequence` changes what `app.project.activeSequence` returns.
+  - [x] The null-projectItem, nested/multicam and speed-change behaviours each have a test.
+  - [x] `focusSequence` changes what `app.project.activeSequence` returns.
 
 ### T-45.2 · `importMGT`, MGT components, undo groups, CSXS events
 
-**Executor** agent · **Size** S · **Prereqs** T-45.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-45.1 · **Status** done
 
 - **Read:** [08 §5, §6](../08-premiere-host-api.md) · `spikes/absolute_insert/RESULTS.md`
   (the results and risks sections) · `reference/verseflow/jsx/VerseFlow.jsx` (the
@@ -96,10 +96,10 @@ The fake has to reproduce the **spike findings**, not ideal behaviour:
      visible through `track.overlaps()`. Commit.
 - **Verify:** `node --test tests/host/fake-premiere.test.js`
 - **Done when:**
-  - [ ] `importMGT` overwrite/trim matches T-03's single-overlap case in a test.
-  - [ ] `fontTextRunLength` and `textEditValue` written through `setValue` can be read back.
-  - [ ] An undo-group imbalance can be detected.
-  - [ ] An out-of-range track access is uncatchable by script `try`/`catch`. A test shows the
+  - [x] `importMGT` overwrite/trim matches T-03's single-overlap case in a test.
+  - [x] `fontTextRunLength` and `textEditValue` written through `setValue` can be read back.
+  - [x] An undo-group imbalance can be detected.
+  - [x] An out-of-range track access is uncatchable by script `try`/`catch`. A test shows the
         error still reaches the Node caller.
 
 ## Traps

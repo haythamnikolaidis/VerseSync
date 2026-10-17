@@ -28,7 +28,7 @@ counts from the bundled text means T-13 can't reject a verse that T-14 can serve
 
 ### T-09.1 · Bundle the public-domain KJV text
 
-**Executor** agent · **Size** S · **Prereqs** — · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** — · **Status** done
 
 - **Read:** this card only.
 - **Touches:** `tools/fetch_pd_bible.py` (new) · `sidecar/versesync/bible/data/kjv.json.gz`
@@ -55,12 +55,12 @@ counts from the bundled text means T-13 can't reject a verse that T-14 can serve
      verses. No verse text is empty. Loading the file takes under 200 ms. Commit.
 - **Verify:** `pytest tests/test_pd_bible.py -q`
 - **Done when:**
-  - [ ] The totals above hold, and the source URL and its hash are pinned in the script.
-  - [ ] The file is under ~1.5 MB compressed.
+  - [x] The totals above hold, and the source URL and its hash are pinned in the script.
+  - [x] The file is under ~1.5 MB compressed.
 
 ### T-09.2 · Generate `canon.json`
 
-**Executor** agent · **Size** S · **Prereqs** T-09.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-09.1 · **Status** done
 
 - **Read:** [04 §4.1, §5](../04-reference-detection.md) · [04 §3.1](../04-reference-detection.md)
   (the "numbered form" list only)
@@ -99,12 +99,12 @@ counts from the bundled text means T-13 can't reject a verse that T-14 can serve
      Commit.
 - **Verify:** `pytest tests/test_canon_data.py -q`
 - **Done when:**
-  - [ ] Every assertion above passes.
-  - [ ] Re-running the generator reproduces the file byte for byte.
+  - [x] Every assertion above passes.
+  - [x] Re-running the generator reproduces the file byte for byte.
 
 ### T-09.3 · `Canon` loader and shared core types
 
-**Executor** agent · **Size** S · **Prereqs** T-09.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-09.2 · **Status** done
 
 - **Read:** [04 §5](../04-reference-detection.md) · [07 §5](../07-sidecar-api.md) (the
   `reference` object only)
@@ -151,8 +151,8 @@ counts from the bundled text means T-13 can't reject a verse that T-14 can serve
      `conftest.py`. Commit.
 - **Verify:** `pytest tests/test_canon.py -q`
 - **Done when:**
-  - [ ] The interface above is implemented exactly, and the names match.
-  - [ ] Aliases are normalised once, at load time, not on every lookup.
+  - [x] The interface above is implemented exactly, and the names match.
+  - [x] Aliases are normalised once, at load time, not on every lookup.
 
 ## Traps
 

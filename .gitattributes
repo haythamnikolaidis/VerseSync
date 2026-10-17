@@ -1,0 +1,4 @@
+# Tests compare these files byte for byte with LF output the code generates. Without this, a
+# Windows checkout (core.autocrlf=true, the default for Git for Windows) rewrites them with CRLF.
+sidecar/versesync/detect/data/canon.json text eol=lf
+tests/golden/*.cues.json text eol=lf

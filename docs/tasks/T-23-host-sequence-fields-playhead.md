@@ -30,7 +30,7 @@ swapping the stub for the real host changes nothing.
 
 ### T-23.1 · `VerseSync.jsx` skeleton, ES3 lint, `ping`, `getSequenceInfo`, `setPlayhead`
 
-**Executor** agent · **Size** S · **Prereqs** T-45.1, T-47 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-45.1, T-47 · **Status** done
 
 - **Read:** [08 §1, §2, §3, §7, §9](../08-premiere-host-api.md) ·
   `reference/verseflow/jsx/VerseFlow.jsx` (the header comment, the JSON polyfill, and
@@ -53,13 +53,13 @@ swapping the stub for the real host changes nothing.
      `setPlayhead` moves the fake's playhead, and the "no sequence" message is exact. Commit.
 - **Verify:** `node --test tests/host/sequence.test.js && npm run lint`
 - **Done when:**
-  - [ ] Responses are deep-equal to the T-39 fixtures.
-  - [ ] ES3 lint is enforced on `panel/jsx`.
-  - [ ] No function declarations, and no non-ASCII bytes.
+  - [x] Responses are deep-equal to the T-39 fixtures.
+  - [x] ES3 lint is enforced on `panel/jsx`.
+  - [x] No function declarations, and no non-ASCII bytes.
 
 ### T-23.2 · `VS.getMogrtFields` (ported unchanged)
 
-**Executor** agent · **Size** S · **Prereqs** T-23.1, T-45.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-23.1, T-45.2 · **Status** done
 
 - **Read:** [08 §5](../08-premiere-host-api.md) · `reference/verseflow/jsx/VerseFlow.jsx`
   (`getMogrtFields` and its helpers) · `tests/fixtures/host/mogrt-fields.json`
@@ -83,8 +83,8 @@ swapping the stub for the real host changes nothing.
      Commit.
 - **Verify:** `node --test tests/host/mogrt-fields.test.js`
 - **Done when:**
-  - [ ] The output equals `mogrt-fields.json` for the reference template.
-  - [ ] The undo groups balance.
+  - [x] The output equals `mogrt-fields.json` for the reference template.
+  - [x] The undo groups balance.
 
 ## Traps
 

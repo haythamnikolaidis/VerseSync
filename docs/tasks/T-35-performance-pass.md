@@ -15,7 +15,7 @@ the agent measures it there. GPU and Premiere numbers are measured by a human.
 
 ### T-35.1 · Container-measurable budgets as tests
 
-**Executor** agent · **Size** S · **Prereqs** T-30.2, T-21.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-30.2, T-21.1 · **Status** done
 
 - **Read:** NFR-2 in [01](../01-requirements.md)
 - **Touches:** `tests/test_performance.py` (new) · `tests/panel/performance.test.js` (new) ·
@@ -35,7 +35,7 @@ the agent measures it there. GPU and Premiere numbers are measured by a human.
      Commit.
 - **Verify:** `pytest tests/test_performance.py -q && node --test tests/panel/performance.test.js`
 - **Done when:**
-  - [ ] Every container-measurable budget is enforced by a test.
+  - [x] Every container-measurable budget is enforced by a test.
 
 ### T-35.H · Reference workstation numbers
 

@@ -28,7 +28,7 @@ logged and never serialised.
 
 ### T-15.1 · Client, response parsing, translations
 
-**Executor** agent · **Size** S · **Prereqs** T-14.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-14.3 · **Status** done
 
 - **Read:** [06 §3.1, §5, §8](../06-bible-text-service.md) · [07 §2](../07-sidecar-api.md)
   (`GET /translations`). The API.Bible public reference for `GET /v1/bibles` and
@@ -53,12 +53,12 @@ logged and never serialised.
      that fixture's text from the bundled KJV so the two can actually match. Commit.
 - **Verify:** `pytest tests/test_api_bible.py -q`
 - **Done when:**
-  - [ ] The identical-output test passes.
-  - [ ] No API key appears in any log record (assert with `caplog`) or in any `repr()`.
+  - [x] The identical-output test passes.
+  - [x] No API key appears in any log record (assert with `caplog`) or in any `repr()`.
 
 ### T-15.2 · Batching, retry and error mapping
 
-**Executor** agent · **Size** S · **Prereqs** T-15.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-15.1 · **Status** done
 
 - **Read:** [06 §3.2, §4](../06-bible-text-service.md) (the "Batching" paragraph)
 - **Touches:** `sidecar/versesync/bible/api_bible.py` · `tests/test_api_bible.py`
@@ -73,9 +73,9 @@ logged and never serialised.
      Commit.
 - **Verify:** `pytest tests/test_api_bible.py -q`
 - **Done when:**
-  - [ ] Every status code maps to its typed error.
-  - [ ] Exactly one retry happens after a 429.
-  - [ ] The request-count bound is asserted.
+  - [x] Every status code maps to its typed error.
+  - [x] Exactly one retry happens after a 429.
+  - [x] The request-count bound is asserted.
 
 ### T-15.H · Real key, real translations (Q-A)
 

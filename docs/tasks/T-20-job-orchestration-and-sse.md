@@ -22,7 +22,7 @@ to it.
 
 ### T-20.1 · Progress accounting and the job registry
 
-**Executor** agent · **Size** S · **Prereqs** T-05.4 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-05.4 · **Status** done
 
 - **Read:** [07 §2](../07-sidecar-api.md) (`GET /jobs/{id}`) · [07 §4](../07-sidecar-api.md)
 - **Touches:** `sidecar/versesync/jobs.py` (new) · `tests/test_jobs_progress.py` (new)
@@ -56,11 +56,11 @@ to it.
      Commit.
 - **Verify:** `pytest tests/test_jobs_progress.py -q`
 - **Done when:**
-  - [ ] Progress never goes down and ends at exactly 1.0, with or without a skipped phase.
+  - [x] Progress never goes down and ends at exactly 1.0, with or without a skipped phase.
 
 ### T-20.2 · Job runner
 
-**Executor** agent · **Size** S · **Prereqs** T-20.1, T-08, T-19.3, T-16 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-20.1, T-08, T-19.3, T-16 · **Status** done
 
 - **Read:** [07 §3](../07-sidecar-api.md) (the code list) · [06 §3.2](../06-bible-text-service.md)
 - **Touches:** `sidecar/versesync/jobs.py` · `tests/test_job_runner.py` (new)
@@ -98,13 +98,13 @@ to it.
      Commit.
 - **Verify:** `pytest tests/test_job_runner.py -q`
 - **Done when:**
-  - [ ] A provider outage is a successful job (FR-4.5).
-  - [ ] Cancellation leaves no cached transcript and no result.
-  - [ ] Exactly one terminal event is published per job.
+  - [x] A provider outage is a successful job (FR-4.5).
+  - [x] Cancellation leaves no cached transcript and no result.
+  - [x] Exactly one terminal event is published per job.
 
 ### T-20.3 · Job endpoints
 
-**Executor** agent · **Size** S · **Prereqs** T-20.2, T-50 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-20.2, T-50 · **Status** done
 
 - **Read:** [07 §2](../07-sidecar-api.md) (`POST /jobs`, `GET /jobs/{id}`, `/result`,
   `DELETE`)
@@ -127,11 +127,11 @@ to it.
      `409` before done, `DELETE` leading to `cancelled`, and the media-root check. Commit.
 - **Verify:** `pytest tests/test_job_endpoints.py -q`
 - **Done when:**
-  - [ ] A whole job runs over HTTP using the fixture backend and gives a schema-valid document.
+  - [x] A whole job runs over HTTP using the fixture backend and gives a schema-valid document.
 
 ### T-20.4 · SSE endpoint
 
-**Executor** agent · **Size** S · **Prereqs** T-20.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-20.3 · **Status** done
 
 - **Read:** [07 §2](../07-sidecar-api.md) (`GET /jobs/{id}/events`) · `tools/mock_sidecar.py`
   (the SSE writer only)
@@ -155,11 +155,11 @@ to it.
      Commit.
 - **Verify:** `pytest tests/test_sse.py -q`
 - **Done when:**
-  - [ ] A dropped stream never loses the job's state (NFR-3).
+  - [x] A dropped stream never loses the job's state (NFR-3).
 
 ### T-20.5 · `/models`, `/translations`, `/resolve`, and `/health` status
 
-**Executor** agent · **Size** S · **Prereqs** T-20.3, T-48.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-20.3, T-48.1 · **Status** done
 
 - **Read:** [07 §2](../07-sidecar-api.md) (`/health`, `/models`, `/translations`, `/resolve`)
 - **Touches:** `sidecar/versesync/server.py` · `sidecar/versesync/sidecar.py` ·
@@ -186,7 +186,7 @@ to it.
      Commit.
 - **Verify:** `pytest tests/test_misc_endpoints.py -q`
 - **Done when:**
-  - [ ] Every endpoint in [07 §2] is implemented.
+  - [x] Every endpoint in [07 §2] is implemented.
 
 ## Traps
 

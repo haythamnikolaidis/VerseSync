@@ -47,7 +47,7 @@ def match_book(tokens: Sequence[Token], i: int, canon: Canon, *,
 
 ### T-11.1 · Tier 1: exact and alias matching with ordinal prefixes
 
-**Executor** agent · **Size** S · **Prereqs** T-10.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-10.3 · **Status** done
 
 - **Read:** [04 §4.1](../04-reference-detection.md) (tier 1 and the short-name restriction)
 - **Touches:** `sidecar/versesync/detect/types.py` · `sidecar/versesync/detect/fuzzy.py` (new) ·
@@ -62,12 +62,12 @@ def match_book(tokens: Sequence[Token], i: int, canon: Canon, *,
      ambiguous, and the plan says don't guess. Commit.
 - **Verify:** `pytest tests/test_book_matching.py -q`
 - **Done when:**
-  - [ ] Tier 1 resolves every alias in `canon.json`.
-  - [ ] Matches report the correct `first`/`last`, including the ordinal prefix.
+  - [x] Tier 1 resolves every alias in `canon.json`.
+  - [x] Matches report the correct `first`/`last`, including the ordinal prefix.
 
 ### T-11.2 · Tier 2: curated ASR-confusion table
 
-**Executor** agent · **Size** XS · **Prereqs** T-11.1 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-11.1 · **Status** done
 
 - **Read:** [04 §4.1](../04-reference-detection.md) (the seed table)
 - **Touches:** `sidecar/versesync/detect/data/confusions.json` (new) ·
@@ -81,11 +81,11 @@ def match_book(tokens: Sequence[Token], i: int, canon: Canon, *,
      `fuzzy_gate=None`, or with a gate that returns False, gives `None`. Commit.
 - **Verify:** `pytest tests/test_book_matching.py -q`
 - **Done when:**
-  - [ ] Every seed entry resolves, and only behind the gate.
+  - [x] Every seed entry resolves, and only behind the gate.
 
 ### T-11.3 · Tier 3: fuzzy matching and the short-name restriction
 
-**Executor** agent · **Size** S · **Prereqs** T-11.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-11.2 · **Status** done
 
 - **Read:** [04 §4.1](../04-reference-detection.md) (tier 3 and the gate) ·
   [11 §1](../11-testing.md) (the "Book matching" negative fixtures)
@@ -110,8 +110,8 @@ def match_book(tokens: Sequence[Token], i: int, canon: Canon, *,
      Commit.
 - **Verify:** `pytest tests/test_book_matching.py -q`
 - **Done when:**
-  - [ ] Short high-frequency names never resolve via fuzzy matching.
-  - [ ] `tier` and `distance` are correct in every test.
+  - [x] Short high-frequency names never resolve via fuzzy matching.
+  - [x] `tier` and `distance` are correct in every test.
 
 ## Traps
 

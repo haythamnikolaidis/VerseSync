@@ -1,6 +1,6 @@
 # T-18 · Anchors and durations
 
-**Executor** agent · **Size** S · **Prereqs** T-17.2, T-43 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-17.2, T-43 · **Status** done
 
 | | |
 |---|---|
@@ -82,10 +82,10 @@ def compute_timing(mention_start_s: float, alignment: Alignment | None,
 
 ## Done when
 
-- [ ] The worked example reproduces exactly.
-- [ ] Both orderings anchor correctly, and the lookbehind limit is respected.
-- [ ] PARAPHRASE durations match VerseFlow's formula for the tested word counts.
-- [ ] There's no tick or frame arithmetic anywhere in this file.
+- [x] The worked example reproduces exactly.
+- [x] Both orderings anchor correctly, and the lookbehind limit is respected.
+- [x] PARAPHRASE durations match VerseFlow's formula for the tested word counts.
+- [x] There's no tick or frame arithmetic anywhere in this file.
 
 ## Traps
 
