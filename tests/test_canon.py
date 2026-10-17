@@ -2,7 +2,7 @@ import json
 import time
 
 import pytest
-from tests.transcript_fixtures import FIXTURE_NAMES, FIXTURES_DIR
+from transcript_fixtures import FIXTURE_NAMES, FIXTURES_DIR
 
 from versesync.detect.canon import Canon, load_canon, normalise_alias
 from versesync.types import Reference, Word, load_words

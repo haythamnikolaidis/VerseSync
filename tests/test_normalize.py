@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from tests.transcript_fixtures import FIXTURES_DIR
+from transcript_fixtures import FIXTURES_DIR
 
 from versesync.detect.canon import load_canon
 from versesync.detect.normalize import normalize
