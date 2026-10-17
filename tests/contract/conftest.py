@@ -152,7 +152,9 @@ class Sidecar:
 
 
 def _launch_mock(home: Path) -> Sidecar:
-    env = dict(os.environ, VERSESYNC_HOME=str(home))
+    # The mock prints its port and token without flushing. Piped, Python block-buffers stdout,
+    # so the readline loop below would wait forever unless the child is unbuffered.
+    env = dict(os.environ, VERSESYNC_HOME=str(home), PYTHONUNBUFFERED="1")
     env.pop("APPDATA", None)
     proc = subprocess.Popen(
         [
