@@ -45,6 +45,8 @@ const AV_QUOTE_04_FIELDS = [
   { name: 'Text', group: 'Description', groupType: 4, textType: 5, padBefore: 6 }
 ];
 
+const GUID_VALUE = '36ddb78d-d185-4be4-8129-397a0f2f10a6;759';
+
 function textBlob() {
   return JSON.stringify({ textEditValue: '', fontTextRunLength: [0] });
 }
@@ -72,7 +74,9 @@ function buildMgtComponent(fields) {
     for (let i = 0; i < (f.padBefore || 0); i++) {
       list.push(makeProperty(PROP_OTHER, 'Param ' + list.length, 0));
     }
-    list.push(makeProperty(f.groupType, f.group, ''));
+    // Premiere 26.5 reports no propertyType at all and gives a group node a '<guid>;<hex>'
+    // string value (a field with no groupType/textType models that build).
+    list.push(makeProperty(f.groupType, f.group, f.groupType === undefined ? GUID_VALUE : ''));
     list.push(makeProperty(f.textType, f.name, textBlob()));
   });
   const properties = { numItems: list.length };
@@ -369,5 +373,9 @@ module.exports = {
   createFakePremiere: createFakePremiere,
   FatalHostError: FatalHostError,
   AV_QUOTE_04_FIELDS: AV_QUOTE_04_FIELDS,
+  AV_QUOTE_04_FIELDS_NO_TYPES: [
+    { name: 'Text', group: 'Title Main', padBefore: 2 },
+    { name: 'Text', group: 'Description', padBefore: 6 }
+  ],
   GARBAGE_IN_POINT_TICKS: GARBAGE_IN_POINT_TICKS
 };

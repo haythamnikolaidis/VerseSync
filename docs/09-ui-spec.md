@@ -207,7 +207,9 @@ After: a summary line — `Placed 16 of 16.` or `Placed 14 of 16 — 2 failed, s
 failures expandable per cue. Review state is retained, so a partial failure can be fixed and
 re-run on only the affected cues.
 
-**One Ctrl+Z reverts the whole batch.** Say so in the summary line the first time it happens.
+**One Ctrl+Z reverts the whole batch.** *Not available in v1: Premiere 26.5 has no undo-group
+API, so Ctrl+Z removes one inserted graphic per press (D25). Do not claim one-press undo in the
+summary line.*
 
 ---
 

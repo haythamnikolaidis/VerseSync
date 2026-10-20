@@ -154,6 +154,8 @@ test('a cue that throws mid-way is isolated and the undo group still closes', ()
   const res = insert(fake, args);
   assert.strictEqual(res.data.failedCount, 3);
   assert.strictEqual(res.data.results[0].error, 'No property at index 999');
+  // A failed cue must not leave a half-built default clip on the track.
+  assert.strictEqual(fake.app.project.activeSequence.videoTracks[2].clips.length, 0);
   assert.deepStrictEqual(fake.undoLog.map((e) => e.type), ['begin', 'end']);
 });
 

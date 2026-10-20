@@ -141,7 +141,8 @@
 
   // ---- running the batch --------------------------------------------------------------------
 
-  var UNDO_NOTE = 'One Ctrl+Z reverts the whole batch.';
+  // Premiere 26.5 has no undo-group API (D25), so each placed graphic is its own undo step.
+  var UNDO_NOTE = 'Ctrl+Z removes the graphics one at a time.';
   var MISSING_RESULT = 'The host did not report this cue.';
 
   function progressText(done, total) {

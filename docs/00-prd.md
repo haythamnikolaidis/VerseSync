@@ -67,7 +67,8 @@ without a CUDA GPU (CPU works, just slowly — see NFR-2).
 - **G4 — Handle paraphrase as a first-class case.** A speaker who says "Paul tells us in
   Romans 8 that nothing can separate us from God's love" gets the same graphic as one who
   reads the verse verbatim.
-- **G5 — Be recoverable.** One Ctrl+Z undoes the batch. Re-running is cheap.
+- **G5 — Be recoverable.** One Ctrl+Z undoes the batch. Re-running is cheap. *(v1: one Ctrl+Z
+  per inserted graphic, D25.)*
 
 ### Non-goals (v1)
 
