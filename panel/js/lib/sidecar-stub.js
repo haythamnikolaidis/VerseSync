@@ -309,7 +309,8 @@
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = Stub;
-  } else {
-    root.VSSidecarStub = Stub;
   }
+  // Always set the global too (see bridge.js): CEP's mixed-context leaks `module` into the
+  // browser window, so this can't be an else-branch without breaking Premiere.
+  root.VSSidecarStub = Stub;
 })(this);

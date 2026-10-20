@@ -141,7 +141,9 @@
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = Bridge;
-  } else {
-    root.VSBridge = Bridge;
   }
+  // Always set the global too: CEP's mixed-context (--enable-nodejs) leaks `module` into the
+  // browser window even for plain <script>-loaded files, so the branches above can't be
+  // exclusive without breaking main.js's require() fallback in Premiere.
+  root.VSBridge = Bridge;
 })(this);

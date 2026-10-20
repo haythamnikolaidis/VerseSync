@@ -926,5 +926,7 @@
   };
 
   if (typeof module !== 'undefined' && module.exports) { module.exports = Review; }
-  else { root.VSReview = Review; }
+  // Always set the global too (see bridge.js): CEP's mixed-context leaks `module` into the
+  // browser window, so this can't be an else-branch without breaking Premiere.
+  root.VSReview = Review;
 })(this);

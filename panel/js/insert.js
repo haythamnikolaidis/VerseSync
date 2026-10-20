@@ -273,5 +273,7 @@
   };
 
   if (typeof module !== 'undefined' && module.exports) { module.exports = Insert; }
-  else { root.VSInsert = Insert; }
+  // Always set the global too (see bridge.js): CEP's mixed-context leaks `module` into the
+  // browser window, so this can't be an else-branch without breaking Premiere.
+  root.VSInsert = Insert;
 })(this);

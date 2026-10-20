@@ -204,5 +204,7 @@
   };
 
   if (typeof module !== 'undefined' && module.exports) { module.exports = Progress; }
-  else { root.VSProgress = Progress; }
+  // Always set the global too (see bridge.js): CEP's mixed-context leaks `module` into the
+  // browser window, so this can't be an else-branch without breaking Premiere.
+  root.VSProgress = Progress;
 })(this);

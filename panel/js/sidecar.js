@@ -611,8 +611,9 @@
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = VSSidecar;
-  } else {
-    root.VSSidecar = VSSidecar;
-    root.VSSidecarClient = VSSidecarClient;
   }
+  // Always set the globals too (see bridge.js): CEP's mixed-context leaks `module` into the
+  // browser window, so this can't be an else-branch without breaking Premiere.
+  root.VSSidecar = VSSidecar;
+  root.VSSidecarClient = VSSidecarClient;
 })(this);
