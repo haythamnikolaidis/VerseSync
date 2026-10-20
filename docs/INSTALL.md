@@ -18,10 +18,10 @@ from the root of a VerseSync checkout.
 | An NVIDIA driver (optional) | With `nvidia-smi` on `PATH` the installer picks the CUDA 12.8 wheels; without it, the CPU wheel. |
 
 The upstream transcription engine (Faster-Whisper-Transcriber) is installed from
-`haythamnikolaidis/Faster-Whisper-Transcriber`, at the commit on its `main` branch that merged
-the Qt-free engine. `pyproject.toml` pins it by commit
-(`2644c7f2282564f4fe570474742f3ae58be35a2b`), so pip fetches exactly that commit. You do not
-check the repository out yourself.
+`haythamnikolaidis/Faster-Whisper-Transcriber`, at the commit on its `main` branch that made the
+repo pip-installable (it packages `core/` via a minimal `pyproject.toml`). `pyproject.toml` pins
+it by commit (`54ede6af030f449f240a47f6328ef5b1b0680b6b`), so pip fetches exactly that commit.
+You do not check the repository out yourself.
 
 ## 1. Install the sidecar
 

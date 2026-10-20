@@ -8,11 +8,11 @@ dependencies = ["jellyfish>=1.0", "PyYAML>=6", "jsonschema>=4.18"]
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11"]
 # The real transcription backend (T-07.2). The upstream engine is pinned to the commit on
-# upstream main (2644c7f) that merged core/transcription/engine.py; faster-whisper is the
-# version the T-02 spike and the upstream installer both use.
+# upstream main (54ede6a) that made the repo pip-installable (adds pyproject.toml, packaging
+# only core/); faster-whisper is the version the T-02 spike and the upstream installer both use.
 transcribe = [
   "faster-whisper==1.2.1",
-  "faster-whisper-transcriber @ git+https://github.com/haythamnikolaidis/Faster-Whisper-Transcriber.git@2644c7f2282564f4fe570474742f3ae58be35a2b",
+  "faster-whisper-transcriber @ git+https://github.com/haythamnikolaidis/Faster-Whisper-Transcriber.git@54ede6af030f449f240a47f6328ef5b1b0680b6b",
 ]
 
 [build-system]
