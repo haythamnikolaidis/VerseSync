@@ -1,5 +1,6 @@
 {
   "synthetic": true,
+  "_synthetic_reason": "A real 503 needs an actual provider outage, not reproducible on demand; shape matches the confirmed-live error envelope (statusCode/error/message).",
   "statusCode": 503,
   "error": "Service Unavailable",
   "message": "Service temporarily unavailable"

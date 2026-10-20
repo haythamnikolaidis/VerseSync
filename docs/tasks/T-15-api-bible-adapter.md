@@ -79,15 +79,36 @@ logged and never serialised.
 
 ### T-15.H · Real key, real translations (Q-A)
 
-**Executor** human · **Size** — · **Prereqs** T-15.2 · **Status** todo
+**Executor** human · **Size** — · **Prereqs** T-15.2 · **Status** done
 
-- Resolve **Q-A** ([12](../12-decisions-and-risks.md)): decide which translations, get written
-  access, and record the attribution and caching terms for each.
-- Put the key in `VERSESYNC_API_BIBLE_KEY` and record real responses for every synthetic
-  fixture. Replace the fixtures, keeping their filenames, and drop `"synthetic": true`.
-- Fill in `translations_config` (the attribution and `cache_allowed` for each translation) in
-  the default config.
-- Re-run `pytest tests/test_api_bible.py`. It must still pass.
+- `VERSESYNC_API_BIBLE_KEY` is live (set in this environment and the Linux container).
+  Recorded real responses from `https://api.scripture.api.bible/v1` on 2026-10-17 for
+  `/bibles`, a single-verse passage (John 3:16), a verse-range passage (1 Cor 6:19-20) and a
+  404 (bad passage id), for the three public-domain translations already in scope: **KJV**
+  (`de4e12af7f28f599-01`), **ASV** (`06125adad2d5898a-01`) and **WEB** (`9879dbb7cfe39e4d-04`).
+  Each passage's own `copyright` field confirms `PUBLIC DOMAIN` — no written-access step was
+  needed for these three, per T-15's "Blocked by" scoping. Replaced
+  `bibles.json`, `passage_single.json`, `passage_range.json` and `error_404.json`, keeping
+  filenames, and dropped `"synthetic": true` from them.
+  - `error_429.json` and `error_503.json` **stay synthetic**: a 429 isn't reproducible without
+    burning the live key's quota, and a 503 needs an actual provider outage. Each now carries a
+    `_synthetic_reason` field recording why, with its envelope shape (`statusCode`/`error`/
+    `message`) confirmed against a real 403 (bad key) and a real 404.
+  - Real data surfaced a bug: API.Bible's `/bibles` `abbreviation` field is language-prefixed
+    (`"engKJV"`), not the short form 06 section 5 wants (`"KJV"`); `abbreviationLocal` carries
+    the short form and matches for all three translations. Fixed `list_translations()` to
+    prefer `abbreviationLocal`. See the commit for the fix and the updated fixtures.
+- Filled in `translations_config` (as `bible.translations` in `config.py`'s defaults):
+  attribution (each translation's own real `copyright` text) and `cache_allowed=True` for
+  KJV, ASV and WEB.
+- Re-ran `pytest tests/test_api_bible.py` — still passes (23/23). Also ran the full suite;
+  fixed an unrelated pre-existing leak in `tests/test_config.py` where
+  `test_secret_reads_env_var_named_in_config` assumed `VERSESYNC_API_BIBLE_KEY` was unset,
+  which now fails wherever the key is exported in the shell. It now `delenv`s it first.
+- **Q-A remains open for translations beyond public domain** (NKJV, TPT): the live key does
+  return NKJV content on request, but that is API read access, not the written commercial
+  distribution permission R-1 requires. Per the card's "Blocked by" note, that gap doesn't
+  block this task — it blocks adding NKJV/TPT to `translations_config` later.
 
 ## Traps
 

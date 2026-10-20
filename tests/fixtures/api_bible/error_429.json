@@ -1,5 +1,6 @@
 {
   "synthetic": true,
+  "_synthetic_reason": "A 429 cannot be triggered deliberately against the live key without burning its quota; shape matches the confirmed-live error envelope (statusCode/error/message).",
   "statusCode": 429,
   "error": "Too Many Requests",
   "message": "Rate limit exceeded"

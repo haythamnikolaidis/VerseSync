@@ -1,14 +1,13 @@
 {
-  "synthetic": true,
   "data": [
     {
       "id": "de4e12af7f28f599-01",
       "dblId": "de4e12af7f28f599",
-      "abbreviation": "KJV",
+      "abbreviation": "engKJV",
       "abbreviationLocal": "KJV",
       "name": "King James (Authorised) Version",
       "nameLocal": "King James Version",
-      "description": "Protestant",
+      "description": "Ecumenical",
       "language": {
         "id": "eng",
         "name": "English"
@@ -20,9 +19,9 @@
       "dblId": "06125adad2d5898a",
       "abbreviation": "ASV",
       "abbreviationLocal": "ASV",
-      "name": "American Standard Version",
-      "nameLocal": "American Standard Version",
-      "description": "Protestant",
+      "name": "The Holy Bible, American Standard Version",
+      "nameLocal": "The Holy Bible, American Standard Version",
+      "description": "Bible",
       "language": {
         "id": "eng",
         "name": "English"

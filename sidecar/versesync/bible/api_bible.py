@@ -99,7 +99,14 @@ class ApiBibleProvider:
             out.append(
                 Translation(
                     id=bible_id,
-                    abbreviation=str(item.get("abbreviation") or item.get("name", bible_id)),
+                    # abbreviationLocal is the short form ("KJV"); plain abbreviation is
+                    # language-prefixed ("engKJV") for some bibles and not what 06 section 5's
+                    # display format wants.
+                    abbreviation=str(
+                        item.get("abbreviationLocal")
+                        or item.get("abbreviation")
+                        or item.get("name", bible_id)
+                    ),
                     name=str(item.get("name", bible_id)),
                     # Never inferred: attribution and caching come from configuration only,
                     # and caching is off without an explicit entry (06 section 5).
