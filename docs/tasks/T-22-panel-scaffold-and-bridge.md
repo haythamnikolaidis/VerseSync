@@ -104,7 +104,7 @@ So the manifest **must** enable Node: `--enable-nodejs` and `--mixed-context` un
 
 ### T-22.H · Panel loads in Premiere
 
-**Executor** human · **Size** — · **Prereqs** T-22.2, T-23.1 · **Status** todo
+**Executor** human · **Size** — · **Prereqs** T-22.2, T-23.1 · **Status** done
 
 - Install the panel in debug mode, then open Window ▸ Extensions ▸ VerseSync. `VS.ping` returns
   `hostApi 1.1` (check in DevTools on port 7781).

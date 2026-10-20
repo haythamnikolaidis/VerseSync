@@ -7,7 +7,7 @@
 
   // Audio and video containers the transcription service can read. cep.fs filters by bare
   // extension, without the dot.
-  var State = typeof require !== 'undefined' ? require('./state.js') : root.VSState;
+  var State = root.VSState || (typeof require !== 'undefined' ? require('./state.js') : undefined);
 
   var MEDIA_EXTENSIONS = [
     'mp3', 'wav', 'm4a', 'aac', 'flac', 'ogg',

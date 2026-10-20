@@ -10,7 +10,7 @@
   // sequenceId comes from the analysis (session.sequenceId), model is the VSCues model and
   // placements is VSTimemap.mapCueDocument's placements map.
 
-  var State = typeof require !== 'undefined' ? require('./state.js') : root.VSState;
+  var State = root.VSState || (typeof require !== 'undefined' ? require('./state.js') : undefined);
 
   // The analyse-time blockers that still matter once a document exists. The strings are taken
   // from VSState, so the two lists can never drift apart. Media, translation and sidecar are
