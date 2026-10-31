@@ -368,6 +368,17 @@ def test_missing_upstream_is_backend_unavailable(monkeypatch: pytest.MonkeyPatch
     assert info.value.code == "backend_unavailable"
 
 
+def test_backend_unavailable_names_a_missing_dependency(
+    upstream: FakeUpstream, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # T-07.H: the upstream loader imports psutil, which its package does not declare.
+    monkeypatch.setitem(sys.modules, "core.models.loader", None)
+    with pytest.raises(TranscriptionError) as info:
+        run()
+    assert info.value.code == "backend_unavailable"
+    assert "missing module: core.models.loader" in info.value.message
+
+
 def test_get_backend_returns_the_adapter_when_the_upstream_is_installed(
     upstream: FakeUpstream,
 ) -> None:
