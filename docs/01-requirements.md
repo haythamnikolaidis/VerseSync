@@ -141,7 +141,8 @@ requirement they carry over; they still apply and still need testing, but no new
   verse text to the mapped body field, by field index. **[VF FR-6.3]**
 - **FR-7.3** Each instance's timeline length equals its resolved duration. **[VF FR-6.4]**
 - **FR-7.4** The whole batch is wrapped in a single undo group; one Ctrl+Z reverts it.
-  **[VF NFR-3]**
+  **[VF NFR-3]** *Not met in v1: Premiere 26.5 has no undo-group API, so each cue is its own
+  undo step. See D25 in [12](12-decisions-and-risks.md).*
 - **FR-7.5** Insertion must not ripple or otherwise move existing clips on any track.
 - **FR-7.6** Progress is shown as N of M; the panel stays responsive. **[VF FR-6.5]**
 - **FR-7.7** Per-instance failures are recorded and summarised at the end; the editor is always

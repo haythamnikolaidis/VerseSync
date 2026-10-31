@@ -211,7 +211,8 @@ Run before any release, on the reference workstation, against a real sermon. Rou
 23. Confirm. → Progress runs; graphics land at the reviewed timecodes.
 24. Scrub to three cues. → Each graphic starts as the speaker begins the reference or reading;
     reference and verse text are correct and match the review list.
-25. **Ctrl+Z once.** → Every inserted graphic disappears; nothing else in the sequence moved.
+25. **Ctrl+Z once per graphic** (D25: no undo-group API in Premiere 26.5). → Each press removes
+    one inserted graphic; after N presses every graphic is gone and nothing else moved.
 26. Re-insert. → Same result, no duplicates.
 
 **Failure modes**

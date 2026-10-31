@@ -85,6 +85,7 @@ def test_defaults_are_not_shared_between_loads(app_home: Path) -> None:
 def test_secret_reads_env_var_named_in_config(
     app_home: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    monkeypatch.delenv("VERSESYNC_API_BIBLE_KEY", raising=False)
     cfg = load_config()
     assert cfg.secret("api_key_env") is None
     monkeypatch.setenv("VERSESYNC_API_BIBLE_KEY", "s3cr3t-value")

@@ -109,7 +109,7 @@ stands as written. T-03 also found two hazards that this epic must design around
 
 ### T-25.H · Host verification on real Premiere (covers T-23, T-24, T-25 and D20)
 
-**Executor** human · **Size** — · **Prereqs** T-25.2, T-25.3, T-24, T-22.H · **Status** todo
+**Executor** human · **Size** — · **Prereqs** T-25.2, T-25.3, T-24, T-22.H · **Status** done
 
 On the reference workstation, with `AV_Quote_04.mogrt` and the real sermon project, run each
 check and record the results in `docs/qa/host-verification.md`:
@@ -121,7 +121,8 @@ check and record the results in `docs/qa/host-verification.md`:
 3. `VS.getMediaSegments` reproduces every T-04 case on the real edit, and the walk time is
    recorded.
 4. `VS.insertCues` places 20 cues at 20 absolute times with correct text and durations, and
-   **one Ctrl+Z** removes all of them.
+   **one Ctrl+Z** removes all of them. *(Premiere 26.5 has no undo-group API, so it takes one
+   press per cue. Accepted for v1 as D25: this check passes on placement alone.)*
 5. A deliberately broken cue is reported, and the rest still land.
 6. Switching sequence tabs between Analyse and Insert produces the D20 message, and nothing is
    inserted.

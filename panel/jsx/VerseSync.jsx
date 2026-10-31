@@ -191,7 +191,10 @@ var VS_SCRATCH_OFFSET_SECONDS = 60;
 //   3. getValue() contains "textEditValue" -- reliable cross-version probe;
 //      Premiere stores text properties as a JSON blob with this key
 //
-// Group detection: type 10 (spec) or type 4 (seen in some Premiere builds).
+// Group detection: type 10 (spec) or type 4 (seen in some Premiere builds). Premiere 26.5
+// reports no propertyType at all; there a group header's value is a '<guid>;<hex>' string, which
+// no parameter value matches (T-25.H). The nearest header above a field is its group.
+var VS_GROUP_VALUE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12};/;
 var _iterateProperties = function (mgt) {
     var props = mgt.properties;
     var count = 0;
@@ -211,7 +214,12 @@ var _iterateProperties = function (mgt) {
         try { pName = p.displayName; } catch (e) {}
 
         // Group / folder nodes: track the current group, do not add to results
-        if (pType === 10 || pType === 4) {
+        var isGroupValue = false;
+        try {
+            var gv = p.getValue();
+            isGroupValue = typeof gv === 'string' && VS_GROUP_VALUE.test(gv);
+        } catch (e) {}
+        if (pType === 10 || pType === 4 || isGroupValue) {
             currentGroup = pName;
             continue;
         }
@@ -580,14 +588,21 @@ var _insertOneCue = function (seq, args, cue) {
     var clip = seq.importMGT(args.mogrtPath, cue.atTicks, args.trackIndex, 0);
     if (!clip) throw new Error(VS_MSG_IMPORT_NULL);
 
-    var mgt = clip.getMGTComponent();
-    if (!mgt) throw new Error(VS_MSG_NO_MGT_COMPONENT);
+    // Once the clip is on the track a later failure must not leave it there with the template's
+    // default text and length: take it back off, then let the caller report the cue as failed.
+    try {
+        var mgt = clip.getMGTComponent();
+        if (!mgt) throw new Error(VS_MSG_NO_MGT_COMPONENT);
 
-    _setTextField(mgt, args.mapping.referenceIndex, cue.reference);
-    _setTextField(mgt, args.mapping.bodyIndex,      cue.body);
-    _setClipDuration(clip, cue.durationTicks);
+        _setTextField(mgt, args.mapping.referenceIndex, cue.reference);
+        _setTextField(mgt, args.mapping.bodyIndex,      cue.body);
+        _setClipDuration(clip, cue.durationTicks);
 
-    return String(clip.start.ticks);
+        return String(clip.start.ticks);
+    } catch (e) {
+        try { clip.remove(false, true); } catch (removeErr) {}
+        throw e;
+    }
 };
 
 // An Error carries its message in .message; String(e) would prefix "Error: ".

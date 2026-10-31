@@ -34,6 +34,7 @@ rediscovered.
 | D22 | How the panel gets `transcript.words_ref` | **`GET /jobs/{id}/transcript`** for job results. For a document on disk, resolve it as a sibling file relative to the document. *Save cue document* writes the sibling too. | 07 §5.1 said the panel "fetches" the sibling but defined no endpoint or resolution rule, which left the expanded row's transcript context unbuildable. | Low. Additive endpoint, API stays 1.0. Implemented by **T-50**. |
 | D23 | Verse-count authority for the canon table | **KJV**, derived from the bundled public-domain text (T-09.1). | One source for both canon validation (T-13) and the local provider (T-14) means a verse can never be rejected by one and served by the other. | Low. Regenerate `canon.json` from a different text. |
 | D24 | Accuracy measurement and threshold tuning | **Deferred past v1.** No labelled corpus beyond T-41's bootstrap fixtures, no accuracy harness, no tuning pass (T-33.2, T-33.H and T-34 are deferred). Spec-default constants ship as specified. M1–M3 are targets, not release gates. T-33.1 golden files stay, as the regression guard. | Stakeholder schedule pressure, and no annotator capacity. The largest known accuracy gap is narrative paraphrase with no lexical overlap, about 31% of mentions in T-02 (D19). No amount of tuning reaches it; the review list (D4) and manual add are the backstop. **Accepted risk:** v1 ships with recall, precision and anchor accuracy unmeasured. | Low technically: the constants are named, the CLI and golden files exist, and reinstating the deferred tasks needs no redesign. The cost is the annotation effort itself. |
+| D25 | One-Ctrl+Z batch undo (FR-7.4, G5) | **Not delivered in v1.** Premiere 26.5 has no `app.beginUndoGroup`/`endUndoGroup` (`typeof` is `undefined`, T-25.H), so an insert is N separate undo steps. The host keeps its try-wrapped calls, which are no-ops there. We ship with N presses of Ctrl+Z and decide the fix from user feedback. | The API the design relied on does not exist in the target Premiere. The candidate fixes (a panel-side *Undo last insert* that removes the clips from the insert result, or a UXP re-platform, R-3) are real scope, and users may find N presses acceptable. **Accepted risk:** G5 "one Ctrl+Z" is not met. | Low to defer. The insert result already returns every placed clip's id, so *Undo last insert* can be added later without a contract change. |
 
 ---
 
@@ -239,7 +240,7 @@ Sermon audio may be pastorally sensitive. Editors should not have to wonder wher
 
 ## Open questions
 
-### Q-A — Which translations, from which provider? 🔴 Blocking M2 completion
+### Q-A — Which translations, from which provider? 🟡 Partly answered (public domain done)
 
 Drives risk R-1 and the whole of [06](06-bible-text-service.md). Needs:
 
@@ -248,7 +249,13 @@ Drives risk R-1 and the whole of [06](06-bible-text-service.md). Needs:
    store with text the church already licenses) or C3 (public domain).
 3. The exact attribution string and caching terms per translation.
 
-**Until answered:** build and test against a public-domain translation; nothing else is blocked.
+**Answered for public domain (T-15.H, 2026-10-17):** API.Bible is live with a real key, and
+**KJV, ASV and WEB** are configured in `bible.translations` with each one's own copyright text
+and `cache_allowed=True`. No written permission is needed for these three.
+
+**Still open for licensed translations (NKJV, TPT, …):** the key returns NKJV text, but that is
+API read access, not the written distribution permission R-1 requires. Until that permission is
+in writing, don't add NKJV or TPT to `bible.translations`. No engineering work is blocked.
 
 ### Q-B — Project-default translation, or honour a spoken one? 🟡 Non-blocking
 
@@ -293,3 +300,4 @@ as specified**. Revisit it if editors find the amber flag too noisy or too quiet
 - Sequence-audio export as an alternative to D3's file selection.
 - macOS support.
 - UXP re-platform (tracked by R-3).
+- One-step batch undo: *Undo last insert* or UXP undo grouping (D25).

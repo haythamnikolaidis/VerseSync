@@ -67,7 +67,8 @@ without a CUDA GPU (CPU works, just slowly — see NFR-2).
 - **G4 — Handle paraphrase as a first-class case.** A speaker who says "Paul tells us in
   Romans 8 that nothing can separate us from God's love" gets the same graphic as one who
   reads the verse verbatim.
-- **G5 — Be recoverable.** One Ctrl+Z undoes the batch. Re-running is cheap.
+- **G5 — Be recoverable.** One Ctrl+Z undoes the batch. Re-running is cheap. *(v1: one Ctrl+Z
+  per inserted graphic, D25.)*
 
 ### Non-goals (v1)
 
@@ -215,7 +216,8 @@ could change the product:
 ## 11. Open questions
 
 Carried in [12-decisions-and-risks.md](12-decisions-and-risks.md) §Open questions. The two
-that need an answer before M2 completes:
+that need an answer before M2 completes (Q-A is answered for the public-domain KJV, ASV and WEB;
+it stays open only for licensed translations such as NKJV):
 
 - **Q-A — Which translations, from which provider?** Drives R-1 and the whole of
   [06](06-bible-text-service.md). Needs a licensing decision, not an engineering one.

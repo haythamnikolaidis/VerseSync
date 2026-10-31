@@ -10,7 +10,7 @@
   // sequenceId comes from the analysis (session.sequenceId), model is the VSCues model and
   // placements is VSTimemap.mapCueDocument's placements map.
 
-  var State = typeof require !== 'undefined' ? require('./state.js') : root.VSState;
+  var State = root.VSState || (typeof require !== 'undefined' ? require('./state.js') : undefined);
 
   // The analyse-time blockers that still matter once a document exists. The strings are taken
   // from VSState, so the two lists can never drift apart. Media, translation and sidecar are
@@ -141,7 +141,8 @@
 
   // ---- running the batch --------------------------------------------------------------------
 
-  var UNDO_NOTE = 'One Ctrl+Z reverts the whole batch.';
+  // Premiere 26.5 has no undo-group API (D25), so each placed graphic is its own undo step.
+  var UNDO_NOTE = 'Ctrl+Z removes the graphics one at a time.';
   var MISSING_RESULT = 'The host did not report this cue.';
 
   function progressText(done, total) {
@@ -273,5 +274,7 @@
   };
 
   if (typeof module !== 'undefined' && module.exports) { module.exports = Insert; }
-  else { root.VSInsert = Insert; }
+  // Always set the global too (see bridge.js): CEP's mixed-context leaks `module` into the
+  // browser window, so this can't be an else-branch without breaking Premiere.
+  root.VSInsert = Insert;
 })(this);

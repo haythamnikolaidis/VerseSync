@@ -692,7 +692,9 @@
   var Main = { createApp: createApp, parseTimecode: parseTimecode };
 
   if (typeof module !== 'undefined' && module.exports) { module.exports = Main; }
-  else { root.VSMain = Main; }
+  // Always set the global too (see bridge.js): CEP's mixed-context leaks `module` into the
+  // browser window, so this can't be an else-branch without breaking Premiere.
+  root.VSMain = Main;
 
   if (root.document && root.document.getElementById) { boot(); }
 })(this);

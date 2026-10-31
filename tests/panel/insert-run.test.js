@@ -196,7 +196,7 @@ test('16 cues go in with one insertCues call, live progress, and one undo group'
   assert.strictEqual(t.calls('validateTrack').length, 1);
   assert.strictEqual(imports.n, 16);
   assert.strictEqual(t.track().length, 16);
-  assert.strictEqual(t.summary().textContent, 'Placed 16 of 16. One Ctrl+Z reverts the whole batch.');
+  assert.strictEqual(t.summary().textContent, 'Placed 16 of 16. Ctrl+Z removes the graphics one at a time.');
   assert.strictEqual(t.confirms.length, 0);
 
   assert.strictEqual(seen.length, 16);
@@ -225,7 +225,7 @@ test('a failing cue gives a partial summary and Retry failed inserts only that c
   t.insertBtn().click();
   await waitFor(function () { return t.summary(); });
   assert.strictEqual(t.summary().textContent,
-    'Placed 15 of 16 \u2014 1 failed, see details. One Ctrl+Z reverts the whole batch.');
+    'Placed 15 of 16 \u2014 1 failed, see details. Ctrl+Z removes the graphics one at a time.');
   assert.strictEqual(t.calls('insertCues').length, 1);
   assert.strictEqual(t.track().length, 15);
 

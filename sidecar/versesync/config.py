@@ -44,6 +44,22 @@ _BIBLE_DEFAULTS: dict[str, Any] = {
     "default_translation": "kjv",
     "max_verses_per_passage": 6,
     "cache_enabled": True,
+    # Attribution and caching terms per API.Bible bible id (never inferred — see T-15).
+    # Confirmed public domain by the live API.Bible response's own "copyright" field
+    # (T-15.H, 2026-10-17). Translations beyond public domain (NKJV, TPT, ...) stay out of
+    # this table until Q-A is resolved in writing (docs/12-decisions-and-risks.md, R-1).
+    "translations": {
+        "de4e12af7f28f599-01": {  # KJV
+            "attribution": (
+                "PUBLIC DOMAIN except in the United Kingdom, where a Crown Copyright applies "
+                "to printing the KJV. See "
+                "http://www.cambridge.org/about-us/who-we-are/queens-printers-patent"
+            ),
+            "cache_allowed": True,
+        },
+        "06125adad2d5898a-01": {"attribution": "PUBLIC DOMAIN.", "cache_allowed": True},  # ASV
+        "9879dbb7cfe39e4d-04": {"attribution": "PUBLIC DOMAIN.", "cache_allowed": True},  # WEB
+    },
 }
 
 _SERVER_DEFAULTS: dict[str, Any] = {

@@ -74,15 +74,22 @@ when the upstream PR merges.
   works with Qt uninstalled.
 - **Done when:**
   - [x] `core/service.py` is gone and nothing imports it.
-  - [ ] The PR is open upstream, and its body says GUI parity needs T-06.H.
+  - [x] The PR is open upstream, and its body says GUI parity needs T-06.H.
 
 ### T-06.H · Upstream GUI parity check
 
-**Executor** human · **Size** — · **Prereqs** T-06.2 · **Status** todo
+**Executor** human · **Size** — · **Prereqs** T-06.2 · **Status** done
 
-- On a Windows machine: record and transcribe in the upstream GUI, and confirm the behaviour is
-  identical to before. Then merge the upstream PR, and tag the commit that the sidecar pins
-  (T-07.2).
+- On a Windows machine: recorded and transcribed in the upstream GUI; behaviour is identical to
+  before the refactor. The upstream PR (`claude/qt-free-engine`) merged into `main` on
+  2026-10-16, at commit `2644c7f2282564f4fe570474742f3ae58be35a2b`.
+- That commit's `pip install` pin turned out to be unbuildable: the upstream repo had no
+  `setup.py`/`pyproject.toml`, so `pip install git+...@<sha>` always failed with "does not
+  appear to be a Python project", regardless of which commit was pinned. Opened and merged a
+  follow-up upstream PR (`claude/pip-installable-package`, #2) adding a minimal setuptools
+  `pyproject.toml` that packages only `core/` (no `gui/`, no `tests/`). New `main` commit:
+  `54ede6af030f449f240a47f6328ef5b1b0680b6b`. Re-pinned `pyproject.toml`'s `transcribe` extra
+  and `docs/INSTALL.md` to this commit.
 
 ## Traps
 

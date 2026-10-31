@@ -5,7 +5,7 @@ const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 const { loadJsx } = require('../lib/load-jsx');
-const { createFakePremiere, AV_QUOTE_04_FIELDS } = require('../lib/fake-premiere');
+const { createFakePremiere, AV_QUOTE_04_FIELDS, AV_QUOTE_04_FIELDS_NO_TYPES } = require('../lib/fake-premiere');
 
 const JSX = path.join(__dirname, '..', '..', 'panel', 'jsx', 'VerseSync.jsx');
 const FIXTURE = path.join(__dirname, '..', 'fixtures', 'host', 'mogrt-fields.json');
@@ -36,6 +36,12 @@ test('getMogrtFields output equals the mogrt-fields fixture', () => {
   const expected = JSON.parse(fs.readFileSync(FIXTURE, 'utf8'));
   const res = call(fakeWithTemplate(AV_QUOTE_04_FIELDS), { path: TEMPLATE });
   assert.deepStrictEqual(res, { ok: true, data: expected });
+});
+
+test('groups are found when the host reports no propertyType (Premiere 26.5)', () => {
+  const res = call(fakeWithTemplate(AV_QUOTE_04_FIELDS_NO_TYPES), { path: TEMPLATE });
+  assert.deepStrictEqual(res.data.fields.map((x) => x.label), ['Title Main > Text', 'Description > Text']);
+  assert.deepStrictEqual(res.data.fields.map((x) => x.group), ['Title Main', 'Description']);
 });
 
 test('both Text fields come back with different indices and group labels', () => {

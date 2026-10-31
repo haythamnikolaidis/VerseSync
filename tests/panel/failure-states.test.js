@@ -359,7 +359,7 @@ test('with the sidecar down, a saved cue document still loads and inserts', asyn
   t.q('#review .vf-review-insert').click();
   await waitFor(function () { return t.q('#insert .vf-insert-summary'); }, 'the insert summary');
   assert.strictEqual(t.q('#insert .vf-insert-summary').textContent,
-    'Placed 18 of 18. One Ctrl+Z reverts the whole batch.');
+    'Placed 18 of 18. Ctrl+Z removes the graphics one at a time.');
   assert.strictEqual(host.seq.videoTracks[3].clips.length, 18);
   assert.deepStrictEqual(host.fake.undoLog, [
     { type: 'begin', name: 'VerseSync: Insert scriptures' },
@@ -625,7 +625,7 @@ test('one importMGT fails mid-batch: it is reported, the rest land, and the undo
     assert.strictEqual(calls, 18, 'the batch continued past the failure');
     assert.strictEqual(host.seq.videoTracks[3].clips.length, 17);
     assert.strictEqual(t.q('#insert .vf-insert-summary').textContent,
-      'Placed 17 of 18 \u2014 1 failed, see details. One Ctrl+Z reverts the whole batch.');
+      'Placed 17 of 18 \u2014 1 failed, see details. Ctrl+Z removes the graphics one at a time.');
     var hostSaid = host.answers.filter(function (a) { return a.name === 'insertCues'; })[0].res.data;
     assert.strictEqual(hostSaid.failedCount, 1);
     var failed = hostSaid.results.filter(function (r) { return !r.ok; })[0];
