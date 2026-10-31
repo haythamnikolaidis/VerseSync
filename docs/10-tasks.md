@@ -137,6 +137,13 @@ skip them. `python tools/plan.py validate` checks this table against the cards.
 | 104 | [T-36.2](tasks/T-36-install-and-documentation.md) | Panel installer | agent | XS | T-22.1 | 5 |
 | 105 | [T-36.3](tasks/T-36-install-and-documentation.md) | README and INSTALL | agent | S | T-36.1, T-36.2, T-35.1, T-32.1 | 5 |
 | 106 | [T-36.H](tasks/T-36-install-and-documentation.md) | Clean-machine install | **human** | — | T-36.3, T-35.H | 5 |
+| 107 | [T-51.1](tasks/T-51-scripture-file-import.md) | Scripture file: export parser | agent | S | T-14.2, T-13.1 | 6 |
+| 108 | [T-51.2](tasks/T-51-scripture-file-import.md) | Contract: Cue Document 1.1 | agent | S | T-51.1 | 6 |
+| 109 | [T-51.3](tasks/T-51-scripture-file-import.md) | Entry locator | agent | S | T-51.1, T-17.2, T-13.3 | 6 |
+| 110 | [T-51.4](tasks/T-51-scripture-file-import.md) | Pipeline integration | agent | S | T-51.2, T-51.3, T-19.3 | 6 |
+| 111 | [T-51.5](tasks/T-51-scripture-file-import.md) | API and CLI | agent | XS | T-51.4 | 6 |
+| 112 | [T-51.6](tasks/T-51-scripture-file-import.md) | Panel: picker and review list | agent | S | T-51.5, T-29.3 | 6 |
+| 113 | [T-51.H](tasks/T-51-scripture-file-import.md) | Real sermon with its export | **human** | — | T-51.6 | 6 |
 
 **Phases.**
 
@@ -148,6 +155,7 @@ skip them. `python tools/plan.py validate` checks this table against the cards.
 | **3** | `VerseSync.jsx`, tested under Node against the fake DOM. |
 | **4** | The CEP panel, built against the mock sidecar and the host stub, and finally integrated with the real `VerseSync.jsx` on the fake DOM. |
 | **5** | Journey B, error surfaces, golden files, performance budgets, installers and documentation. |
+| **6** | Scripture file import (D26): the EasyWorship export as the first source of cues and verse text. See [14](14-scripture-file-import.md). |
 
 ## Human tasks
 

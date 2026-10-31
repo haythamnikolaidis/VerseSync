@@ -86,6 +86,7 @@ few sections you need.
 | [11-testing.md](11-testing.md) | Unit, integration and manual QA strategy, plus the fixture corpus. |
 | [12-decisions-and-risks.md](12-decisions-and-risks.md) | Decision log, risk register, and open questions still needing an answer. |
 | [13-technical-plan.md](13-technical-plan.md) | **The build order.** Workstreams, waves, what unblocks whom, staffing, and working agreements. |
+| [14-scripture-file-import.md](14-scripture-file-import.md) | *(post-v1, D26)* The EasyWorship export as the first source of cues and verse text: parsing, locating entries by text, contract changes. |
 
 ---
 
