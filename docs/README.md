@@ -5,8 +5,8 @@
 after it are the engineering specification.
 
 > **Status (2026-10-28):** Implementation complete for v1. Every agent task in
-> [10-tasks.md](10-tasks.md) is done. What's left is the human release gate (T-30.H,
-> T-31.H, T-32.H, T-35.H, T-36.H). Results are recorded in [`qa/`](qa/). Run
+> [10-tasks.md](10-tasks.md) is done. What's left is the human release gate (T-31.H,
+> T-32.H, T-35.H, T-36.H). Results are recorded in [`qa/`](qa/). Run
 > `python tools/plan.py status` for the live picture.
 
 ---

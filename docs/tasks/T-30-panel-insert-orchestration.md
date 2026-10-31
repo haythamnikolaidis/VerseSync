@@ -83,7 +83,7 @@ landed. **This is where Journey A completes.**
 
 ### T-30.H · Journey A on a real workstation
 
-**Executor** human · **Size** — · **Prereqs** T-30.2, T-25.H, T-07.H, T-20.5 · **Status** todo
+**Executor** human · **Size** — · **Prereqs** T-30.2, T-25.H, T-07.H, T-20.5 · **Status** done
 
 Run steps 1–26 of [11 §6](../11-testing.md) on the reference workstation with a real sermon:
 select media, Analyse, review, Insert, and check that the graphics land at the right moments
