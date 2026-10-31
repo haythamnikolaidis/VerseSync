@@ -14,7 +14,7 @@ Two commands, one for the sidecar and one for the panel. The full walk-through, 
 configuration option and where credentials go are in **[`docs/INSTALL.md`](docs/INSTALL.md)**.
 
 ```
-python install.py --venv "%APPDATA%\VerseSync\venv"
+python install.py
 powershell -ExecutionPolicy Bypass -File tools\install_panel.ps1
 ```
 

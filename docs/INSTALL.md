@@ -26,7 +26,7 @@ You do not check the repository out yourself.
 ## 1. Install the sidecar
 
 ```
-python install.py --venv "%APPDATA%\VerseSync\venv"
+python install.py
 ```
 
 The installer:
@@ -48,10 +48,11 @@ Options:
 | `--cpu` / `--gpu` | Force the CPU or CUDA wheel instead of detecting (mutually exclusive). |
 | `--venv PATH` | Where to create the virtual environment. |
 
-**Use `--venv "%APPDATA%\VerseSync\venv"`.** Without `--venv`, `install.py` uses
-`%LOCALAPPDATA%\VerseSync\venv`, but the panel starts the sidecar from
-`%APPDATA%\VerseSync\venv\Scripts\pythonw.exe` (or `%VERSESYNC_HOME%\venv\...` when
-`VERSESYNC_HOME` is set), so a venv elsewhere is never found.
+By default the venv goes where the panel looks for it: `%APPDATA%\VerseSync\venv`, or
+`%VERSESYNC_HOME%\venv` when `VERSESYNC_HOME` is set. Only pass `--venv` if you start the
+sidecar yourself, because the panel never finds a venv anywhere else. A `--venv` path that
+still contains `%NAME%` (cmd syntax typed into Git Bash or PowerShell) is refused, instead of
+being created literally under the current folder.
 
 Run `python install.py --dry-run` first to see the exact commands. A failed command prints
 `Install failed: ...` and exits 1; an unsupported Python exits 2.

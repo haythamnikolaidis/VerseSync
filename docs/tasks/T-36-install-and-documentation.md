@@ -27,7 +27,8 @@ with **dry-run and fake-filesystem modes**. Proving it on a clean machine is T-3
 - **Steps:**
   1. Port the **pinned-wheel pattern**. It detects the Python version (cp311, cp312 or cp313)
      and a GPU (`nvidia-smi` present), picks GPU or CPU torch and the CUDA runtime pins, creates
-     `%LOCALAPPDATA%\VerseSync\venv`, and installs `versesync[transcribe]`. Every subprocess
+     `%APPDATA%\VerseSync\venv` (the app home the panel launches from; until 2026-10-31 this
+     said `%LOCALAPPDATA%`, which the panel never found), and installs `versesync[transcribe]`. Every subprocess
      call goes through one `run(cmd)` function, and `--dry-run` prints the commands instead of
      running them. Commit.
   2. Tests use `--dry-run`, with the GPU check mocked: the GPU and CPU command lists differ as

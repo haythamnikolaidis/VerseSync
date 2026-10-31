@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -89,11 +90,28 @@ def has_nvidia_gpu() -> bool:
 
 
 def default_venv() -> Path:
-    """%LOCALAPPDATA%/VerseSync/venv on Windows, an XDG-style path elsewhere."""
-    local = os.environ.get("LOCALAPPDATA")
-    if local:
-        return Path(local) / "VerseSync" / "venv"
-    return Path.home() / ".local" / "share" / "VerseSync" / "venv"
+    """``<app home>/venv``, where the panel launches the sidecar from (panel/js/sidecar.js).
+
+    The app home follows ``versesync.paths.app_home``: ``$VERSESYNC_HOME``, then
+    ``%APPDATA%/VerseSync`` on Windows, then ``~/.local/share/versesync``.
+    """
+    override = os.environ.get("VERSESYNC_HOME")
+    if override:
+        return Path(override) / "venv"
+    appdata = os.environ.get("APPDATA")
+    if sys.platform == "win32" and appdata:
+        return Path(appdata) / "VerseSync" / "venv"
+    return Path.home() / ".local" / "share" / "versesync" / "venv"
+
+
+def unexpanded_variable(path: Path) -> str | None:
+    """The first ``%NAME%`` left in ``path``, or None.
+
+    ``"%APPDATA%/VerseSync/venv"`` typed into Git Bash or PowerShell reaches us unexpanded, and
+    would create a folder literally named ``%APPDATA%`` under the current directory.
+    """
+    match = re.search(r"%[A-Za-z_][A-Za-z0-9_]*%", str(path))
+    return match.group(0) if match else None
 
 
 def venv_python(venv: Path) -> Path:
@@ -152,6 +170,14 @@ def main(
     print(f"Python {tag}, {'NVIDIA GPU' if gpu else 'CPU-only'} install")
 
     venv = args.venv if args.venv is not None else default_venv()
+    variable = unexpanded_variable(venv)
+    if variable is not None:
+        print(
+            f"--venv contains {variable}, which this shell did not expand. Leave --venv out to "
+            "use the default location, or pass a path with the variable expanded.",
+            file=sys.stderr,
+        )
+        return 2
     try:
         for command in build_commands(tag, gpu, venv):
             run(command, args.dry_run)

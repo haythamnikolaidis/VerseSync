@@ -101,3 +101,37 @@ def test_every_supported_tag_has_both_pin_sets() -> None:
 def test_run_dry_run_does_not_execute(capsys: pytest.CaptureFixture[str]) -> None:
     install.run(["definitely-not-a-program", "--flag"], dry_run=True)
     assert "+ definitely-not-a-program --flag" in capsys.readouterr().out
+
+
+def test_default_venv_is_where_the_panel_launches_from(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    # panel/js/sidecar.js launches <app home>/venv/Scripts/pythonw.exe, and the sidecar's
+    # app_home() is that same home; a venv anywhere else is never found.
+    from versesync.paths import app_home
+
+    monkeypatch.delenv("VERSESYNC_HOME", raising=False)
+    monkeypatch.setattr(sys, "platform", "win32")
+    monkeypatch.setenv("APPDATA", str(tmp_path / "Roaming"))
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path / "Local"))
+    assert install.default_venv() == tmp_path / "Roaming" / "VerseSync" / "venv"
+    assert install.default_venv() == app_home() / "venv"
+
+    monkeypatch.setenv("VERSESYNC_HOME", str(tmp_path / "home"))
+    assert install.default_venv() == tmp_path / "home" / "venv"
+    assert install.default_venv() == app_home() / "venv"
+
+
+def test_unexpanded_variable_in_venv_is_refused(
+    capsys: pytest.CaptureFixture[str], tmp_path: Path
+) -> None:
+    # T-07.H: cmd syntax typed into Git Bash created a literal "%APPDATA%" folder in the repo.
+    code = install.main(
+        ["--dry-run", "--venv", "%APPDATA%\VerseSync\venv"],
+        gpu_detector=lambda: False,
+        version=(3, 12),
+    )
+    out = capsys.readouterr()
+    assert code == 2
+    assert "%APPDATA%" in out.err
+    assert "+ " not in out.out  # nothing was run, not even in dry-run form
