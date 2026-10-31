@@ -116,7 +116,7 @@ otherwise, and its result wins.** The model stays configurable.
 
 ### T-07.H · GPU workstation verification
 
-**Executor** human · **Size** — · **Prereqs** T-07.2 · **Status** todo
+**Executor** human · **Size** — · **Prereqs** T-07.2 · **Status** done
 
 On the reference workstation, against a real 45-minute sermon:
 
@@ -126,7 +126,9 @@ On the reference workstation, against a real 45-minute sermon:
 - two runs produce **identical** words;
 - forcing an OOM (with a too-large model or batch) shows the `model_load_failed` message.
 
-Record the results in `docs/qa/transcription-verification.md`.
+Record the results in `docs/qa/transcription-verification.md`. *(Done 2026-10-31. The OOM
+check cannot be reproduced on Windows with the default driver fallback policy; accepted, see
+that file.)*
 
 ## Traps
 
