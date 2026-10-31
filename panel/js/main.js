@@ -660,10 +660,25 @@
     });
 
     // Without Node the Node transport cannot work, so the fixture-backed stub transport stands
-    // in for the sidecar. With Node there is no client until the sidecar lifecycle supplies one.
+    // in for the sidecar. With Node (CEP), the lifecycle discovers or launches the real sidecar
+    // and the connected client forwards to it (docs/03 §3).
     var transport = null;
     var client = null;
-    if (typeof require === 'undefined' && root.VSSidecarStub) {
+    var lifecycle = null;
+    if (typeof require === 'function' && typeof process !== 'undefined') {
+      var Sidecar = root.VSSidecar;
+      transport = Sidecar.createNodeTransport(require('http'));
+      lifecycle = Sidecar.createLifecycle({
+        fs: require('fs'),
+        childProcess: require('child_process'),
+        env: process.env,
+        platform: process.platform,
+        clientFactory: function (conn) {
+          return Sidecar.VSSidecarClient.create({ transport: transport, port: conn.port, token: conn.token });
+        }
+      });
+      client = Sidecar.connectedClient(lifecycle);
+    } else if (root.VSSidecarStub) {
       transport = root.VSSidecarStub.create({
         scenario: root.VSSidecarStub.scenarioFromSearch(root.location && root.location.search)
       });
@@ -680,7 +695,14 @@
     });
     root.VSApp = app;
 
-    if (client) {
+    if (lifecycle) {
+      lifecycle.onState(function (state, detail) {
+        console.log('[VerseSync] sidecar', state, typeof detail === 'string' ? detail : '');
+        app.setLifecycle(state, detail);
+      });
+      // Setup's translation load would connect on its own; this makes the start explicit.
+      client.connect();
+    } else if (client) {
       client.health().then(function (res) {
         console.log('[VerseSync] stub sidecar health', JSON.stringify(res));
         if (res.ok) { app.setLifecycle(res.data.status, res.data); }
