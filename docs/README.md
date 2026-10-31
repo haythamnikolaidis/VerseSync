@@ -4,8 +4,10 @@
 [00-prd.md](00-prd.md) first for the product-level "what and why"; the numbered documents
 after it are the engineering specification.
 
-> **Status:** Specification complete, ready for implementation. No production code has been
-> written — only illustrative snippets inside these documents.
+> **Status (2026-10-28):** Implementation complete for v1. Every agent task in
+> [10-tasks.md](10-tasks.md) is done. What's left is the human release gate (T-07.H,
+> T-30.H, T-31.H, T-32.H, T-35.H, T-36.H). Results are recorded in [`qa/`](qa/). Run
+> `python tools/plan.py status` for the live picture.
 
 ---
 
@@ -126,7 +128,9 @@ meanings — see VerseFlow's `docs/planning/README.md`. New to VerseSync:
 4. Clicking **Insert** places one MOGRT instance per approved cue, each starting on the frame
    where the speaker begins reading or mentions that scripture, with reference and verse text
    filled in correctly.
-5. A single Ctrl+Z reverts the entire batch.
+5. A single Ctrl+Z reverts the entire batch. *(v1: Premiere 26.5 exposes no undo-group API,
+   so Ctrl+Z removes one graphic per press. Accepted as D25 in
+   [12](12-decisions-and-risks.md).)*
 6. Re-running on an already-transcribed file skips transcription and returns in seconds.
 7. Every failure mode — no sequence open, media not in the timeline, API unreachable, no
    editable MOGRT fields, sidecar down — is reported clearly and leaves the timeline

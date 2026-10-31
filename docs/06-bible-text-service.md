@@ -193,7 +193,8 @@ VerseFlow's own sample data uses **NKJV** and **TPT**. Neither is a given:
   restrictions on how much of a book may be served and a non-commercial condition.
 
 **What must happen before M2 completes** — this is open question **Q-A** in
-[00-prd.md](00-prd.md) §11 and [12](12-decisions-and-risks.md):
+[00-prd.md](00-prd.md) §11 and [12](12-decisions-and-risks.md). *(Status: done for the
+public-domain KJV, ASV and WEB in T-15.H. Still open for licensed translations.)*
 
 1. Confirm which translations the church actually needs on screen. If it is one, this gets much
    simpler.

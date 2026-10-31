@@ -216,7 +216,8 @@ could change the product:
 ## 11. Open questions
 
 Carried in [12-decisions-and-risks.md](12-decisions-and-risks.md) §Open questions. The two
-that need an answer before M2 completes:
+that need an answer before M2 completes (Q-A is answered for the public-domain KJV, ASV and WEB;
+it stays open only for licensed translations such as NKJV):
 
 - **Q-A — Which translations, from which provider?** Drives R-1 and the whole of
   [06](06-bible-text-service.md). Needs a licensing decision, not an engineering one.

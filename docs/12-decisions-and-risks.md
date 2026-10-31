@@ -240,7 +240,7 @@ Sermon audio may be pastorally sensitive. Editors should not have to wonder wher
 
 ## Open questions
 
-### Q-A — Which translations, from which provider? 🔴 Blocking M2 completion
+### Q-A — Which translations, from which provider? 🟡 Partly answered (public domain done)
 
 Drives risk R-1 and the whole of [06](06-bible-text-service.md). Needs:
 
@@ -249,7 +249,13 @@ Drives risk R-1 and the whole of [06](06-bible-text-service.md). Needs:
    store with text the church already licenses) or C3 (public domain).
 3. The exact attribution string and caching terms per translation.
 
-**Until answered:** build and test against a public-domain translation; nothing else is blocked.
+**Answered for public domain (T-15.H, 2026-10-17):** API.Bible is live with a real key, and
+**KJV, ASV and WEB** are configured in `bible.translations` with each one's own copyright text
+and `cache_allowed=True`. No written permission is needed for these three.
+
+**Still open for licensed translations (NKJV, TPT, …):** the key returns NKJV text, but that is
+API read access, not the written distribution permission R-1 requires. Until that permission is
+in writing, don't add NKJV or TPT to `bible.translations`. No engineering work is blocked.
 
 ### Q-B — Project-default translation, or honour a spoken one? 🟡 Non-blocking
 
