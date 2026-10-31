@@ -188,8 +188,71 @@
     return out;
   }
 
+  // A Storage-shaped store backed by one JSON file, written through on every change.
+  // CEP's localStorage only reaches disk when Premiere quits cleanly (T-30.H step 8: an hour of
+  // settings existed only in memory), so a crash or force-quit lost them. The first read of a key
+  // the file lacks copies it from `fallback` (the old localStorage), so existing settings carry
+  // over once. Writes go to a temp file and are renamed into place, so a crash mid-write leaves
+  // the previous file intact.
+  function fileStorage(opts) {
+    var fs = opts.fs;
+    var path = opts.path;
+    var fallback = opts.fallback || null;
+    var data = null;
+
+    function read() {
+      if (data) { return data; }
+      try {
+        var parsed = JSON.parse(fs.readFileSync(path, 'utf8'));
+        data = parsed && typeof parsed === 'object' ? parsed : {};
+      } catch (e) {
+        data = {};
+      }
+      return data;
+    }
+
+    function write() {
+      try {
+        fs.writeFileSync(path + '.tmp', JSON.stringify(data, null, 2), 'utf8');
+        fs.renameSync(path + '.tmp', path);
+      } catch (e) {
+        // Unwritable home: settings still work for this session, as with a blocked localStorage.
+      }
+    }
+
+    return {
+      getItem: function (key) {
+        var d = read();
+        if (Object.prototype.hasOwnProperty.call(d, key)) { return d[key]; }
+        var old = null;
+        try { old = fallback ? fallback.getItem(key) : null; } catch (e) { old = null; }
+        if (old !== null && old !== undefined) {
+          d[key] = String(old);
+          write();
+          return d[key];
+        }
+        return null;
+      },
+      setItem: function (key, value) {
+        read()[key] = String(value);
+        write();
+      },
+      removeItem: function (key) {
+        var d = read();
+        if (Object.prototype.hasOwnProperty.call(d, key)) {
+          delete d[key];
+          write();
+        }
+        if (fallback) {
+          try { fallback.removeItem(key); } catch (e) { /* nothing to migrate later either way */ }
+        }
+      }
+    };
+  }
+
   var State = {
     create: create,
+    fileStorage: fileStorage,
     smartDefaults: smartDefaults,
     analyseBlockers: analyseBlockers
   };

@@ -10,6 +10,7 @@ var test = require('node:test');
 var assert = require('node:assert');
 var fs = require('node:fs');
 var path = require('node:path');
+var FakeCepFs = require(path.join(__dirname, 'helpers', 'fake-cep-fs.js'));
 var JSDOM = require('jsdom').JSDOM;
 
 var root = path.join(__dirname, '..', '..');
@@ -81,19 +82,7 @@ function fakeClient(doc) {
 }
 
 function fakeFs() {
-  var f = { files: {}, saveAnswers: [], openAnswers: [] };
-  f.showOpenDialog = function (multiple, directory, title, initial, extensions) {
-    if (extensions.indexOf('mogrt') !== -1) { return { err: 0, data: ['C:\\t\\AV_Quote_04.mogrt'] }; }
-    if (extensions.indexOf('json') !== -1) { return { err: 0, data: [f.openAnswers.shift()] }; }
-    return { err: 0, data: [MEDIA] };
-  };
-  f.showSaveDialog = function () { return { err: 0, data: f.saveAnswers.shift() }; };
-  f.writeFile = function (p, data) { f.files[p] = data; return { err: 0 }; };
-  f.readFile = function (p) {
-    return Object.prototype.hasOwnProperty.call(f.files, p) ?
-      { err: 0, data: f.files[p] } : { err: 3, data: '' };
-  };
-  return f;
+  return FakeCepFs.create(MEDIA);
 }
 
 function tick() { return new Promise(function (r) { setTimeout(r, 0); }); }

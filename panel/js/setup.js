@@ -278,17 +278,28 @@
       state.set({ targetTrack: chosen });
     }
 
+    // Resolves with whether a sequence is open. Called at start and by the app's sequence watcher
+    // every few seconds, so the track list is only rebuilt when it changed: rebuilding it on every
+    // poll would close the dropdown under the editor.
+    var shownTracks = null;
+    function applyTracks(open, count) {
+      var key = open + ':' + count;
+      state.set({ sequenceOpen: open });
+      if (key !== shownTracks) {
+        shownTracks = key;
+        renderTracks(count);
+      }
+      updateAnalyse();
+      return open;
+    }
+
     function loadTracks() {
       return bridge.call('getSequenceInfo', {}).then(function (res) {
         var info = res && res.ok && res.data;
         var open = !!(info && info.hasActiveSequence);
-        state.set({ sequenceOpen: open });
-        renderTracks(open ? (info.videoTrackCount || 0) : 0);
-        updateAnalyse();
+        return applyTracks(open, open ? (info.videoTrackCount || 0) : 0);
       }).then(null, function () {
-        state.set({ sequenceOpen: false });
-        renderTracks(0);
-        updateAnalyse();
+        return applyTracks(false, 0);
       });
     }
 

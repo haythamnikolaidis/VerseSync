@@ -295,14 +295,20 @@
     return parts.join(platform === 'win32' ? '\\' : '/');
   }
 
+  // The sidecar's app home (versesync.paths.app_home): VERSESYNC_HOME, else %APPDATA%\VerseSync.
+  function appHome(env, platform) {
+    return env.VERSESYNC_HOME ||
+      (env.APPDATA ? env.APPDATA + (platform === 'win32' ? '\\' : '/') + 'VerseSync' : '');
+  }
+
   function createLifecycle(opts) {
     var fs = opts.fs;
     var childProcess = opts.childProcess;
     var env = opts.env || {};
     var platform = opts.platform;
     var clientFactory = opts.clientFactory;
-    var now = opts.now;
-    var sleep = opts.sleep;
+    var now = opts.now || Date.now;
+    var sleep = opts.sleep || defaultSleep;
     var healthTimeoutMs = opts.healthTimeoutMs === undefined ? 30000 : opts.healthTimeoutMs;
     var isAlive = opts.isProcessAlive || function (pid) {
       try { process.kill(pid, 0); return true; } catch (e) { return e && e.code === 'EPERM'; }
@@ -310,8 +316,7 @@
     var listeners = [];
     var current = null;
 
-    var home = env.VERSESYNC_HOME ||
-      (env.APPDATA ? env.APPDATA + (platform === 'win32' ? '\\' : '/') + 'VerseSync' : '');
+    var home = appHome(env, platform);
     var lockPath = joinPath(platform, [home, 'sidecar.json']);
     var logPath = joinPath(platform, [home, 'logs', 'sidecar.log']);
     // Assumption: the panel's venv lives under the app home. Callers with a configured venv
@@ -434,6 +439,69 @@
       // The sidecar outlives the panel: unloading only drops listeners, never shuts it down.
       dispose: function () { listeners = []; }
     };
+  }
+
+  // A client that forwards to whichever client the lifecycle holds, connecting on first use.
+  // The panel builds its views before the sidecar is up, and the sidecar may idle-exit later,
+  // so a call that finds it gone reconnects (relaunching if needed) and is retried once.
+  // 'unreachable' means no response arrived, so retrying a POST cannot duplicate it.
+  function connectedClient(lifecycle) {
+    var connecting = null;
+
+    function ensure() {
+      if (!connecting) {
+        connecting = Promise.resolve(lifecycle.connect()).then(function (result) {
+          connecting = null;
+          return result;
+        }, function () {
+          connecting = null;
+          return null;
+        });
+      }
+      return connecting;
+    }
+
+    function live() {
+      var cur = lifecycle.current();
+      return cur ? Promise.resolve(cur) : ensure();
+    }
+
+    function forward(name) {
+      return function () {
+        var args = arguments;
+        function attempt(result) {
+          if (!result || !result.client) {
+            return failure('unreachable', 'The VerseSync sidecar is not responding.',
+              'Check that the sidecar is running, then try again.', 0);
+          }
+          return result.client[name].apply(null, args);
+        }
+        return live().then(function (result) {
+          return Promise.resolve(attempt(result)).then(function (res) {
+            // Only a held connection that stopped answering is retried; a failed connect is final.
+            if (result && result.client && res && !res.ok && res.error &&
+                res.error.code === 'unreachable') {
+              return ensure().then(attempt);
+            }
+            return res;
+          });
+        });
+      };
+    }
+
+    var proxy = {
+      // Synchronous: only asked for once a job has started, so a client is held by then.
+      eventsRequest: function (id) {
+        var cur = lifecycle.current();
+        if (!cur) { throw new Error('No sidecar connection'); }
+        return cur.client.eventsRequest(id);
+      },
+      connect: ensure
+    };
+    var names = ['health', 'models', 'translations', 'startJob', 'job', 'result', 'transcript',
+      'cancel', 'resolve', 'shutdown'];
+    for (var i = 0; i < names.length; i++) { proxy[names[i]] = forward(names[i]); }
+    return proxy;
   }
 
   // ---- job watcher ----------------------------------------------------------------------
@@ -604,6 +672,9 @@
     PANEL_ORIGIN: PANEL_ORIGIN,
     createNodeTransport: createNodeTransport,
     createLifecycle: createLifecycle,
+    connectedClient: connectedClient,
+    appHome: appHome,
+    joinPath: joinPath,
     watchJob: watchJob,
     rejoin: rejoin,
     VSSidecarClient: VSSidecarClient
