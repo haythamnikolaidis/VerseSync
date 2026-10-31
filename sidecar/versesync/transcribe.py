@@ -207,10 +207,12 @@ def _simulate(
         progress(tick / _SIMULATED_TICKS)
 
 
-def _backend_unavailable() -> TranscriptionError:
+def _backend_unavailable(cause: ImportError | None = None) -> TranscriptionError:
+    # A partial install fails on one missing module; naming it saves a debugging session.
+    missing = f" (missing module: {cause.name})" if cause is not None and cause.name else ""
     return TranscriptionError(
         "backend_unavailable",
-        "The faster-whisper backend is not installed in this build.",
+        f"The faster-whisper backend is not installed in this build{missing}.",
         "Install versesync[transcribe], or use transcription.backend: fixture:<path> or fake.",
     )
 
@@ -237,14 +239,14 @@ def _import_upstream() -> tuple[Callable[..., Any], Callable[..., Any], type[Bas
     try:
         from core.cuda_setup import setup_cuda_if_available
     except ImportError as exc:
-        raise _backend_unavailable() from exc
+        raise _backend_unavailable(exc) from exc
     setup_cuda_if_available()
     try:
         from core.models.loader import load_model
         from core.transcription.engine import Cancelled as UpstreamCancelled
         from core.transcription.engine import transcribe_with_words
     except ImportError as exc:
-        raise _backend_unavailable() from exc
+        raise _backend_unavailable(exc) from exc
     return load_model, transcribe_with_words, UpstreamCancelled
 
 
