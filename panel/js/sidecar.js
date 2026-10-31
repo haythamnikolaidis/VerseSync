@@ -295,6 +295,12 @@
     return parts.join(platform === 'win32' ? '\\' : '/');
   }
 
+  // The sidecar's app home (versesync.paths.app_home): VERSESYNC_HOME, else %APPDATA%\VerseSync.
+  function appHome(env, platform) {
+    return env.VERSESYNC_HOME ||
+      (env.APPDATA ? env.APPDATA + (platform === 'win32' ? '\\' : '/') + 'VerseSync' : '');
+  }
+
   function createLifecycle(opts) {
     var fs = opts.fs;
     var childProcess = opts.childProcess;
@@ -310,8 +316,7 @@
     var listeners = [];
     var current = null;
 
-    var home = env.VERSESYNC_HOME ||
-      (env.APPDATA ? env.APPDATA + (platform === 'win32' ? '\\' : '/') + 'VerseSync' : '');
+    var home = appHome(env, platform);
     var lockPath = joinPath(platform, [home, 'sidecar.json']);
     var logPath = joinPath(platform, [home, 'logs', 'sidecar.log']);
     // Assumption: the panel's venv lives under the app home. Callers with a configured venv
@@ -668,6 +673,8 @@
     createNodeTransport: createNodeTransport,
     createLifecycle: createLifecycle,
     connectedClient: connectedClient,
+    appHome: appHome,
+    joinPath: joinPath,
     watchJob: watchJob,
     rejoin: rejoin,
     VSSidecarClient: VSSidecarClient

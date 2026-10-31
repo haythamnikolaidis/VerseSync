@@ -29,6 +29,7 @@
   var IDLE_TEXT = 'Select a media file and click Analyse.';
   var EMPTY_TEXT = 'No scripture references found. Check the audio has speech, or try a larger model.';
   var INSERT_HINT = 'Enable at least one scripture to insert.';
+  var NO_SEQUENCE_TEXT = 'Open a sequence in Premiere first.';
   var RETRY_TEXT_LABEL = 'Retry text fetch';
   var PROVIDER_DOWN_TEXT = 'The Bible text could not be fetched for some cues.';
 
@@ -481,6 +482,8 @@
     saveWrap.appendChild(saveBtn);
     saveWrap.appendChild(menu);
     var insertBtn = button('vf-btn--accent vf-review-insert', 'Insert');
+    // Kept current by the app's sequence watcher (T-30.H step 29): no sequence, no Insert.
+    var sequenceOpen = true;
     var insertHint = el(doc, 'div', 'vf-hint vf-review-insert-hint', INSERT_HINT);
     var addBtn = button('vf-review-add', 'Add cue');
     var addForm = el(doc, 'div', 'vf-review-add-form');
@@ -541,7 +544,8 @@
       title.textContent = 'REVIEW \u2014 ' + cues.length + ' found \u00B7 ' +
         enabled + ' enabled [\u2691 ' + flaggedCount(cues) + ']';
       insertBtn.textContent = 'Insert ' + enabled + (enabled === 1 ? ' scripture' : ' scriptures');
-      insertBtn.disabled = enabled === 0;
+      insertBtn.disabled = enabled === 0 || !sequenceOpen;
+      insertBtn.title = sequenceOpen ? '' : NO_SEQUENCE_TEXT;
       // With no cues at all the empty note speaks instead, so the hint only covers "all off".
       insertHint.hidden = enabled !== 0 || cues.length === 0;
       emptyNote.hidden = cues.length !== 0;
@@ -908,7 +912,12 @@
       render: render,
       refreshRow: refreshRow,
       updateHeader: updateHeader,
-      setMessage: setMessage
+      setMessage: setMessage,
+      setSequenceOpen: function (open) {
+        if (sequenceOpen === !!open) { return; }
+        sequenceOpen = !!open;
+        updateHeader();
+      }
     };
   }
 

@@ -144,6 +144,9 @@ skip them. `python tools/plan.py validate` checks this table against the cards.
 | 111 | [T-51.5](tasks/T-51-scripture-file-import.md) | API and CLI | agent | XS | T-51.4 | 6 |
 | 112 | [T-51.6](tasks/T-51-scripture-file-import.md) | Panel: picker and review list | agent | S | T-51.5, T-29.3 | 6 |
 | 113 | [T-51.H](tasks/T-51-scripture-file-import.md) | Real sermon with its export | **human** | — | T-51.6 | 6 |
+| 114 | [T-52.1](tasks/T-52-media-from-sequence.md) | Host: `VS.listSequenceMedia` | agent | S | T-24 | 7 |
+| 115 | [T-52.2](tasks/T-52-media-from-sequence.md) | Panel: the Media dropdown | agent | S | T-52.1, T-27.1 | 7 |
+| 116 | [T-52.H](tasks/T-52-media-from-sequence.md) | Media dropdown on the real sermon project | **human** | — | T-52.2 | 7 |
 
 **Phases.**
 
@@ -156,6 +159,7 @@ skip them. `python tools/plan.py validate` checks this table against the cards.
 | **4** | The CEP panel, built against the mock sidecar and the host stub, and finally integrated with the real `VerseSync.jsx` on the fake DOM. |
 | **5** | Journey B, error surfaces, golden files, performance budgets, installers and documentation. |
 | **6** | Scripture file import (D26): the EasyWorship export as the first source of cues and verse text. See [14](14-scripture-file-import.md). |
+| **7** | Post-v1 improvements raised during human verification: picking the media from the sequence (raised in Journey A, step 30). |
 
 ## Human tasks
 

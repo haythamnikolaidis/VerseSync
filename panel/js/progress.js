@@ -90,13 +90,25 @@
     return Math.round(Math.min(1, Math.max(0, p)) * 100);
   }
 
+  // How often the readout re-renders between events, so elapsed counts up and the ETA counts down.
+  var TICK_MS = 1000;
+
   // opts: root (the #progress section), onCancel, and optionally setupRoot (the #setup section,
-  // which collapses to a one-line summary while a job runs).
+  // which collapses to a one-line summary while a job runs). now, setInterval and clearInterval
+  // default to the globals; tests inject their own.
   function view(opts) {
     var rootEl = opts.root;
     var onCancel = opts.onCancel || function () {};
     var setupRoot = opts.setupRoot || null;
     var doc = rootEl.ownerDocument;
+    var now = opts.now || Date.now;
+    // unref: the ticker alone must not keep a Node process (the test runner) alive.
+    var startTimer = opts.setInterval || function (fn, ms) {
+      var id = setInterval(fn, ms);
+      if (id && typeof id.unref === 'function') { id.unref(); }
+      return id;
+    };
+    var stopTimer = opts.clearInterval || function (id) { clearInterval(id); };
 
     while (rootEl.firstChild) { rootEl.removeChild(rootEl.firstChild); }
     var wrap = doc.createElement('div');
@@ -151,9 +163,43 @@
       bar.setAttribute('aria-valuenow', String(n));
     }
 
+    // SSE progress events carry no elapsed_s, and they arrive in bursts (T-30.H: 2% for 20 s,
+    // then 54%, then done), so the readout keeps its own clock: elapsed counts up from the job
+    // start (re-synced whenever an event does carry elapsed_s) and the ETA counts down from the
+    // last one received.
+    var lastP = 0;
+    var elapsedBase = 0;
+    var elapsedAt = 0;
+    var etaBase = null;
+    var etaAt = 0;
+    var ticker = null;
+
+    function stopTicker() {
+      if (ticker !== null) { stopTimer(ticker); ticker = null; }
+    }
+
+    function renderReadout() {
+      if (rootEl.hidden) { stopTicker(); return; }
+      if (lastP <= ETA_MIN_PROGRESS) { readout.hidden = true; return; }
+      var t = now();
+      var text = 'elapsed ' + clock(elapsedBase + (t - elapsedAt) / 1000);
+      if (etaBase !== null) {
+        var left = etaBase - (t - etaAt) / 1000;
+        text += left >= 1 ? ' · about ' + clock(left) + ' left' : ' · almost done';
+      }
+      readout.textContent = text;
+      readout.hidden = false;
+    }
+
     return {
       // Called when a job starts; the summary line stands in for the collapsed setup.
       begin: function (summaryText) {
+        stopTicker();
+        lastP = 0;
+        elapsedBase = 0;
+        elapsedAt = now();
+        etaBase = null;
+        ticker = startTimer(renderReadout, TICK_MS);
         setBar(0);
         phase.textContent = '';
         readout.hidden = true;
@@ -171,14 +217,12 @@
         rootEl.hidden = false;
         phase.textContent = PHASE_LABELS[ev.phase] || '';
         setBar(p);
-        if (p > ETA_MIN_PROGRESS) {
-          var text = 'elapsed ' + clock(ev.elapsed_s || 0);
-          if (typeof ev.eta_s === 'number') { text += ' · about ' + clock(ev.eta_s) + ' left'; }
-          readout.textContent = text;
-          readout.hidden = false;
-        } else {
-          readout.hidden = true;
-        }
+        var t = now();
+        lastP = p;
+        if (typeof ev.elapsed_s === 'number') { elapsedBase = ev.elapsed_s; elapsedAt = t; }
+        etaBase = typeof ev.eta_s === 'number' ? ev.eta_s : null;
+        etaAt = t;
+        renderReadout();
       },
       cacheHit: function () {
         rootEl.hidden = false;
@@ -189,6 +233,7 @@
       },
       // The job finished: the bar goes away and the one-line setup summary stays.
       done: function () {
+        stopTicker();
         rootEl.hidden = true;
         readout.hidden = true;
         cache.hidden = true;

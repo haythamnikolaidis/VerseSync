@@ -51,6 +51,12 @@
     return i === -1 ? '' : String(p).slice(0, i);
   }
 
+  // How often the panel re-checks the open sequence (app.watchSequence): one cheap evalScript.
+  var SEQUENCE_WATCH_MS = 2000;
+
+  // cep.encoding.UTF8. cep.fs rejects Node-style 'utf8' with err 5 (invalid params).
+  var CEP_UTF8 = 'UTF-8';
+
   function sibling(p, name) {
     var dir = dirname(p);
     if (dir === '') { return name; }
@@ -88,6 +94,8 @@
     var lastHealth = { state: 'starting', detail: null };
     var lastRequest = null;
     var activeJobId = null;
+    // True from a job's start until its done, failed or cancelled callback; pauses the sequence watch.
+    var jobRunning = false;
 
     // What the later tasks need: the job (for the transcript), the sequence the analysis ran
     // against (T-30 inserts into it), the model, and the current mapping.
@@ -375,14 +383,15 @@
     }
 
     // cep.fs answers { err: 0, data } and uses a non-zero err (or no data) for a cancelled dialog.
+    // CEP has no showSaveDialog, only showSaveDialogEx(title, initialPath, fileTypes, defaultName).
     function chooseSavePath(title, extension, defaultName) {
-      if (!deps.fs || !deps.fs.showSaveDialog) { return null; }
-      var res = deps.fs.showSaveDialog(title, null, [extension], defaultName);
+      if (!deps.fs || !deps.fs.showSaveDialogEx) { return null; }
+      var res = deps.fs.showSaveDialogEx(title, null, [extension], defaultName);
       return res && res.err === 0 && res.data ? res.data : null;
     }
 
     function writeText(path, text) {
-      var res = deps.fs.writeFile(path, text, 'utf8');
+      var res = deps.fs.writeFile(path, text, CEP_UTF8);
       return !!res && res.err === 0;
     }
 
@@ -396,7 +405,7 @@
         });
       }
       if (s.loadedFrom) {
-        var read = deps.fs.readFile(sibling(s.loadedFrom, s.model.toJSON().transcript.words_ref), 'utf8');
+        var read = deps.fs.readFile(sibling(s.loadedFrom, s.model.toJSON().transcript.words_ref), CEP_UTF8);
         return Promise.resolve(read && read.err === 0 ? read.data : null);
       }
       return Promise.resolve(null);
@@ -452,7 +461,7 @@
       var picked = deps.fs.showOpenDialog(false, false, 'Load cue document', null, ['json']);
       if (!picked || picked.err !== 0 || !picked.data || !picked.data[0]) { return Promise.resolve(); }
       var path = picked.data[0];
-      var read = deps.fs.readFile(path, 'utf8');
+      var read = deps.fs.readFile(path, CEP_UTF8);
       if (!read || read.err !== 0) { say('That file could not be read.', true); return Promise.resolve(); }
       var loaded = Cues.load(read.data);
       if (!loaded.ok) { say(loaded.error, true); return Promise.resolve(); }
@@ -585,6 +594,7 @@
         if (!res.ok) { showJobError(res.error); return; }
         var jobId = res.data.job_id;
         activeJobId = jobId;
+        jobRunning = true;
         if (res.data.cache_hit) { app.progress.cacheHit(); }
         watchJob({
           client: client,
@@ -594,9 +604,12 @@
           pollMs: deps.pollMs,
           jobId: jobId,
           onProgress: function (ev) { app.progress.update(ev); },
-          onDone: function () { onJobDone(jobId, request); },
-          onFailed: showJobError,
-          onCancelled: function () { showProblem('The analysis was cancelled.', '', retryAnalyse); }
+          onDone: function () { jobRunning = false; onJobDone(jobId, request); },
+          onFailed: function (err) { jobRunning = false; showJobError(err); },
+          onCancelled: function () {
+            jobRunning = false;
+            showProblem('The analysis was cancelled.', '', retryAnalyse);
+          }
         });
       }).then(null, function (e) {
         showProblem('Unexpected error: ' + (e && e.message), '', retryAnalyse);
@@ -634,6 +647,29 @@
       });
     };
 
+    // Premiere sends the panel no event when the editor opens, closes or switches sequences, so
+    // the panel asks every intervalMs (T-30.H step 29: closing every sequence left Analyse and
+    // Insert enabled). Skipped while a job or an insert runs, and never overlapping itself.
+    // Returns a function that stops the watch.
+    app.watchSequence = function (intervalMs) {
+      var checking = false;
+      function check() {
+        if (checking || inserting || jobRunning) { return; }
+        checking = true;
+        app.setup.refreshTracks().then(function (open) {
+          checking = false;
+          if (open !== hasSequence) {
+            hasSequence = open;
+            drawStatus();
+          }
+          if (app.session && app.session.review) { app.session.review.setSequenceOpen(open); }
+        }, function () { checking = false; });
+      }
+      var id = setInterval(check, intervalMs);
+      if (id && typeof id.unref === 'function') { id.unref(); }
+      return function () { clearInterval(id); };
+    };
+
     return app;
   }
 
@@ -665,8 +701,18 @@
     var transport = null;
     var client = null;
     var lifecycle = null;
+    var storage = storageOrNull();
     if (typeof require === 'function' && typeof process !== 'undefined') {
       var Sidecar = root.VSSidecar;
+      var home = Sidecar.appHome(process.env, process.platform);
+      if (home) {
+        try { require('fs').mkdirSync(home, { recursive: true }); } catch (e) { /* write() copes */ }
+        storage = root.VSState.fileStorage({
+          fs: require('fs'),
+          path: Sidecar.joinPath(process.platform, [home, 'panel-state.json']),
+          fallback: storage
+        });
+      }
       transport = Sidecar.createNodeTransport(require('http'));
       lifecycle = Sidecar.createLifecycle({
         fs: require('fs'),
@@ -690,7 +736,7 @@
       bridge: bridge,
       client: client,
       transport: transport,
-      storage: storageOrNull(),
+      storage: storage,
       fs: root.cep && root.cep.fs ? root.cep.fs : stubFs
     });
     root.VSApp = app;
@@ -709,6 +755,7 @@
       });
     }
     app.start();
+    app.watchSequence(SEQUENCE_WATCH_MS);
   }
 
   var Main = { createApp: createApp, parseTimecode: parseTimecode };

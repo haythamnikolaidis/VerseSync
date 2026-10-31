@@ -129,3 +129,47 @@ test('progress: setup collapses to a summary while a job runs and reopens on cli
   assert.strictEqual(setup.hidden, true);
   assert.strictEqual(summary.hidden, false);
 });
+
+// T-30.H step 9: SSE events carry no elapsed_s and arrive in bursts, so the readout keeps time.
+function buildTicking() {
+  var doc = new JSDOM(html).window.document;
+  var clock = { t: 0, tick: null, cleared: 0 };
+  var v = Progress.view({
+    root: doc.getElementById('progress'),
+    setupRoot: doc.getElementById('setup'),
+    now: function () { return clock.t; },
+    setInterval: function (fn) { clock.tick = fn; return 1; },
+    clearInterval: function () { clock.tick = null; clock.cleared++; }
+  });
+  clock.advance = function (ms) { clock.t += ms; if (clock.tick) { clock.tick(); } };
+  return { view: v, clock: clock, readout: doc.querySelector('.vf-progress-text') };
+}
+
+test('progress: elapsed counts up between events that carry no elapsed_s', function () {
+  var t = buildTicking();
+  t.view.begin('KJV');
+  t.clock.advance(22000);
+  t.view.update({ phase: 'transcribing', progress: 0.54, eta_s: 19 });
+  assert.ok(t.readout.textContent.indexOf('elapsed 0:22') === 0, t.readout.textContent);
+  t.clock.advance(5000);
+  assert.ok(t.readout.textContent.indexOf('elapsed 0:27') === 0, t.readout.textContent);
+});
+
+test('progress: the ETA counts down from the last event, then says almost done', function () {
+  var t = buildTicking();
+  t.view.begin('KJV');
+  t.view.update({ phase: 'transcribing', progress: 0.54, eta_s: 19 });
+  assert.ok(/about 0:19 left/.test(t.readout.textContent), t.readout.textContent);
+  t.clock.advance(10000);
+  assert.ok(/about 0:09 left/.test(t.readout.textContent), t.readout.textContent);
+  t.clock.advance(10000);
+  assert.ok(/almost done$/.test(t.readout.textContent), t.readout.textContent);
+});
+
+test('progress: done stops the ticker', function () {
+  var t = buildTicking();
+  t.view.begin('KJV');
+  assert.ok(t.clock.tick, 'ticking while a job runs');
+  t.view.done();
+  assert.strictEqual(t.clock.tick, null);
+});

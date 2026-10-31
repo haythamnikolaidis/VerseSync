@@ -183,3 +183,25 @@ test('a disabled Analyse does not emit a request', async function () {
   t.$('setup-analyse').dispatchEvent(new t.doc.defaultView.Event('click'));
   assert.strictEqual(t.requests.length, 0);
 });
+
+// T-30.H step 29: the app's sequence watcher calls refreshTracks every few seconds.
+test('refreshTracks picks up a closed sequence and disables Analyse', async function () {
+  var t = build();
+  await t.view.ready;
+  t.bridge.seq = { hasActiveSequence: false, videoTrackCount: 0 };
+  var open = await t.view.refreshTracks();
+  assert.strictEqual(open, false);
+  assert.strictEqual(t.$('setup-analyse').disabled, true);
+  assert.ok(t.$('setup-analyse-reason').textContent.indexOf('Open a sequence in Premiere first.') !== -1);
+  t.bridge.seq = { hasActiveSequence: true, videoTrackCount: 4 };
+  assert.strictEqual(await t.view.refreshTracks(), true);
+  assert.deepStrictEqual(options(t.$('setup-track')), ['V4', 'V3', 'V2', 'V1']);
+});
+
+test('refreshTracks leaves an unchanged track list alone, so a poll cannot close the dropdown', async function () {
+  var t = build();
+  await t.view.ready;
+  var before = t.$('setup-track').options[0];
+  await t.view.refreshTracks();
+  assert.strictEqual(t.$('setup-track').options[0], before, 'same option element, not rebuilt');
+});
