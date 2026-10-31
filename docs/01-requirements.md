@@ -88,6 +88,10 @@ requirement they carry over; they still apply and still need testing, but no new
   the editor.
 - **FR-4.7** Any attribution text the provider's licence requires is stored with the
   translation and surfaced in the panel.
+- **FR-4.8** *(post-v1, D26)* The editor may supply the EasyWorship export for the sermon. Its
+  entries then become the cues, in file order: each is located in the transcript by its text,
+  and its reference line, translation and verse text are used verbatim, ahead of the Bible
+  API. See [14](14-scripture-file-import.md).
 
 ### FR-5 — Timing and placement
 
