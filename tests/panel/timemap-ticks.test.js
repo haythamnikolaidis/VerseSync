@@ -130,7 +130,9 @@ test('timecode adds a fixture zeroPoint that is not frame-aligned, flooring the 
 });
 
 test('the ticks-per-frame value is never derived from frameRate', function () {
-  var source = fs.readFileSync(path.join(root, 'panel', 'js', 'timemap.js'), 'utf8');
+  // A Windows checkout (core.autocrlf) has CRLF line endings; the search below expects LF.
+  var source = fs.readFileSync(path.join(root, 'panel', 'js', 'timemap.js'), 'utf8')
+    .replace(/\r\n/g, '\n');
   var start = source.indexOf('function timecode(');
   assert.ok(start >= 0, 'timecode function not found');
   var end = source.indexOf('\n  }\n', start);

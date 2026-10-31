@@ -28,7 +28,8 @@ build-backend = "setuptools.build_meta"
 where = ["sidecar"]
 
 [tool.setuptools.package-data]
-versesync = ["data/*.json"]
+# Every non-Python file the sidecar reads at runtime. tests/test_packaging.py fails if one is missed.
+versesync = ["data/*.json", "bible/data/*.json.gz", "detect/data/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
