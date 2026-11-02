@@ -145,3 +145,48 @@ test('the ticks-per-frame value is never derived from frameRate', function () {
   assert.strictEqual(uses.length, 1);
   assert.ok(/Math\.round\(seqInfo\.frameRate\)/.test(uses[0]));
 });
+
+// ---------------------------------------------------------------------------------------------
+// Exact string ticks above 2^53 (BigInt is only the oracle here; the panel code is ES5)
+
+var BIG = '9007199254740993000';
+
+test('addTicks and subTicks are exact on digit strings above 2^53', function () {
+  assert.strictEqual(VSTimemap.addTicks(BIG, '7'), '9007199254740993007');
+  assert.strictEqual(VSTimemap.addTicks(BIG, BIG), String(BigInt(BIG) * 2n));
+  assert.strictEqual(VSTimemap.addTicks('999', '1'), '1000');
+  assert.strictEqual(VSTimemap.addTicks('0', '0'), '0');
+  assert.strictEqual(VSTimemap.subTicks(String(BigInt(BIG) + 12345n), BIG), '12345');
+  assert.strictEqual(VSTimemap.subTicks('1000', '1'), '999');
+  assert.strictEqual(VSTimemap.subTicks('5', '5'), '0');
+  assert.strictEqual(VSTimemap.subTicks('5', '9'), '0');
+  assert.strictEqual(VSTimemap.addTicks(254016000000, 1), '254016000001');
+});
+
+test('compareTicks orders digit strings by value', function () {
+  assert.strictEqual(VSTimemap.compareTicks('9', '10'), -1);
+  assert.strictEqual(VSTimemap.compareTicks(BIG, BIG), 0);
+  assert.strictEqual(VSTimemap.compareTicks(String(BigInt(BIG) + 1n), BIG), 1);
+  assert.strictEqual(VSTimemap.compareTicks('007', '7'), 0);
+});
+
+RATES.forEach(function (r) {
+  var tb = BigInt(r.timebase);
+  test('snapToFrameExact at ' + r.rate + ' fps matches snapToFrame below 2^53', function () {
+    [0, 1, 1234567, 600.5 * TPS, 3599.97 * TPS].forEach(function (ticks) {
+      var t = Math.round(ticks);
+      assert.strictEqual(VSTimemap.snapToFrameExact(String(t), r.timebase), VSTimemap.snapToFrame(String(t), r.timebase));
+    });
+  });
+
+  test('snapToFrameExact at ' + r.rate + ' fps is exact above 2^53 and rounds halves up', function () {
+    var base = (BigInt(BIG) / tb) * tb;
+    assert.strictEqual(VSTimemap.snapToFrameExact(String(base), r.timebase), String(base));
+    assert.strictEqual(VSTimemap.snapToFrameExact(String(base + 1n), r.timebase), String(base));
+    assert.strictEqual(VSTimemap.snapToFrameExact(String(base + tb - 1n), r.timebase), String(base + tb));
+    var half = tb / 2n;
+    var expected = tb % 2n === 0n ? base + tb : base;
+    assert.strictEqual(VSTimemap.snapToFrameExact(String(base + half), r.timebase), String(expected));
+    assert.strictEqual(VSTimemap.snapToFrameExact(BIG, r.timebase), String(BigInt(BIG) % tb * 2n >= tb ? base + tb : base));
+  });
+});
