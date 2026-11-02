@@ -35,6 +35,12 @@
     return Math.min(LEAD_IN_MAX, Math.max(LEAD_IN_MIN, n));
   }
 
+  function clampInt(v, min, max, fallback) {
+    var n = parseFloat(v);
+    if (!isFinite(n)) { return fallback; }
+    return Math.min(max, Math.max(min, Math.round(n)));
+  }
+
   function positiveOr(v, fallback) {
     var n = parseFloat(v);
     return isFinite(n) && n > 0 ? n : fallback;
@@ -92,6 +98,9 @@
     var durationFixed = rootEl.querySelector('#setup-duration-fixed');
     var durationSec = rootEl.querySelector('#setup-duration-sec');
     var leadIn = rootEl.querySelector('#setup-leadin');
+    var autoWrap = rootEl.querySelector('#setup-autowrap');
+    var maxChars = rootEl.querySelector('#setup-maxchars');
+    var maxLines = rootEl.querySelector('#setup-maxlines');
     var analyseBtn = rootEl.querySelector('#setup-analyse');
     var analyseReason = rootEl.querySelector('#setup-analyse-reason');
 
@@ -372,6 +381,24 @@
       state.set({ leadInSec: v });
     }
 
+    function showLayout(s) {
+      autoWrap.checked = s.autoWrap !== false;
+      maxChars.value = String(clampInt(s.maxCharsPerLine, 20, 120, 80));
+      maxLines.value = String(clampInt(s.maxLinesPerGraphic, 1, 12, 4));
+      maxChars.disabled = !autoWrap.checked;
+      maxLines.disabled = !autoWrap.checked;
+    }
+
+    function onLayoutChange() {
+      var patch = {
+        autoWrap: autoWrap.checked,
+        maxCharsPerLine: clampInt(maxChars.value, 20, 120, 80),
+        maxLinesPerGraphic: clampInt(maxLines.value, 1, 12, 4)
+      };
+      state.set(patch);
+      showLayout(patch);
+    }
+
     // docs/07 POST /jobs body. Fields the panel does not expose (model, device, detection...)
     // are left to the sidecar's configured defaults; duration settings travel in options.timing
     // under the docs/05 §3 parameter names. options.scripture_file is sent only when a file is
@@ -413,6 +440,9 @@
     durationFixed.addEventListener('change', onDurationChange);
     durationSec.addEventListener('change', onDurationChange);
     leadIn.addEventListener('change', onLeadInChange);
+    autoWrap.addEventListener('change', onLayoutChange);
+    maxChars.addEventListener('change', onLayoutChange);
+    maxLines.addEventListener('change', onLayoutChange);
     analyseBtn.addEventListener('click', onAnalyseClick);
 
     // Initial render: the media file is never restored; the template and its fields are
@@ -429,6 +459,7 @@
     durationSec.value = initial.fixedDurationSec ? String(initial.fixedDurationSec) : '';
     durationSec.disabled = !durationFixed.checked;
     leadIn.value = String(clampLeadIn(initial.leadInSec));
+    showLayout(initial);
     clearSelect(translationSelect);
     clearSelect(trackSelect);
     updateAnalyse();

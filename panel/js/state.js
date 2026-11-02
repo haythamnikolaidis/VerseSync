@@ -25,7 +25,10 @@
     targetTrack: null,
     durationMode: 'auto',
     fixedDurationSec: null,
-    leadInSec: 0.5
+    leadInSec: 0.5,
+    autoWrap: true,
+    maxCharsPerLine: 80,
+    maxLinesPerGraphic: 4
   };
 
   var MAPPING_KEYS = ['referenceIndex', 'bodyIndex'];

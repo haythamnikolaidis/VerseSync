@@ -24,6 +24,10 @@ for a narrow column that grows usefully when widened.
 │   Target track    [ V3 ▾ ]      [Refresh]  │
 │   Duration        (•) Auto  ( ) Fixed [ ]s │
 │   Lead-in         [ 0.5 ] s                │
+│   [x] Auto-wrap scripture text             │
+│   Max chars / line      [ 80 ]             │
+│   Max lines / graphic   [ 4 ]              │
+│   Adjust to fit your template's text box.  │
 │                                            │
 │        [        Analyse        ]           │
 ├────────────────────────────────────────────┤
@@ -82,7 +86,7 @@ sessions (FR-1.7), so a weekly run is: pick media, click Analyse.
 | **Template** | `.mogrt` picker. On selection, calls `VS.getMogrtFields` with a *Reading template…* busy state. Zero fields → the VerseFlow warning about After Effects–authored templates (FR-1.4). |
 | **Reference / Scripture dropdowns** | Populated with group-qualified labels (`Description > Text`), values are field **indices**. VerseFlow's smart defaults apply: reference ← group matching `/descr\|caption\|sub\|credit\|author/i`, body ← `/title\|main\|quote\|body/i`. Same field for both is a validation error. Persisted per MOGRT path. |
 | **Translation** | From `GET /translations`. Shows the licence attribution beneath it in small type, if the translation has any (FR-4.7). Disabled while the sidecar is unreachable. |
-| **Text layout** | *(T-54)* **Auto-wrap scripture text**, **Max chars / line** (default 80, 20–120) and **Max lines / graphic** (default 4, 1–12). Applied at insert, so they never gate Analyse. See [15](15-graphic-text-layout.md). |
+| **Text layout** | *(T-54)* **Auto-wrap scripture text** (default on), **Max chars / line** (default 80, 20–120) and **Max lines / graphic** (default 4, 1–12), with the hint *Adjust to fit your template's text box.* Out-of-range values clamp, as Lead-in does. Unticking the checkbox disables both numbers. They persist with the other settings and are not sent in the job request or stored in the Cue Document. Applied at insert, so they never gate Analyse. See [15](15-graphic-text-layout.md). |
 | **Target track** | From `VS.getSequenceInfo`, listed V-high to V-low, defaulting to topmost. **Refresh** re-reads. |
 | **Duration** | Auto (per-cue, from classification) or Fixed. Auto is the default and the point of the product. |
 | **Lead-in** | Seconds, default 0.5, range 0–3. The one timing constant editors will actually want to touch. |

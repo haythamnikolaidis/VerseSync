@@ -205,3 +205,79 @@ test('refreshTracks leaves an unchanged track list alone, so a poll cannot close
   await t.view.refreshTracks();
   assert.strictEqual(t.$('setup-track').options[0], before, 'same option element, not rebuilt');
 });
+
+test('text layout defaults, ranges, clamping and the disable behaviour', function () {
+  var t = build();
+  assert.strictEqual(t.$('setup-autowrap').checked, true);
+  assert.strictEqual(t.$('setup-maxchars').value, '80');
+  assert.strictEqual(t.$('setup-maxlines').value, '4');
+  assert.strictEqual(t.$('setup-maxchars').min, '20');
+  assert.strictEqual(t.$('setup-maxchars').max, '120');
+  assert.strictEqual(t.$('setup-maxlines').min, '1');
+  assert.strictEqual(t.$('setup-maxlines').max, '12');
+  t.fire('setup-maxchars', 'change', '500');
+  assert.strictEqual(t.state.get().maxCharsPerLine, 120);
+  t.fire('setup-maxchars', 'change', '3');
+  assert.strictEqual(t.$('setup-maxchars').value, '20');
+  t.fire('setup-maxlines', 'change', '99');
+  assert.strictEqual(t.state.get().maxLinesPerGraphic, 12);
+  t.fire('setup-maxlines', 'change', '0');
+  assert.strictEqual(t.state.get().maxLinesPerGraphic, 1);
+  t.$('setup-autowrap').checked = false;
+  t.fire('setup-autowrap', 'change');
+  assert.strictEqual(t.state.get().autoWrap, false);
+  assert.strictEqual(t.$('setup-maxchars').disabled, true);
+  assert.strictEqual(t.$('setup-maxlines').disabled, true);
+  t.$('setup-autowrap').checked = true;
+  t.fire('setup-autowrap', 'change');
+  assert.strictEqual(t.$('setup-maxchars').disabled, false);
+  assert.match(t.doc.body.textContent, /Adjust to fit your template's text box\./);
+});
+
+test('text layout settings survive a reload through panel-state.json', function (t) {
+  var os = require('node:os');
+  var dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vs-layout-'));
+  t.after(function () { fs.rmSync(dir, { recursive: true, force: true }); });
+  var file = path.join(dir, 'panel-state.json');
+  function open() {
+    var dom = new JSDOM(html);
+    var state = State.create({ storage: State.fileStorage({ fs: fs, path: file }) });
+    Setup.create({ root: dom.window.document.getElementById('setup'), state: state,
+      bridge: fakeBridge({ hasActiveSequence: true, videoTrackCount: 4 }), fs: {},
+      client: fakeClient(true), onAnalyse: function () {} });
+    return { doc: dom.window.document, dom: dom };
+  }
+  function change(s, id, value) {
+    var el = s.doc.getElementById(id);
+    if (typeof value === 'boolean') { el.checked = value; } else { el.value = value; }
+    el.dispatchEvent(new s.dom.window.Event('change'));
+  }
+  var a = open();
+  change(a, 'setup-maxchars', '55');
+  change(a, 'setup-maxlines', '6');
+  change(a, 'setup-autowrap', false);
+  var b = open();
+  assert.strictEqual(b.doc.getElementById('setup-autowrap').checked, false);
+  assert.strictEqual(b.doc.getElementById('setup-maxchars').value, '55');
+  assert.strictEqual(b.doc.getElementById('setup-maxlines').value, '6');
+  assert.strictEqual(b.doc.getElementById('setup-maxchars').disabled, true);
+});
+
+test('text layout settings are not sent in the job request and never gate Analyse', async function () {
+  var t = build();
+  await t.view.ready;
+  t.view.pickMedia();
+  t.fire('setup-reference', 'change', '11');
+  t.fire('setup-body', 'change', '3');
+  t.fire('setup-translation', 'change', 'kjv-id');
+  t.fire('setup-maxchars', 'change', '60');
+  t.$('setup-autowrap').checked = false;
+  t.fire('setup-autowrap', 'change');
+  assert.strictEqual(t.$('setup-analyse').disabled, false);
+  t.$('setup-analyse').dispatchEvent(new t.doc.defaultView.Event('click'));
+  assert.deepStrictEqual(t.requests, [{
+    media_path: 'C:\\media\\sermon.mp4',
+    translation_id: 'kjv-id',
+    options: { timing: { lead_in_s: 0.5, duration_mode: 'auto' } }
+  }]);
+});
