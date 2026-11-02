@@ -163,6 +163,34 @@
     };
   }
 
+  // The text-layout part of a row (docs/15 §5). graphics is what VSInsert.graphicsFor returns for
+  // the cue, [{ id, body, atTicks, durationTicks }] with the times null when the cue has no place in
+  // the sequence; timecodeOf turns a start into the timecode the rows show. A cue that fits one
+  // graphic has no layout to show (null). A split cue gives the count, the parts as lines of text
+  // with their start times, and which parts are under min_visible_s (they still insert).
+  function graphicsViewModel(graphics, timecodeOf) {
+    if (!graphics || graphics.length < 2) { return null; }
+    var Timemap = loadModule('VSTimemap', './timemap.js');
+    var minTicks = String(Timemap.secondsToTicks(Timemap.MIN_VISIBLE_S));
+    var parts = graphics.map(function (g, i) {
+      var timed = typeof g.atTicks === 'string' && typeof g.durationTicks === 'string';
+      return {
+        number: i + 1,
+        id: g.id,
+        lines: String(g.body).split('\n'),
+        timecode: timed && timecodeOf ? timecodeOf(g.atTicks) : '',
+        short: timed && Timemap.compareTicks(g.durationTicks, minTicks) < 0
+      };
+    });
+    return {
+      count: parts.length,
+      text: 'Inserts as ' + parts.length + ' graphics',
+      shortText: 'Part under ' + Timemap.MIN_VISIBLE_S + ' s',
+      anyShort: parts.some(function (p) { return p.short; }),
+      parts: parts
+    };
+  }
+
   // Words shown either side of the matched span in the transcript context (docs/09 §5.3).
   var CONTEXT_WORDS = 15;
 
@@ -383,6 +411,7 @@
         ' \u2026 (long passage: the text ends here)'));
     }
     box.appendChild(verse);
+    if (editor.graphics) { box.appendChild(buildGraphics(doc, editor.graphics)); }
 
     if (cue.detection) {
       box.appendChild(el(doc, 'div', 'vf-detail-label', 'Transcript context'));
@@ -406,6 +435,37 @@
     del.type = 'button';
     del.addEventListener('click', function () { editor.remove(); });
     box.appendChild(del);
+    return box;
+  }
+
+  function shortPartFlag(doc, gvm) {
+    return el(doc, 'span', 'vf-flag vf-flag--amber vf-flag-short-part', '\u2691 ' + gvm.shortText);
+  }
+
+  // The parts of a split cue as they will appear (docs/09 §5.3): one block each, with its start
+  // time and its lines as they break on the graphic, and the amber warning on a part that is short.
+  function buildGraphics(doc, gvm) {
+    var box = el(doc, 'div', 'vf-detail-graphics');
+    box.appendChild(el(doc, 'div', 'vf-detail-label', gvm.text));
+    gvm.parts.forEach(function (part) {
+      var item = el(doc, 'div', 'vf-detail-part');
+      var head = el(doc, 'div', 'vf-detail-part-head');
+      head.appendChild(el(doc, 'span', 'vf-detail-part-title', 'Part ' + part.number));
+      if (part.timecode) {
+        head.appendChild(el(doc, 'span', 'vf-detail-part-time', ' \u00B7 ' + part.timecode));
+      }
+      if (part.short) {
+        head.appendChild(doc.createTextNode(' '));
+        head.appendChild(shortPartFlag(doc, gvm));
+      }
+      item.appendChild(head);
+      var text = el(doc, 'div', 'vf-detail-part-text');
+      part.lines.forEach(function (line) {
+        text.appendChild(el(doc, 'div', 'vf-detail-part-line', line));
+      });
+      item.appendChild(text);
+      box.appendChild(item);
+    });
     return box;
   }
 
@@ -529,6 +589,27 @@
     row.insertBefore(prompt, row.querySelector('.vf-row-snippet'));
   }
 
+  // The layout line of a row and, when the row is open, its list of parts. Both exist only for a
+  // cue that will split, so every other row has exactly the elements it always had.
+  function syncGraphics(doc, row, gvm) {
+    var line = row.querySelector('.vf-row-graphics');
+    if (line) { row.removeChild(line); }
+    var detail = row.querySelector('.vf-row-detail');
+    var shown = detail ? detail.querySelector('.vf-detail-graphics') : null;
+    if (shown) { detail.removeChild(shown); }
+    if (!gvm) { return; }
+    line = el(doc, 'div', 'vf-row-graphics');
+    line.appendChild(el(doc, 'span', 'vf-row-graphics-count', gvm.text));
+    if (gvm.anyShort) {
+      line.appendChild(doc.createTextNode(' '));
+      line.appendChild(shortPartFlag(doc, gvm));
+    }
+    row.insertBefore(line, row.querySelector('.vf-row-meta').nextSibling);
+    if (detail) {
+      detail.insertBefore(buildGraphics(doc, gvm), detail.querySelector('.vf-detail-verse').nextSibling);
+    }
+  }
+
   // Applies the parts of a view model that change when a cue is toggled or re-flagged.
   function updateRow(doc, row, vm) {
     row.className = 'row' + (vm.enabled ? '' : ' vf-row--disabled') +
@@ -556,11 +637,13 @@
   }
 
   // opts: { root, model, getPlacements, bridge, threshold, client, getTranslationId, getTranslations,
-  // getDurationMode, isAvailable, timing, timecodeOf, onChoosePlacement, onTranscript, onChange, onSave, onLoad, onExport, onInsert }. client.resolve edits a cue's
+  // getDurationMode, isAvailable, timing, timecodeOf, getGraphics, onChoosePlacement, onTranscript, onChange, onSave, onLoad, onExport, onInsert }. client.resolve edits a cue's
   // reference; getTranslations() returns the Setup list ({id, abbreviation}) so an edit keeps the
   // cue's own translation when it is offered; onChange(id) runs after each edit so the caller re-maps before the list redraws.
   // getPlacements() returns the VSTimemap.mapCueDocument placements map. bridge moves the playhead
-  // (the timecode button); getTranscript() resolves to the transcript words or null. The on* callbacks run the Save menu entries and the Insert button.
+  // (the timecode button); getTranscript() resolves to the transcript words or null. getGraphics(cue)
+  // returns the graphics the cue will insert as ([{ id, body, atTicks, durationTicks }], docs/15 §5),
+  // which the row shows when there is more than one. The on* callbacks run the Save menu entries and the Insert button.
   function create(opts) {
     var container = opts.root;
     var doc = container.ownerDocument;
@@ -648,6 +731,13 @@
     function placementOf(id) {
       var all = opts.getPlacements ? opts.getPlacements() : null;
       return all ? all[id] : undefined;
+    }
+
+    // The layout of a cue that will split, or null (docs/15 §5). opts.getGraphics(cue) returns the
+    // graphics VSInsert.graphicsFor gives for the cue at the current Setup values.
+    function graphicsOf(cue) {
+      if (!opts.getGraphics) { return null; }
+      return graphicsViewModel(opts.getGraphics(cue), opts.timecodeOf);
     }
 
     function flaggedCount(cues) {
@@ -745,6 +835,7 @@
     function refreshRow(id) {
       var vm = rowViewModel(model.get(id), placementOf(id), threshold);
       updateRow(doc, rows[id], vm);
+      syncGraphics(doc, rows[id], graphicsOf(model.get(id)));
       rows[id].hidden = flaggedOnly && vm.flags.length === 0;
       return vm;
     }
@@ -1010,6 +1101,7 @@
         timecode: p && p.timecode ? p.timecode : '',
         timing: timingFor(id),
         placements: placementsFor(id, p),
+        graphics: graphicsOf(model.get(id)),
         // The duration is stored as typed, in seconds; the re-map clips it to the frame grid.
         setDuration: function (text) {
           var seconds = Number(String(text).trim());
@@ -1069,6 +1161,7 @@
       });
       rows[item.cue.id] = row;
       updateRow(doc, row, vm);
+      syncGraphics(doc, row, graphicsOf(item.cue));
       parent.appendChild(row);
     }
 
@@ -1117,9 +1210,18 @@
       updateHeader();
     }
 
+    // A Setup text-layout control changed: redraw each row's graphics in place, so an open row
+    // stays open and nothing is analysed again.
+    function refreshLayout() {
+      Object.keys(rows).forEach(function (id) {
+        syncGraphics(doc, rows[id], graphicsOf(model.get(id)));
+      });
+    }
+
     render();
     return {
       render: render,
+      refreshLayout: refreshLayout,
       refreshRow: refreshRow,
       updateHeader: updateHeader,
       setMessage: setMessage,
@@ -1141,6 +1243,7 @@
     rowViewModel: rowViewModel,
     contextViewModel: contextViewModel,
     resolvePatch: resolvePatch,
+    graphicsViewModel: graphicsViewModel,
     create: create
   };
 

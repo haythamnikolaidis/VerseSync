@@ -247,6 +247,13 @@
         },
         timing: timingFor(s),
         timecodeOf: function (ticks) { return Timemap.timecode(ticks, s.seqInfo); },
+        // The graphics a cue will insert as at the current Setup values (docs/15 §5). A cue the
+        // media does not reach has no place in the sequence, so its parts have no times.
+        getGraphics: function (cue) {
+          var placement = s.mapping.placements[cue.id];
+          return Insert.graphicsFor(cue, placement && placement.timecode ? placement : null,
+            setupState.get(), s.seqInfo.timebase);
+        },
         onChoosePlacement: function (id, ticks) {
           s.placementChoice[id] = ticks;
           remap();
@@ -642,6 +649,16 @@
       onAnalyse: function (request) { app.analyse(request); }
     });
     app.ready = app.setup.ready;
+
+    // Text layout is applied at insert, so a change to its Setup controls only has to refresh the
+    // layout the review rows promise. The control's own handler has stored the value by the time
+    // the event reaches the section.
+    var LAYOUT_CONTROLS = ['setup-autowrap', 'setup-maxchars', 'setup-maxlines'];
+    setupEl.addEventListener('change', function (e) {
+      if (e.target && LAYOUT_CONTROLS.indexOf(e.target.id) !== -1 && app.session && app.session.review) {
+        app.session.review.refreshLayout();
+      }
+    });
 
     app.start = function () {
       return bridge.init().then(function () {
