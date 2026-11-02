@@ -10,6 +10,7 @@ and no result depends on dict or set iteration order.
 
 from __future__ import annotations
 
+from bisect import bisect_left, bisect_right
 from collections.abc import Sequence
 from dataclasses import dataclass, fields
 
@@ -277,6 +278,27 @@ def merge(
     return placements
 
 
+def build_candidates(
+    entries: Sequence[ExportEntry],
+    tokens: Sequence[AToken],
+    detections: Sequence[Detection],
+    cfg: LocateConfig = LocateConfig(),
+) -> list[list[Placement]]:
+    """The candidate placements of every entry, in file order: the input of ``assign``.
+
+    One ``TokenIndex`` serves all the entries, so the transcript is grouped once, not per entry.
+    """
+    index = TokenIndex(tokens, cfg.align)
+    return [
+        merge(
+            text_candidates(entry, tokens, cfg, index),
+            mention_candidates(entry, detections, cfg),
+            cfg,
+        )
+        for entry in entries
+    ]
+
+
 # Scores are added as whole numbers of these, so equal totals compare equal whatever order their
 # parts were added in. Float sums of the same scores can differ in the last bit.
 _TICKS_PER_POINT = 10**9
@@ -317,9 +339,12 @@ def assign(
     if len(entries) != len(candidates):
         raise ValueError("candidates must hold one list of placements per entry")
 
-    states: list[_State] = []
+    # Chains kept for the lookup "the best chain that ends before time t". A chain is useless
+    # when another ends no later and ranks higher, so what is left is in time order with rank
+    # rising, and the answer to the lookup is the last chain that ends before t.
+    frontier: list[_State] = []
+    ends: list[float] = []  # frontier[k].placement.time_s, for bisect
     for position, options in enumerate(candidates):
-        # Only states of earlier entries are looked at, so an entry never chains to itself.
         reached: list[_State] = []
         for option, placement in sorted(
             enumerate(options), key=lambda item: (item[1].time_s, item[0])
@@ -327,18 +352,25 @@ def assign(
             gain = round(placement.score * _TICKS_PER_POINT)
             if gain <= 0:
                 continue
-            previous: _State | None = None
-            for state in states:
-                if state.placement.time_s < placement.time_s and (
-                    previous is None or state.rank > previous.rank
-                ):
-                    previous = state
+            behind = bisect_left(ends, placement.time_s)  # chains ending strictly before
+            previous = frontier[behind - 1] if behind else None
             total = gain + (0 if previous is None else previous.total)
             reached.append(_State(total, placement, position, option, previous))
-        states.extend(reached)
+        # Added only now, so an entry never chains to one of its own candidates.
+        for state in reached:
+            end = state.placement.time_s
+            tied_or_before = bisect_right(ends, end)
+            if tied_or_before and frontier[tied_or_before - 1].rank > state.rank:
+                continue
+            first = bisect_left(ends, end)
+            last = first
+            while last < len(frontier) and frontier[last].rank < state.rank:
+                last += 1
+            frontier[first:last] = [state]
+            ends[first:last] = [end]
 
     chosen: list[Placement | None] = [None] * len(entries)
-    link = max(states, key=lambda state: state.rank, default=None)
+    link = frontier[-1] if frontier else None
     while link is not None:
         chosen[link.position] = link.placement
         link = link.previous

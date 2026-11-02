@@ -8,11 +8,14 @@ from __future__ import annotations
 
 import itertools
 import random
+import time
 from dataclasses import replace
 from pathlib import Path
 
 import pytest
+from transcript_fixtures import FIXTURES_DIR
 
+from versesync.bible.local import LocalProvider
 from versesync.config import load_config
 from versesync.detect.canon import load_canon
 from versesync.detect.detector import Detection, detect
@@ -26,11 +29,12 @@ from versesync.timing.locate import (
     TextCandidate,
     TokenIndex,
     assign,
+    build_candidates,
     mention_candidates,
     merge,
     text_candidates,
 )
-from versesync.types import Word
+from versesync.types import Word, load_words
 
 CANON = load_canon()
 CFG = LocateConfig()
@@ -412,17 +416,7 @@ def test_merge_with_nothing_gives_nothing() -> None:
 def candidates_for(
     entries: list[ExportEntry], words: list[Word], cfg: LocateConfig = CFG
 ) -> list[list[Placement]]:
-    tokens = tokens_in(words)
-    detections = detections_in(words)
-    index = TokenIndex(tokens, cfg.align)
-    return [
-        merge(
-            text_candidates(entry, tokens, cfg, index),
-            mention_candidates(entry, detections, cfg),
-            cfg,
-        )
-        for entry in entries
-    ]
+    return build_candidates(entries, tokens_in(words), detections_in(words), cfg)
 
 
 def psalm_entry(index: int = 0) -> ExportEntry:
@@ -590,3 +584,97 @@ def test_the_assignment_is_the_best_of_every_possible_one() -> None:
         placed = [p for p in assign(blank(count), candidates) if p is not None]
         assert all(a.time_s < b.time_s for a, b in itertools.pairwise(placed))
         assert sum(p.score for p in placed) == pytest.approx(best)
+
+
+# --- performance -------------------------------------------------------------------------------
+
+LOCATE_BUDGET_S = 1.0  # the T-51.3 card: 30 entries against long-sermon-filler
+KJV = LocalProvider()
+# Thirty passages, the first of them read in the fixture. Several open with words the fixture
+# says constantly ("for", "he", "my"), so many places in it start a run.
+PERF_REFERENCES = (
+    "John 3:16",
+    "Genesis 1:1-3",
+    "Psalm 23:1-3",
+    "Romans 8:28-29",
+    "James 1:2-4",
+    "Matthew 5:3-6",
+    "Isaiah 40:28-31",
+    "Proverbs 3:5-6",
+    "Philippians 4:6-8",
+    "Ephesians 2:8-10",
+    "Genesis 2:1-2",
+    "Exodus 20:1-4",
+    "Psalm 91:1-4",
+    "Psalm 91:15-16",
+    "1 Corinthians 13:4-7",
+    "Hebrews 11:1-3",
+    "Revelation 21:1-4",
+    "Luke 2:8-11",
+    "Mark 1:14-15",
+    "Acts 2:1-4",
+    "Romans 12:1-2",
+    "Galatians 5:22-23",
+    "Colossians 3:12-14",
+    "1 John 4:7-10",
+    "Psalm 1:1-3",
+    "Psalm 46:1-3",
+    "Isaiah 53:4-6",
+    "Jeremiah 29:11-13",
+    "Lamentations 3:22-24",
+    "Matthew 6:9-13",
+)
+
+
+def kjv_entry(index: int, reference: str) -> ExportEntry:
+    ref = parse_reference(reference, CANON)
+    passage = KJV.fetch(ref, "kjv")
+    lines = tuple(f"{verse.verse} {verse.text}" for verse in passage.verses)
+    body = " ".join(lines)
+    return ExportEntry(
+        index=index,
+        reference_line=f"{reference} (KJV)",
+        reference=ref,
+        translation="KJV",
+        lines=lines,
+        body=body,
+        word_count=len(body.split()),
+    )
+
+
+@pytest.mark.perf
+def test_thirty_entries_are_located_in_a_long_sermon_within_a_second() -> None:
+    words = load_words(FIXTURES_DIR / "long-sermon-filler.words.json")
+    tokens = transcript_tokens(words)
+    detections = detect(words, CANON)
+    entries = [kjv_entry(i, reference) for i, reference in enumerate(PERF_REFERENCES)]
+    assert len(tokens) > 5000
+
+    started = time.perf_counter()
+    candidates = build_candidates(entries, tokens, detections, CFG)
+    placed = assign(entries, candidates)
+    elapsed = time.perf_counter() - started
+
+    assert elapsed < LOCATE_BUDGET_S, f"locating 30 entries took {elapsed:.2f}s"
+    assert len(placed) == 30
+    john = placed[0]
+    assert john is not None and john.text is not None and john.text.coverage == 1.0
+    times = [p.time_s for p in placed if p is not None]
+    assert all(a < b for a, b in itertools.pairwise(times))
+
+
+@pytest.mark.perf
+def test_assigning_thousands_of_candidates_takes_milliseconds() -> None:
+    rng = random.Random(30)
+    entries = blank(30)
+    candidates = [
+        [option(k, rng.uniform(0.0, 3000.0), rng.uniform(0.1, 1.25)) for _ in range(100)]
+        for k in range(30)
+    ]
+    started = time.perf_counter()
+    placed = assign(entries, candidates)
+    elapsed = time.perf_counter() - started
+    assert elapsed < LOCATE_BUDGET_S, f"assigning 3000 candidates took {elapsed:.2f}s"
+    times = [p.time_s for p in placed if p is not None]
+    assert len(times) > 5
+    assert all(a < b for a, b in itertools.pairwise(times))
