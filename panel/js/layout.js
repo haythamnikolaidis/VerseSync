@@ -67,9 +67,57 @@
     return chunks.map(function (words) { return words.join(' '); });
   }
 
+  // docs/15 §3. Returns [{ body, firstVerse }]: the graphics a cue becomes, each body already
+  // wrapped with "\n". firstVerse is the verse a graphic begins on, or null when it begins part way
+  // through a verse or the reference gives no verse range. Wrap off, or no usable maxChars, returns
+  // the body unchanged as one graphic.
+  function layoutCue(cue, settings) {
+    var opts = settings || {};
+    var body = cue.body === null || cue.body === undefined ? '' : String(cue.body);
+    var maxChars = opts.wrapChars;
+    if (!opts.wrapEnabled || !(maxChars > 0)) { return [{ body: body, firstVerse: null }]; }
+    var limit = opts.maxLines > 0 ? Math.max(1, Math.floor(opts.maxLines)) : Infinity;
+
+    var ref = cue.reference || {};
+    var byVerse = isVerseNumber(ref.verse) && isVerseNumber(ref.verse_end) && ref.verse_end > ref.verse;
+    var parts = [];
+    var current = null;
+
+    function lineCount(text) { return wrapText(text, maxChars).split('\n').length; }
+    function flush() {
+      if (current) {
+        parts.push({ body: wrapText(current.text, maxChars), firstVerse: current.firstVerse });
+        current = null;
+      }
+    }
+
+    verseChunks(body, ref).forEach(function (chunk, k) {
+      if (current) {
+        var joined = current.text + ' ' + chunk;
+        if (lineCount(joined) <= limit) {
+          current.text = joined;
+          return;
+        }
+        flush();
+      }
+      current = { text: chunk, firstVerse: byVerse ? ref.verse + k : null };
+      // A chunk that alone exceeds the limit is cut at the last line that fits and carries on in
+      // the next graphic, which starts part way through the verse.
+      var lines = wrapText(chunk, maxChars).split('\n');
+      while (lines.length > limit) {
+        parts.push({ body: lines.slice(0, limit).join('\n'), firstVerse: current.firstVerse });
+        lines = lines.slice(limit);
+        current = { text: lines.join(' '), firstVerse: null };
+      }
+    });
+    flush();
+    return parts.length > 0 ? parts : [{ body: body, firstVerse: null }];
+  }
+
   var Layout = {
     wrapText: wrapText,
-    verseChunks: verseChunks
+    verseChunks: verseChunks,
+    layoutCue: layoutCue
   };
 
   if (typeof module !== 'undefined' && module.exports) { module.exports = Layout; }
