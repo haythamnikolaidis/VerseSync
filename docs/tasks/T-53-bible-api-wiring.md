@@ -25,7 +25,7 @@ hand-added cues, and sermons with no export.
 
 ### T-53.1 · Choose the provider from config
 
-**Executor** agent · **Size** S · **Prereqs** T-15.2, T-20.5 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-15.2, T-20.5 · **Status** done
 
 - **Read:** [06 §8](../06-bible-text-service.md) · `sidecar/versesync/bible/api_bible.py`
 - **Touches:** `sidecar/versesync/bible/factory.py` (new) · `sidecar/versesync/bible/api_bible.py` ·
@@ -44,13 +44,13 @@ hand-added cues, and sermons with no export.
      move. Remove the "What the sidecar uses today" note from INSTALL. Commit.
 - **Verify:** `pytest -q`
 - **Done when:**
-  - [ ] `sidecar.py` and `cli.py` no longer name `LocalProvider`.
-  - [ ] A test proves a job with no key finishes, with its cues flagged `text_unavailable`.
-  - [ ] A test proves the key never appears in the log or in `repr`.
+  - [x] `sidecar.py` and `cli.py` no longer name `LocalProvider`.
+  - [x] A test proves a job with no key finishes, with its cues flagged `text_unavailable`.
+  - [x] A test proves the key never appears in the log or in `repr`.
 
 ### T-53.2 · NKJV default and the cleared translations
 
-**Executor** agent · **Size** S · **Prereqs** T-53.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-53.1 · **Status** done
 
 - **Read:** [06 §5, §8](../06-bible-text-service.md) · `sidecar/versesync/server.py` (`_translations`, the provider check)
 - **Touches:** `sidecar/versesync/config.py` · `sidecar/versesync/bible/api_bible.py` ·
@@ -74,13 +74,13 @@ hand-added cues, and sermons with no export.
      key or no internet still shows as `degraded`. Commit.
 - **Verify:** `pytest tests/test_api_bible.py tests/test_misc_endpoints.py -q`
 - **Done when:**
-  - [ ] A Bible the key can see but config doesn't list never reaches `GET /translations`.
-  - [ ] `GET /translations` makes no network call.
-  - [ ] `/health` is `degraded` when `GET /bibles` fails.
+  - [x] A Bible the key can see but config doesn't list never reaches `GET /translations`.
+  - [x] `GET /translations` makes no network call.
+  - [x] `/health` is `degraded` when `GET /bibles` fails.
 
 ### T-53.3 · Verse cache expires after 14 days
 
-**Executor** agent · **Size** XS · **Prereqs** T-53.1 · **Status** in-progress
+**Executor** agent · **Size** XS · **Prereqs** T-53.1 · **Status** done
 
 - **Read:** `sidecar/versesync/bible/cache.py`
 - **Touches:** `sidecar/versesync/bible/cache.py` · `sidecar/versesync/config.py` ·
@@ -93,8 +93,8 @@ hand-added cues, and sermons with no export.
      text doesn't stay on disk past the limit. Commit.
 - **Verify:** `pytest tests/test_verse_cache.py -q`
 - **Done when:**
-  - [ ] A test with the injected clock shows a hit at 13 days and a refetch at 15.
-  - [ ] A test shows an expired row is gone from the database after start-up.
+  - [x] A test with the injected clock shows a hit at 13 days and a refetch at 15.
+  - [x] A test shows an expired row is gone from the database after start-up.
 
 ### T-53.4 · Hand edits keep the cue's translation
 
