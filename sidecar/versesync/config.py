@@ -41,15 +41,40 @@ _BIBLE_DEFAULTS: dict[str, Any] = {
         "max_retries": 2,
     },
     "local": {"store_path": "%APPDATA%/VerseSync/bibles"},
-    "default_translation": "kjv",
+    "default_translation": "nkjv",
     "max_verses_per_passage": 6,
     "cache_enabled": True,
-    # Attribution and caching terms per API.Bible bible id (never inferred — see T-15).
-    # Confirmed public domain by the live API.Bible response's own "copyright" field
-    # (T-15.H, 2026-10-17). Translations beyond public domain (NKJV, TPT, ...) stay out of
-    # this table until Q-A is resolved in writing (docs/12-decisions-and-risks.md, R-1).
+    # The translations Setup offers, keyed by API.Bible bible id, in the order Setup lists them
+    # (NKJV first, so it reads as the default). Each entry is {abbreviation, name, attribution,
+    # cache_allowed}. Only the ids listed here are ever offered; a Bible the key can see but this
+    # table omits never reaches GET /translations. Attribution and caching terms are never
+    # inferred (see T-15). KJV, ASV and WEB were confirmed public domain by the live API.Bible
+    # response's own "copyright" field (T-15.H, 2026-10-17).
+    # NKJV, NIV and AMP have attribution "" on purpose: per D27
+    # (docs/12-decisions-and-risks.md) the on-screen attribution is the translation shown in the
+    # reference, and the full copyright text goes in the video description by hand.
     "translations": {
-        "de4e12af7f28f599-01": {  # KJV
+        "63097d2a0a2f7db3-01": {
+            "abbreviation": "NKJV",
+            "name": "New King James Version",
+            "attribution": "",
+            "cache_allowed": True,
+        },
+        "78a9f6124f344018-01": {
+            "abbreviation": "NIV",
+            "name": "New International Version 2011",
+            "attribution": "",
+            "cache_allowed": True,
+        },
+        "a81b73293d3080c9-01": {
+            "abbreviation": "AMP",
+            "name": "Amplified Bible",
+            "attribution": "",
+            "cache_allowed": True,
+        },
+        "de4e12af7f28f599-01": {
+            "abbreviation": "KJV",
+            "name": "King James (Authorised) Version",
             "attribution": (
                 "PUBLIC DOMAIN except in the United Kingdom, where a Crown Copyright applies "
                 "to printing the KJV. See "
@@ -57,8 +82,18 @@ _BIBLE_DEFAULTS: dict[str, Any] = {
             ),
             "cache_allowed": True,
         },
-        "06125adad2d5898a-01": {"attribution": "PUBLIC DOMAIN.", "cache_allowed": True},  # ASV
-        "9879dbb7cfe39e4d-04": {"attribution": "PUBLIC DOMAIN.", "cache_allowed": True},  # WEB
+        "06125adad2d5898a-01": {
+            "abbreviation": "ASV",
+            "name": "The Holy Bible, American Standard Version",
+            "attribution": "PUBLIC DOMAIN.",
+            "cache_allowed": True,
+        },
+        "9879dbb7cfe39e4d-04": {
+            "abbreviation": "WEB",
+            "name": "World English Bible",
+            "attribution": "PUBLIC DOMAIN.",
+            "cache_allowed": True,
+        },
     },
 }
 

@@ -50,7 +50,7 @@ hand-added cues, and sermons with no export.
 
 ### T-53.2 · NKJV default and the cleared translations
 
-**Executor** agent · **Size** S · **Prereqs** T-53.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-53.1 · **Status** in-progress
 
 - **Read:** [06 §5, §8](../06-bible-text-service.md) · `sidecar/versesync/server.py` (`_translations`, the provider check)
 - **Touches:** `sidecar/versesync/config.py` · `sidecar/versesync/bible/api_bible.py` ·
