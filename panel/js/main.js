@@ -232,6 +232,7 @@
         getTranscript: function () { return loadTranscript(s); },
         client: client,
         getTranslationId: function () { return s.request.translation_id; },
+        getTranslations: function () { return app.setup ? app.setup.getTranslations() : []; },
         getDurationMode: function () {
           var timing = s.request.options && s.request.options.timing;
           return timing && timing.duration_mode;

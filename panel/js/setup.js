@@ -397,6 +397,7 @@
       ready: ready,
       refreshTracks: loadTracks,
       refreshTranslations: loadTranslations,
+      getTranslations: function () { return translations; },
       pickMedia: onPickMedia,
       pickTemplate: onPickTemplate
     };

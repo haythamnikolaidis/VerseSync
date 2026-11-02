@@ -98,7 +98,7 @@ hand-added cues, and sermons with no export.
 
 ### T-53.4 · Hand edits keep the cue's translation
 
-**Executor** agent · **Size** XS · **Prereqs** T-51.2, T-53.2 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-51.2, T-53.2 · **Status** in-progress
 
 - **Read:** [14 §7](../14-scripture-file-import.md) · `panel/js/review.js` (`resolveCue`)
 - **Touches:** `panel/js/review.js` · `panel/js/main.js` · `tests/panel/review-reference.test.js`
@@ -108,8 +108,8 @@ hand-added cues, and sermons with no export.
      translation. The reference label already shows which was used. Commit.
 - **Verify:** `npm test`
 - **Done when:**
-  - [ ] Tests cover an NIV export cue staying NIV, a TPT export cue becoming NKJV, and a provider cue.
-  - [ ] With the API unreachable, the edit shows its inline error and the cue keeps its old text.
+  - [x] Tests cover an NIV export cue staying NIV, a TPT export cue becoming NKJV, and a provider cue.
+  - [x] With the API unreachable, the edit shows its inline error and the cue keeps its old text.
 
 ### T-53.H · Real key, real translations
 

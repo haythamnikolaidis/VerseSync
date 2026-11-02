@@ -436,9 +436,10 @@
     });
   }
 
-  // opts: { root, model, getPlacements, bridge, threshold, client, getTranslationId, getDurationMode,
-  // isAvailable, timing, timecodeOf, onChoosePlacement, onTranscript, onChange, onSave, onLoad, onExport, onInsert }. client.resolve edits a cue's
-  // reference; onChange(id) runs after each edit so the caller re-maps before the list redraws.
+  // opts: { root, model, getPlacements, bridge, threshold, client, getTranslationId, getTranslations,
+  // getDurationMode, isAvailable, timing, timecodeOf, onChoosePlacement, onTranscript, onChange, onSave, onLoad, onExport, onInsert }. client.resolve edits a cue's
+  // reference; getTranslations() returns the Setup list ({id, abbreviation}) so an edit keeps the
+  // cue's own translation when it is offered; onChange(id) runs after each edit so the caller re-maps before the list redraws.
   // getPlacements() returns the VSTimemap.mapCueDocument placements map. bridge moves the playhead
   // (the timecode button); getTranscript() resolves to the transcript words or null. The on* callbacks run the Save menu entries and the Insert button.
   function create(opts) {
@@ -652,8 +653,23 @@
     // Resolves one reference for a cue. Success edits the cue, re-maps, and rebuilds the list
     // (the cue may move) with the row still open; the promise then yields ''. Failure yields the
     // message to show inline and leaves the cue unchanged.
+    // The id of the cue's own translation when its text_source names one in the Setup list
+    // (matched case-insensitively on abbreviation); otherwise the job's translation. An
+    // unavailable list means the job's translation.
+    function translationIdFor(cue) {
+      var jobId = opts.getTranslationId ? opts.getTranslationId() : null;
+      var own = cue && cue.text_source && cue.text_source.translation;
+      var list = opts.getTranslations ? opts.getTranslations() : null;
+      if (!own || !list || !list.length) { return jobId; }
+      var wanted = String(own).toLowerCase();
+      for (var i = 0; i < list.length; i++) {
+        if (String(list[i].abbreviation).toLowerCase() === wanted) { return list[i].id; }
+      }
+      return jobId;
+    }
+
     function resolveCue(id, request, fallbackReference, batch) {
-      var translationId = opts.getTranslationId ? opts.getTranslationId() : null;
+      var translationId = translationIdFor(model.get(id));
       return opts.client.resolve(request, translationId).then(function (res) {
         if (!res.ok) {
           if (res.error && res.error.code === 'unreachable') { textServiceDown = res.error.message; }
@@ -664,8 +680,13 @@
         if (!reference) { return 'Could not read the reference the text service returned.'; }
         var cue = model.get(id);
         try {
-          model.edit(id, resolvePatch(cue, reference, res.data,
-            { durationMode: opts.getDurationMode ? opts.getDurationMode() : 'auto' }));
+          var patch = resolvePatch(cue, reference, res.data,
+            { durationMode: opts.getDurationMode ? opts.getDurationMode() : 'auto' });
+          var used = res.data.translation && res.data.translation.abbreviation;
+          if (cue.text_source && used) {
+            patch.text_source = { kind: 'provider', translation: used };
+          }
+          model.edit(id, patch);
         } catch (e) {
           return e.message;
         }
