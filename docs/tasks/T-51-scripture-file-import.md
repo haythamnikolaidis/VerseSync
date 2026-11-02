@@ -36,14 +36,17 @@ Without a scripture file, nothing changes. Every v1 golden file must still pass 
 - **Steps:**
   1. Write `ExportEntry` and `parse_scripture_file(path, canon)` as specified in 14 §3, with the
      two warnings and the `scripture_file_empty` error. Commit.
-  2. Fixtures: VerseFlow's `sample-scriptures.txt` copied as-is, plus a **UTF-8-BOM, CRLF**
-     copy, plus a synthetic public-domain file laid out like 2026-10-25 (mixed translations, two
-     repeats, a stray line before the first entry, one invalid book). Tests: both copies give
-     identical entries; `body` matches VerseFlow's `_finalize` output for every sample entry;
-     repeats are kept as separate entries; each warning carries its line number. Commit.
+  2. Fixtures, **public-domain text only** because the repo is public (VerseFlow's
+     `sample-scriptures.txt` holds NKJV and TPT text, so it is not copied): a sample laid out like
+     VerseFlow's format, with its expected output recorded by running the real `scripture-parser.js`
+     once under Node (`sample-scriptures.expected.json`), plus a synthetic file laid out like
+     2026-10-25 (mixed KJV and WEB, two repeats, a stray line before the first entry, one invalid
+     book). Tests: the sample's `reference_line`, `translation`, `body` and `word_count` equal the
+     recorded file; a UTF-8-BOM, CRLF copy written to `tmp_path` gives identical entries; repeats are
+     kept as separate entries; each warning carries its line number. Commit.
 - **Verify:** `pytest tests/test_scripture_file.py -q`
 - **Done when:**
-  - [ ] `body` is byte-identical to VerseFlow's parser on the sample file.
+  - [ ] `body` is byte-identical to VerseFlow's parser output on the sample fixture, as recorded in the expected file.
   - [ ] BOM and CRLF make no difference.
 
 ### T-51.2 · Contract: Cue Document 1.1

@@ -251,8 +251,11 @@ this service. VerseSync uses it **only for this sermon's Cue Document**:
 
 ## 9. Testing
 
-- **Unit:** the parser against VerseFlow's sample file and a BOM/CRLF copy, giving byte-identical
-  `body` strings; locator cases for a clean read, a paraphrase, a repeat, out-of-order entries and
+- **Unit:** the parser against a public-domain sample laid out like VerseFlow's format, whose
+  expected `reference_line`, `translation`, `body` and `word_count` were recorded by running
+  VerseFlow's real parser once (the repo is public, so VerseFlow's own NKJV/TPT sample file is not
+  copied), and a BOM/CRLF copy written at test time, giving byte-identical `body` strings; locator
+  cases for a clean read, a paraphrase, a repeat, out-of-order entries and
   an unplaceable entry; DP determinism; two readings 21 seconds apart; a re-read with no slide; a
   repeated reference with no slide; a chapter-only mention that must not become a repeat.
 - **Fixtures:** a synthetic public-domain export (KJV/WEB) and transcript laid out like the
