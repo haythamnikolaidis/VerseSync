@@ -138,6 +138,31 @@ def test_list_translations_works_with_no_key() -> None:
     assert [t.abbreviation for t in provider.list_translations()] == ["KJV", "NKJV"]
 
 
+def test_check_calls_get_bibles_once_with_the_key() -> None:
+    provider, transport = _provider({"/bibles": (200, "bibles.json")})
+    provider.check()
+    assert [c[0] for c in transport.calls] == [BASE + "/bibles"]
+    assert transport.calls[0][1]["api-key"] == KEY
+
+
+@pytest.mark.parametrize(
+    ("status", "error"),
+    [(401, TranslationNotLicensed), (403, TranslationNotLicensed), (500, ProviderUnavailable)],
+)
+def test_check_raises_a_typed_error_on_http_failure(status: int, error: type) -> None:
+    provider, _ = _provider({"/bibles": (status, "error_404.json")})
+    with pytest.raises(error):
+        provider.check()
+
+
+def test_check_with_no_key_raises_without_a_request() -> None:
+    def refuse(url: str, headers: Mapping[str, str], timeout: float) -> Any:
+        raise AssertionError("transport called")
+
+    with pytest.raises(ProviderUnavailable):
+        ApiBibleProvider("", BASE, refuse, CONFIG).check()
+
+
 def test_list_translations_takes_attribution_and_caching_only_from_config() -> None:
     bare = {KJV_ID: {"abbreviation": "KJV", "name": "King James"}}
     (kjv,) = ApiBibleProvider(KEY, BASE, FakeTransport({}), bare).list_translations()

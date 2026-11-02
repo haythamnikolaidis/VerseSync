@@ -109,6 +109,16 @@ class ApiBibleProvider:
             for bible_id, conf in self._config.items()
         ]
 
+    def check(self) -> None:
+        """Make the ``GET /bibles`` call and raise a ``BibleError`` if it fails.
+
+        With no key this raises ``ProviderUnavailable`` without any request. A 401 or 403 (a bad
+        key) raises ``TranslationNotLicensed`` through the usual error mapping.
+        """
+        if not self.__api_key:
+            raise ProviderUnavailable("No Bible API key is configured.")
+        self._get("/bibles")
+
     def fetch(self, ref: Reference, translation_id: str) -> RawPassage:
         if ref.verse is None:
             raise PassageNotFound(

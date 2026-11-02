@@ -18,6 +18,9 @@ class CountingProvider:
             Translation("closed", "CLS", "Closed", "Restricted.", cache_allowed=False),
         ]
 
+    def check(self) -> None:
+        return None
+
     def list_translations(self) -> list[Translation]:
         return list(self.translations)
 

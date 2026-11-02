@@ -32,6 +32,9 @@ class FakeProvider:
         self.errors = errors or {}
         self.calls: list[Reference] = []
 
+    def check(self) -> None:
+        return None
+
     def list_translations(self) -> list[Translation]:
         return [TRANSLATION]
 

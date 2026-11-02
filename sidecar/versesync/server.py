@@ -54,7 +54,7 @@ SSE_POLL_S = 1.0
 SSE_KEEPALIVE_POLLS = 15
 
 # Chosen: how long a provider reachability result is reused by /health. /health is polled by
-# the panel, and a real provider's list_translations is a network call.
+# the panel, and a real provider's check() is a network call.
 PROVIDER_CHECK_TTL_S = 30.0
 
 # 07 section 2 (/models). The word_timestamp_quality values come from the T-02 spike
@@ -532,7 +532,7 @@ class SidecarServer:
         return passage.to_json()
 
     def _provider_reachable(self) -> bool:
-        """Whether ``list_translations`` works, re-checked at most every PROVIDER_CHECK_TTL_S."""
+        """Whether ``provider.check()`` passes, re-checked at most every PROVIDER_CHECK_TTL_S."""
         provider = self._require_provider()
         with self._provider_lock:
             now = self.clock()
@@ -541,7 +541,7 @@ class SidecarServer:
             ):
                 return self._provider_check[1]
             try:
-                provider.list_translations()
+                provider.check()
                 reachable = True
             except (BibleError, OSError):
                 reachable = False

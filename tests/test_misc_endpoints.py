@@ -40,7 +40,7 @@ def call(
 
 
 class FlakyProvider:
-    """A LocalProvider whose list_translations can be switched to fail."""
+    """A LocalProvider whose check can be switched to fail."""
 
     id = "flaky"
 
@@ -49,16 +49,22 @@ class FlakyProvider:
         self.down = False
         self.calls = 0
 
-    def list_translations(self) -> list[Translation]:
+    def check(self) -> None:
         self.calls += 1
         if self.down:
             raise ProviderUnavailable()
+
+    def list_translations(self) -> list[Translation]:
         return self.inner.list_translations()
 
     def fetch(self, *args: Any) -> Any:
+        if self.down:
+            raise ProviderUnavailable()
         return self.inner.fetch(*args)
 
     def fetch_chapter(self, *args: Any) -> Any:
+        if self.down:
+            raise ProviderUnavailable()
         return self.inner.fetch_chapter(*args)
 
 
@@ -314,3 +320,67 @@ def test_health_degraded_on_cpu(make_env: Any) -> None:
     _, health = call(env.server, "/health", auth=False)
     assert health["status"] == "degraded"
     assert health["device"] == "cpu"
+
+
+def _api_provider(status: int, fail: bool = False) -> tuple[ApiBibleProvider, list[str]]:
+    urls: list[str] = []
+
+    def transport(url: str, headers: Any, timeout: float) -> tuple[int, dict[str, Any]]:
+        urls.append(url)
+        if fail:
+            raise ConnectionError("no route")
+        return status, {"data": []}
+
+    conf = {"kjv-id": {"abbreviation": "KJV", "name": "KJV", "cache_allowed": True}}
+    return ApiBibleProvider("test-key", "https://api.example.test/v1", transport, conf), urls
+
+
+@pytest.mark.parametrize(("status", "fail"), [(0, True), (401, False), (403, False), (500, False)])
+def test_health_degraded_when_get_bibles_fails(make_env: Any, status: int, fail: bool) -> None:
+    provider, urls = _api_provider(status, fail)
+    env = make_env(provider=provider)
+    _, health = call(env.server, "/health", auth=False)
+    assert health["status"] == "degraded"
+    assert health["provider"] == {"id": "api_bible", "reachable": False}
+    assert urls == ["https://api.example.test/v1/bibles"]
+
+
+def test_health_degraded_with_no_key(make_env: Any) -> None:
+    urls: list[str] = []
+
+    def transport(url: str, headers: Any, timeout: float) -> tuple[int, dict[str, Any]]:
+        urls.append(url)
+        return 200, {}
+
+    env = make_env(provider=ApiBibleProvider("", "https://api.example.test/v1", transport))
+    _, health = call(env.server, "/health", auth=False)
+    assert health["status"] == "degraded"
+    assert urls == []
+
+
+def test_health_ready_when_get_bibles_succeeds(make_env: Any) -> None:
+    provider, urls = _api_provider(200)
+    env = make_env(provider=provider)
+    _, health = call(env.server, "/health", auth=False)
+    assert health["status"] == "ready"
+    assert health["provider"] == {"id": "api_bible", "reachable": True}
+    for _ in range(4):
+        call(env.server, "/health", auth=False)
+    assert len(urls) == 1  # the TTL throttle limits the check to one call in the window
+    env.clock.now += PROVIDER_CHECK_TTL_S + 1
+    call(env.server, "/health", auth=False)
+    assert len(urls) == 2
+
+
+def test_health_ready_with_local_provider(make_env: Any) -> None:
+    env = make_env(provider=LocalProvider())
+    _, health = call(env.server, "/health", auth=False)
+    assert (health["status"], health["provider"]) == ("ready", {"id": "local", "reachable": True})
+
+
+def test_translations_endpoint_makes_no_network_call(make_env: Any) -> None:
+    provider, urls = _api_provider(200)
+    env = make_env(provider=provider)
+    status, body = call(env.server, "/translations")
+    assert status == 200 and body
+    assert urls == []

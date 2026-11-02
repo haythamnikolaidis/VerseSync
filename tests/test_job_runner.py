@@ -40,6 +40,9 @@ class DownProvider:
 
     id = "down"
 
+    def check(self) -> None:
+        return None
+
     def list_translations(self) -> list[Translation]:
         return PROVIDER.list_translations()
 

@@ -54,6 +54,9 @@ class LocalProvider:
                 self._translations[translation.id] = translation
                 self._books[translation.id] = books
 
+    def check(self) -> None:
+        """The local stores are always available."""
+
     def list_translations(self) -> list[Translation]:
         return list(self._translations.values())
 

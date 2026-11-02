@@ -51,6 +51,9 @@ class CachingProvider:
         self._now = now  # injected so the fetch timestamp never touches the key path
         self._cacheable: dict[str, bool] = {}
 
+    def check(self) -> None:
+        self._inner.check()
+
     def list_translations(self) -> list[Translation]:
         translations = self._inner.list_translations()
         for t in translations:
