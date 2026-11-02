@@ -152,20 +152,13 @@ cover) and `duplicate_cooldown_s` (default `60`, also settable under `timing`).
 |---|---|---|
 | `default_translation` | `kjv` | Translation preselected for an analysis. |
 | `max_verses_per_passage` | `6` | Longest passage placed as one cue. |
-| `provider` | `api_bible` | See the note below. |
+| `provider` | `api_bible` | Where verse text comes from. `api_bible` reads it from API.Bible and needs the key described under "Where the credentials go". `local` serves the bundled King James Version with no key and no network. Any other value stops the sidecar at start-up. |
 | `api_bible.api_key_env` | `VERSESYNC_API_BIBLE_KEY` | Name of the environment variable that holds the API.Bible key. |
 | `api_bible.base_url` | `https://api.scripture.api.bible/v1` | API.Bible endpoint. |
 | `api_bible.timeout_s` | `10` | Request timeout. |
-| `api_bible.max_retries` | `2` | Retries per request. |
-| `local.store_path` | `%APPDATA%/VerseSync/bibles` | Folder for imported Bible stores. |
-| `cache_enabled` | `true` | Verse cache switch. |
-
-**What the sidecar uses today.** The sidecar in this repository starts with the local provider
-only, which serves the bundled King James Version and makes no network requests.
-`default_translation` and `max_verses_per_passage` are read; `provider`, `api_bible.*`,
-`local.store_path` and `cache_enabled` are accepted and kept in the configuration but nothing
-at start-up reads them yet. The API.Bible provider class exists in
-`sidecar/versesync/bible/api_bible.py` but is not selected by the launcher.
+| `api_bible.max_retries` | `2` | Retries per request. Not read yet. |
+| `local.store_path` | `%APPDATA%/VerseSync/bibles` | Folder for imported Bible stores. Not read yet. |
+| `cache_enabled` | `true` | Verse cache switch. Not read yet: the verse cache is always on. |
 
 ### `server`
 
@@ -186,8 +179,11 @@ that variable when needed. To use the default name, set it for your Windows user
 setx VERSESYNC_API_BIBLE_KEY "your-key"
 ```
 
-then restart Premiere Pro so the sidecar it launches inherits the variable. The bundled KJV
-needs no key. The sidecar also holds no login of its own: each launch generates a random
+then restart Premiere Pro so the sidecar it launches inherits the variable. The sidecar reads
+Bible text from API.Bible by default, so it needs this key; without one it still starts, but every
+request for Bible text is refused with "No API.Bible key". To run without a key, set
+`bible.provider: local` in `config.yaml`, which serves the bundled King James Version. The sidecar
+also holds no login of its own: each launch generates a random
 access token that is written only to `sidecar.json`, which the panel reads.
 
 ## Check the install

@@ -18,7 +18,7 @@ from typing import Any
 
 from versesync import lockfile
 from versesync.bible.cache import CachingProvider
-from versesync.bible.local import LocalProvider
+from versesync.bible.factory import build_provider
 from versesync.config import load_config
 from versesync.jobs import JobService
 from versesync.paths import log_path
@@ -86,6 +86,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"VerseSync sidecar: cannot load config: {exc} (log: {log_file})", file=sys.stderr)
         return 2
 
+    try:
+        provider = CachingProvider(build_provider(config))
+    except ValueError as exc:
+        _log.error("cannot set up the Bible provider: %s", exc)
+        print(f"VerseSync sidecar: {exc} (log: {log_file})", file=sys.stderr)
+        return 2
+
     token = secrets.token_urlsafe(32)  # once per launch; only the lock file ever holds it
     try:
         server = _TrackedServer(config, token, args.port)
@@ -97,7 +104,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         return 1
 
-    provider = CachingProvider(LocalProvider())
     service = JobService(
         config=config, backend_factory=lambda: get_backend(config), provider=provider
     )

@@ -4,19 +4,22 @@ from __future__ import annotations
 
 import json
 import logging
+import signal
 import socket
 import threading
 import time
 from collections.abc import Callable, Iterator, Mapping
 from dataclasses import replace
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 from typing import Any
 
 import pytest
 
+from versesync import sidecar
 from versesync.bible import factory
 from versesync.bible.api_bible import ApiBibleProvider
-from versesync.bible.base import PassageNotFound, ProviderUnavailable
+from versesync.bible.base import BibleProvider, PassageNotFound, ProviderUnavailable
 from versesync.bible.factory import NO_KEY_MESSAGE, build_provider, urllib_fetch_json
 from versesync.bible.local import LocalProvider
 from versesync.config import Config, load_config
@@ -43,8 +46,8 @@ class Recorder:
 
 
 @pytest.fixture
-def config(app_home: Any, monkeypatch: pytest.MonkeyPatch) -> Config:
-    """The default configuration, with a clean environment for the key."""
+def config(bare_home: Any, monkeypatch: pytest.MonkeyPatch) -> Config:
+    """The built-in default configuration, with a clean environment for the key."""
     monkeypatch.delenv(KEY_ENV, raising=False)
     return load_config()
 
@@ -188,6 +191,55 @@ def test_key_is_not_in_repr_log_or_error(
         build_provider(config, fetch_json=Recorder(status=404)).fetch(_ref(), "abc-01")
     assert KEY not in str(info.value) and KEY not in str(not_found.value)
     assert KEY not in caplog.text
+
+
+def test_key_stays_out_of_the_sidecar_log_and_reprs_through_start_up(
+    bare_home: Path, monkeypatch: pytest.MonkeyPatch, serve: Serve
+) -> None:
+    """The real start-up path, ``sidecar.main``, builds the provider from the default config."""
+    monkeypatch.setenv(KEY_ENV, KEY)
+    # Requests go to a loopback server that only ever fails, never to API.Bible.
+    api = serve(lambda path: _json(500 if path.endswith("/bibles") else 404, {"message": "no"}))
+    bare_home.mkdir(parents=True)
+    (bare_home / "config.yaml").write_text(
+        f"bible:\n  api_bible:\n    base_url: {api.url}\n", encoding="utf-8"
+    )
+    built: list[tuple[Config, BibleProvider]] = []
+
+    def build_and_record(cfg: Config) -> BibleProvider:
+        provider = factory.build_provider(cfg)
+        built.append((cfg, provider))
+        return provider
+
+    monkeypatch.setattr(sidecar, "build_provider", build_and_record)
+    # main() returns as soon as it would start serving, and leaves the test run's signal
+    # handlers alone.
+    monkeypatch.setattr(sidecar._TrackedServer, "serve_forever", lambda self: self.shutdown())
+    monkeypatch.setattr(signal, "signal", lambda *_args: None)
+
+    log = logging.getLogger("versesync")
+    handlers, level = list(log.handlers), log.level
+    try:
+        assert sidecar.main([]) == 0
+        ((cfg, provider),) = built
+        log.setLevel(logging.DEBUG)  # include the per-request debug line
+        with pytest.raises(ProviderUnavailable) as failure:
+            provider.list_translations()
+        with pytest.raises(PassageNotFound) as missing:
+            provider.fetch_chapter("John", 99, "abc-01")
+    finally:
+        for handler in log.handlers[:]:
+            if handler not in handlers:
+                log.removeHandler(handler)
+                handler.close()
+        log.setLevel(level)
+
+    assert isinstance(provider, ApiBibleProvider)
+    text = (bare_home / "logs" / "sidecar.log").read_text(encoding="utf-8")
+    assert "listening" in text and "GET" in text  # the log was written, not empty
+    assert KEY not in text
+    assert KEY not in repr(provider) and KEY not in repr(cfg) and KEY not in str(cfg)
+    assert KEY not in str(failure.value) and KEY not in str(missing.value)
 
 
 # --- urllib_fetch_json over loopback --------------------------------------------------------

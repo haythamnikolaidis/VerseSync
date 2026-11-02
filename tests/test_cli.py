@@ -1,12 +1,16 @@
 import json
+from collections.abc import Mapping
 from pathlib import Path
+from typing import Any
 
 import pytest
 
+from versesync.bible import factory
 from versesync.cli import main
 from versesync.cues import validate_document
 
 FIXTURE = Path(__file__).parent / "fixtures" / "transcripts" / "numbers-and-ordinals.words.json"
+API_FIXTURES = Path(__file__).parent / "fixtures" / "api_bible"
 
 
 def test_detect_prints_json_list(capsys: pytest.CaptureFixture[str]) -> None:
@@ -34,6 +38,29 @@ def test_resolve_prints_passage(capsys: pytest.CaptureFixture[str]) -> None:
     passage = json.loads(capsys.readouterr().out)
     assert passage["reference"]["osis"] == "Rom"
     assert passage["reference"]["verse"] == 28
+    assert passage["source"] == "local"
+
+
+def test_resolve_with_the_api_provider_marks_the_text_as_from_a_provider(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setenv("VERSESYNC_API_BIBLE_KEY", "sk-test-not-a-real-key")
+    routes = {"/bibles": "bibles.json", "/passages/JHN.3.16": "passage_single.json"}
+
+    def fake_fetch(
+        url: str, headers: Mapping[str, str], timeout: float
+    ) -> tuple[int, dict[str, Any]]:
+        name = next(name for suffix, name in routes.items() if url.split("?")[0].endswith(suffix))
+        return 200, json.loads((API_FIXTURES / name).read_text(encoding="utf-8"))
+
+    monkeypatch.setattr(factory, "urllib_fetch_json", fake_fetch)
+    config = tmp_path / "api.yaml"
+    config.write_text("bible:\n  provider: api_bible\n", encoding="utf-8")
+    args = ["resolve", "John 3:16", "--translation", "kjv", "--config", str(config)]
+    assert main(args) == 0
+    passage = json.loads(capsys.readouterr().out)
+    assert passage["source"] == "provider"
+    assert passage["reference"]["verse"] == 16
 
 
 def test_resolve_invalid_reference_exits_2(capsys: pytest.CaptureFixture[str]) -> None:

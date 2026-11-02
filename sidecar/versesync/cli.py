@@ -12,8 +12,8 @@ from pathlib import Path
 from typing import Any
 
 from versesync.bible.base import BibleError, BibleProvider, Translation, TranslationNotLicensed
+from versesync.bible.factory import build_provider
 from versesync.bible.format import format_passage
-from versesync.bible.local import LocalProvider
 from versesync.config import Config, load_config
 from versesync.detect.canon import load_canon
 from versesync.detect.detector import detect
@@ -73,7 +73,7 @@ def cmd_detect(args: argparse.Namespace) -> int:
 
 def cmd_resolve(args: argparse.Namespace) -> int:
     config = load_config(args.config)
-    provider = LocalProvider()
+    provider = build_provider(config)
     canon = load_canon()
     try:
         ref = parse_reference(args.reference, canon)
@@ -87,7 +87,7 @@ def cmd_resolve(args: argparse.Namespace) -> int:
             translation,
             canon,
             max_verses=int(config.bible.get("max_verses_per_passage", 6)),
-            source="local",
+            source="local" if provider.id == "local" else "provider",
         )
     except (InvalidReference, BibleError) as exc:
         raise UsageError(str(exc)) from exc
@@ -112,7 +112,7 @@ def _epoch(generated_at: str) -> float:
 def cmd_analyse(args: argparse.Namespace) -> int:
     """The same ``run_job`` the sidecar runs, with the clock and job id injected."""
     config = load_config(args.config)
-    provider = LocalProvider()
+    provider = build_provider(config)
     translation = _find_translation(provider, args.translation or _default_translation(config))
     backend: Backend
     if args.input.suffix.lower() == ".json":

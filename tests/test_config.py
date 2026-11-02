@@ -6,10 +6,10 @@ from versesync import paths
 from versesync.config import Config, load_config
 
 
-def test_app_home_honours_env_and_creates_dir(app_home: Path) -> None:
-    assert not app_home.exists()
-    assert paths.app_home() == app_home
-    assert app_home.is_dir()
+def test_app_home_honours_env_and_creates_dir(bare_home: Path) -> None:
+    assert not bare_home.exists()
+    assert paths.app_home() == bare_home
+    assert bare_home.is_dir()
 
 
 def test_derived_paths(app_home: Path) -> None:
@@ -32,7 +32,7 @@ def test_app_home_default_windows(monkeypatch: pytest.MonkeyPatch, tmp_path: Pat
     assert paths.app_home() == tmp_path / "VerseSync"
 
 
-def test_defaults(app_home: Path) -> None:
+def test_defaults(bare_home: Path) -> None:
     cfg = load_config()
     assert cfg.timing["lead_in_s"] == 0.5
     assert cfg.timing["duplicate_cooldown_s"] == 60
@@ -48,9 +48,9 @@ def test_defaults(app_home: Path) -> None:
     assert cfg.transcription["backend"] == "faster_whisper"
 
 
-def test_home_file_deep_merges_defaults(app_home: Path) -> None:
-    app_home.mkdir(parents=True)
-    (app_home / "config.yaml").write_text(
+def test_home_file_deep_merges_defaults(bare_home: Path) -> None:
+    bare_home.mkdir(parents=True)
+    (bare_home / "config.yaml").write_text(
         "timing:\n  lead_in_s: 0.75\nbible:\n  api_bible:\n    timeout_s: 3\n", encoding="utf-8"
     )
     cfg = load_config()
@@ -60,9 +60,9 @@ def test_home_file_deep_merges_defaults(app_home: Path) -> None:
     assert cfg.bible["api_bible"]["max_retries"] == 2
 
 
-def test_explicit_path_overrides_home_file(app_home: Path, tmp_path: Path) -> None:
-    app_home.mkdir(parents=True)
-    (app_home / "config.yaml").write_text("timing:\n  lead_in_s: 0.75\n", encoding="utf-8")
+def test_explicit_path_overrides_home_file(bare_home: Path, tmp_path: Path) -> None:
+    bare_home.mkdir(parents=True)
+    (bare_home / "config.yaml").write_text("timing:\n  lead_in_s: 0.75\n", encoding="utf-8")
     extra = tmp_path / "extra.yaml"
     extra.write_text("timing:\n  lead_in_s: 1.5\nserver:\n  idle_exit_s: 5\n", encoding="utf-8")
     cfg = load_config(extra)
