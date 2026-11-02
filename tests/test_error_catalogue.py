@@ -148,9 +148,11 @@ def start_job(env: Env, server: SidecarServer, **extra: Any) -> str:
     return str(json.loads(data)["job_id"])
 
 
-def failed_job_error(env: Env, server: SidecarServer) -> tuple[int | None, dict[str, Any]]:
+def failed_job_error(
+    env: Env, server: SidecarServer, **extra: Any
+) -> tuple[int | None, dict[str, Any]]:
     """A failed job's error; it travels inside a 200 snapshot, so it has no HTTP status."""
-    snap = wait_for(server, start_job(env, server), {"failed", "done"})
+    snap = wait_for(server, start_job(env, server, **extra), {"failed", "done"})
     assert snap["status"] == "failed"
     return None, snap["error"]
 
@@ -190,6 +192,14 @@ def unreadable_media_error(env: Env, monkeypatch: pytest.MonkeyPatch) -> tuple[i
 
     monkeypatch.setattr(jobs_module, "hash_media", refuse)
     return error_of(send(env.start(), "POST", "/jobs", env.job_body()))
+
+
+def scripture_file_options(env: Env, name: str, content: bytes | None) -> dict[str, Any]:
+    """``options`` naming a scripture file under the tmp dir; ``content`` None leaves it missing."""
+    path = env.tmp_path / name
+    if content is not None:
+        path.write_bytes(content)
+    return {"scripture_file": str(path)}
 
 
 def result_gone_error(env: Env) -> tuple[int, dict[str, Any]]:
@@ -259,6 +269,24 @@ TRIGGERS: dict[str, Trigger] = {
         send(e.start(), "POST", "/jobs", e.job_body(media_path=str(e.tmp_path / "gone.mxf")))
     ),
     "media_unreadable": unreadable_media_error,
+    "scripture_file_not_found": lambda e, m: error_of(
+        send(
+            e.start(),
+            "POST",
+            "/jobs",
+            e.job_body(options=scripture_file_options(e, "gone.txt", None)),
+        )
+    ),
+    "scripture_file_unreadable": lambda e, m: failed_job_error(
+        e,
+        e.start(),
+        options=scripture_file_options(e, "binary.txt", b"\xff\xfe not utf-8 \x80"),
+    ),
+    "scripture_file_empty": lambda e, m: failed_job_error(
+        e,
+        e.start(),
+        options=scripture_file_options(e, "empty.txt", b"Notes with no scripture in them\n"),
+    ),
     "model_load_failed": lambda e, m: failed_job_error(
         e,
         e.start(

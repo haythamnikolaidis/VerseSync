@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import threading
 import time
@@ -25,6 +26,7 @@ TOKEN = "test-token"
 ORIGIN = "cep://com.versesync.panel"
 WORDS_FILE = FIXTURES_DIR / "numbers-and-ordinals.words.json"
 TRANSLATION_ID = LocalProvider().list_translations()[0].id
+SCRIPTURE_FILE = Path(__file__).parent / "fixtures" / "scripture_files" / "service-export.txt"
 
 
 def call(
@@ -240,3 +242,138 @@ def test_unavailable_backend_fails_the_job_not_the_start(harness: Harness) -> No
     snap = wait_for(server, started["job_id"], {"failed", "done"})
     assert snap["status"] == "failed"
     assert snap["error"]["code"] == "backend_unavailable"
+
+
+def _scripture_options(path: Path) -> dict[str, Any]:
+    return {"scripture_file": str(path)}
+
+
+def _failed_scripture_job(harness: Harness, path: Path) -> dict[str, Any]:
+    server = harness.start()
+    body = harness.request(options=_scripture_options(path))
+    status, started = call(server, "/jobs", method="POST", body=body)
+    assert status == 202
+    snap = wait_for(server, started["job_id"], {"done", "failed"})
+    assert snap["status"] == "failed"
+    error: dict[str, Any] = snap["error"]
+    assert str(path) in error["message"]
+    assert "Traceback" not in error["message"]
+    return error
+
+
+def test_scripture_file_job_gives_a_1_1_document_with_the_file_block(harness: Harness) -> None:
+    server = harness.start()
+    body = harness.request(options=_scripture_options(SCRIPTURE_FILE))
+    status, started = call(server, "/jobs", method="POST", body=body)
+    assert status == 202
+    assert wait_for(server, started["job_id"], {"done", "failed"})["status"] == "done"
+    _, doc = call(server, f"/jobs/{started['job_id']}/result")
+    validate_document(doc)
+    assert doc["schema_version"] == "1.1"
+    assert doc["scripture_file"] == {
+        "path": str(SCRIPTURE_FILE),
+        "sha256": hashlib.sha256(SCRIPTURE_FILE.read_bytes()).hexdigest(),
+        "entry_count": 8,
+    }
+
+
+def test_without_a_scripture_file_the_document_is_1_0(harness: Harness) -> None:
+    server = harness.start()
+    _, started = call(server, "/jobs", method="POST", body=harness.request())
+    wait_for(server, started["job_id"], {"done"})
+    _, doc = call(server, f"/jobs/{started['job_id']}/result")
+    assert doc["schema_version"] == "1.0"
+    assert "scripture_file" not in doc
+
+
+def test_missing_scripture_file_is_scripture_file_not_found(harness: Harness) -> None:
+    server = harness.start()
+    gone = harness.tmp_path / "gone.txt"
+    body = harness.request(options=_scripture_options(gone))
+    status, err = call(server, "/jobs", method="POST", body=body)
+    assert (status, err["error"]["code"]) == (404, "scripture_file_not_found")
+    assert str(gone) in err["error"]["message"]
+
+
+def test_scripture_file_outside_the_allowed_roots_is_refused(harness: Harness) -> None:
+    elsewhere = harness.tmp_path / "other"
+    elsewhere.mkdir()
+    export = harness.tmp_path / "media" / "scriptures.txt"
+    export.write_bytes(SCRIPTURE_FILE.read_bytes())
+    # The media is inside the root; the export is not.
+    server = harness.start(roots=[str(harness.media.parent)])
+    inside = harness.request(options=_scripture_options(export))
+    assert call(server, "/jobs", method="POST", body=inside)[0] == 202
+
+    outside_export = elsewhere / "scriptures.txt"
+    outside_export.write_bytes(SCRIPTURE_FILE.read_bytes())
+    body = harness.request(options=_scripture_options(outside_export))
+    status, err = call(server, "/jobs", method="POST", body=body)
+    assert (status, err["error"]["code"]) == (404, "scripture_file_not_found")
+
+    # Climbing out of the root with ".." is still outside it.
+    sneaky = harness.media.parent / ".." / "other" / "scriptures.txt"
+    status, err = call(
+        server, "/jobs", method="POST", body=harness.request(options=_scripture_options(sneaky))
+    )
+    assert (status, err["error"]["code"]) == (404, "scripture_file_not_found")
+
+
+def test_scripture_file_option_must_be_a_path(harness: Harness) -> None:
+    server = harness.start()
+    body = harness.request(options={"scripture_file": 5})
+    status, err = call(server, "/jobs", method="POST", body=body)
+    assert (status, err["error"]["code"]) == (400, "bad_request")
+
+
+def test_unreadable_scripture_file_fails_the_job(harness: Harness) -> None:
+    path = harness.tmp_path / "binary.txt"
+    path.write_bytes(b"\xff\xfe not utf-8 \x80")
+    assert _failed_scripture_job(harness, path)["code"] == "scripture_file_unreadable"
+
+
+def test_scripture_file_with_no_entries_fails_the_job(harness: Harness) -> None:
+    path = harness.tmp_path / "empty.txt"
+    path.write_text("Notes with no scripture in them\n", encoding="utf-8")
+    assert _failed_scripture_job(harness, path)["code"] == "scripture_file_empty"
+
+
+class _CountingBackend:
+    def __init__(self, inner: Backend) -> None:
+        self.inner = inner
+        self.calls = 0
+
+    def transcribe(self, *args: Any, **kwargs: Any) -> Any:
+        self.calls += 1
+        return self.inner.transcribe(*args, **kwargs)
+
+
+def test_changing_only_the_scripture_file_reuses_the_cached_transcript(
+    harness: Harness,
+) -> None:
+    counting = _CountingBackend(FakeBackend(load_words(WORDS_FILE)))
+    server = harness.start(backend_factory=lambda: counting)  # type: ignore[arg-type,return-value]
+    other = harness.tmp_path / "other-export.txt"
+    other.write_text("John 3:16 (KJV)\n16 For God so loved the world.\n", encoding="utf-8")
+
+    blocks = []
+    for path in (SCRIPTURE_FILE, other):
+        body = harness.request(options=_scripture_options(path))
+        status, started = call(server, "/jobs", method="POST", body=body)
+        assert status == 202
+        assert wait_for(server, started["job_id"], {"done", "failed"})["status"] == "done"
+        _, doc = call(server, f"/jobs/{started['job_id']}/result")
+        blocks.append(doc["scripture_file"])
+    assert counting.calls == 1
+    assert started["cache_hit"] is True
+    assert blocks[0]["sha256"] != blocks[1]["sha256"]
+    assert blocks[1]["entry_count"] == 1
+
+    # A bad file on a cached transcript fails without transcribing.
+    bad = harness.tmp_path / "bad.txt"
+    bad.write_text("nothing here\n", encoding="utf-8")
+    body = harness.request(options=_scripture_options(bad))
+    _, started = call(server, "/jobs", method="POST", body=body)
+    snap = wait_for(server, started["job_id"], {"done", "failed"})
+    assert snap["error"]["code"] == "scripture_file_empty"
+    assert counting.calls == 1

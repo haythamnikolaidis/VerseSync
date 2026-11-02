@@ -27,6 +27,10 @@ ERROR_CODES = {
     "job_not_finished",
     "cancelled",
     "internal",
+    # The scripture-file input errors, docs/07-sidecar-api.md section 3 (Cue Document 1.1).
+    "scripture_file_not_found",
+    "scripture_file_unreadable",
+    "scripture_file_empty",
 }
 PHASES = ["hashing", "transcribing", "detecting", "resolving", "timing"]
 JOB_STATUSES = {"queued", "running", "done", "failed", "cancelled"}

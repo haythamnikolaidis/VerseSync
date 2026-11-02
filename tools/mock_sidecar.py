@@ -5,7 +5,7 @@ lifecycle (docs/03-architecture.md §3), but serves the T-37 golden fixtures ins
 a GPU pipeline. This is the panel's long-lived test double, not a throwaway prototype — see
 tools/README.md for every flag and worked curl examples.
 
-    python tools/mock_sidecar.py [--scenario happy|flagged|alternatives|empty] [--fail ...]
+    python tools/mock_sidecar.py [--scenario happy|flagged|alternatives|empty|export] [--fail ...]
 """
 
 from __future__ import annotations
@@ -37,6 +37,8 @@ SCENARIOS = {
     "flagged": "flagged.json",
     "alternatives": "alternatives.json",
     "empty": "empty.json",
+    # A Cue Document 1.1 built from a scripture file (docs/14-scripture-file-import.md).
+    "export": "export.json",
 }
 
 # (phase, weight) per docs/07-sidecar-api.md §4. transcribing is dropped and the rest
@@ -144,15 +146,19 @@ def build_synthetic_transcript(doc: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def build_resolve_index() -> dict[tuple[str, int, int | None], dict[str, Any]]:
-    """Index every cue (and alternative) across all four fixtures for POST /resolve.
+    """Index every cue (and alternative) across all the fixtures for POST /resolve.
 
     Keyed on (osis, chapter, verse). A cue with no verse (chapter_only) or no body
-    (text_unavailable / passage_not_found) is skipped — there is nothing real to resolve.
+    (text_unavailable / passage_not_found) is skipped — there is nothing real to resolve. So is
+    a cue whose text comes from a scripture file: that text may be in any translation, and is not
+    what the Bible text service would answer (docs/14-scripture-file-import.md section 8).
     """
     index: dict[tuple[str, int, int | None], dict[str, Any]] = {}
     for name in SCENARIOS:
         doc = load_fixture(name)
         for cue in doc["cues"]:
+            if cue.get("text_source", {}).get("kind") == "export":
+                continue
             candidates = [cue] + cue.get("alternatives", [])
             for c in candidates:
                 ref = c["reference"]
@@ -707,7 +713,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--scenario", choices=sorted(SCENARIOS), default="happy",
-        help="Which T-37 fixture a successful job resolves to.",
+        help="Which fixture a successful job resolves to (T-37, plus export for Cue Document 1.1).",
     )
     parser.add_argument(
         "--duration", type=float, default=20.0,

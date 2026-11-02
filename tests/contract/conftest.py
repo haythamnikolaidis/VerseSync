@@ -20,6 +20,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import mock_sidecar
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -157,7 +158,9 @@ class Sidecar:
             time.sleep(0.1)
 
 
-def _launch_mock(home: Path) -> Sidecar:
+def _launch_mock(
+    home: Path, scenario: str | None = None, duration: float = MOCK_JOB_DURATION_S
+) -> Sidecar:
     # The mock prints its port and token without flushing. Piped, Python block-buffers stdout,
     # so the readline loop below would wait forever unless the child is unbuffered.
     env = dict(os.environ, VERSESYNC_HOME=str(home), PYTHONUNBUFFERED="1")
@@ -168,7 +171,8 @@ def _launch_mock(home: Path) -> Sidecar:
             str(MOCK_SCRIPT),
             "--no-lock-file",
             "--duration",
-            str(MOCK_JOB_DURATION_S),
+            str(duration),
+            *(["--scenario", scenario] if scenario else []),
         ],
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
@@ -248,6 +252,26 @@ def server(
     sidecar = _launch_real(home) if request.param == "real" else _launch_mock(home)
     try:
         yield sidecar
+    finally:
+        if sidecar.process.poll() is None:
+            sidecar.process.kill()
+        sidecar.process.wait()
+        if sidecar.process.stdout is not None:
+            sidecar.process.stdout.close()
+
+
+@pytest.fixture(scope="module", params=sorted(mock_sidecar.SCENARIOS))
+def mock_scenario(
+    request: pytest.FixtureRequest, tmp_path_factory: pytest.TempPathFactory
+) -> Iterator[tuple[str, Sidecar]]:
+    """The mock launched on each of its scenarios in turn, as (scenario name, server).
+
+    Mock only: the real sidecar serves detections, not fixtures, so a scenario means nothing there.
+    """
+    home = tmp_path_factory.mktemp("home")
+    sidecar = _launch_mock(home, request.param, duration=1)
+    try:
+        yield request.param, sidecar
     finally:
         if sidecar.process.poll() is None:
             sidecar.process.kill()

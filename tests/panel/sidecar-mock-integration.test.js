@@ -8,6 +8,7 @@ var http = require('node:http');
 var path = require('node:path');
 
 var Sidecar = require(path.join(__dirname, '..', '..', 'panel', 'js', 'sidecar.js'));
+var VSCues = require(path.join(__dirname, '..', '..', 'panel', 'js', 'cues.js'));
 var spawnMock = require(path.join(__dirname, 'helpers', 'spawn-mock.js'));
 
 var TRANSLATION_ID = 'de4e12af7f28f599-02';
@@ -137,5 +138,26 @@ test('--degraded gives the degraded state', { skip: skip }, function (t) {
   return env.lifecycle.connect().then(function (result) {
     assert.strictEqual(result.state, 'degraded');
     assert.ok(result.client, 'a degraded sidecar is still usable');
+  });
+});
+
+test('--scenario export serves a 1.1 Cue Document the panel reads without a warning', { skip: skip }, function (t) {
+  var env = setup(t, ['--duration', JOB_SECONDS, '--scenario', 'export']);
+  var client;
+  return env.lifecycle.connect().then(function (result) {
+    assert.strictEqual(result.state, 'ready');
+    client = result.client;
+    return runJob(env, client);
+  }).then(function (outcome) {
+    assert.strictEqual(outcome.kind, 'done');
+    return client.result(outcome.value.job_id);
+  }).then(function (res) {
+    assert.strictEqual(res.ok, true);
+    assert.strictEqual(res.data.schema_version, '1.1');
+    var loaded = VSCues.load(JSON.stringify(res.data));
+    assert.strictEqual(loaded.ok, true);
+    assert.strictEqual(loaded.warning, undefined);
+    assert.strictEqual(loaded.model.cues().length, 11);
+    assert.deepStrictEqual(loaded.model.cues()[0].verse_offsets_s, { '3': 22.2, '4': 36.8 });
   });
 });

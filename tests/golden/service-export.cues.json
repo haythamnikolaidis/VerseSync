@@ -1,0 +1,543 @@
+{
+ "schema_version": "1.1",
+ "generated_at": "2026-09-14T10:00:00Z",
+ "job": {
+  "id": "job_golden_service-export",
+  "media_path": "D:/Sermons/service-export.MXF",
+  "media_hash": "sha256:abababababababababababababababababababababababababababababababab",
+  "media_duration_s": 600.0,
+  "model": "distil-large-v3",
+  "quantization": "float16",
+  "device": "cpu",
+  "language": "en",
+  "options": {
+   "scripture_file": "D:/Sermons/service-export/service-export.txt"
+  }
+ },
+ "translation": {
+  "id": "kjv",
+  "abbreviation": "KJV",
+  "name": "King James Version",
+  "attribution": "Public domain."
+ },
+ "transcript": {
+  "word_count": 479,
+  "words_ref": "transcript_job_golden_service-export.json"
+ },
+ "scripture_file": {
+  "path": "D:/Sermons/service-export/service-export.txt",
+  "sha256": "446e9cba88e70ae980365ca2f69ad8a9bc07a8830bb8899f9e344867e923ebd7",
+  "entry_count": 8
+ },
+ "cues": [
+  {
+   "id": "cue_001",
+   "enabled": true,
+   "origin": "detected",
+   "reference": {
+    "book": "James",
+    "osis": "Jas",
+    "chapter": 1,
+    "verse": 2,
+    "verse_end": 4
+   },
+   "reference_display": "James 1:2-4 (KJV)",
+   "body": "2 My brethren, count it all joy when ye fall into divers temptations; 3 Knowing this, that the trying of your faith worketh patience. 4 But let patience have her perfect work, that ye may be perfect and entire, wanting nothing.",
+   "body_word_count": 41,
+   "body_truncated": false,
+   "source_anchor_s": 30.82,
+   "source_duration_s": 18.65,
+   "mention_start_s": 31.32,
+   "mention_end_s": 33.14,
+   "classification": "read",
+   "read_coverage": 1.0,
+   "read_start_s": 33.48,
+   "read_end_s": 48.47,
+   "confidence": 1.0,
+   "detection": {
+    "pattern": "P6",
+    "contextual": false,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     39,
+     44
+    ],
+    "word_span": [
+     37,
+     41
+    ]
+   },
+   "snippet": "…test. Turn with me to James one, two through four. My brethren, count it all…",
+   "text_source": {
+    "kind": "export",
+    "translation": "KJV",
+    "entry_index": 0
+   },
+   "verse_offsets_s": {
+    "3": 7.46,
+    "4": 11.66
+   },
+   "flags": [],
+   "alternatives": []
+  },
+  {
+   "id": "cue_002",
+   "enabled": false,
+   "origin": "detected",
+   "reference": {
+    "book": "Ezekiel",
+    "osis": "Ezek",
+    "chapter": 36,
+    "verse": 26
+   },
+   "reference_display": "Ezekiel 36:26 (KJV)",
+   "body": "26 A new heart also will I give you, and a new spirit will I put within you: and I will take away the stony heart out of your flesh, and I will give you an heart of flesh.",
+   "body_word_count": 39,
+   "body_truncated": false,
+   "source_anchor_s": 71.96,
+   "source_duration_s": 16.1,
+   "mention_start_s": 71.96,
+   "mention_end_s": 71.96,
+   "classification": "paraphrase",
+   "confidence": 0.0,
+   "snippet": "",
+   "text_source": {
+    "kind": "export",
+    "translation": "KJV",
+    "entry_index": 1
+   },
+   "flags": [
+    "not_found_in_audio"
+   ],
+   "alternatives": []
+  },
+  {
+   "id": "cue_003",
+   "enabled": true,
+   "origin": "detected",
+   "reference": {
+    "book": "John",
+    "osis": "John",
+    "chapter": 3,
+    "verse": 16
+   },
+   "reference_display": "John 3:16 (WEB)",
+   "body": "16 For God so loved the world, that he gave his one and only Son, that whoever believes in him should not perish, but have eternal life.",
+   "body_word_count": 27,
+   "body_truncated": false,
+   "source_anchor_s": 113.1,
+   "source_duration_s": 11.6,
+   "mention_start_s": 113.6,
+   "mention_end_s": 113.6,
+   "classification": "paraphrase",
+   "read_coverage": 0.38095238095238093,
+   "confidence": 0.38095238095238093,
+   "snippet": "…verse since you were small. For God so loved the world, that he gave his own Son, and whoever trusts…",
+   "text_source": {
+    "kind": "export",
+    "translation": "WEB",
+    "entry_index": 2
+   },
+   "flags": [
+    "low_confidence"
+   ],
+   "alternatives": []
+  },
+  {
+   "id": "cue_004",
+   "enabled": true,
+   "origin": "detected",
+   "reference": {
+    "book": "James",
+    "osis": "Jas",
+    "chapter": 1,
+    "verse": 4
+   },
+   "reference_display": "James 1:4 (KJV)",
+   "body": "4 But let patience have her perfect work, that ye may be perfect and entire, wanting nothing.",
+   "body_word_count": 17,
+   "body_truncated": false,
+   "source_anchor_s": 151.84,
+   "source_duration_s": 7.9,
+   "mention_start_s": 152.34,
+   "mention_end_s": 153.38,
+   "classification": "paraphrase",
+   "confidence": 0.794,
+   "detection": {
+    "pattern": "P7",
+    "contextual": false,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     201,
+     204
+    ],
+    "word_span": [
+     190,
+     192
+    ]
+   },
+   "snippet": "…me say it another way. James one, four tells us that patience needs…",
+   "text_source": {
+    "kind": "export",
+    "translation": "KJV",
+    "entry_index": 3
+   },
+   "flags": [],
+   "alternatives": []
+  },
+  {
+   "id": "cue_005",
+   "enabled": true,
+   "origin": "detected",
+   "reference": {
+    "book": "Psalms",
+    "osis": "Ps",
+    "chapter": 23,
+    "verse": 1
+   },
+   "reference_display": "Psalm 23:1 (WEB)",
+   "body": "1 Yahweh is my shepherd: I shall lack nothing.",
+   "body_word_count": 9,
+   "body_truncated": false,
+   "source_anchor_s": 202.38,
+   "source_duration_s": 4.73,
+   "mention_start_s": 202.88,
+   "mention_end_s": 202.88,
+   "classification": "read",
+   "read_coverage": 1.0,
+   "read_start_s": 202.88,
+   "read_end_s": 206.11,
+   "confidence": 1.0,
+   "snippet": "…the oldest comfort there is. Yahweh is my shepherd: I shall lack nothing. Say that over your week.…",
+   "text_source": {
+    "kind": "export",
+    "translation": "WEB",
+    "entry_index": 5
+   },
+   "flags": [
+    "out_of_order"
+   ],
+   "alternatives": []
+  },
+  {
+   "id": "cue_006",
+   "enabled": true,
+   "origin": "detected",
+   "reference": {
+    "book": "Psalms",
+    "osis": "Ps",
+    "chapter": 91,
+    "verse": 15
+   },
+   "reference_display": "Psalm 91:15 (KJV)",
+   "body": "15 He shall call upon me, and I will answer him: I will be with him in trouble; I will deliver him, and honour him.",
+   "body_word_count": 25,
+   "body_truncated": false,
+   "source_anchor_s": 235.49,
+   "source_duration_s": 11.99,
+   "mention_start_s": 235.99,
+   "mention_end_s": 237.3,
+   "classification": "read",
+   "read_coverage": 1.0,
+   "read_start_s": 237.64,
+   "read_end_s": 246.48,
+   "confidence": 1.0,
+   "detection": {
+    "pattern": "P7",
+    "contextual": false,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     255,
+     258
+    ],
+    "word_span": [
+     243,
+     245
+    ]
+   },
+   "snippet": "…your week. Now turn to Psalm ninety-one, fifteen. He shall call upon me,…",
+   "text_source": {
+    "kind": "export",
+    "translation": "KJV",
+    "entry_index": 4
+   },
+   "flags": [],
+   "alternatives": []
+  },
+  {
+   "id": "cue_007",
+   "enabled": true,
+   "origin": "detected",
+   "reference": {
+    "book": "Psalms",
+    "osis": "Ps",
+    "chapter": 91,
+    "verse": 15
+   },
+   "reference_display": "Psalm 91:15 (KJV)",
+   "body": "15 He shall call upon me, and I will answer him: I will be with him in trouble; I will deliver him, and honour him.",
+   "body_word_count": 25,
+   "body_truncated": false,
+   "source_anchor_s": 330.16,
+   "source_duration_s": 12.38,
+   "mention_start_s": 330.66,
+   "mention_end_s": 331.97,
+   "classification": "read",
+   "read_coverage": 1.0,
+   "read_start_s": 332.7,
+   "read_end_s": 341.54,
+   "confidence": 1.0,
+   "detection": {
+    "pattern": "P7",
+    "contextual": false,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     315,
+     318
+    ],
+    "word_span": [
+     299,
+     301
+    ]
+   },
+   "snippet": "…week was light. Look at Psalm ninety-one, fifteen again. He shall call upon…",
+   "text_source": {
+    "kind": "export",
+    "translation": "KJV",
+    "entry_index": 6
+   },
+   "flags": [],
+   "alternatives": []
+  },
+  {
+   "id": "cue_008",
+   "enabled": false,
+   "origin": "detected",
+   "reference": {
+    "book": "Psalms",
+    "osis": "Ps",
+    "chapter": 91,
+    "verse": 15
+   },
+   "reference_display": "Psalm 91:15 (KJV)",
+   "body": "15 He shall call upon me, and I will answer him: I will be with him in trouble; I will deliver him, and honour him.",
+   "body_word_count": 25,
+   "body_truncated": false,
+   "source_anchor_s": 404.0,
+   "source_duration_s": 10.9,
+   "mention_start_s": 404.5,
+   "mention_end_s": 405.81,
+   "classification": "paraphrase",
+   "confidence": 0.794,
+   "detection": {
+    "pattern": "P7",
+    "contextual": false,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     358,
+     361
+    ],
+    "word_span": [
+     339,
+     341
+    ]
+   },
+   "snippet": "…on how strong we feel. Psalm ninety-one, fifteen, stands on the one who…",
+   "text_source": {
+    "kind": "export",
+    "translation": "KJV",
+    "entry_index": 4
+   },
+   "flags": [
+    "repeat_mention"
+   ],
+   "alternatives": []
+  },
+  {
+   "id": "cue_009",
+   "enabled": false,
+   "origin": "detected",
+   "reference": {
+    "book": "John",
+    "osis": "John",
+    "chapter": 1,
+    "verse": 1
+   },
+   "reference_display": "John 1:1 (KJV)",
+   "body": "1 In the beginning was the Word, and the Word was with God, and the Word was God.",
+   "body_word_count": 18,
+   "body_truncated": false,
+   "source_anchor_s": 434.33,
+   "source_duration_s": 8.3,
+   "mention_start_s": 434.83,
+   "mention_end_s": 435.81,
+   "classification": "paraphrase",
+   "read_coverage": 0.0,
+   "confidence": 0.9925,
+   "detection": {
+    "pattern": "P7",
+    "contextual": false,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     383,
+     386
+    ],
+    "word_span": [
+     362,
+     364
+    ]
+   },
+   "snippet": "…at the start. Remember how John one, one opens the gospel, and how…",
+   "text_source": {
+    "kind": "provider",
+    "translation": "KJV"
+   },
+   "flags": [
+    "not_in_export"
+   ],
+   "alternatives": []
+  },
+  {
+   "id": "cue_010",
+   "enabled": false,
+   "origin": "detected",
+   "reference": {
+    "book": "Psalms",
+    "osis": "Ps",
+    "chapter": 91
+   },
+   "reference_display": "Psalm 91 (KJV)",
+   "body": "",
+   "body_word_count": 0,
+   "body_truncated": false,
+   "source_anchor_s": 460.49,
+   "source_duration_s": 8.0,
+   "mention_start_s": 460.99,
+   "mention_end_s": 461.85,
+   "classification": "paraphrase",
+   "confidence": 0.88,
+   "detection": {
+    "pattern": "P9",
+    "contextual": false,
+    "book_match": {
+     "tier": "exact",
+     "distance": 0
+    },
+    "token_span": [
+     404,
+     405
+    ],
+    "word_span": [
+     381,
+     382
+    ]
+   },
+   "snippet": "…he is. Take all of Psalm ninety-one home with you and read…",
+   "text_source": {
+    "kind": "provider",
+    "translation": "KJV"
+   },
+   "flags": [
+    "chapter_only",
+    "not_in_export"
+   ],
+   "alternatives": []
+  },
+  {
+   "id": "cue_011",
+   "enabled": true,
+   "origin": "detected",
+   "reference": {
+    "book": "Romans",
+    "osis": "Rom",
+    "chapter": 8,
+    "verse": 28
+   },
+   "reference_display": "Romans 8:28 (WEB)",
+   "body": "28 We know that all things work together for good for those who love God, to those who are called according to his purpose.",
+   "body_word_count": 24,
+   "body_truncated": false,
+   "source_anchor_s": 493.31,
+   "source_duration_s": 9.86,
+   "mention_start_s": 493.81,
+   "mention_end_s": 493.81,
+   "classification": "read",
+   "read_coverage": 1.0,
+   "read_start_s": 493.81,
+   "read_end_s": 502.17,
+   "confidence": 1.0,
+   "snippet": "…to leave you this morning. We know that all things work together for good for those who love God, to those who are called according to his purpose. Let me say that again,…",
+   "text_source": {
+    "kind": "export",
+    "translation": "WEB",
+    "entry_index": 7
+   },
+   "flags": [],
+   "alternatives": []
+  },
+  {
+   "id": "cue_012",
+   "enabled": true,
+   "origin": "detected",
+   "reference": {
+    "book": "Romans",
+    "osis": "Rom",
+    "chapter": 8,
+    "verse": 28
+   },
+   "reference_display": "Romans 8:28 (WEB)",
+   "body": "28 We know that all things work together for good for those who love God, to those who are called according to his purpose.",
+   "body_word_count": 24,
+   "body_truncated": false,
+   "source_anchor_s": 540.5,
+   "source_duration_s": 9.86,
+   "mention_start_s": 541.0,
+   "mention_end_s": 541.0,
+   "classification": "read",
+   "read_coverage": 1.0,
+   "read_start_s": 541.0,
+   "read_end_s": 549.36,
+   "confidence": 1.0,
+   "snippet": "…and not take it in. We know that all things work together for good for those who love God, to those who are called according to his purpose. Let us pray together. Father,…",
+   "text_source": {
+    "kind": "export",
+    "translation": "WEB",
+    "entry_index": 7
+   },
+   "flags": [
+    "repeat_read"
+   ],
+   "alternatives": []
+  }
+ ],
+ "warnings": [
+  {
+   "code": "export_block_unreferenced",
+   "message": "Line 1: \"Scriptures for the service\" is not under a scripture reference and was skipped.",
+   "line": 1
+  },
+  {
+   "code": "export_reference_invalid",
+   "message": "Line 17: \"Hezekiah 3:4 (KJV)\" skipped. Couldn't read \"Hezekiah 3:4\" as a scripture reference.",
+   "line": 17
+  }
+ ]
+}

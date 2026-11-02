@@ -76,7 +76,8 @@ def _reference(c: Candidate) -> Reference:
     )
 
 
-def _snippet(words: Sequence[Word], span: tuple[int, int]) -> str:
+def make_snippet(words: Sequence[Word], span: tuple[int, int]) -> str:
+    """The words in the inclusive word ``span`` with ``SNIPPET_WORDS`` of context on each side."""
     first = max(0, span[0] - SNIPPET_WORDS)
     last = min(len(words) - 1, span[1] + SNIPPET_WORDS)
     text = " ".join(w.text for w in words[first : last + 1])
@@ -126,7 +127,7 @@ def detect(
                 confidence=confidence,
                 validation_score=validation_score,
                 flags=tuple(flags),
-                snippet=_snippet(words, candidate.word_span),
+                snippet=make_snippet(words, candidate.word_span),
                 alternatives=alternatives,
             )
         )

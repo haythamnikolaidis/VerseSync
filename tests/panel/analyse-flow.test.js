@@ -125,6 +125,18 @@ test('Analyse renders the 18 rows of the happy scenario and remembers the sequen
   assert.notStrictEqual(t.rows()[0].querySelector('.vf-row-timecode').textContent, '--:--:--:--');
 });
 
+test('the export scenario (Cue Document 1.1) renders its 11 rows without a notice', async function () {
+  var t = await build({ fixture: 'export.json' });
+  t.$('setup-analyse').click();
+  await waitFor(function () { return t.rows().length === 11; });
+  assert.ok(/REVIEW — 11 found/.test(t.$('review').textContent));
+  assert.strictEqual(t.$('review').querySelector('.vf-review-notice'), null);
+  assert.strictEqual(t.$('review').querySelector('.vf-review-banner').hidden, true);
+  assert.strictEqual(t.app.session.model.toJSON().schema_version, '1.1');
+  assert.strictEqual(t.app.session.model.enabledCount(), 8);
+  assert.notStrictEqual(t.rows()[0].querySelector('.vf-row-timecode').textContent, '--:--:--:--');
+});
+
 test('media missing from the sequence asks for a start timecode and renders approximate rows', async function () {
   var t = await build({ segments: 'segments-none' });
   t.$('setup-analyse').click();

@@ -217,9 +217,17 @@ All additive, so a 1.0 reader can still read a 1.1 document (07 §5.2).
 - Flags: `not_in_export`, `not_found_in_audio` and `repeat_mention`, all in
   `DISABLED_BY_DEFAULT`; `repeat_read` and `out_of_order`, which leave a cue enabled.
 - Document: optional `scripture_file` = `{ "path", "sha256", "entry_count" }`, so Journey B and
-  the review list can show what the cues came from.
-- Warnings: `export_reference_invalid` and `export_block_unreferenced`, with the line number.
-- `schema_version` becomes `"1.1"`.
+  the review list can show what the cues came from. `sha256` is the lowercase hex digest of the
+  file's bytes.
+- Warnings: `export_reference_invalid` and `export_block_unreferenced`, with the line number in a
+  new optional field, `line`.
+- **Version rule.** The schema accepts `schema_version` `"1.0"` and `"1.1"`. A document built from a
+  scripture file is `"1.1"`; one built without is `"1.0"`, so that without a file the output stays
+  byte-identical to v1 (T-51.4). A `"1.0"` document never holds a 1.1 field. 07 §5.2 has the
+  wording.
+
+The fields, flags, warnings and error codes are specified field by field in
+[07](07-sidecar-api.md) §2, §3, §5.1 and §5.2, and in `schemas/cue-document.schema.json`.
 
 The transcript cache key (D17) is unchanged: the file is applied after transcription, so adding
 or changing it re-runs in seconds.
@@ -251,8 +259,11 @@ this service. VerseSync uses it **only for this sermon's Cue Document**:
 
 ## 9. Testing
 
-- **Unit:** the parser against VerseFlow's sample file and a BOM/CRLF copy, giving byte-identical
-  `body` strings; locator cases for a clean read, a paraphrase, a repeat, out-of-order entries and
+- **Unit:** the parser against a public-domain sample laid out like VerseFlow's format, whose
+  expected `reference_line`, `translation`, `body` and `word_count` were recorded by running
+  VerseFlow's real parser once (the repo is public, so VerseFlow's own NKJV/TPT sample file is not
+  copied), and a BOM/CRLF copy written at test time, giving byte-identical `body` strings; locator
+  cases for a clean read, a paraphrase, a repeat, out-of-order entries and
   an unplaceable entry; DP determinism; two readings 21 seconds apart; a re-read with no slide; a
   repeated reference with no slide; a chapter-only mention that must not become a repeat.
 - **Fixtures:** a synthetic public-domain export (KJV/WEB) and transcript laid out like the

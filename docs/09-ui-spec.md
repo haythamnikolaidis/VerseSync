@@ -16,6 +16,7 @@ for a narrow column that grows usefully when widened.
 ├────────────────────────────────────────────┤
 │ ▸ SETUP                                    │  collapses after a successful analysis
 │   Media file      [ Select… ] SERMON_A001  │
+│   Scripture file  [ Select… ] (optional)   │
 │   Template        [ Select… ] AV_Quote_04  │
 │     Reference →   [ Description > Text  ▾] │
 │     Scripture →   [ Title Main > Text   ▾] │
@@ -71,12 +72,13 @@ process.
 
 ## 3. Setup
 
-Field-by-field behaviour. Everything except the media file persists between sessions (FR-1.7),
-so a weekly run is: pick media, click Analyse.
+Field-by-field behaviour. Everything except the media file and the scripture file persists between
+sessions (FR-1.7), so a weekly run is: pick media, click Analyse.
 
 | Control | Behaviour |
 |---------|-----------|
 | **Media file** | `window.cep.fs.showOpenDialog` filtered to audio/video extensions — **not** ExtendScript `File.openDialog`, which fails in Premiere 2026 (VerseFlow's finding). Shows basename, full path on hover. |
+| **Scripture file** | Optional. *Scripture file (EasyWorship export)*, under the media file: the same `cep.fs.showOpenDialog` call as the media picker, filtered to `txt`, with a **Clear** button once a file is chosen. The dialog opens in the media file's folder; with no media chosen it opens in the folder of the last scripture file picked this session, and otherwise where the host last left it. The path travels as `options.scripture_file` ([14](14-scripture-file-import.md) §6) and is left out of the request when nothing is chosen. It is per sermon, like the media file, so it is not restored on restart. It never gates Analyse. A `scripture_file_*` input error from the sidecar shows its message like any other job error (§7). |
 | **Template** | `.mogrt` picker. On selection, calls `VS.getMogrtFields` with a *Reading template…* busy state. Zero fields → the VerseFlow warning about After Effects–authored templates (FR-1.4). |
 | **Reference / Scripture dropdowns** | Populated with group-qualified labels (`Description > Text`), values are field **indices**. VerseFlow's smart defaults apply: reference ← group matching `/descr\|caption\|sub\|credit\|author/i`, body ← `/title\|main\|quote\|body/i`. Same field for both is a validation error. Persisted per MOGRT path. |
 | **Translation** | From `GET /translations`. Shows the licence attribution beneath it in small type, if the translation has any (FR-4.7). Disabled while the sidecar is unreachable. |
@@ -106,7 +108,9 @@ Journey B and it should visibly feel different from a cold run.
 
 ## 5. The review list
 
-The core screen. Sorted by sequence timecode.
+The core screen. Sorted by sequence timecode. A job made from a scripture file adds source badges,
+one kind of row that needs a time, and one collapsed group (§5.5); a job without one looks exactly
+as described in §5.1–§5.4 and shows none of them.
 
 ### 5.1 Collapsed row
 
@@ -122,6 +126,11 @@ The core screen. Sorted by sequence timecode.
   confidence display: the editor hears the moment.
 - **Reference** — canonical display form.
 - **Badge** — `READ` or `PARAPHRASE`.
+- **Source badges** — only on a cue from a scripture file, after the duration: **EW** with the
+  export's translation (`EW KJV`) on a cue whose `text_source.kind` is `export`; **Repeat** on
+  `repeat_read` and `repeat_mention`; **Out of order** on `out_of_order`. A cue whose text came from
+  the Bible provider, or a v1 cue, has none. The flag of the same name sits on the right as well
+  (§5.2), so the flagged count and the Flagged filter include these rows.
 - **Confidence** — percentage. Below the threshold (0.55) it is amber.
 - **Duration** — resolved seconds.
 - **Snippet** — the transcript around the mention, with the matched span emphasised. This is the
@@ -140,12 +149,21 @@ The core screen. Sorted by sequence timecode.
 | `passage_not_found` | red | Provider has no such passage | **disabled** |
 | `chapter_only` | amber | No verse specified, so no body text | **disabled** |
 | `suppressed_duplicate` | grey | Repeat of an earlier cue inside the cooldown | **disabled** |
+| `not_in_export` | grey | Detected in the audio but not in the scripture file; shows provider text. Listed under *Other mentions (N)* (§5.5) | **disabled**; ticking it enables it |
+| `not_found_in_audio` | amber | A scripture-file entry the audio never reached; its time is a guess. Reads *Not found in audio — set the time* (§5.5) | **disabled**, and **cannot be enabled** until the editor sets a time |
+| `repeat_mention` | grey | The pastor named an export scripture again with no new slide. **Repeat** badge | **disabled** |
+| `repeat_read` | grey | The pastor read an export scripture again with no new slide. **Repeat** badge | enabled |
+| `out_of_order` | amber | An export entry read earlier than the file's order puts it. **Out of order** badge | enabled |
 | `cut_from_edit` | grey | This moment is not in the current edit | **disabled** |
 | `multiple_placements` | amber | The media appears more than once; anchored to the earliest | enabled |
 | `speed_change_unsupported` | red | Segment has a speed change; mapping is unreliable | **disabled** |
 
 Every red or amber default-disabled flag is *recoverable by the editor in one click* — nothing
-is hidden, it just starts off.
+is hidden, it just starts off. The one exception is `not_found_in_audio`: it takes a time, not a
+click (§5.5), because the cue has none worth inserting.
+
+A flag's label is its name in words (`not found in audio`, `repeat read`, `out of order`), so none
+relies on colour alone.
 
 ### 5.3 Expanded row
 
@@ -178,19 +196,47 @@ Clicking the row body expands it:
   span was found, its extent is underlined — so the editor can see exactly what the classifier
   matched, which is the honest way to present a 78% coverage number.
 - **`[-1f] [+1f]`** nudge the anchor a frame at a time; **`⌖`** sets it to the current playhead
-  (FR-6.3). Both re-run overlap resolution across the list.
+  (FR-6.3). Both re-run overlap resolution across the list. A `not_found_in_audio` row also has a
+  **Time** field here (§5.5).
 - **Duration** override, per cue.
 - **Delete** removes the cue. Undo is via re-analysing or reloading a saved document — cheap
   enough not to need an undo stack.
 
 ### 5.4 List actions
 
-- **All / None / Flagged only** — bulk enable, disable, filter.
+- **All / None / Flagged only** — bulk enable, disable, filter. **All** skips the cues that cannot
+  be enabled yet (§5.5), so it never ticks a `not_found_in_audio` cue.
 - **Add cue** — a reference plus the current playhead (FR-6.4). Origin `manual`, confidence 1.0.
 - **Save ▾** — *Save cue document* (JSON, FR-6.8), *Load cue document*, *Export as VerseFlow
   .txt*. The last one writes the format VerseFlow's parser reads, so the same content can be
   run through the old tool — a genuine escape hatch, and nearly free given
   [06](06-bible-text-service.md) §2's formatting contract.
+
+### 5.5 Scripture-file rows
+
+Only a job made from a scripture file ([14](14-scripture-file-import.md) §7) has these. Every other
+row, and every row of a v1 document, is exactly as described above.
+
+- **Order.** The list stays in timecode order. A row for an entry the pastor read early
+  (`out_of_order`), read again (`repeat_read`) or never reached (`not_found_in_audio`, at its
+  guessed time) sits where its time puts it. Only `not_in_export` cues are set apart.
+- **Not found in audio.** A `not_found_in_audio` row shows an amber line, *Not found in audio — set
+  the time*, in place of a snippet. Its checkbox is disabled, with that line as its reason, so it
+  cannot be ticked; **All** skips it, and Insert refuses it if a hand-edited document enables it.
+  Opening the row focuses its **Time** field in the Timing section, which takes a sequence timecode
+  (`HH:MM:SS:FF`, as the rows display them) and **Set**, and **⌖** takes the playhead as before. The
+  anchor shown is labelled *(a guess)* and the nudges stay off until a time is set. Setting the time
+  by any of these removes the `not_found_in_audio` flag and enables the cue in the same edit, and
+  the row becomes an ordinary one. A typed time that isn't a timecode or isn't over the media shows
+  its message under the Timing section and changes nothing. A saved cue document keeps the flag
+  while it stands, and the cleared flag and the enabled cue once the time is set.
+- **Other mentions (N).** `not_in_export` cues are not in the main list. They sit in a group after
+  it, headed *Other mentions (N)* with N the number of such cues, **collapsed** until the editor
+  opens it. Its rows are ordinary rows: ticking one enables it like any other cue, it counts in
+  *N enabled* and in the Insert button, and it keeps its flag and its place in the group. The group
+  is left out when N is 0, and it stays as the editor left it (open or shut) when the list redraws.
+  *N found* in the header still counts every cue, and **Flagged only** leaves the group as it is,
+  because these cues all carry a flag.
 
 ---
 

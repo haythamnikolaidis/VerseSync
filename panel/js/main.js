@@ -213,6 +213,14 @@
             if (!res || !res.ok || !res.data || !res.data.hasActiveSequence) { return null; }
             return sourceAt(s, res.data.playheadTicks);
           });
+        },
+        // A timecode typed as the panel shows them: { seconds } of source, or { error } to show.
+        timecodeSource: function (text) {
+          var parsed = parseTimecode(text, s.seqInfo);
+          if (parsed.error) { return { error: parsed.error }; }
+          var seconds = sourceAt(s, parsed.ticks);
+          if (seconds === null) { return { error: 'That timecode is outside the media.' }; }
+          return { seconds: seconds };
         }
       };
     }
@@ -232,6 +240,7 @@
         getTranscript: function () { return loadTranscript(s); },
         client: client,
         getTranslationId: function () { return s.request.translation_id; },
+        getTranslations: function () { return app.setup ? app.setup.getTranslations() : []; },
         getDurationMode: function () {
           var timing = s.request.options && s.request.options.timing;
           return timing && timing.duration_mode;
@@ -678,6 +687,9 @@
   // template is the one VS.getMogrtFields accepts).
   var stubFs = {
     showOpenDialog: function (multiple, directory, title, initialPath, extensions) {
+      if (extensions && extensions.indexOf('txt') !== -1) {
+        return { err: 0, data: ['C:\\Stub\\Scriptures.txt'] };
+      }
       var template = extensions && extensions.indexOf('mogrt') !== -1;
       return { err: 0, data: [template ? 'C:\\Stub\\AV_Quote_04.mogrt' : 'C:\\Stub\\SERMON_A014.MXF'] };
     }

@@ -1,3 +1,4 @@
+import hashlib
 import json
 import socket
 from collections.abc import Mapping
@@ -11,6 +12,8 @@ from versesync.cli import main
 from versesync.cues import validate_document
 
 FIXTURE = Path(__file__).parent / "fixtures" / "transcripts" / "numbers-and-ordinals.words.json"
+EXPORT_TRANSCRIPT = Path(__file__).parent / "fixtures" / "transcripts" / "service-export.words.json"
+EXPORT_FILE = Path(__file__).parent / "fixtures" / "scripture_files" / "service-export.txt"
 API_FIXTURES = Path(__file__).parent / "fixtures" / "api_bible"
 
 
@@ -153,3 +156,59 @@ def test_analyse_media_without_a_backend_exits_2(
     media.write_bytes(b"media")
     assert main(["analyse", str(media), "--out", str(tmp_path / "cues.json")]) == 2
     assert "faster-whisper" in capsys.readouterr().err
+
+
+def _analyse_with(
+    tmp_path: Path, scripture_file: Path, capsys: pytest.CaptureFixture[str]
+) -> tuple[int, str, Path]:
+    out = tmp_path / "cues.json"
+    args = ["analyse", str(EXPORT_TRANSCRIPT), "--out", str(out)]
+    code = main([*args, "--scripture-file", str(scripture_file)])
+    return code, capsys.readouterr().err, out
+
+
+def test_analyse_with_a_scripture_file_gives_a_1_1_document(
+    app_home: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    code, _, out = _analyse_with(tmp_path, EXPORT_FILE, capsys)
+    assert code == 0
+    doc = json.loads(out.read_text(encoding="utf-8"))
+    validate_document(doc)
+    assert doc["schema_version"] == "1.1"
+    assert doc["scripture_file"] == {
+        "path": str(EXPORT_FILE.resolve()),
+        "sha256": hashlib.sha256(EXPORT_FILE.read_bytes()).hexdigest(),
+        "entry_count": 8,
+    }
+
+
+def test_analyse_scripture_file_not_found_exits_2(
+    app_home: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    code, err, out = _analyse_with(tmp_path, tmp_path / "gone.txt", capsys)
+    assert code == 2
+    assert "gone.txt" in err and "could not be found" in err
+    assert not out.exists()
+
+
+def test_analyse_scripture_file_unreadable_exits_2(
+    app_home: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    binary = tmp_path / "binary.txt"
+    binary.write_bytes(b"\xff\xfe not utf-8 \x80")
+    code, err, out = _analyse_with(tmp_path, binary, capsys)
+    assert code == 2
+    assert "binary.txt" in err and "could not be read" in err
+    assert "Traceback" not in err
+    assert not out.exists()
+
+
+def test_analyse_scripture_file_empty_exits_2(
+    app_home: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    empty = tmp_path / "empty.txt"
+    empty.write_text("Notes with no scripture in them\n", encoding="utf-8")
+    code, err, out = _analyse_with(tmp_path, empty, capsys)
+    assert code == 2
+    assert "empty.txt" in err and "no scripture entries" in err
+    assert not out.exists()

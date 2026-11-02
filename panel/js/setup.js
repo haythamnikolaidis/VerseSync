@@ -18,6 +18,10 @@
     'No editable text fields were found in this template. Templates must be authored in ' +
     'After Effects with text layers exposed as Essential Graphics properties.';
 
+  // The EasyWorship export is a plain .txt file (docs/14 §2).
+  var SCRIPTURE_EXTENSIONS = ['txt'];
+  var NO_SCRIPTURE_TEXT = 'None (optional)';
+
   var LEAD_IN_DEFAULT = 0.5;
   var LEAD_IN_MIN = 0;
   var LEAD_IN_MAX = 3;
@@ -41,15 +45,22 @@
     return parts[parts.length - 1] || String(p);
   }
 
+  // The folder part of a path, whichever separator it uses; '' when there is none.
+  function dirname(p) {
+    var i = Math.max(String(p).lastIndexOf('/'), String(p).lastIndexOf('\\'));
+    return i === -1 ? '' : String(p).slice(0, i);
+  }
+
   function fieldLabel(f) {
     if (f.label) { return f.label; }
     return f.group ? f.group + ' > ' + f.name : String(f.name);
   }
 
   // cep.fs.showOpenDialog(allowMultiple, chooseDirectory, title, initialPath, fileTypes)
-  // returns { err: 0, data: [paths] }; a cancelled dialog gives an empty data array.
-  function pickFile(fs, title, extensions) {
-    var res = fs.showOpenDialog(false, false, title, null, extensions);
+  // returns { err: 0, data: [paths] }; a cancelled dialog gives an empty data array. initialPath is
+  // the folder to open in; without one the dialog opens where the host last left it.
+  function pickFile(fs, title, extensions, initialPath) {
+    var res = fs.showOpenDialog(false, false, title, initialPath || null, extensions);
     if (!res || res.err !== 0 || !res.data || res.data.length === 0) { return null; }
     return res.data[0];
   }
@@ -62,6 +73,9 @@
 
     var mediaBtn = rootEl.querySelector('#setup-media-btn');
     var mediaName = rootEl.querySelector('#setup-media-name');
+    var scriptureBtn = rootEl.querySelector('#setup-scripture-btn');
+    var scriptureName = rootEl.querySelector('#setup-scripture-name');
+    var scriptureClear = rootEl.querySelector('#setup-scripture-clear');
     var templateBtn = rootEl.querySelector('#setup-template-btn');
     var templateName = rootEl.querySelector('#setup-template-name');
     var message = rootEl.querySelector('#setup-template-msg');
@@ -83,6 +97,9 @@
 
     var readToken = 0;
     var translations = [];
+    // The folder of the last scripture file picked in this session; the media's folder wins while
+    // a media file is chosen (docs/14 §7).
+    var lastScriptureDir = '';
 
     function showMessage(text, kind) {
       message.textContent = text;
@@ -196,6 +213,28 @@
       state.set({ mediaPath: p });
       setPath(mediaName, p, 'No file selected');
       updateAnalyse();
+    }
+
+    function showScripture() {
+      var p = state.get().scriptureFile;
+      setPath(scriptureName, p, NO_SCRIPTURE_TEXT);
+      scriptureClear.hidden = !p;
+    }
+
+    // Optional and per sermon: picking or clearing it never changes whether Analyse is enabled.
+    function onPickScripture() {
+      var media = state.get().mediaPath;
+      var folder = media ? dirname(media) : lastScriptureDir;
+      var p = pickFile(fs, 'Select EasyWorship scripture export', SCRIPTURE_EXTENSIONS, folder);
+      if (!p) { return; }
+      lastScriptureDir = dirname(p);
+      state.set({ scriptureFile: p });
+      showScripture();
+    }
+
+    function onClearScripture() {
+      state.set({ scriptureFile: null });
+      showScripture();
     }
 
     function option(doc, value, text) {
@@ -335,15 +374,18 @@
 
     // docs/07 POST /jobs body. Fields the panel does not expose (model, device, detection...)
     // are left to the sidecar's configured defaults; duration settings travel in options.timing
-    // under the docs/05 §3 parameter names.
+    // under the docs/05 §3 parameter names. options.scripture_file is sent only when a file is
+    // chosen, so without one the request is exactly what it was before the picker existed.
     function buildRequest() {
       var s = state.get();
       var timing = { lead_in_s: s.leadInSec, duration_mode: s.durationMode };
       if (s.durationMode === 'fixed') { timing.fixed_duration_s = s.fixedDurationSec; }
+      var options = { timing: timing };
+      if (s.scriptureFile) { options.scripture_file = s.scriptureFile; }
       return {
         media_path: s.mediaPath,
         translation_id: s.translation,
-        options: { timing: timing }
+        options: options
       };
     }
 
@@ -359,6 +401,8 @@
     }
 
     mediaBtn.addEventListener('click', onPickMedia);
+    scriptureBtn.addEventListener('click', onPickScripture);
+    scriptureClear.addEventListener('click', onClearScripture);
     templateBtn.addEventListener('click', onPickTemplate);
     refSelect.addEventListener('change', function () { persistMapping(); updateAnalyse(); });
     bodySelect.addEventListener('change', function () { persistMapping(); updateAnalyse(); });
@@ -375,6 +419,7 @@
     // re-read from disk because the fields are not persisted.
     var initial = state.get();
     setPath(mediaName, null, 'No file selected');
+    showScripture();
     setPath(templateName, initial.mogrtPath, 'No template selected');
     fillSelect(refSelect, [], null);
     fillSelect(bodySelect, [], null);
@@ -397,12 +442,19 @@
       ready: ready,
       refreshTracks: loadTracks,
       refreshTranslations: loadTranslations,
+      getTranslations: function () { return translations; },
       pickMedia: onPickMedia,
+      pickScriptureFile: onPickScripture,
+      clearScriptureFile: onClearScripture,
       pickTemplate: onPickTemplate
     };
   }
 
-  var Setup = { create: create, MEDIA_EXTENSIONS: MEDIA_EXTENSIONS };
+  var Setup = {
+    create: create,
+    MEDIA_EXTENSIONS: MEDIA_EXTENSIONS,
+    SCRIPTURE_EXTENSIONS: SCRIPTURE_EXTENSIONS
+  };
 
   if (typeof module !== 'undefined' && module.exports) { module.exports = Setup; }
   // Always set the global too (see bridge.js): CEP's mixed-context leaks `module` into the

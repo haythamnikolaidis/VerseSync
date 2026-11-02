@@ -53,6 +53,21 @@ CATALOGUE: dict[str, ErrorSpec] = {
         "The media file could not be read: {path}",
         "Check that the file is not open in another program and that you can read it.",
     ),
+    "scripture_file_not_found": ErrorSpec(
+        404,
+        "The scripture file could not be found: {path}",
+        "Check that the file has not moved, and that it is in one of the allowed media folders.",
+    ),
+    "scripture_file_unreadable": ErrorSpec(
+        400,
+        "The scripture file could not be read: {path}",
+        "Check that the file is not open in another program, and that it is a text export.",
+    ),
+    "scripture_file_empty": ErrorSpec(
+        400,
+        "The scripture file has no scripture entries in it: {path}",
+        "Export the scriptures from EasyWorship again, or choose another file.",
+    ),
     "model_load_failed": ErrorSpec(
         500,
         "The transcription model could not be loaded: {reason}",
@@ -110,7 +125,7 @@ CATALOGUE: dict[str, ErrorSpec] = {
     ),
 }
 
-# The 07 section 3 codes, in the order that section lists them.
+# The 07 section 3 codes, in the order that section lists them (the scripture file ones last).
 CODES: tuple[str, ...] = (
     "bad_request",
     "unauthorized",
@@ -124,6 +139,9 @@ CODES: tuple[str, ...] = (
     "job_not_finished",
     "cancelled",
     "internal",
+    "scripture_file_not_found",
+    "scripture_file_unreadable",
+    "scripture_file_empty",
 )
 
 

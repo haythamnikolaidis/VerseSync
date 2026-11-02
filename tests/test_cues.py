@@ -7,7 +7,13 @@ import pytest
 
 from versesync.bible.base import Passage, RawVerse, Translation
 from versesync.bible.resolver import Resolution
-from versesync.cues import LOW_CONFIDENCE_THRESHOLD, build_cue
+from versesync.cues import (
+    DISABLED_BY_DEFAULT,
+    LOW_CONFIDENCE_THRESHOLD,
+    SCHEMA_VERSION,
+    SCHEMA_VERSION_SCRIPTURE_FILE,
+    build_cue,
+)
 from versesync.detect.canon import Canon
 from versesync.detect.detector import Detection
 from versesync.detect.grammar import Candidate
@@ -173,3 +179,55 @@ def test_panel_owned_flags_never_appear(canon: Canon) -> None:
             timing = compute_timing(150.0, None, 6, confidence)
             cue = build_cue(1, det, res, None, timing, TRANSLATION, canon)
             assert not PANEL_FLAGS & set(cue["flags"])
+
+
+# The flags a scripture file adds (docs/07-sidecar-api.md section 5.1), with whether a cue that
+# carries each one starts enabled (docs/14-scripture-file-import.md section 6).
+SCRIPTURE_FILE_FLAGS = [
+    ("not_in_export", False),
+    ("not_found_in_audio", False),
+    ("repeat_mention", False),
+    ("repeat_read", True),
+    ("out_of_order", True),
+]
+
+
+@pytest.mark.parametrize(("flag", "enabled"), SCRIPTURE_FILE_FLAGS)
+def test_scripture_file_flags_are_valid_and_set_the_default(
+    canon: Canon, flag: str, enabled: bool
+) -> None:
+    det = _detection(canon, flags=(flag,))
+    timing = compute_timing(150.0, _read(), 6, det.confidence)
+    cue = build_cue(1, det, Resolution(_passage(canon), ()), _read(), timing, TRANSLATION, canon)
+    _validate(cue)
+    assert cue["flags"] == [flag]
+    assert cue["enabled"] is enabled
+
+
+def test_disabled_by_default_is_exactly_the_flags_that_start_a_cue_off() -> None:
+    assert DISABLED_BY_DEFAULT == {
+        "text_unavailable",
+        "passage_not_found",
+        "chapter_only",
+        "suppressed_duplicate",
+        "not_in_export",
+        "not_found_in_audio",
+        "repeat_mention",
+    }
+
+
+def test_flags_come_out_in_the_schema_enum_order(canon: Canon) -> None:
+    sidecar_flags = [f for f in SCHEMA["$defs"]["flag"]["enum"] if f not in PANEL_FLAGS]
+    det = _detection(canon, confidence=0.3, flags=tuple(reversed(sidecar_flags)))
+    res = Resolution(_passage(canon), ())
+    timing = compute_timing(150.0, None, 6, det.confidence)
+    cue = build_cue(1, det, res, None, timing, TRANSLATION, canon)
+    _validate(cue)
+    assert cue["flags"] == sidecar_flags
+
+
+def test_scripture_file_documents_have_their_own_version_constant() -> None:
+    assert SCHEMA_VERSION == "1.0"
+    assert SCHEMA_VERSION_SCRIPTURE_FILE == "1.1"
+    assert SCHEMA_VERSION_SCRIPTURE_FILE in SCHEMA["properties"]["schema_version"]["enum"]
+    assert SCHEMA_VERSION in SCHEMA["properties"]["schema_version"]["enum"]

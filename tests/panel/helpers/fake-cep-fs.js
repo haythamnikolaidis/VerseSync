@@ -10,10 +10,19 @@ var ERR_NOT_FOUND = 3;
 var UTF8 = 'UTF-8';
 
 function create(media) {
-  var f = { files: {}, saveAnswers: [], openAnswers: [], saveTitles: [] };
+  var f = { files: {}, saveAnswers: [], openAnswers: [], textAnswers: [], openCalls: [], saveTitles: [] };
+  // showOpenDialog(allowMultiple, chooseDirectory, title, initialPath, fileTypes): every call is
+  // recorded in openCalls. A .txt dialog (the scripture file) answers from textAnswers, and an
+  // empty queue is a cancelled dialog: err 0 with no data.
   f.showOpenDialog = function (multiple, directory, title, initial, extensions) {
+    f.openCalls.push({ multiple: multiple, directory: directory, title: title, initial: initial,
+      extensions: extensions });
     if (extensions.indexOf('mogrt') !== -1) { return { err: 0, data: ['C:\\t\\AV_Quote_04.mogrt'] }; }
     if (extensions.indexOf('json') !== -1) { return { err: 0, data: [f.openAnswers.shift()] }; }
+    if (extensions.indexOf('txt') !== -1) {
+      var answer = f.textAnswers.shift();
+      return { err: 0, data: answer ? [answer] : [] };
+    }
     return { err: 0, data: [media] };
   };
   // showSaveDialogEx(title, initialPath, fileTypes, defaultName, friendlyFilePrefix, prompt, nameFieldLabel)

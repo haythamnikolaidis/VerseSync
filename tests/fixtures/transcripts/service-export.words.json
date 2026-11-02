@@ -1,0 +1,2876 @@
+[
+  {
+    "text": "Good",
+    "start": 5.0,
+    "end": 5.32,
+    "probability": 0.97
+  },
+  {
+    "text": "morning",
+    "start": 5.36,
+    "end": 5.77,
+    "probability": 0.97
+  },
+  {
+    "text": "everyone,",
+    "start": 5.81,
+    "end": 6.25,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 6.29,
+    "end": 6.58,
+    "probability": 0.97
+  },
+  {
+    "text": "welcome.",
+    "start": 6.62,
+    "end": 7.03,
+    "probability": 0.97
+  },
+  {
+    "text": "This",
+    "start": 7.37,
+    "end": 7.69,
+    "probability": 0.97
+  },
+  {
+    "text": "morning",
+    "start": 7.73,
+    "end": 8.14,
+    "probability": 0.97
+  },
+  {
+    "text": "we",
+    "start": 8.18,
+    "end": 8.44,
+    "probability": 0.97
+  },
+  {
+    "text": "are",
+    "start": 8.48,
+    "end": 8.77,
+    "probability": 0.97
+  },
+  {
+    "text": "going",
+    "start": 8.81,
+    "end": 9.16,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 9.2,
+    "end": 9.46,
+    "probability": 0.97
+  },
+  {
+    "text": "talk",
+    "start": 9.5,
+    "end": 9.82,
+    "probability": 0.97
+  },
+  {
+    "text": "about",
+    "start": 9.86,
+    "end": 10.21,
+    "probability": 0.97
+  },
+  {
+    "text": "what",
+    "start": 10.25,
+    "end": 10.57,
+    "probability": 0.97
+  },
+  {
+    "text": "it",
+    "start": 10.61,
+    "end": 10.87,
+    "probability": 0.97
+  },
+  {
+    "text": "means",
+    "start": 10.91,
+    "end": 11.26,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 11.3,
+    "end": 11.56,
+    "probability": 0.97
+  },
+  {
+    "text": "be",
+    "start": 11.6,
+    "end": 11.86,
+    "probability": 0.97
+  },
+  {
+    "text": "complete",
+    "start": 11.9,
+    "end": 12.34,
+    "probability": 0.97
+  },
+  {
+    "text": "in",
+    "start": 12.38,
+    "end": 12.64,
+    "probability": 0.97
+  },
+  {
+    "text": "Christ,",
+    "start": 12.68,
+    "end": 13.06,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 13.1,
+    "end": 13.39,
+    "probability": 0.97
+  },
+  {
+    "text": "what",
+    "start": 13.43,
+    "end": 13.75,
+    "probability": 0.97
+  },
+  {
+    "text": "happens",
+    "start": 13.79,
+    "end": 14.2,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 14.24,
+    "end": 14.5,
+    "probability": 0.97
+  },
+  {
+    "text": "us",
+    "start": 14.54,
+    "end": 14.8,
+    "probability": 0.97
+  },
+  {
+    "text": "when",
+    "start": 14.84,
+    "end": 15.16,
+    "probability": 0.97
+  },
+  {
+    "text": "life",
+    "start": 15.2,
+    "end": 15.52,
+    "probability": 0.97
+  },
+  {
+    "text": "puts",
+    "start": 15.56,
+    "end": 15.88,
+    "probability": 0.97
+  },
+  {
+    "text": "us",
+    "start": 15.92,
+    "end": 16.18,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 16.22,
+    "end": 16.48,
+    "probability": 0.97
+  },
+  {
+    "text": "the",
+    "start": 16.52,
+    "end": 16.81,
+    "probability": 0.97
+  },
+  {
+    "text": "test.",
+    "start": 16.85,
+    "end": 17.17,
+    "probability": 0.97
+  },
+  {
+    "text": "Turn",
+    "start": 30.0,
+    "end": 30.32,
+    "probability": 0.97
+  },
+  {
+    "text": "with",
+    "start": 30.36,
+    "end": 30.68,
+    "probability": 0.97
+  },
+  {
+    "text": "me",
+    "start": 30.72,
+    "end": 30.98,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 31.02,
+    "end": 31.28,
+    "probability": 0.97
+  },
+  {
+    "text": "James",
+    "start": 31.32,
+    "end": 31.67,
+    "probability": 0.97
+  },
+  {
+    "text": "one,",
+    "start": 31.71,
+    "end": 32.0,
+    "probability": 0.97
+  },
+  {
+    "text": "two",
+    "start": 32.04,
+    "end": 32.33,
+    "probability": 0.97
+  },
+  {
+    "text": "through",
+    "start": 32.37,
+    "end": 32.78,
+    "probability": 0.97
+  },
+  {
+    "text": "four.",
+    "start": 32.82,
+    "end": 33.14,
+    "probability": 0.97
+  },
+  {
+    "text": "My",
+    "start": 33.48,
+    "end": 33.74,
+    "probability": 0.97
+  },
+  {
+    "text": "brethren,",
+    "start": 33.78,
+    "end": 34.22,
+    "probability": 0.97
+  },
+  {
+    "text": "count",
+    "start": 34.26,
+    "end": 34.61,
+    "probability": 0.97
+  },
+  {
+    "text": "it",
+    "start": 34.65,
+    "end": 34.91,
+    "probability": 0.97
+  },
+  {
+    "text": "all",
+    "start": 34.95,
+    "end": 35.24,
+    "probability": 0.97
+  },
+  {
+    "text": "joy",
+    "start": 35.28,
+    "end": 35.57,
+    "probability": 0.97
+  },
+  {
+    "text": "when",
+    "start": 35.61,
+    "end": 35.93,
+    "probability": 0.97
+  },
+  {
+    "text": "ye",
+    "start": 35.97,
+    "end": 36.23,
+    "probability": 0.97
+  },
+  {
+    "text": "fall",
+    "start": 36.27,
+    "end": 36.59,
+    "probability": 0.97
+  },
+  {
+    "text": "into",
+    "start": 36.63,
+    "end": 36.95,
+    "probability": 0.97
+  },
+  {
+    "text": "divers",
+    "start": 36.99,
+    "end": 37.37,
+    "probability": 0.97
+  },
+  {
+    "text": "temptations;",
+    "start": 37.41,
+    "end": 37.94,
+    "probability": 0.97
+  },
+  {
+    "text": "Knowing",
+    "start": 38.28,
+    "end": 38.69,
+    "probability": 0.97
+  },
+  {
+    "text": "this,",
+    "start": 38.73,
+    "end": 39.05,
+    "probability": 0.97
+  },
+  {
+    "text": "that",
+    "start": 39.09,
+    "end": 39.41,
+    "probability": 0.97
+  },
+  {
+    "text": "the",
+    "start": 39.45,
+    "end": 39.74,
+    "probability": 0.97
+  },
+  {
+    "text": "trying",
+    "start": 39.78,
+    "end": 40.16,
+    "probability": 0.97
+  },
+  {
+    "text": "of",
+    "start": 40.2,
+    "end": 40.46,
+    "probability": 0.97
+  },
+  {
+    "text": "your",
+    "start": 40.5,
+    "end": 40.82,
+    "probability": 0.97
+  },
+  {
+    "text": "faith",
+    "start": 40.86,
+    "end": 41.21,
+    "probability": 0.97
+  },
+  {
+    "text": "worketh",
+    "start": 41.25,
+    "end": 41.66,
+    "probability": 0.97
+  },
+  {
+    "text": "patience.",
+    "start": 41.7,
+    "end": 42.14,
+    "probability": 0.97
+  },
+  {
+    "text": "But",
+    "start": 42.48,
+    "end": 42.77,
+    "probability": 0.97
+  },
+  {
+    "text": "let",
+    "start": 42.81,
+    "end": 43.1,
+    "probability": 0.97
+  },
+  {
+    "text": "patience",
+    "start": 43.14,
+    "end": 43.58,
+    "probability": 0.97
+  },
+  {
+    "text": "have",
+    "start": 43.62,
+    "end": 43.94,
+    "probability": 0.97
+  },
+  {
+    "text": "her",
+    "start": 43.98,
+    "end": 44.27,
+    "probability": 0.97
+  },
+  {
+    "text": "perfect",
+    "start": 44.31,
+    "end": 44.72,
+    "probability": 0.97
+  },
+  {
+    "text": "work,",
+    "start": 44.76,
+    "end": 45.08,
+    "probability": 0.97
+  },
+  {
+    "text": "that",
+    "start": 45.12,
+    "end": 45.44,
+    "probability": 0.97
+  },
+  {
+    "text": "ye",
+    "start": 45.48,
+    "end": 45.74,
+    "probability": 0.97
+  },
+  {
+    "text": "may",
+    "start": 45.78,
+    "end": 46.07,
+    "probability": 0.97
+  },
+  {
+    "text": "be",
+    "start": 46.11,
+    "end": 46.37,
+    "probability": 0.97
+  },
+  {
+    "text": "perfect",
+    "start": 46.41,
+    "end": 46.82,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 46.86,
+    "end": 47.15,
+    "probability": 0.97
+  },
+  {
+    "text": "entire,",
+    "start": 47.19,
+    "end": 47.57,
+    "probability": 0.97
+  },
+  {
+    "text": "wanting",
+    "start": 47.61,
+    "end": 48.02,
+    "probability": 0.97
+  },
+  {
+    "text": "nothing.",
+    "start": 48.06,
+    "end": 48.47,
+    "probability": 0.97
+  },
+  {
+    "text": "Notice",
+    "start": 75.0,
+    "end": 75.38,
+    "probability": 0.97
+  },
+  {
+    "text": "that",
+    "start": 75.42,
+    "end": 75.74,
+    "probability": 0.97
+  },
+  {
+    "text": "joy",
+    "start": 75.78,
+    "end": 76.07,
+    "probability": 0.97
+  },
+  {
+    "text": "is",
+    "start": 76.11,
+    "end": 76.37,
+    "probability": 0.97
+  },
+  {
+    "text": "not",
+    "start": 76.41,
+    "end": 76.7,
+    "probability": 0.97
+  },
+  {
+    "text": "a",
+    "start": 76.74,
+    "end": 76.97,
+    "probability": 0.97
+  },
+  {
+    "text": "feeling",
+    "start": 77.01,
+    "end": 77.42,
+    "probability": 0.97
+  },
+  {
+    "text": "we",
+    "start": 77.46,
+    "end": 77.72,
+    "probability": 0.97
+  },
+  {
+    "text": "manufacture",
+    "start": 77.76,
+    "end": 78.29,
+    "probability": 0.97
+  },
+  {
+    "text": "on",
+    "start": 78.33,
+    "end": 78.59,
+    "probability": 0.97
+  },
+  {
+    "text": "an",
+    "start": 78.63,
+    "end": 78.89,
+    "probability": 0.97
+  },
+  {
+    "text": "easy",
+    "start": 78.93,
+    "end": 79.25,
+    "probability": 0.97
+  },
+  {
+    "text": "day.",
+    "start": 79.29,
+    "end": 79.58,
+    "probability": 0.97
+  },
+  {
+    "text": "It",
+    "start": 79.92,
+    "end": 80.18,
+    "probability": 0.97
+  },
+  {
+    "text": "is",
+    "start": 80.22,
+    "end": 80.48,
+    "probability": 0.97
+  },
+  {
+    "text": "a",
+    "start": 80.52,
+    "end": 80.75,
+    "probability": 0.97
+  },
+  {
+    "text": "decision",
+    "start": 80.79,
+    "end": 81.23,
+    "probability": 0.97
+  },
+  {
+    "text": "we",
+    "start": 81.27,
+    "end": 81.53,
+    "probability": 0.97
+  },
+  {
+    "text": "make",
+    "start": 81.57,
+    "end": 81.89,
+    "probability": 0.97
+  },
+  {
+    "text": "in",
+    "start": 81.93,
+    "end": 82.19,
+    "probability": 0.97
+  },
+  {
+    "text": "the",
+    "start": 82.23,
+    "end": 82.52,
+    "probability": 0.97
+  },
+  {
+    "text": "middle",
+    "start": 82.56,
+    "end": 82.94,
+    "probability": 0.97
+  },
+  {
+    "text": "of",
+    "start": 82.98,
+    "end": 83.24,
+    "probability": 0.97
+  },
+  {
+    "text": "a",
+    "start": 83.28,
+    "end": 83.51,
+    "probability": 0.97
+  },
+  {
+    "text": "hard",
+    "start": 83.55,
+    "end": 83.87,
+    "probability": 0.97
+  },
+  {
+    "text": "one,",
+    "start": 83.91,
+    "end": 84.2,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 84.24,
+    "end": 84.53,
+    "probability": 0.97
+  },
+  {
+    "text": "that",
+    "start": 84.57,
+    "end": 84.89,
+    "probability": 0.97
+  },
+  {
+    "text": "decision",
+    "start": 84.93,
+    "end": 85.37,
+    "probability": 0.97
+  },
+  {
+    "text": "is",
+    "start": 85.41,
+    "end": 85.67,
+    "probability": 0.97
+  },
+  {
+    "text": "where",
+    "start": 85.71,
+    "end": 86.06,
+    "probability": 0.97
+  },
+  {
+    "text": "character",
+    "start": 86.1,
+    "end": 86.57,
+    "probability": 0.97
+  },
+  {
+    "text": "is",
+    "start": 86.61,
+    "end": 86.87,
+    "probability": 0.97
+  },
+  {
+    "text": "formed.",
+    "start": 86.91,
+    "end": 87.29,
+    "probability": 0.97
+  },
+  {
+    "text": "Some",
+    "start": 87.63,
+    "end": 87.95,
+    "probability": 0.97
+  },
+  {
+    "text": "of",
+    "start": 87.99,
+    "end": 88.25,
+    "probability": 0.97
+  },
+  {
+    "text": "you",
+    "start": 88.29,
+    "end": 88.58,
+    "probability": 0.97
+  },
+  {
+    "text": "have",
+    "start": 88.62,
+    "end": 88.94,
+    "probability": 0.97
+  },
+  {
+    "text": "been",
+    "start": 88.98,
+    "end": 89.3,
+    "probability": 0.97
+  },
+  {
+    "text": "walking",
+    "start": 89.34,
+    "end": 89.75,
+    "probability": 0.97
+  },
+  {
+    "text": "through",
+    "start": 89.79,
+    "end": 90.2,
+    "probability": 0.97
+  },
+  {
+    "text": "a",
+    "start": 90.24,
+    "end": 90.47,
+    "probability": 0.97
+  },
+  {
+    "text": "long",
+    "start": 90.51,
+    "end": 90.83,
+    "probability": 0.97
+  },
+  {
+    "text": "season,",
+    "start": 90.87,
+    "end": 91.25,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 91.29,
+    "end": 91.58,
+    "probability": 0.97
+  },
+  {
+    "text": "you",
+    "start": 91.62,
+    "end": 91.91,
+    "probability": 0.97
+  },
+  {
+    "text": "are",
+    "start": 91.95,
+    "end": 92.24,
+    "probability": 0.97
+  },
+  {
+    "text": "tired.",
+    "start": 92.28,
+    "end": 92.63,
+    "probability": 0.97
+  },
+  {
+    "text": "Hear",
+    "start": 92.97,
+    "end": 93.29,
+    "probability": 0.97
+  },
+  {
+    "text": "this:",
+    "start": 93.33,
+    "end": 93.65,
+    "probability": 0.97
+  },
+  {
+    "text": "the",
+    "start": 93.99,
+    "end": 94.28,
+    "probability": 0.97
+  },
+  {
+    "text": "testing",
+    "start": 94.32,
+    "end": 94.73,
+    "probability": 0.97
+  },
+  {
+    "text": "is",
+    "start": 94.77,
+    "end": 95.03,
+    "probability": 0.97
+  },
+  {
+    "text": "not",
+    "start": 95.07,
+    "end": 95.36,
+    "probability": 0.97
+  },
+  {
+    "text": "the",
+    "start": 95.4,
+    "end": 95.69,
+    "probability": 0.97
+  },
+  {
+    "text": "end",
+    "start": 95.73,
+    "end": 96.02,
+    "probability": 0.97
+  },
+  {
+    "text": "of",
+    "start": 96.06,
+    "end": 96.32,
+    "probability": 0.97
+  },
+  {
+    "text": "the",
+    "start": 96.36,
+    "end": 96.65,
+    "probability": 0.97
+  },
+  {
+    "text": "story.",
+    "start": 96.69,
+    "end": 97.04,
+    "probability": 0.97
+  },
+  {
+    "text": "You",
+    "start": 110.0,
+    "end": 110.29,
+    "probability": 0.97
+  },
+  {
+    "text": "have",
+    "start": 110.33,
+    "end": 110.65,
+    "probability": 0.97
+  },
+  {
+    "text": "known",
+    "start": 110.69,
+    "end": 111.04,
+    "probability": 0.97
+  },
+  {
+    "text": "this",
+    "start": 111.08,
+    "end": 111.4,
+    "probability": 0.97
+  },
+  {
+    "text": "verse",
+    "start": 111.44,
+    "end": 111.79,
+    "probability": 0.97
+  },
+  {
+    "text": "since",
+    "start": 111.83,
+    "end": 112.18,
+    "probability": 0.97
+  },
+  {
+    "text": "you",
+    "start": 112.22,
+    "end": 112.51,
+    "probability": 0.97
+  },
+  {
+    "text": "were",
+    "start": 112.55,
+    "end": 112.87,
+    "probability": 0.97
+  },
+  {
+    "text": "small.",
+    "start": 112.91,
+    "end": 113.26,
+    "probability": 0.97
+  },
+  {
+    "text": "For",
+    "start": 113.6,
+    "end": 113.89,
+    "probability": 0.97
+  },
+  {
+    "text": "God",
+    "start": 113.93,
+    "end": 114.22,
+    "probability": 0.97
+  },
+  {
+    "text": "so",
+    "start": 114.26,
+    "end": 114.52,
+    "probability": 0.97
+  },
+  {
+    "text": "loved",
+    "start": 114.56,
+    "end": 114.91,
+    "probability": 0.97
+  },
+  {
+    "text": "the",
+    "start": 114.95,
+    "end": 115.24,
+    "probability": 0.97
+  },
+  {
+    "text": "world,",
+    "start": 115.28,
+    "end": 115.63,
+    "probability": 0.97
+  },
+  {
+    "text": "that",
+    "start": 115.67,
+    "end": 115.99,
+    "probability": 0.97
+  },
+  {
+    "text": "he",
+    "start": 116.03,
+    "end": 116.29,
+    "probability": 0.97
+  },
+  {
+    "text": "gave",
+    "start": 116.33,
+    "end": 116.65,
+    "probability": 0.97
+  },
+  {
+    "text": "his",
+    "start": 116.69,
+    "end": 116.98,
+    "probability": 0.97
+  },
+  {
+    "text": "own",
+    "start": 117.02,
+    "end": 117.31,
+    "probability": 0.97
+  },
+  {
+    "text": "Son,",
+    "start": 117.35,
+    "end": 117.64,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 117.68,
+    "end": 117.97,
+    "probability": 0.97
+  },
+  {
+    "text": "whoever",
+    "start": 118.01,
+    "end": 118.42,
+    "probability": 0.97
+  },
+  {
+    "text": "trusts",
+    "start": 118.46,
+    "end": 118.84,
+    "probability": 0.97
+  },
+  {
+    "text": "in",
+    "start": 118.88,
+    "end": 119.14,
+    "probability": 0.97
+  },
+  {
+    "text": "him",
+    "start": 119.18,
+    "end": 119.47,
+    "probability": 0.97
+  },
+  {
+    "text": "will",
+    "start": 119.51,
+    "end": 119.83,
+    "probability": 0.97
+  },
+  {
+    "text": "not",
+    "start": 119.87,
+    "end": 120.16,
+    "probability": 0.97
+  },
+  {
+    "text": "be",
+    "start": 120.2,
+    "end": 120.46,
+    "probability": 0.97
+  },
+  {
+    "text": "lost",
+    "start": 120.5,
+    "end": 120.82,
+    "probability": 0.97
+  },
+  {
+    "text": "but",
+    "start": 120.86,
+    "end": 121.15,
+    "probability": 0.97
+  },
+  {
+    "text": "will",
+    "start": 121.19,
+    "end": 121.51,
+    "probability": 0.97
+  },
+  {
+    "text": "have",
+    "start": 121.55,
+    "end": 121.87,
+    "probability": 0.97
+  },
+  {
+    "text": "life",
+    "start": 121.91,
+    "end": 122.23,
+    "probability": 0.97
+  },
+  {
+    "text": "without",
+    "start": 122.27,
+    "end": 122.68,
+    "probability": 0.97
+  },
+  {
+    "text": "end.",
+    "start": 122.72,
+    "end": 123.01,
+    "probability": 0.97
+  },
+  {
+    "text": "That",
+    "start": 123.35,
+    "end": 123.67,
+    "probability": 0.97
+  },
+  {
+    "text": "is",
+    "start": 123.71,
+    "end": 123.97,
+    "probability": 0.97
+  },
+  {
+    "text": "the",
+    "start": 124.01,
+    "end": 124.3,
+    "probability": 0.97
+  },
+  {
+    "text": "whole",
+    "start": 124.34,
+    "end": 124.69,
+    "probability": 0.97
+  },
+  {
+    "text": "gospel",
+    "start": 124.73,
+    "end": 125.11,
+    "probability": 0.97
+  },
+  {
+    "text": "in",
+    "start": 125.15,
+    "end": 125.41,
+    "probability": 0.97
+  },
+  {
+    "text": "a",
+    "start": 125.45,
+    "end": 125.68,
+    "probability": 0.97
+  },
+  {
+    "text": "single",
+    "start": 125.72,
+    "end": 126.1,
+    "probability": 0.97
+  },
+  {
+    "text": "line.",
+    "start": 126.14,
+    "end": 126.46,
+    "probability": 0.97
+  },
+  {
+    "text": "Let",
+    "start": 150.0,
+    "end": 150.29,
+    "probability": 0.97
+  },
+  {
+    "text": "me",
+    "start": 150.33,
+    "end": 150.59,
+    "probability": 0.97
+  },
+  {
+    "text": "say",
+    "start": 150.63,
+    "end": 150.92,
+    "probability": 0.97
+  },
+  {
+    "text": "it",
+    "start": 150.96,
+    "end": 151.22,
+    "probability": 0.97
+  },
+  {
+    "text": "another",
+    "start": 151.26,
+    "end": 151.67,
+    "probability": 0.97
+  },
+  {
+    "text": "way.",
+    "start": 151.71,
+    "end": 152.0,
+    "probability": 0.97
+  },
+  {
+    "text": "James",
+    "start": 152.34,
+    "end": 152.69,
+    "probability": 0.97
+  },
+  {
+    "text": "one,",
+    "start": 152.73,
+    "end": 153.02,
+    "probability": 0.97
+  },
+  {
+    "text": "four",
+    "start": 153.06,
+    "end": 153.38,
+    "probability": 0.97
+  },
+  {
+    "text": "tells",
+    "start": 153.42,
+    "end": 153.77,
+    "probability": 0.97
+  },
+  {
+    "text": "us",
+    "start": 153.81,
+    "end": 154.07,
+    "probability": 0.97
+  },
+  {
+    "text": "that",
+    "start": 154.11,
+    "end": 154.43,
+    "probability": 0.97
+  },
+  {
+    "text": "patience",
+    "start": 154.47,
+    "end": 154.91,
+    "probability": 0.97
+  },
+  {
+    "text": "needs",
+    "start": 154.95,
+    "end": 155.3,
+    "probability": 0.97
+  },
+  {
+    "text": "room",
+    "start": 155.34,
+    "end": 155.66,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 155.7,
+    "end": 155.96,
+    "probability": 0.97
+  },
+  {
+    "text": "finish",
+    "start": 156.0,
+    "end": 156.38,
+    "probability": 0.97
+  },
+  {
+    "text": "what",
+    "start": 156.42,
+    "end": 156.74,
+    "probability": 0.97
+  },
+  {
+    "text": "it",
+    "start": 156.78,
+    "end": 157.04,
+    "probability": 0.97
+  },
+  {
+    "text": "started.",
+    "start": 157.08,
+    "end": 157.49,
+    "probability": 0.97
+  },
+  {
+    "text": "Do",
+    "start": 157.83,
+    "end": 158.09,
+    "probability": 0.97
+  },
+  {
+    "text": "not",
+    "start": 158.13,
+    "end": 158.42,
+    "probability": 0.97
+  },
+  {
+    "text": "rush",
+    "start": 158.46,
+    "end": 158.78,
+    "probability": 0.97
+  },
+  {
+    "text": "the",
+    "start": 158.82,
+    "end": 159.11,
+    "probability": 0.97
+  },
+  {
+    "text": "process",
+    "start": 159.15,
+    "end": 159.56,
+    "probability": 0.97
+  },
+  {
+    "text": "that",
+    "start": 159.6,
+    "end": 159.92,
+    "probability": 0.97
+  },
+  {
+    "text": "God",
+    "start": 159.96,
+    "end": 160.25,
+    "probability": 0.97
+  },
+  {
+    "text": "is",
+    "start": 160.29,
+    "end": 160.55,
+    "probability": 0.97
+  },
+  {
+    "text": "carrying",
+    "start": 160.59,
+    "end": 161.03,
+    "probability": 0.97
+  },
+  {
+    "text": "out",
+    "start": 161.07,
+    "end": 161.36,
+    "probability": 0.97
+  },
+  {
+    "text": "in",
+    "start": 161.4,
+    "end": 161.66,
+    "probability": 0.97
+  },
+  {
+    "text": "your",
+    "start": 161.7,
+    "end": 162.02,
+    "probability": 0.97
+  },
+  {
+    "text": "family",
+    "start": 162.06,
+    "end": 162.44,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 162.48,
+    "end": 162.77,
+    "probability": 0.97
+  },
+  {
+    "text": "your",
+    "start": 162.81,
+    "end": 163.13,
+    "probability": 0.97
+  },
+  {
+    "text": "friendships.",
+    "start": 163.17,
+    "end": 163.7,
+    "probability": 0.97
+  },
+  {
+    "text": "Think",
+    "start": 200.0,
+    "end": 200.35,
+    "probability": 0.97
+  },
+  {
+    "text": "of",
+    "start": 200.39,
+    "end": 200.65,
+    "probability": 0.97
+  },
+  {
+    "text": "the",
+    "start": 200.69,
+    "end": 200.98,
+    "probability": 0.97
+  },
+  {
+    "text": "oldest",
+    "start": 201.02,
+    "end": 201.4,
+    "probability": 0.97
+  },
+  {
+    "text": "comfort",
+    "start": 201.44,
+    "end": 201.85,
+    "probability": 0.97
+  },
+  {
+    "text": "there",
+    "start": 201.89,
+    "end": 202.24,
+    "probability": 0.97
+  },
+  {
+    "text": "is.",
+    "start": 202.28,
+    "end": 202.54,
+    "probability": 0.97
+  },
+  {
+    "text": "Yahweh",
+    "start": 202.88,
+    "end": 203.26,
+    "probability": 0.97
+  },
+  {
+    "text": "is",
+    "start": 203.3,
+    "end": 203.56,
+    "probability": 0.97
+  },
+  {
+    "text": "my",
+    "start": 203.6,
+    "end": 203.86,
+    "probability": 0.97
+  },
+  {
+    "text": "shepherd:",
+    "start": 203.9,
+    "end": 204.34,
+    "probability": 0.97
+  },
+  {
+    "text": "I",
+    "start": 204.68,
+    "end": 204.91,
+    "probability": 0.97
+  },
+  {
+    "text": "shall",
+    "start": 204.95,
+    "end": 205.3,
+    "probability": 0.97
+  },
+  {
+    "text": "lack",
+    "start": 205.34,
+    "end": 205.66,
+    "probability": 0.97
+  },
+  {
+    "text": "nothing.",
+    "start": 205.7,
+    "end": 206.11,
+    "probability": 0.97
+  },
+  {
+    "text": "Say",
+    "start": 206.45,
+    "end": 206.74,
+    "probability": 0.97
+  },
+  {
+    "text": "that",
+    "start": 206.78,
+    "end": 207.1,
+    "probability": 0.97
+  },
+  {
+    "text": "over",
+    "start": 207.14,
+    "end": 207.46,
+    "probability": 0.97
+  },
+  {
+    "text": "your",
+    "start": 207.5,
+    "end": 207.82,
+    "probability": 0.97
+  },
+  {
+    "text": "week.",
+    "start": 207.86,
+    "end": 208.18,
+    "probability": 0.97
+  },
+  {
+    "text": "Now",
+    "start": 235.0,
+    "end": 235.29,
+    "probability": 0.97
+  },
+  {
+    "text": "turn",
+    "start": 235.33,
+    "end": 235.65,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 235.69,
+    "end": 235.95,
+    "probability": 0.97
+  },
+  {
+    "text": "Psalm",
+    "start": 235.99,
+    "end": 236.34,
+    "probability": 0.97
+  },
+  {
+    "text": "ninety-one,",
+    "start": 236.38,
+    "end": 236.85,
+    "probability": 0.97
+  },
+  {
+    "text": "fifteen.",
+    "start": 236.89,
+    "end": 237.3,
+    "probability": 0.97
+  },
+  {
+    "text": "He",
+    "start": 237.64,
+    "end": 237.9,
+    "probability": 0.97
+  },
+  {
+    "text": "shall",
+    "start": 237.94,
+    "end": 238.29,
+    "probability": 0.97
+  },
+  {
+    "text": "call",
+    "start": 238.33,
+    "end": 238.65,
+    "probability": 0.97
+  },
+  {
+    "text": "upon",
+    "start": 238.69,
+    "end": 239.01,
+    "probability": 0.97
+  },
+  {
+    "text": "me,",
+    "start": 239.05,
+    "end": 239.31,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 239.35,
+    "end": 239.64,
+    "probability": 0.97
+  },
+  {
+    "text": "I",
+    "start": 239.68,
+    "end": 239.91,
+    "probability": 0.97
+  },
+  {
+    "text": "will",
+    "start": 239.95,
+    "end": 240.27,
+    "probability": 0.97
+  },
+  {
+    "text": "answer",
+    "start": 240.31,
+    "end": 240.69,
+    "probability": 0.97
+  },
+  {
+    "text": "him:",
+    "start": 240.73,
+    "end": 241.02,
+    "probability": 0.97
+  },
+  {
+    "text": "I",
+    "start": 241.36,
+    "end": 241.59,
+    "probability": 0.97
+  },
+  {
+    "text": "will",
+    "start": 241.63,
+    "end": 241.95,
+    "probability": 0.97
+  },
+  {
+    "text": "be",
+    "start": 241.99,
+    "end": 242.25,
+    "probability": 0.97
+  },
+  {
+    "text": "with",
+    "start": 242.29,
+    "end": 242.61,
+    "probability": 0.97
+  },
+  {
+    "text": "him",
+    "start": 242.65,
+    "end": 242.94,
+    "probability": 0.97
+  },
+  {
+    "text": "in",
+    "start": 242.98,
+    "end": 243.24,
+    "probability": 0.97
+  },
+  {
+    "text": "trouble;",
+    "start": 243.28,
+    "end": 243.69,
+    "probability": 0.97
+  },
+  {
+    "text": "I",
+    "start": 244.03,
+    "end": 244.26,
+    "probability": 0.97
+  },
+  {
+    "text": "will",
+    "start": 244.3,
+    "end": 244.62,
+    "probability": 0.97
+  },
+  {
+    "text": "deliver",
+    "start": 244.66,
+    "end": 245.07,
+    "probability": 0.97
+  },
+  {
+    "text": "him,",
+    "start": 245.11,
+    "end": 245.4,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 245.44,
+    "end": 245.73,
+    "probability": 0.97
+  },
+  {
+    "text": "honour",
+    "start": 245.77,
+    "end": 246.15,
+    "probability": 0.97
+  },
+  {
+    "text": "him.",
+    "start": 246.19,
+    "end": 246.48,
+    "probability": 0.97
+  },
+  {
+    "text": "Some",
+    "start": 280.0,
+    "end": 280.32,
+    "probability": 0.97
+  },
+  {
+    "text": "of",
+    "start": 280.36,
+    "end": 280.62,
+    "probability": 0.97
+  },
+  {
+    "text": "you",
+    "start": 280.66,
+    "end": 280.95,
+    "probability": 0.97
+  },
+  {
+    "text": "came",
+    "start": 280.99,
+    "end": 281.31,
+    "probability": 0.97
+  },
+  {
+    "text": "in",
+    "start": 281.35,
+    "end": 281.61,
+    "probability": 0.97
+  },
+  {
+    "text": "carrying",
+    "start": 281.65,
+    "end": 282.09,
+    "probability": 0.97
+  },
+  {
+    "text": "a",
+    "start": 282.13,
+    "end": 282.36,
+    "probability": 0.97
+  },
+  {
+    "text": "heavy",
+    "start": 282.4,
+    "end": 282.75,
+    "probability": 0.97
+  },
+  {
+    "text": "week,",
+    "start": 282.79,
+    "end": 283.11,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 283.15,
+    "end": 283.44,
+    "probability": 0.97
+  },
+  {
+    "text": "that",
+    "start": 283.48,
+    "end": 283.8,
+    "probability": 0.97
+  },
+  {
+    "text": "promise",
+    "start": 283.84,
+    "end": 284.25,
+    "probability": 0.97
+  },
+  {
+    "text": "was",
+    "start": 284.29,
+    "end": 284.58,
+    "probability": 0.97
+  },
+  {
+    "text": "written",
+    "start": 284.62,
+    "end": 285.03,
+    "probability": 0.97
+  },
+  {
+    "text": "for",
+    "start": 285.07,
+    "end": 285.36,
+    "probability": 0.97
+  },
+  {
+    "text": "you.",
+    "start": 285.4,
+    "end": 285.69,
+    "probability": 0.97
+  },
+  {
+    "text": "Nobody",
+    "start": 286.03,
+    "end": 286.41,
+    "probability": 0.97
+  },
+  {
+    "text": "is",
+    "start": 286.45,
+    "end": 286.71,
+    "probability": 0.97
+  },
+  {
+    "text": "asking",
+    "start": 286.75,
+    "end": 287.13,
+    "probability": 0.97
+  },
+  {
+    "text": "you",
+    "start": 287.17,
+    "end": 287.46,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 287.5,
+    "end": 287.76,
+    "probability": 0.97
+  },
+  {
+    "text": "pretend",
+    "start": 287.8,
+    "end": 288.21,
+    "probability": 0.97
+  },
+  {
+    "text": "that",
+    "start": 288.25,
+    "end": 288.57,
+    "probability": 0.97
+  },
+  {
+    "text": "the",
+    "start": 288.61,
+    "end": 288.9,
+    "probability": 0.97
+  },
+  {
+    "text": "week",
+    "start": 288.94,
+    "end": 289.26,
+    "probability": 0.97
+  },
+  {
+    "text": "was",
+    "start": 289.3,
+    "end": 289.59,
+    "probability": 0.97
+  },
+  {
+    "text": "light.",
+    "start": 289.63,
+    "end": 289.98,
+    "probability": 0.97
+  },
+  {
+    "text": "Look",
+    "start": 330.0,
+    "end": 330.32,
+    "probability": 0.97
+  },
+  {
+    "text": "at",
+    "start": 330.36,
+    "end": 330.62,
+    "probability": 0.97
+  },
+  {
+    "text": "Psalm",
+    "start": 330.66,
+    "end": 331.01,
+    "probability": 0.97
+  },
+  {
+    "text": "ninety-one,",
+    "start": 331.05,
+    "end": 331.52,
+    "probability": 0.97
+  },
+  {
+    "text": "fifteen",
+    "start": 331.56,
+    "end": 331.97,
+    "probability": 0.97
+  },
+  {
+    "text": "again.",
+    "start": 332.01,
+    "end": 332.36,
+    "probability": 0.97
+  },
+  {
+    "text": "He",
+    "start": 332.7,
+    "end": 332.96,
+    "probability": 0.97
+  },
+  {
+    "text": "shall",
+    "start": 333.0,
+    "end": 333.35,
+    "probability": 0.97
+  },
+  {
+    "text": "call",
+    "start": 333.39,
+    "end": 333.71,
+    "probability": 0.97
+  },
+  {
+    "text": "upon",
+    "start": 333.75,
+    "end": 334.07,
+    "probability": 0.97
+  },
+  {
+    "text": "me,",
+    "start": 334.11,
+    "end": 334.37,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 334.41,
+    "end": 334.7,
+    "probability": 0.97
+  },
+  {
+    "text": "I",
+    "start": 334.74,
+    "end": 334.97,
+    "probability": 0.97
+  },
+  {
+    "text": "will",
+    "start": 335.01,
+    "end": 335.33,
+    "probability": 0.97
+  },
+  {
+    "text": "answer",
+    "start": 335.37,
+    "end": 335.75,
+    "probability": 0.97
+  },
+  {
+    "text": "him:",
+    "start": 335.79,
+    "end": 336.08,
+    "probability": 0.97
+  },
+  {
+    "text": "I",
+    "start": 336.42,
+    "end": 336.65,
+    "probability": 0.97
+  },
+  {
+    "text": "will",
+    "start": 336.69,
+    "end": 337.01,
+    "probability": 0.97
+  },
+  {
+    "text": "be",
+    "start": 337.05,
+    "end": 337.31,
+    "probability": 0.97
+  },
+  {
+    "text": "with",
+    "start": 337.35,
+    "end": 337.67,
+    "probability": 0.97
+  },
+  {
+    "text": "him",
+    "start": 337.71,
+    "end": 338.0,
+    "probability": 0.97
+  },
+  {
+    "text": "in",
+    "start": 338.04,
+    "end": 338.3,
+    "probability": 0.97
+  },
+  {
+    "text": "trouble;",
+    "start": 338.34,
+    "end": 338.75,
+    "probability": 0.97
+  },
+  {
+    "text": "I",
+    "start": 339.09,
+    "end": 339.32,
+    "probability": 0.97
+  },
+  {
+    "text": "will",
+    "start": 339.36,
+    "end": 339.68,
+    "probability": 0.97
+  },
+  {
+    "text": "deliver",
+    "start": 339.72,
+    "end": 340.13,
+    "probability": 0.97
+  },
+  {
+    "text": "him,",
+    "start": 340.17,
+    "end": 340.46,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 340.5,
+    "end": 340.79,
+    "probability": 0.97
+  },
+  {
+    "text": "honour",
+    "start": 340.83,
+    "end": 341.21,
+    "probability": 0.97
+  },
+  {
+    "text": "him.",
+    "start": 341.25,
+    "end": 341.54,
+    "probability": 0.97
+  },
+  {
+    "text": "A",
+    "start": 400.0,
+    "end": 400.23,
+    "probability": 0.97
+  },
+  {
+    "text": "promise",
+    "start": 400.27,
+    "end": 400.68,
+    "probability": 0.97
+  },
+  {
+    "text": "like",
+    "start": 400.72,
+    "end": 401.04,
+    "probability": 0.97
+  },
+  {
+    "text": "that",
+    "start": 401.08,
+    "end": 401.4,
+    "probability": 0.97
+  },
+  {
+    "text": "does",
+    "start": 401.44,
+    "end": 401.76,
+    "probability": 0.97
+  },
+  {
+    "text": "not",
+    "start": 401.8,
+    "end": 402.09,
+    "probability": 0.97
+  },
+  {
+    "text": "lean",
+    "start": 402.13,
+    "end": 402.45,
+    "probability": 0.97
+  },
+  {
+    "text": "on",
+    "start": 402.49,
+    "end": 402.75,
+    "probability": 0.97
+  },
+  {
+    "text": "how",
+    "start": 402.79,
+    "end": 403.08,
+    "probability": 0.97
+  },
+  {
+    "text": "strong",
+    "start": 403.12,
+    "end": 403.5,
+    "probability": 0.97
+  },
+  {
+    "text": "we",
+    "start": 403.54,
+    "end": 403.8,
+    "probability": 0.97
+  },
+  {
+    "text": "feel.",
+    "start": 403.84,
+    "end": 404.16,
+    "probability": 0.97
+  },
+  {
+    "text": "Psalm",
+    "start": 404.5,
+    "end": 404.85,
+    "probability": 0.97
+  },
+  {
+    "text": "ninety-one,",
+    "start": 404.89,
+    "end": 405.36,
+    "probability": 0.97
+  },
+  {
+    "text": "fifteen,",
+    "start": 405.4,
+    "end": 405.81,
+    "probability": 0.97
+  },
+  {
+    "text": "stands",
+    "start": 405.85,
+    "end": 406.23,
+    "probability": 0.97
+  },
+  {
+    "text": "on",
+    "start": 406.27,
+    "end": 406.53,
+    "probability": 0.97
+  },
+  {
+    "text": "the",
+    "start": 406.57,
+    "end": 406.86,
+    "probability": 0.97
+  },
+  {
+    "text": "one",
+    "start": 406.9,
+    "end": 407.19,
+    "probability": 0.97
+  },
+  {
+    "text": "who",
+    "start": 407.23,
+    "end": 407.52,
+    "probability": 0.97
+  },
+  {
+    "text": "made",
+    "start": 407.56,
+    "end": 407.88,
+    "probability": 0.97
+  },
+  {
+    "text": "it.",
+    "start": 407.92,
+    "end": 408.18,
+    "probability": 0.97
+  },
+  {
+    "text": "It",
+    "start": 430.0,
+    "end": 430.26,
+    "probability": 0.97
+  },
+  {
+    "text": "is",
+    "start": 430.3,
+    "end": 430.56,
+    "probability": 0.97
+  },
+  {
+    "text": "the",
+    "start": 430.6,
+    "end": 430.89,
+    "probability": 0.97
+  },
+  {
+    "text": "same",
+    "start": 430.93,
+    "end": 431.25,
+    "probability": 0.97
+  },
+  {
+    "text": "Word",
+    "start": 431.29,
+    "end": 431.61,
+    "probability": 0.97
+  },
+  {
+    "text": "who",
+    "start": 431.65,
+    "end": 431.94,
+    "probability": 0.97
+  },
+  {
+    "text": "was",
+    "start": 431.98,
+    "end": 432.27,
+    "probability": 0.97
+  },
+  {
+    "text": "there",
+    "start": 432.31,
+    "end": 432.66,
+    "probability": 0.97
+  },
+  {
+    "text": "at",
+    "start": 432.7,
+    "end": 432.96,
+    "probability": 0.97
+  },
+  {
+    "text": "the",
+    "start": 433.0,
+    "end": 433.29,
+    "probability": 0.97
+  },
+  {
+    "text": "start.",
+    "start": 433.33,
+    "end": 433.68,
+    "probability": 0.97
+  },
+  {
+    "text": "Remember",
+    "start": 434.02,
+    "end": 434.46,
+    "probability": 0.97
+  },
+  {
+    "text": "how",
+    "start": 434.5,
+    "end": 434.79,
+    "probability": 0.97
+  },
+  {
+    "text": "John",
+    "start": 434.83,
+    "end": 435.15,
+    "probability": 0.97
+  },
+  {
+    "text": "one,",
+    "start": 435.19,
+    "end": 435.48,
+    "probability": 0.97
+  },
+  {
+    "text": "one",
+    "start": 435.52,
+    "end": 435.81,
+    "probability": 0.97
+  },
+  {
+    "text": "opens",
+    "start": 435.85,
+    "end": 436.2,
+    "probability": 0.97
+  },
+  {
+    "text": "the",
+    "start": 436.24,
+    "end": 436.53,
+    "probability": 0.97
+  },
+  {
+    "text": "gospel,",
+    "start": 436.57,
+    "end": 436.95,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 436.99,
+    "end": 437.28,
+    "probability": 0.97
+  },
+  {
+    "text": "how",
+    "start": 437.32,
+    "end": 437.61,
+    "probability": 0.97
+  },
+  {
+    "text": "the",
+    "start": 437.65,
+    "end": 437.94,
+    "probability": 0.97
+  },
+  {
+    "text": "whole",
+    "start": 437.98,
+    "end": 438.33,
+    "probability": 0.97
+  },
+  {
+    "text": "story",
+    "start": 438.37,
+    "end": 438.72,
+    "probability": 0.97
+  },
+  {
+    "text": "hangs",
+    "start": 438.76,
+    "end": 439.11,
+    "probability": 0.97
+  },
+  {
+    "text": "on",
+    "start": 439.15,
+    "end": 439.41,
+    "probability": 0.97
+  },
+  {
+    "text": "who",
+    "start": 439.45,
+    "end": 439.74,
+    "probability": 0.97
+  },
+  {
+    "text": "he",
+    "start": 439.78,
+    "end": 440.04,
+    "probability": 0.97
+  },
+  {
+    "text": "is.",
+    "start": 440.08,
+    "end": 440.34,
+    "probability": 0.97
+  },
+  {
+    "text": "Take",
+    "start": 460.0,
+    "end": 460.32,
+    "probability": 0.97
+  },
+  {
+    "text": "all",
+    "start": 460.36,
+    "end": 460.65,
+    "probability": 0.97
+  },
+  {
+    "text": "of",
+    "start": 460.69,
+    "end": 460.95,
+    "probability": 0.97
+  },
+  {
+    "text": "Psalm",
+    "start": 460.99,
+    "end": 461.34,
+    "probability": 0.97
+  },
+  {
+    "text": "ninety-one",
+    "start": 461.38,
+    "end": 461.85,
+    "probability": 0.97
+  },
+  {
+    "text": "home",
+    "start": 461.89,
+    "end": 462.21,
+    "probability": 0.97
+  },
+  {
+    "text": "with",
+    "start": 462.25,
+    "end": 462.57,
+    "probability": 0.97
+  },
+  {
+    "text": "you",
+    "start": 462.61,
+    "end": 462.9,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 462.94,
+    "end": 463.23,
+    "probability": 0.97
+  },
+  {
+    "text": "read",
+    "start": 463.27,
+    "end": 463.59,
+    "probability": 0.97
+  },
+  {
+    "text": "it",
+    "start": 463.63,
+    "end": 463.89,
+    "probability": 0.97
+  },
+  {
+    "text": "through",
+    "start": 463.93,
+    "end": 464.34,
+    "probability": 0.97
+  },
+  {
+    "text": "slowly.",
+    "start": 464.38,
+    "end": 464.76,
+    "probability": 0.97
+  },
+  {
+    "text": "Here",
+    "start": 490.0,
+    "end": 490.32,
+    "probability": 0.97
+  },
+  {
+    "text": "is",
+    "start": 490.36,
+    "end": 490.62,
+    "probability": 0.97
+  },
+  {
+    "text": "where",
+    "start": 490.66,
+    "end": 491.01,
+    "probability": 0.97
+  },
+  {
+    "text": "I",
+    "start": 491.05,
+    "end": 491.28,
+    "probability": 0.97
+  },
+  {
+    "text": "want",
+    "start": 491.32,
+    "end": 491.64,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 491.68,
+    "end": 491.94,
+    "probability": 0.97
+  },
+  {
+    "text": "leave",
+    "start": 491.98,
+    "end": 492.33,
+    "probability": 0.97
+  },
+  {
+    "text": "you",
+    "start": 492.37,
+    "end": 492.66,
+    "probability": 0.97
+  },
+  {
+    "text": "this",
+    "start": 492.7,
+    "end": 493.02,
+    "probability": 0.97
+  },
+  {
+    "text": "morning.",
+    "start": 493.06,
+    "end": 493.47,
+    "probability": 0.97
+  },
+  {
+    "text": "We",
+    "start": 493.81,
+    "end": 494.07,
+    "probability": 0.97
+  },
+  {
+    "text": "know",
+    "start": 494.11,
+    "end": 494.43,
+    "probability": 0.97
+  },
+  {
+    "text": "that",
+    "start": 494.47,
+    "end": 494.79,
+    "probability": 0.97
+  },
+  {
+    "text": "all",
+    "start": 494.83,
+    "end": 495.12,
+    "probability": 0.97
+  },
+  {
+    "text": "things",
+    "start": 495.16,
+    "end": 495.54,
+    "probability": 0.97
+  },
+  {
+    "text": "work",
+    "start": 495.58,
+    "end": 495.9,
+    "probability": 0.97
+  },
+  {
+    "text": "together",
+    "start": 495.94,
+    "end": 496.38,
+    "probability": 0.97
+  },
+  {
+    "text": "for",
+    "start": 496.42,
+    "end": 496.71,
+    "probability": 0.97
+  },
+  {
+    "text": "good",
+    "start": 496.75,
+    "end": 497.07,
+    "probability": 0.97
+  },
+  {
+    "text": "for",
+    "start": 497.11,
+    "end": 497.4,
+    "probability": 0.97
+  },
+  {
+    "text": "those",
+    "start": 497.44,
+    "end": 497.79,
+    "probability": 0.97
+  },
+  {
+    "text": "who",
+    "start": 497.83,
+    "end": 498.12,
+    "probability": 0.97
+  },
+  {
+    "text": "love",
+    "start": 498.16,
+    "end": 498.48,
+    "probability": 0.97
+  },
+  {
+    "text": "God,",
+    "start": 498.52,
+    "end": 498.81,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 498.85,
+    "end": 499.11,
+    "probability": 0.97
+  },
+  {
+    "text": "those",
+    "start": 499.15,
+    "end": 499.5,
+    "probability": 0.97
+  },
+  {
+    "text": "who",
+    "start": 499.54,
+    "end": 499.83,
+    "probability": 0.97
+  },
+  {
+    "text": "are",
+    "start": 499.87,
+    "end": 500.16,
+    "probability": 0.97
+  },
+  {
+    "text": "called",
+    "start": 500.2,
+    "end": 500.58,
+    "probability": 0.97
+  },
+  {
+    "text": "according",
+    "start": 500.62,
+    "end": 501.09,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 501.13,
+    "end": 501.39,
+    "probability": 0.97
+  },
+  {
+    "text": "his",
+    "start": 501.43,
+    "end": 501.72,
+    "probability": 0.97
+  },
+  {
+    "text": "purpose.",
+    "start": 501.76,
+    "end": 502.17,
+    "probability": 0.97
+  },
+  {
+    "text": "Let",
+    "start": 535.0,
+    "end": 535.29,
+    "probability": 0.97
+  },
+  {
+    "text": "me",
+    "start": 535.33,
+    "end": 535.59,
+    "probability": 0.97
+  },
+  {
+    "text": "say",
+    "start": 535.63,
+    "end": 535.92,
+    "probability": 0.97
+  },
+  {
+    "text": "that",
+    "start": 535.96,
+    "end": 536.28,
+    "probability": 0.97
+  },
+  {
+    "text": "again,",
+    "start": 536.32,
+    "end": 536.67,
+    "probability": 0.97
+  },
+  {
+    "text": "because",
+    "start": 536.71,
+    "end": 537.12,
+    "probability": 0.97
+  },
+  {
+    "text": "it",
+    "start": 537.16,
+    "end": 537.42,
+    "probability": 0.97
+  },
+  {
+    "text": "is",
+    "start": 537.46,
+    "end": 537.72,
+    "probability": 0.97
+  },
+  {
+    "text": "easy",
+    "start": 537.76,
+    "end": 538.08,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 538.12,
+    "end": 538.38,
+    "probability": 0.97
+  },
+  {
+    "text": "hear",
+    "start": 538.42,
+    "end": 538.74,
+    "probability": 0.97
+  },
+  {
+    "text": "it",
+    "start": 538.78,
+    "end": 539.04,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 539.08,
+    "end": 539.37,
+    "probability": 0.97
+  },
+  {
+    "text": "not",
+    "start": 539.41,
+    "end": 539.7,
+    "probability": 0.97
+  },
+  {
+    "text": "take",
+    "start": 539.74,
+    "end": 540.06,
+    "probability": 0.97
+  },
+  {
+    "text": "it",
+    "start": 540.1,
+    "end": 540.36,
+    "probability": 0.97
+  },
+  {
+    "text": "in.",
+    "start": 540.4,
+    "end": 540.66,
+    "probability": 0.97
+  },
+  {
+    "text": "We",
+    "start": 541.0,
+    "end": 541.26,
+    "probability": 0.97
+  },
+  {
+    "text": "know",
+    "start": 541.3,
+    "end": 541.62,
+    "probability": 0.97
+  },
+  {
+    "text": "that",
+    "start": 541.66,
+    "end": 541.98,
+    "probability": 0.97
+  },
+  {
+    "text": "all",
+    "start": 542.02,
+    "end": 542.31,
+    "probability": 0.97
+  },
+  {
+    "text": "things",
+    "start": 542.35,
+    "end": 542.73,
+    "probability": 0.97
+  },
+  {
+    "text": "work",
+    "start": 542.77,
+    "end": 543.09,
+    "probability": 0.97
+  },
+  {
+    "text": "together",
+    "start": 543.13,
+    "end": 543.57,
+    "probability": 0.97
+  },
+  {
+    "text": "for",
+    "start": 543.61,
+    "end": 543.9,
+    "probability": 0.97
+  },
+  {
+    "text": "good",
+    "start": 543.94,
+    "end": 544.26,
+    "probability": 0.97
+  },
+  {
+    "text": "for",
+    "start": 544.3,
+    "end": 544.59,
+    "probability": 0.97
+  },
+  {
+    "text": "those",
+    "start": 544.63,
+    "end": 544.98,
+    "probability": 0.97
+  },
+  {
+    "text": "who",
+    "start": 545.02,
+    "end": 545.31,
+    "probability": 0.97
+  },
+  {
+    "text": "love",
+    "start": 545.35,
+    "end": 545.67,
+    "probability": 0.97
+  },
+  {
+    "text": "God,",
+    "start": 545.71,
+    "end": 546.0,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 546.04,
+    "end": 546.3,
+    "probability": 0.97
+  },
+  {
+    "text": "those",
+    "start": 546.34,
+    "end": 546.69,
+    "probability": 0.97
+  },
+  {
+    "text": "who",
+    "start": 546.73,
+    "end": 547.02,
+    "probability": 0.97
+  },
+  {
+    "text": "are",
+    "start": 547.06,
+    "end": 547.35,
+    "probability": 0.97
+  },
+  {
+    "text": "called",
+    "start": 547.39,
+    "end": 547.77,
+    "probability": 0.97
+  },
+  {
+    "text": "according",
+    "start": 547.81,
+    "end": 548.28,
+    "probability": 0.97
+  },
+  {
+    "text": "to",
+    "start": 548.32,
+    "end": 548.58,
+    "probability": 0.97
+  },
+  {
+    "text": "his",
+    "start": 548.62,
+    "end": 548.91,
+    "probability": 0.97
+  },
+  {
+    "text": "purpose.",
+    "start": 548.95,
+    "end": 549.36,
+    "probability": 0.97
+  },
+  {
+    "text": "Let",
+    "start": 575.0,
+    "end": 575.29,
+    "probability": 0.97
+  },
+  {
+    "text": "us",
+    "start": 575.33,
+    "end": 575.59,
+    "probability": 0.97
+  },
+  {
+    "text": "pray",
+    "start": 575.63,
+    "end": 575.95,
+    "probability": 0.97
+  },
+  {
+    "text": "together.",
+    "start": 575.99,
+    "end": 576.43,
+    "probability": 0.97
+  },
+  {
+    "text": "Father,",
+    "start": 576.77,
+    "end": 577.15,
+    "probability": 0.97
+  },
+  {
+    "text": "we",
+    "start": 577.19,
+    "end": 577.45,
+    "probability": 0.97
+  },
+  {
+    "text": "thank",
+    "start": 577.49,
+    "end": 577.84,
+    "probability": 0.97
+  },
+  {
+    "text": "you",
+    "start": 577.88,
+    "end": 578.17,
+    "probability": 0.97
+  },
+  {
+    "text": "for",
+    "start": 578.21,
+    "end": 578.5,
+    "probability": 0.97
+  },
+  {
+    "text": "the",
+    "start": 578.54,
+    "end": 578.83,
+    "probability": 0.97
+  },
+  {
+    "text": "morning",
+    "start": 578.87,
+    "end": 579.28,
+    "probability": 0.97
+  },
+  {
+    "text": "and",
+    "start": 579.32,
+    "end": 579.61,
+    "probability": 0.97
+  },
+  {
+    "text": "for",
+    "start": 579.65,
+    "end": 579.94,
+    "probability": 0.97
+  },
+  {
+    "text": "each",
+    "start": 579.98,
+    "end": 580.3,
+    "probability": 0.97
+  },
+  {
+    "text": "other.",
+    "start": 580.34,
+    "end": 580.69,
+    "probability": 0.97
+  }
+]

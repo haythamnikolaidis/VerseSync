@@ -8,7 +8,7 @@
 //   npm run smoke -- --scenario flagged --expect '#review .row' --count 18
 //
 // Options (all optional):
-//   --scenario a,b   scenarios to load (default: happy,flagged,alternatives,empty)
+//   --scenario a,b   scenarios to load (default: happy,flagged,alternatives,empty,export)
 //   --expect SEL     after load, require SEL to match at least one element
 //   --count N        with the preceding --expect: require exactly N matches
 //   --eval JS        run JS in the page after load (e.g. to click through a flow)
@@ -22,7 +22,7 @@ const http = require('node:http');
 const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
-const ALL_SCENARIOS = ['happy', 'flagged', 'alternatives', 'empty'];
+const ALL_SCENARIOS = ['happy', 'flagged', 'alternatives', 'empty', 'export'];
 const BROWSERS_DIR = process.env.PLAYWRIGHT_BROWSERS_PATH || '/opt/pw-browsers';
 
 const MIME = {

@@ -456,4 +456,36 @@ button:focus-visible, select:focus-visible, input:focus-visible {
 }
 .vf-row-match { background: none; color: var(--text); font-weight: bold; }
 
+/* ── Scripture file rows (docs/09 §5.1, docs/14 §7) ────────────────────── */
+.vf-badge {
+  display: inline-block;
+  font-size: 10px;
+  line-height: 1.4;
+  padding: 0 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+}
+.vf-badge--ew { border-color: var(--accent); color: var(--accent); }
+.vf-badge--repeat { border-color: var(--flag-grey); color: var(--flag-grey); }
+.vf-badge--out-of-order { border-color: var(--flag-amber); color: var(--flag-amber); }
+.vf-row-prompt { padding-left: 24px; }
+.row.vf-row--needs-time { opacity: 0.85; }
+.row.vf-row--needs-time .vf-row-check { cursor: not-allowed; }
+.vf-detail-time { margin-bottom: 4px; }
+.vf-review-group-toggle {
+  background: none;
+  border: 0;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 3px 0;
+  text-align: left;
+}
+.vf-review-group-toggle::before { content: '\25B8'; margin-right: 4px; }
+.vf-review-group-toggle--open::before { content: '\25BE'; }
+.vf-review-group-toggle:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.vf-review-group-list { display: flex; flex-direction: column; gap: 4px; }
+.vf-review-group-list[hidden] { display: none; }
+
 section[hidden] { display: none; }

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import queue
 import secrets
@@ -18,13 +19,21 @@ from versesync.bible.base import BibleError, BibleProvider, Translation, Transla
 from versesync.cache import TranscriptCache, hash_media
 from versesync.config import Config
 from versesync.cues import write_document
+from versesync.detect.canon import load_canon
 from versesync.detect.detector import DetectConfig
 from versesync.errors import CATALOGUE, render
 from versesync.paths import app_home
 from versesync.pipeline import Cancelled, PipelineConfig, run_pipeline
+from versesync.scripture_file import (
+    ExportEntry,
+    ExportWarning,
+    ScriptureFileEmpty,
+    parse_scripture_file,
+)
 from versesync.server import ApiError, Request
 from versesync.timing.align import AlignConfig
 from versesync.timing.anchor import TimingConfig
+from versesync.timing.locate import LocateConfig
 from versesync.transcribe import Backend, TranscribeOptions, TranscriptionError
 from versesync.types import Word
 
@@ -192,8 +201,8 @@ def _error(key: str, **fields: Any) -> dict[str, Any]:
     return inner
 
 
-class _MediaError(Exception):
-    """A media file that is missing or unreadable, already mapped to its 07 §3 code."""
+class _InputFileError(Exception):
+    """A media or scripture file that is missing, unreadable or empty, mapped to its 07 §3 code."""
 
     def __init__(self, key: str, path: Path, detail: str | None = None) -> None:
         self.key = key
@@ -202,10 +211,27 @@ class _MediaError(Exception):
         super().__init__(self.error["message"])
 
 
-def _media_error(path: Path, exc: OSError) -> _MediaError:
+def _media_error(path: Path, exc: OSError) -> _InputFileError:
     if isinstance(exc, FileNotFoundError):
-        return _MediaError("media_not_found", path)
-    return _MediaError("media_unreadable", path, detail=str(exc))
+        return _InputFileError("media_not_found", path)
+    return _InputFileError("media_unreadable", path, detail=str(exc))
+
+
+def _read_scripture_file(
+    path: Path,
+) -> tuple[list[ExportEntry], list[ExportWarning], dict[str, Any]]:
+    """Parse the export at ``path``; also the document's ``scripture_file`` block (14 §6)."""
+    try:
+        sha256 = hashlib.sha256(path.read_bytes()).hexdigest()
+        entries, warnings = parse_scripture_file(path, load_canon())
+    except FileNotFoundError as exc:
+        raise _InputFileError("scripture_file_not_found", path) from exc
+    except (OSError, ValueError) as exc:  # ValueError covers text that is not UTF-8
+        raise _InputFileError("scripture_file_unreadable", path, detail=str(exc)) from exc
+    except ScriptureFileEmpty as exc:
+        raise _InputFileError("scripture_file_empty", path) from exc
+    block = {"path": str(path), "sha256": sha256, "entry_count": len(entries)}
+    return entries, warnings, block
 
 
 def _overrides(cls: type, *sources: dict[str, Any]) -> dict[str, Any]:
@@ -230,7 +256,13 @@ def _pipeline_config(config: Config, options: dict[str, Any]) -> PipelineConfig:
     align = replace(base.align, **_overrides(AlignConfig, config.timing, timing))
     timing_cfg = replace(base.timing, **_overrides(TimingConfig, config.timing, timing))
     max_verses = int(config.bible.get("max_verses_per_passage", base.max_verses))
-    return PipelineConfig(detect=detect, align=align, timing=timing_cfg, max_verses=max_verses)
+    return PipelineConfig(
+        detect=detect,
+        align=align,
+        timing=timing_cfg,
+        max_verses=max_verses,
+        locate=LocateConfig.from_config(config, align),
+    )
 
 
 def _transcribe_options(config: Config, options: dict[str, Any]) -> TranscribeOptions:
@@ -321,7 +353,7 @@ def run_job(
         error = _error("cancelled")
         registry.publish(job.id, "failed", {"job_id": job.id, "error": error})
         return
-    except _MediaError as exc:
+    except _InputFileError as exc:
         _fail(job, registry, exc.error)
         return
     except TranscriptionError as exc:
@@ -419,6 +451,13 @@ def _run_phases(
         # so a later cached run does not pick up the transcript the editor was avoiding.
         cache.put(media_hash, opts, words, duration_s)
 
+    scripture_raw = options.get("scripture_file")
+    scripture: tuple[list[ExportEntry], list[ExportWarning], dict[str, Any]] | None = None
+    if scripture_raw:
+        # After transcription, so that a bad file fails fast on a cached transcript (D17).
+        scripture = _read_scripture_file(Path(str(scripture_raw)))
+        check_cancelled()
+
     job_info: dict[str, Any] = {
         "id": job.id,
         "media_path": str(req["media_path"]),
@@ -439,6 +478,9 @@ def _run_phases(
         cfg=cfg,
         on_phase=reporter.report,
         is_cancelled=is_cancelled,
+        scripture_file=scripture[0] if scripture else None,
+        scripture_warnings=scripture[1] if scripture else (),
+        scripture_file_block=scripture[2] if scripture else None,
     )
     check_cancelled()
     result_path = app_home() / "jobs" / job.id / "cues.json"
@@ -497,18 +539,31 @@ class JobService:
     def active_count(self) -> int:
         return self.registry.active_count()
 
-    def _validated_media(self, raw: Any) -> Path:
-        if not isinstance(raw, str) or not raw:
-            raise ApiError.of("bad_request.media_path_missing")
+    def _validated_file(self, raw: str, outside_key: str, missing_key: str) -> Path:
+        """``raw`` as a file inside the allowed roots, or the error for ``outside``/``missing``."""
         path = Path(raw)
         roots = [Path(str(r)) for r in self.config.server.get("allowed_media_roots") or []]
         if roots:
             resolved = path.resolve()
             if not any(resolved.is_relative_to(root.resolve()) for root in roots):
-                raise ApiError.of("bad_request.media_outside_roots")
+                raise ApiError.of(outside_key, path=raw)
         if not path.is_file():
-            raise ApiError.of("media_not_found", path=raw)
+            raise ApiError.of(missing_key, path=raw)
         return path
+
+    def _validated_media(self, raw: Any) -> Path:
+        if not isinstance(raw, str) or not raw:
+            raise ApiError.of("bad_request.media_path_missing")
+        return self._validated_file(raw, "bad_request.media_outside_roots", "media_not_found")
+
+    def _validate_scripture_file(self, options: dict[str, Any]) -> None:
+        raw = options.get("scripture_file")
+        if raw is None:
+            return
+        if not isinstance(raw, str) or not raw:
+            raise ApiError.of("bad_request", problem="options.scripture_file must be a file path.")
+        # 07 §3: a file outside the allowed roots is reported as not found.
+        self._validated_file(raw, "scripture_file_not_found", "scripture_file_not_found")
 
     def _estimate(self, body: dict[str, Any], media: Path) -> tuple[bool, float]:
         """``(cache_hit, estimated_duration_s)``; the cache is checked here, synchronously."""
@@ -538,6 +593,7 @@ class JobService:
         if not isinstance(body.get("options", {}), dict):
             raise ApiError.of("bad_request.options_not_object")
         media = self._validated_media(body.get("media_path"))
+        self._validate_scripture_file(dict(body.get("options") or {}))
         cache_hit, estimate = self._estimate(body, media)
         job = self.registry.create()
         job.cache_hit = cache_hit
