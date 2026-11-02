@@ -25,7 +25,7 @@ hand-added cues, and sermons with no export.
 
 ### T-53.1 · Choose the provider from config
 
-**Executor** agent · **Size** S · **Prereqs** T-15.2, T-20.5 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-15.2, T-20.5 · **Status** in-progress
 
 - **Read:** [06 §8](../06-bible-text-service.md) · `sidecar/versesync/bible/api_bible.py`
 - **Touches:** `sidecar/versesync/bible/factory.py` (new) · `sidecar/versesync/bible/api_bible.py` ·
