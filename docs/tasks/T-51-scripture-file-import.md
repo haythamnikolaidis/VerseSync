@@ -164,7 +164,7 @@ Without a scripture file, nothing changes. Every v1 golden file must still pass 
 
 ### T-51.6 · Panel: picker and review list
 
-**Executor** agent · **Size** S · **Prereqs** T-51.5, T-29.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-51.5, T-29.3 · **Status** in-progress
 
 - **Read:** [14 §7](../14-scripture-file-import.md) · [09](../09-ui-spec.md)
 - **Touches:** `panel/js/setup.js` · `panel/js/review.js` · `panel/js/state.js` ·

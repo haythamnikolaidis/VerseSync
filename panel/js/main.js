@@ -679,6 +679,9 @@
   // template is the one VS.getMogrtFields accepts).
   var stubFs = {
     showOpenDialog: function (multiple, directory, title, initialPath, extensions) {
+      if (extensions && extensions.indexOf('txt') !== -1) {
+        return { err: 0, data: ['C:\\Stub\\Scriptures.txt'] };
+      }
       var template = extensions && extensions.indexOf('mogrt') !== -1;
       return { err: 0, data: [template ? 'C:\\Stub\\AV_Quote_04.mogrt' : 'C:\\Stub\\SERMON_A014.MXF'] };
     }

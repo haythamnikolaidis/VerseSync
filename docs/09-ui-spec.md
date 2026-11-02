@@ -16,6 +16,7 @@ for a narrow column that grows usefully when widened.
 ├────────────────────────────────────────────┤
 │ ▸ SETUP                                    │  collapses after a successful analysis
 │   Media file      [ Select… ] SERMON_A001  │
+│   Scripture file  [ Select… ] (optional)   │
 │   Template        [ Select… ] AV_Quote_04  │
 │     Reference →   [ Description > Text  ▾] │
 │     Scripture →   [ Title Main > Text   ▾] │
@@ -71,12 +72,13 @@ process.
 
 ## 3. Setup
 
-Field-by-field behaviour. Everything except the media file persists between sessions (FR-1.7),
-so a weekly run is: pick media, click Analyse.
+Field-by-field behaviour. Everything except the media file and the scripture file persists between
+sessions (FR-1.7), so a weekly run is: pick media, click Analyse.
 
 | Control | Behaviour |
 |---------|-----------|
 | **Media file** | `window.cep.fs.showOpenDialog` filtered to audio/video extensions — **not** ExtendScript `File.openDialog`, which fails in Premiere 2026 (VerseFlow's finding). Shows basename, full path on hover. |
+| **Scripture file** | Optional. *Scripture file (EasyWorship export)*, under the media file: the same `cep.fs.showOpenDialog` call as the media picker, filtered to `txt`, with a **Clear** button once a file is chosen. The dialog opens in the media file's folder; with no media chosen it opens in the folder of the last scripture file picked this session, and otherwise where the host last left it. The path travels as `options.scripture_file` ([14](14-scripture-file-import.md) §6) and is left out of the request when nothing is chosen. It is per sermon, like the media file, so it is not restored on restart. It never gates Analyse. A `scripture_file_*` input error from the sidecar shows its message like any other job error (§7). |
 | **Template** | `.mogrt` picker. On selection, calls `VS.getMogrtFields` with a *Reading template…* busy state. Zero fields → the VerseFlow warning about After Effects–authored templates (FR-1.4). |
 | **Reference / Scripture dropdowns** | Populated with group-qualified labels (`Description > Text`), values are field **indices**. VerseFlow's smart defaults apply: reference ← group matching `/descr\|caption\|sub\|credit\|author/i`, body ← `/title\|main\|quote\|body/i`. Same field for both is a validation error. Persisted per MOGRT path. |
 | **Translation** | From `GET /translations`. Shows the licence attribution beneath it in small type, if the translation has any (FR-4.7). Disabled while the sidecar is unreachable. |

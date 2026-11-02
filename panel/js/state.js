@@ -10,11 +10,13 @@
 
   // Keys that are never written to storage. mediaPath is the one FR-1.7 excludes; the others are
   // live readings (sidecar health, open sequence, fields read from the template) that would be
-  // stale after a restart, so they are re-read each session rather than restored.
-  var TRANSIENT = ['mediaPath', 'sidecarReady', 'sequenceOpen', 'mogrtFields'];
+  // stale after a restart, so they are re-read each session rather than restored. scriptureFile
+  // (the EasyWorship export, docs/14 §7) belongs to one sermon like mediaPath, so it is never kept.
+  var TRANSIENT = ['mediaPath', 'scriptureFile', 'sidecarReady', 'sequenceOpen', 'mogrtFields'];
 
   var DEFAULTS = {
     mediaPath: null,
+    scriptureFile: null,
     sidecarReady: false,
     sequenceOpen: false,
     mogrtPath: null,
