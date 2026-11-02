@@ -316,7 +316,7 @@
     function renderSummary(run, firstUndo) {
       var s = app.session;
       var placed = Insert.placedCount(run);
-      var text = Insert.summaryText(placed, run.order.length);
+      var text = Insert.summaryText(placed, run.order.length, Insert.cueCount(run, s.model));
       if (firstUndo) { text += ' ' + Insert.UNDO_NOTE; }
       var nodes = [el(doc, 'div', 'vf-insert-summary', text)];
       nodes[0].setAttribute('role', 'status');
@@ -326,9 +326,8 @@
         details.appendChild(el(doc, 'summary', 'vf-insert-details-title', 'Details'));
         var list = el(doc, 'ul', 'vf-insert-failures');
         failed.forEach(function (id) {
-          var cue = s.model.get(id);
           list.appendChild(el(doc, 'li', 'vf-insert-failure',
-            (cue ? cue.reference_display : id) + ' — ' + run.failures[id]));
+            Insert.graphicName(run, s.model, id) + ' — ' + run.failures[id]));
         });
         details.appendChild(list);
         nodes.push(details);
@@ -349,7 +348,8 @@
         settings: setupState.get(),
         sequenceId: s.sequenceId,
         model: s.model,
-        placements: s.mapping.placements
+        placements: s.mapping.placements,
+        frameTicks: s.seqInfo.timebase
       };
       var stop = Insert.blockers(ctx);
       if (stop.length > 0) { insertError(stop); return Promise.resolve(); }
@@ -365,7 +365,9 @@
       var unlock = lockControls();
       showInsert([]);
       showProgress(0, insertTotal);
-      return Insert.execute({ bridge: bridge, payload: payload, confirm: confirmFn }).then(function (out) {
+      return Insert.execute({
+        bridge: bridge, payload: payload, model: s.model, confirm: confirmFn
+      }).then(function (out) {
         inserting = false;
         unlock();
         if (out.state === 'error') { insertError([out.error]); return; }
