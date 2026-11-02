@@ -129,7 +129,7 @@ Without a scripture file, nothing changes. Every v1 golden file must still pass 
 
 ### T-51.4 · Pipeline integration
 
-**Executor** agent · **Size** S · **Prereqs** T-51.2, T-51.7, T-19.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-51.2, T-51.7, T-19.3 · **Status** in-progress
 
 - **Read:** [14 §5](../14-scripture-file-import.md) · [05 §3](../05-timing-and-placement.md)
 - **Touches:** `sidecar/versesync/pipeline.py` · `sidecar/versesync/cues.py` ·
