@@ -7,8 +7,13 @@ const path = require('node:path');
 
 const root = path.join(__dirname, '..', '..');
 const Layout = require(path.join(root, 'panel', 'js', 'layout.js'));
+const Timemap = require(path.join(root, 'panel', 'js', 'timemap.js'));
 const measurements = JSON.parse(fs.readFileSync(
   path.join(root, 'tests', 'fixtures', 'graphic-measurements.json'), 'utf8'));
+
+const TPS = Timemap.TICKS_PER_SECOND;
+const FRAME_24 = String(TPS / 24);
+const FRAME_2997 = '8475667200';
 
 function words(text) {
   return String(text).split(/\s+/).filter((w) => w !== '');
@@ -382,4 +387,168 @@ test('2 Corinthians 4:6-9 as one passage becomes two graphics, verses 6-7 and 8-
   parts.forEach((p) => assert.ok(lineCount(p.body) <= 4));
   assert.deepStrictEqual(parts.map((p) => p.firstVerse), [6, 8]);
   assert.deepStrictEqual(words(parts.map((p) => p.body).join(' ')), words(body));
+});
+
+// ---------------------------------------------------------------------------------------------
+// timeParts
+
+function parts(n, firstVerses, wordCounts) {
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    out.push({
+      body: filler(wordCounts ? wordCounts[i] : 10, 'p' + i + '_'),
+      firstVerse: firstVerses ? firstVerses[i] : null
+    });
+  }
+  return out;
+}
+
+function sumTicks(timed) {
+  return timed.reduce((total, t) => total + BigInt(t.durationTicks), 0n);
+}
+
+function assertBackToBack(timed, at, duration) {
+  assert.strictEqual(timed[0].atTicks, at);
+  for (let i = 0; i + 1 < timed.length; i++) {
+    assert.strictEqual(BigInt(timed[i].atTicks) + BigInt(timed[i].durationTicks), BigInt(timed[i + 1].atTicks));
+    assert.ok(BigInt(timed[i].durationTicks) > 0n);
+  }
+  const last = timed[timed.length - 1];
+  assert.strictEqual(BigInt(last.atTicks) + BigInt(last.durationTicks), BigInt(at) + BigInt(duration));
+  assert.strictEqual(sumTicks(timed), BigInt(duration));
+}
+
+function frameAligned(ticks, frame) {
+  return BigInt(ticks) % BigInt(frame) === 0n;
+}
+
+const AT = String(100 * TPS);
+const DUR = String(20 * TPS);
+
+test('timeParts gives an unsplit cue its own time', () => {
+  assert.deepStrictEqual(Layout.timeParts(parts(1), {}, AT, DUR, FRAME_24), [{ atTicks: AT, durationTicks: DUR }]);
+});
+
+test('timeParts uses verse_offsets_s when they are valid', () => {
+  const cue = { verse_offsets_s: { '7': 6.4, '8': 12 } };
+  const timed = Layout.timeParts(parts(3, [6, 7, 8]), cue, AT, DUR, FRAME_24);
+  // 6.4 s is 153.6 frames and snaps to 154; 12 s is 288 frames.
+  assert.strictEqual(timed[1].atTicks, String(BigInt(AT) + 154n * BigInt(FRAME_24)));
+  assert.strictEqual(timed[2].atTicks, String(BigInt(AT) + 288n * BigInt(FRAME_24)));
+  assertBackToBack(timed, AT, DUR);
+  timed.forEach((t) => assert.ok(frameAligned(t.atTicks, FRAME_24)));
+});
+
+test('timeParts uses real timing even when word share would differ', () => {
+  const cue = { verse_offsets_s: { '7': 27.2, '8': 33.6 } };
+  const timed = Layout.timeParts(parts(3, [6, 7, 8], [10, 10, 10]), cue, AT, String(57 * TPS), FRAME_24);
+  assert.strictEqual(Number(Timemap.ticksToSeconds(String(BigInt(timed[1].atTicks) - BigInt(AT)))).toFixed(1), '27.2');
+  assert.strictEqual(Number(Timemap.ticksToSeconds(String(BigInt(timed[2].atTicks) - BigInt(AT)))).toFixed(1), '33.6');
+});
+
+test('timeParts uses word share when there are no offsets', () => {
+  const timed = Layout.timeParts(parts(2, [null, null], [10, 30]), {}, AT, DUR, FRAME_24);
+  // The first part holds a quarter of the words, so it gets a quarter of 20 s: 5 s = 120 frames.
+  assert.strictEqual(timed[1].atTicks, String(BigInt(AT) + 120n * BigInt(FRAME_24)));
+  assertBackToBack(timed, AT, DUR);
+});
+
+test('timeParts falls back to word share when an offset is outside the cue', () => {
+  const equal = Layout.timeParts(parts(3, [6, 7, 8]), { verse_offsets_s: { '7': 25, '8': 30 } }, AT, DUR, FRAME_24);
+  const share = Layout.timeParts(parts(3, [6, 7, 8]), {}, AT, DUR, FRAME_24);
+  assert.deepStrictEqual(equal, share);
+  assertBackToBack(equal, AT, DUR);
+});
+
+test('timeParts falls back to word share when offsets do not increase', () => {
+  const cue = { verse_offsets_s: { '7': 12, '8': 6 } };
+  const timed = Layout.timeParts(parts(3, [6, 7, 8]), cue, AT, DUR, FRAME_24);
+  assert.deepStrictEqual(timed, Layout.timeParts(parts(3, [6, 7, 8]), {}, AT, DUR, FRAME_24));
+});
+
+test('timeParts falls back to word share when an offset is zero, negative or not a number', () => {
+  const share = Layout.timeParts(parts(2, [6, 7]), {}, AT, DUR, FRAME_24);
+  [0, -3, NaN, '6', null, Infinity].forEach((bad) => {
+    assert.deepStrictEqual(Layout.timeParts(parts(2, [6, 7]), { verse_offsets_s: { '7': bad } }, AT, DUR, FRAME_24),
+      share, String(bad));
+  });
+});
+
+test('timeParts takes a part with no recorded time between its neighbours by word share', () => {
+  // Verse 7 is cut in two; its second half begins mid-verse and has no recorded time.
+  const timed = Layout.timeParts(parts(4, [6, 7, null, 8], [10, 10, 10, 10]),
+    { verse_offsets_s: { '7': 4, '8': 16 } }, AT, DUR, FRAME_24);
+  assert.strictEqual(timed[1].atTicks, String(BigInt(AT) + 96n * BigInt(FRAME_24)));
+  assert.strictEqual(timed[3].atTicks, String(BigInt(AT) + 384n * BigInt(FRAME_24)));
+  assert.strictEqual(timed[2].atTicks, String(BigInt(AT) + 240n * BigInt(FRAME_24)));
+  assertBackToBack(timed, AT, DUR);
+});
+
+test('a nudged cue moves its parts by exactly the nudge', () => {
+  const cue = { verse_offsets_s: { '7': 6.4, '8': 12 } };
+  const nudge = BigInt(FRAME_24) * 48n;
+  const before = Layout.timeParts(parts(3, [6, 7, 8]), cue, AT, DUR, FRAME_24);
+  const after = Layout.timeParts(parts(3, [6, 7, 8]), cue, String(BigInt(AT) + nudge), DUR, FRAME_24);
+  after.forEach((t, i) => {
+    assert.strictEqual(BigInt(t.atTicks), BigInt(before[i].atTicks) + nudge);
+    assert.strictEqual(t.durationTicks, before[i].durationTicks);
+  });
+});
+
+test('a nudged cue moves word-share parts too', () => {
+  const nudge = BigInt(FRAME_24) * 24n;
+  const before = Layout.timeParts(parts(3, null, [5, 20, 10]), {}, AT, DUR, FRAME_24);
+  const after = Layout.timeParts(parts(3, null, [5, 20, 10]), {}, String(BigInt(AT) + nudge), DUR, FRAME_24);
+  after.forEach((t, i) => assert.strictEqual(BigInt(t.atTicks), BigInt(before[i].atTicks) + nudge));
+});
+
+test('timeParts durations add up exactly at 29.97 frames per second', () => {
+  const at = String(BigInt(FRAME_2997) * 51235n);
+  const duration = String(BigInt(FRAME_2997) * 1013n);
+  [[1, 1, 1], [3, 7, 11], [50, 2, 2, 90], [1, 1, 1, 1, 1, 1, 1]].forEach((counts) => {
+    const timed = Layout.timeParts(parts(counts.length, null, counts), {}, at, duration, FRAME_2997);
+    assert.strictEqual(timed.length, counts.length);
+    assertBackToBack(timed, at, duration);
+    timed.forEach((t) => assert.ok(frameAligned(t.atTicks, FRAME_2997), t.atTicks));
+  });
+});
+
+test('timeParts durations add up exactly with offsets at 29.97 frames per second', () => {
+  const at = String(BigInt(FRAME_2997) * 51235n);
+  const duration = String(BigInt(FRAME_2997) * 1713n);
+  const cue = { verse_offsets_s: { '7': 27.2, '8': 33.6 } };
+  const timed = Layout.timeParts(parts(3, [6, 7, 8]), cue, at, duration, FRAME_2997);
+  assertBackToBack(timed, at, duration);
+  timed.forEach((t) => assert.ok(frameAligned(t.atTicks, FRAME_2997)));
+});
+
+test('timeParts stays exact, ordered and non-negative on a cue shorter than its parts', () => {
+  const frame = BigInt(FRAME_24);
+  const at = String(BigInt(AT));
+  const duration = String(frame * 2n);
+  const timed = Layout.timeParts(parts(5), {}, at, duration, FRAME_24);
+  assert.strictEqual(timed.length, 5);
+  assert.strictEqual(sumTicks(timed), BigInt(duration));
+  timed.forEach((t) => assert.ok(BigInt(t.durationTicks) >= 0n));
+  for (let i = 0; i + 1 < timed.length; i++) {
+    assert.strictEqual(BigInt(timed[i].atTicks) + BigInt(timed[i].durationTicks), BigInt(timed[i + 1].atTicks));
+  }
+});
+
+test('timeParts returns tick strings', () => {
+  Layout.timeParts(parts(3, [6, 7, 8]), { verse_offsets_s: { '7': 6, '8': 12 } }, AT, DUR, FRAME_24)
+    .forEach((t) => {
+      assert.strictEqual(typeof t.atTicks, 'string');
+      assert.strictEqual(typeof t.durationTicks, 'string');
+      assert.ok(/^[0-9]+$/.test(t.atTicks) && /^[0-9]+$/.test(t.durationTicks));
+    });
+});
+
+test('layoutCue and timeParts together keep the cue duration for a real split', () => {
+  const cue = { id: 'c1', body: KJV_JOHN_3, reference: JOHN_3, verse_offsets_s: { '17': 9, '18': 17 } };
+  const laid = Layout.layoutCue(cue, { wrapEnabled: true, wrapChars: 80, maxLines: 4 });
+  assert.ok(laid.length >= 2);
+  const timed = Layout.timeParts(laid, cue, AT, DUR, FRAME_24);
+  assert.strictEqual(timed.length, laid.length);
+  assertBackToBack(timed, AT, DUR);
 });

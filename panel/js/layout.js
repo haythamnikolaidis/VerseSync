@@ -5,6 +5,8 @@
   // functions; no DOM or Premiere dependencies. The Cue Document's body is never changed: layout
   // happens at insert time, so the settings can change after analysis (docs/15 §2).
 
+  var Timemap = root.VSTimemap || (typeof require !== 'undefined' ? require('./timemap.js') : undefined);
+
   function wordsOf(text) {
     return String(text === null || text === undefined ? '' : text).split(/\s+/).filter(function (w) {
       return w !== '';
@@ -114,10 +116,98 @@
     return parts.length > 0 ? parts : [{ body: body, firstVerse: null }];
   }
 
+  // Whole frames in a number of seconds. Ticks come from VSTimemap.secondsToTicks (R-11).
+  function secondsToFrames(seconds, frame) {
+    return Math.round(Timemap.secondsToTicks(seconds) / frame);
+  }
+
+  // The difference of two tick strings. Both are exact integers well inside 2^53 (docs/05 §1), as
+  // timemap.js itself relies on.
+  function diffTicks(later, earlier) {
+    return String(Number(later) - Number(earlier));
+  }
+
+  // The recorded start of each part 1..n-1 in frames from the cue's start, null where the part has
+  // no recorded time. Returns null altogether when a recorded time is unusable: not increasing or
+  // not inside the cue (docs/15 §4).
+  function recordedFrames(parts, offsets, frame, totalFrames) {
+    var out = [0];
+    var previous = 0;
+    var any = false;
+    for (var i = 1; i < parts.length; i++) {
+      var verse = parts[i].firstVerse;
+      var seconds = verse === null || verse === undefined || !offsets ? undefined : offsets[String(verse)];
+      if (typeof seconds !== 'number' || !isFinite(seconds)) {
+        out.push(null);
+      } else {
+        var f = secondsToFrames(seconds, frame);
+        if (f <= previous || f >= totalFrames) { return null; }
+        out.push(f);
+        previous = f;
+        any = true;
+      }
+    }
+    return any ? out : [0];
+  }
+
+  // Frame offsets of parts 1..n-1. A part without a recorded time takes its share of the words
+  // between the recorded starts on either side (or the cue's start and end), so with no recorded
+  // times at all this is plain word share. Kept strictly increasing and inside the cue wherever the
+  // cue is long enough to allow it.
+  function partFrames(parts, offsets, frame, totalFrames) {
+    var counts = parts.map(function (p) { return Math.max(wordsOf(p.body).length, 1); });
+    var known = recordedFrames(parts, offsets, frame, totalFrames) || [0];
+    var frames = [0];
+    var a = 0;
+    for (var i = 1; i <= parts.length; i++) {
+      if (i < parts.length && typeof known[i] !== 'number') { continue; }
+      var fb = i === parts.length ? totalFrames : known[i];
+      var span = 0;
+      var k;
+      for (k = a; k < i; k++) { span += counts[k]; }
+      var before = 0;
+      for (k = a + 1; k < i; k++) {
+        before += counts[k - 1];
+        frames[k] = frames[a] + Math.round((fb - frames[a]) * before / span);
+      }
+      frames[i] = fb;
+      a = i;
+    }
+    var out = [];
+    for (var j = 1; j < parts.length; j++) {
+      var previous = j === 1 ? 0 : out[j - 2];
+      var upper = totalFrames - (parts.length - j);
+      out.push(Math.max(Math.min(Math.max(frames[j], previous + 1), upper), previous));
+    }
+    return out;
+  }
+
+  // docs/15 §4. [{ atTicks, durationTicks }] (strings) for the parts layoutCue returned, laid
+  // back to back across the cue's placed time. Part 1 starts at atTicks, each part ends where the
+  // next begins, the last ends at the cue's end, and the durations add up to durationTicks exactly.
+  // Later starts are frame-snapped, and come from cue.verse_offsets_s (relative to the anchor, so a
+  // nudged cue moves its parts) when those are valid, otherwise from word share.
+  function timeParts(parts, cue, atTicks, durationTicks, frameTicks) {
+    if (parts.length <= 1) { return [{ atTicks: atTicks, durationTicks: durationTicks }]; }
+    var frame = Number(frameTicks);
+    var totalFrames = Math.floor(Number(durationTicks) / frame);
+    var frames = partFrames(parts, cue && cue.verse_offsets_s, frame, totalFrames);
+
+    var starts = [atTicks];
+    frames.forEach(function (f) {
+      starts.push(Timemap.snapToFrame(Timemap.shiftFrames(atTicks, f, frameTicks), frameTicks));
+    });
+    var end = String(Number(atTicks) + Number(durationTicks));
+    return starts.map(function (start, i) {
+      return { atTicks: start, durationTicks: diffTicks(i + 1 < starts.length ? starts[i + 1] : end, start) };
+    });
+  }
+
   var Layout = {
     wrapText: wrapText,
     verseChunks: verseChunks,
-    layoutCue: layoutCue
+    layoutCue: layoutCue,
+    timeParts: timeParts
   };
 
   if (typeof module !== 'undefined' && module.exports) { module.exports = Layout; }
