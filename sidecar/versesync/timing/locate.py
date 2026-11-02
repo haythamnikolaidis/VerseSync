@@ -1,8 +1,10 @@
-"""Locate scripture-file entries in the transcript (docs/14 sections 4.1 to 4.4).
+"""Locate scripture-file entries in the transcript (docs/14 sections 4.1 to 4.6).
 
 Each entry gets candidate placements from two sources, its text read aloud (``text_candidates``)
 and the references spoken near it (``mention_candidates``). ``merge`` joins the two for one entry,
 and ``assign`` picks at most one placement per entry across the whole file, in file order.
+``locate`` runs ``assign`` and then the passes over what it left over: a strong reading out of
+order (section 4.5), and scriptures the pastor went back to with no new slide (section 4.6).
 
 Everything here is in source seconds and deterministic (05 section 10): no clock, no randomness,
 and no result depends on dict or set iteration order.
@@ -11,8 +13,9 @@ and no result depends on dict or set iteration order.
 from __future__ import annotations
 
 from bisect import bisect_left, bisect_right
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, fields
+from typing import Literal
 
 from versesync.config import Config
 from versesync.detect.detector import Detection
@@ -375,3 +378,161 @@ def assign(
         chosen[link.position] = link.placement
         link = link.previous
     return chosen
+
+
+CueKind = Literal["assigned", "out_of_order", "repeat_read", "repeat_mention", "unplaced"]
+
+# The order the cues of one entry sort in when their times are equal.
+_KIND_RANK: dict[CueKind, int] = {
+    "assigned": 0,
+    "out_of_order": 1,
+    "repeat_read": 2,
+    "repeat_mention": 3,
+    "unplaced": 4,
+}
+
+
+@dataclass(frozen=True)
+class LocatedCue:
+    """One cue ``locate`` found for an entry: where it goes, or ``None`` when it wasn't found.
+
+    ``kind`` says how the placement was reached: ``assigned`` by the in-order assignment,
+    ``out_of_order`` by the pass of section 4.5, ``repeat_read`` and ``repeat_mention`` by the
+    pass of section 4.6, and ``unplaced`` when nothing was found. An entry can have several cues,
+    but only one of them is ``assigned``, ``out_of_order`` or ``unplaced``.
+    """
+
+    entry_index: int
+    placement: Placement | None
+    kind: CueKind
+
+
+@dataclass(frozen=True)
+class LocateResult:
+    """The cues, sorted by time with unplaced ones last, and the detections they used.
+
+    ``consumed_detection_ids`` are the ids of the detections that a cue's placement holds, in the
+    order of the ``detections`` given to ``locate``. A detection that no cue holds is not in it,
+    so the pipeline can build the ``not_in_export`` cues from the others.
+    """
+
+    cues: list[LocatedCue]
+    consumed_detection_ids: tuple[str, ...]
+
+
+def _detection_ids(placements: Iterable[Placement | None]) -> set[str]:
+    """The ids of the detections that ``placements`` hold as their mention."""
+    return {p.mention.detection.id for p in placements if p is not None and p.mention is not None}
+
+
+def _without_used_mention(placement: Placement, used: set[str]) -> Placement:
+    """``placement`` with its mention dropped when another placement already holds it.
+
+    A mention can be a candidate of several entries, for example "James 1" for two entries of that
+    chapter, but a detection joins one cue at most. The text stays: it is a reading of its own.
+    """
+    text = placement.text
+    if text is None or placement.mention is None or placement.mention.detection.id not in used:
+        return placement
+    return Placement(placement.entry_index, text.coverage, text.read_start_s, text=text)
+
+
+def _coverage(placement: Placement | None) -> float:
+    return 0.0 if placement is None or placement.text is None else placement.text.coverage
+
+
+def _release_shared_readings(chosen: list[Placement | None]) -> None:
+    """Take a reading away from the weaker of two entries whose placements share words.
+
+    ``assign`` only orders placements by time, so two entries with overlapping text, such as
+    John 3:16-17 and John 3:17, can both be placed on the same words. Of two such placements the
+    higher coverage keeps the words, and the lower entry index on a tie; the other falls back to
+    its mention, or is left unplaced. Its time doesn't change, so the order of ``assign`` holds.
+    """
+    kept: list[tuple[int, int]] = []
+    for k in sorted(range(len(chosen)), key=lambda k: (-_coverage(chosen[k]), k)):
+        placement = chosen[k]
+        if placement is None or placement.text is None:
+            continue
+        span = placement.text.word_span
+        if not any(_spans_overlap(span, other) for other in kept):
+            kept.append(span)
+        elif placement.mention is None:
+            chosen[k] = None
+        else:
+            mention = placement.mention
+            chosen[k] = Placement(
+                placement.entry_index, mention.score, mention.mention_start_s, mention=mention
+            )
+
+
+def _move_out_of_order(
+    candidates: Sequence[Sequence[Placement]],
+    chosen: list[Placement | None],
+    kinds: list[CueKind],
+    threshold: float,
+) -> None:
+    """Section 4.5: in file order, move each entry without a strong reading to one it has.
+
+    An entry qualifies when it is unplaced or has no text placement with coverage of at least
+    ``threshold``. It moves to its best text candidate of that coverage (ties: the earliest) whose
+    words no other placement holds. A mention never moves an entry, and the mention an entry
+    leaves behind is free again for the later passes.
+    """
+    for k, pool in enumerate(candidates):
+        current = chosen[k]
+        if current is not None and current.text is not None and current.text.coverage >= threshold:
+            continue
+        others = [p for j, p in enumerate(chosen) if j != k]
+        taken = [p.word_span for p in others if p is not None and p.word_span is not None]
+        readings = [
+            (c.text, c)
+            for c in pool
+            if c.text is not None
+            and c.text.coverage >= threshold
+            and not any(_spans_overlap(c.text.word_span, span) for span in taken)
+        ]
+        if not readings:
+            continue
+        _, best = min(readings, key=lambda r: (-r[0].coverage, r[0].read_start_s, r[0].word_span))
+        chosen[k] = _without_used_mention(best, _detection_ids(others))
+        kinds[k] = "out_of_order"
+
+
+def _order_key(cue: LocatedCue) -> tuple[int, float, int, int, tuple[int, int]]:
+    """Placed cues by time, then entry, kind and words; unplaced cues after them, by entry."""
+    placement = cue.placement
+    if placement is None:
+        return (1, 0.0, cue.entry_index, _KIND_RANK[cue.kind], (0, 0))
+    span = placement.word_span or (-1, -1)
+    return (0, placement.time_s, cue.entry_index, _KIND_RANK[cue.kind], span)
+
+
+def locate(
+    entries: Sequence[ExportEntry],
+    candidates: Sequence[Sequence[Placement]],
+    detections: Sequence[Detection],
+    cfg: LocateConfig = LocateConfig(),
+) -> LocateResult:
+    """Every cue the scripture file gives, found in the transcript (14 sections 4.4 and 4.5).
+
+    ``candidates`` are the placements of each entry in file order, from ``build_candidates``.
+    ``assign`` runs first and isn't changed: the passes after it only use what it left over. Then
+    each entry that is unplaced or has no strong reading moves to one it has (section 4.5, with
+    ``read_coverage_threshold`` from ``cfg.align``). No two cues hold the same words, and no
+    detection joins more than one cue.
+
+    The cues are sorted by time, unplaced last, so the result is the same for the same input.
+    """
+    chosen = assign(entries, candidates)
+    _release_shared_readings(chosen)
+    kinds: list[CueKind] = ["unplaced" if p is None else "assigned" for p in chosen]
+    _move_out_of_order(candidates, chosen, kinds, cfg.align.read_coverage_threshold)
+
+    cues = [
+        LocatedCue(entry.index, placement, kind)
+        for entry, placement, kind in zip(entries, chosen, kinds, strict=True)
+    ]
+    cues.sort(key=_order_key)
+    consumed = _detection_ids(chosen)
+    return LocateResult(cues, tuple(d.id for d in detections if d.id in consumed))

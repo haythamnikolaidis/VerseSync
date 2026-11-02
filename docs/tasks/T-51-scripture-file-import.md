@@ -97,14 +97,18 @@ Without a scripture file, nothing changes. Every v1 golden file must still pass 
 
 ### T-51.7 · Out-of-order and repeat passes
 
-**Executor** agent · **Size** S · **Prereqs** T-51.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-51.3 · **Status** in-progress
 
 - **Read:** [14 §4.5–§4.7](../14-scripture-file-import.md)
 - **Touches:** `sidecar/versesync/timing/locate.py` · `sidecar/versesync/timing/align.py` ·
   `sidecar/versesync/config.py` · `tests/test_locate.py`
-- **Interface:** `locate(entries, candidates, tokens, detections, cfg) -> list[LocatedCue]`, where
-  `LocatedCue` is `(entry_index, placement | None, kind, verse_starts)` and `kind` ∈
-  `assigned | out_of_order | repeat_read | repeat_mention | unplaced`, sorted by time, unplaced last.
+- **Interface:** `locate(entries, candidates, tokens, detections, cfg) -> LocateResult`, which holds
+  `cues: list[LocatedCue]`, sorted by time with unplaced last, and `consumed_detection_ids`, the ids
+  of the detections that any cue's placement holds (a mention merged into a reading, a repeat
+  mention, or a mention absorbed by a reading's merge window), in `detections` order. T-51.4 builds
+  the `not_in_export` cues from the detections not in it. `LocatedCue` is `(entry_index, placement |
+  None, kind, verse_starts)` and `kind` ∈ `assigned | out_of_order | repeat_read | repeat_mention |
+  unplaced`.
 - **Steps:**
   1. **Out-of-order pass** (14 §4.5). Tests: an unplaced entry with a strong earlier reading moves;
      a weak in-order placement gives way to a strong one elsewhere; a mention alone never moves an

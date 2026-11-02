@@ -1,4 +1,4 @@
-"""Tests for versesync.timing.locate (docs/14 sections 4.1 to 4.4).
+"""Tests for versesync.timing.locate (docs/14 sections 4.1 to 4.7).
 
 Every transcript here is synthetic and every verse is King James text (public domain): the
 repo is public, so no real sermon text is used.
@@ -24,12 +24,15 @@ from versesync.scripture_file import ExportEntry
 from versesync.timing.align import AToken, normalise_verse, tokens_equal, transcript_tokens
 from versesync.timing.locate import (
     LocateConfig,
+    LocatedCue,
+    LocateResult,
     MentionCandidate,
     Placement,
     TextCandidate,
     TokenIndex,
     assign,
     build_candidates,
+    locate,
     mention_candidates,
     merge,
     text_candidates,
@@ -584,6 +587,312 @@ def test_the_assignment_is_the_best_of_every_possible_one() -> None:
         placed = [p for p in assign(blank(count), candidates) if p is not None]
         assert all(a.time_s < b.time_s for a, b in itertools.pairwise(placed))
         assert sum(p.score for p in placed) == pytest.approx(best)
+
+
+# --- out-of-order pass (14 section 4.5) --------------------------------------------------------
+
+
+def locate_in(
+    entries: list[ExportEntry], words: list[Word], cfg: LocateConfig = CFG
+) -> LocateResult:
+    return locate(entries, candidates_for(entries, words, cfg), detections_in(words), cfg)
+
+
+def kinds_of(result: LocateResult) -> list[tuple[int, str]]:
+    return [(cue.entry_index, cue.kind) for cue in result.cues]
+
+
+def cue_of(result: LocateResult, entry_index: int, kind: str) -> LocatedCue:
+    (cue,) = [c for c in result.cues if c.entry_index == entry_index and c.kind == kind]
+    return cue
+
+
+def span_of(cue: LocatedCue) -> tuple[int, int]:
+    assert cue.placement is not None and cue.placement.word_span is not None
+    return cue.placement.word_span
+
+
+def mention_ids(result: LocateResult) -> list[str]:
+    return [
+        c.placement.mention.detection.id
+        for c in result.cues
+        if c.placement is not None and c.placement.mention is not None
+    ]
+
+
+def test_an_unplaced_entry_with_a_strong_reading_elsewhere_moves() -> None:
+    # File order is the psalm, then Romans, but Romans is read first. Both readings are perfect, so
+    # the assignment keeps the earlier one and leaves the psalm unplaced.
+    entries = [psalm_entry(0), romans_entry(1)]
+    words = speak((100.0, ROMANS_8_28), (300.0, PSALM_91_15))
+    candidates = candidates_for(entries, words)
+    assert assign(entries, candidates)[0] is None
+    result = locate_in(entries, words)
+    assert kinds_of(result) == [(1, "assigned"), (0, "out_of_order")]
+    moved = cue_of(result, 0, "out_of_order").placement
+    assert moved is not None and moved.text is not None
+    assert moved.text.coverage == 1.0
+    assert moved.time_s == moved.text.read_start_s == 300.0
+
+
+def test_a_partial_reading_above_the_threshold_moves_an_entry() -> None:
+    # James is read in full at 50, John only in part (about 0.62) at 200; the assignment keeps the
+    # better of the two, which is James, and the pass moves John to its reading.
+    entries = [john_entry(0), james_entry(1)]
+    partial = " ".join(JOHN_3_16.split()[:15])
+    words = speak((50.0, JAMES_1_4), (200.0, partial))
+    result = locate_in(entries, words)
+    assert kinds_of(result) == [(1, "assigned"), (0, "out_of_order")]
+    moved = cue_of(result, 0, "out_of_order").placement
+    assert moved is not None and moved.text is not None
+    assert CFG.align.read_coverage_threshold <= moved.text.coverage < 1.0
+
+
+def test_a_weak_in_order_placement_gives_way_to_a_strong_reading_elsewhere() -> None:
+    # Romans is read in part (0.44) at 100, before the psalm, and in full at 400, after it. The
+    # assignment can only use the first, since the file puts Romans before the psalm.
+    entries = [romans_entry(0), psalm_entry(1)]
+    partial = " ".join(ROMANS_8_28.split()[:10])
+    words = speak(
+        (100.0, partial), (200.0, PSALM_91_15), (260.0, filler(120)), (400.0, ROMANS_8_28)
+    )
+    weak = assign(entries, candidates_for(entries, words))[0]
+    assert weak is not None and weak.text is not None
+    assert CFG.text_min_coverage <= weak.text.coverage < CFG.align.read_coverage_threshold
+    assert weak.text.read_start_s == words[1].start  # "And" is a stop word
+
+    result = locate_in(entries, words)
+    assert kinds_of(result) == [(1, "assigned"), (0, "out_of_order")]
+    moved = cue_of(result, 0, "out_of_order").placement
+    assert moved is not None and moved.text is not None
+    assert moved.text.coverage == 1.0
+    assert moved.time_s == moved.text.read_start_s > 400.0
+
+
+def test_a_mention_alone_never_moves_an_entry() -> None:
+    # Romans is only named, at 400, while the psalm is read at 200: file order is Romans first, so
+    # the assignment can't place both. The mention doesn't prove the slide was shown then.
+    entries = [romans_entry(0), psalm_entry(1)]
+    words = speak((200.0, PSALM_91_15), (400.0, "now Romans chapter 8 verse 28"))
+    candidates = candidates_for(entries, words)
+    assert [p.text is None for p in candidates[0]] == [True]
+    result = locate_in(entries, words)
+    assert kinds_of(result) == [(1, "assigned"), (0, "unplaced")]
+    assert cue_of(result, 0, "unplaced").placement is None
+    assert result.cues[-1].entry_index == 0  # unplaced cues come last
+
+
+def test_a_weak_reading_never_moves_an_entry() -> None:
+    entries = [romans_entry(0), psalm_entry(1)]
+    partial = " ".join(ROMANS_8_28.split()[:10])
+    words = speak((200.0, PSALM_91_15), (400.0, partial))
+    result = locate_in(entries, words)
+    assert kinds_of(result) == [(1, "assigned"), (0, "unplaced")]
+
+
+def test_a_reading_used_by_another_entry_is_never_taken() -> None:
+    # James 1:4 is shown twice with Psalm 91:15 between, and read once. The repeat has no reading
+    # of its own, and the one there belongs to the first slide, so it keeps its later mention.
+    entries = [james_entry(0), psalm_entry(1), james_entry(2)]
+    words = repeat_sermon()
+    candidates = candidates_for(entries, words)
+    assert any(p.text is not None for p in candidates[2])
+    result = locate_in(entries, words)
+    assert kinds_of(result) == [(0, "assigned"), (1, "assigned"), (2, "assigned")]
+    repeat = cue_of(result, 2, "assigned").placement
+    assert repeat is not None and repeat.text is None and repeat.mention is not None
+    assert repeat.time_s > 600.0
+    first = cue_of(result, 0, "assigned").placement
+    assert first is not None and first.text is not None and first.text.coverage == 1.0
+
+
+def test_two_entries_that_share_a_reading_leave_it_to_the_first() -> None:
+    # Two slides of the same scripture, one reading. The second can't be placed in order, and its
+    # only reading is the first's.
+    entries = [james_entry(0), james_entry(1)]
+    words = speak((100.0, JAMES_1_4), (200.0, filler(20)))
+    result = locate_in(entries, words)
+    assert kinds_of(result) == [(0, "assigned"), (1, "unplaced")]
+
+
+def text_placement(
+    entry_index: int,
+    coverage: float,
+    start_s: float,
+    span: tuple[int, int],
+    mention: MentionCandidate | None = None,
+) -> Placement:
+    text = TextCandidate(entry_index, coverage, 10, start_s, start_s + 10.0, span, span[0])
+    if mention is None:
+        return Placement(entry_index, coverage, start_s, text=text)
+    return Placement(
+        entry_index, coverage + 0.25, mention.mention_start_s, text=text, mention=mention
+    )
+
+
+def test_of_two_placements_on_the_same_words_the_stronger_reading_keeps_them() -> None:
+    # Entry 0 reads John 3:16-17 and entry 1 John 3:17, which lies inside it. assign only checks
+    # times, so it places both; the higher coverage keeps the words.
+    weaker = text_placement(0, 0.40, 100.0, (10, 50))
+    stronger = text_placement(1, 0.90, 130.0, (30, 50))
+    candidates = [[weaker], [stronger]]
+    assert assign(blank(2), candidates) == [weaker, stronger]
+    result = locate(blank(2), candidates, [], CFG)
+    assert kinds_of(result) == [(1, "assigned"), (0, "unplaced")]
+    # On equal coverage the lower entry index keeps them.
+    a, b = text_placement(0, 0.80, 100.0, (10, 50)), text_placement(1, 0.80, 130.0, (30, 50))
+    assert kinds_of(locate(blank(2), [[a], [b]], [], CFG)) == [(0, "assigned"), (1, "unplaced")]
+
+
+def test_the_placement_that_loses_its_words_keeps_its_mention() -> None:
+    mention = mention_at(95.0, score=0.4)
+    merged = text_placement(0, 0.40, 100.0, (10, 50), mention)
+    stronger = text_placement(1, 0.90, 130.0, (30, 50))
+    result = locate(blank(2), [[merged], [stronger]], [DETECTION], CFG)
+    assert kinds_of(result) == [(0, "assigned"), (1, "assigned")]
+    assert result.cues[0].placement == Placement(0, 0.4, 95.0, mention=mention)  # still first
+    assert result.consumed_detection_ids == (DETECTION.id,)
+
+
+def test_a_moved_entry_leaves_out_a_mention_that_another_placement_holds() -> None:
+    # Entry 1's strong reading was merged with a mention that entry 0 holds, and a mention joins
+    # one cue only. Entry 0 scores more, so it keeps the mention and entry 1 moves without it.
+    shared = mention_at(100.0, score=0.4)
+    holder = Placement(0, 1.2, 100.0, mention=shared)
+    reading = text_placement(1, 0.80, 130.0, (30, 50), shared)
+    assert reading.time_s == holder.time_s
+    result = locate(blank(2), [[holder], [reading]], [DETECTION], CFG)
+    assert kinds_of(result) == [(0, "assigned"), (1, "out_of_order")]
+    assert result.cues[0].placement is holder
+    assert result.cues[1].placement == Placement(1, 0.80, 130.0, text=reading.text)
+    assert result.consumed_detection_ids == (DETECTION.id,)
+
+
+def test_an_entry_gives_up_a_mention_to_move() -> None:
+    mention = mention_at(50.0, score=0.4)
+    held = Placement(0, 0.4, 50.0, mention=mention)
+    strong = text_placement(0, 0.90, 400.0, (30, 60))
+    other = text_placement(1, 1.0, 200.0, (80, 100))
+    result = locate(blank(2), [[held, strong], [other]], [DETECTION], CFG)
+    assert kinds_of(result) == [(1, "assigned"), (0, "out_of_order")]
+    assert result.cues[1].placement is strong
+    assert result.consumed_detection_ids == ()  # the mention is free for the later passes
+
+
+def test_the_best_reading_wins_and_ties_go_to_the_earliest() -> None:
+    entries = blank(2)
+    best = text_placement(0, 0.95, 300.0, (30, 60))
+    twin, same, later = (
+        text_placement(0, 0.90, 400.0, (120, 150)),
+        text_placement(0, 0.90, 200.0, (80, 100)),
+        text_placement(0, 0.70, 100.0, (110, 140)),
+    )
+    blocker = text_placement(1, 1.0, 50.0, (0, 5))
+    result = locate(entries, [[later, twin, best, same], [blocker]], [], CFG)
+    assert kinds_of(result) == [(1, "assigned"), (0, "out_of_order")]
+    assert result.cues[1].placement is best
+    # Without the best, the two of equal coverage tie and the earlier one is taken.
+    result = locate(entries, [[later, twin, same], [blocker]], [], CFG)
+    assert cue_of(result, 0, "out_of_order").placement is same
+    # A reading another entry holds is skipped even when it is the best.
+    taken = text_placement(1, 1.0, 50.0, (40, 70))
+    result = locate(entries, [[later, twin, best, same], [taken]], [], CFG)
+    assert cue_of(result, 0, "out_of_order").placement is same
+
+
+def test_the_threshold_is_the_configured_read_coverage() -> None:
+    entries = blank(2)
+    reading = text_placement(0, 0.60, 300.0, (30, 60))
+    pool = [[reading], [text_placement(1, 1.0, 100.0, (80, 100))]]
+    assert kinds_of(locate(entries, pool, [], CFG)) == [(1, "assigned"), (0, "out_of_order")]
+    strict = replace(CFG, align=replace(CFG.align, read_coverage_threshold=0.65))
+    assert kinds_of(locate(entries, pool, [], strict)) == [(1, "assigned"), (0, "unplaced")]
+
+
+def test_the_consumed_detections_are_those_the_cues_hold() -> None:
+    entries = [james_entry(0), psalm_entry(1), james_entry(2)]
+    words = repeat_sermon()
+    detections = detections_in(words)
+    result = locate_in(entries, words)
+    # The detector also finds "Psalm 91" alone at 300.0, just before "Psalm 91 verse 15": a
+    # chapter-only mention that no cue holds.
+    assert [d.id for d in detections if "chapter_only" in d.flags] == ["det_002", "det_004"]
+    assert result.consumed_detection_ids == ("det_001", "det_003", "det_004")
+    assert sorted(mention_ids(result)) == sorted(result.consumed_detection_ids)
+    # With no entries there is nothing to consume.
+    assert locate([], [], detections, CFG) == LocateResult([], ())
+
+
+def test_locate_needs_one_list_of_candidates_per_entry() -> None:
+    with pytest.raises(ValueError):
+        locate(blank(2), [[]], [], CFG)
+
+
+# A random sermon: scriptures introduced, read in full or in part, named again, in any order.
+SCRIPTURES = (
+    ("John 3:16", JOHN_3_16, "John chapter 3 verse 16", "John chapter 3"),
+    ("James 1:4", JAMES_1_4, "James chapter 1 verse 4", "James chapter 1"),
+    ("Romans 8:28", ROMANS_8_28, "Romans chapter 8 verse 28", "Romans chapter 8"),
+    ("Psalm 91:15", PSALM_91_15, "Psalm 91 verse 15", "Psalm 91"),
+    ("Psalm 27:1", PSALM_27_1, "Psalm 27 verse 1", "Psalm 27"),
+)
+
+
+def random_case(rng: random.Random) -> tuple[list[ExportEntry], list[Word]]:
+    entries = []
+    for index in range(rng.randint(2, 6)):
+        reference, text, _, _ = rng.choice(SCRIPTURES)
+        entries.append(make_entry(index, reference, "KJV", text))
+    parts: list[tuple[float, str]] = []
+    now = 10.0
+    for _ in range(rng.randint(2, 9)):
+        _, text, spoken, chapter = rng.choice(SCRIPTURES)
+        if rng.random() < 0.7:
+            parts.append((now, rng.choice((spoken, chapter, "turn to " + spoken))))
+            now += 8.0
+        if rng.random() < 0.8:
+            read = text.split()
+            parts.append((now, " ".join(read[: rng.randint(max(3, len(read) // 2), len(read))])))
+            now += 14.0
+        if rng.random() < 0.4:
+            parts.append((now, "so " + filler(rng.randint(3, 40))))
+            now += 20.0
+        now += rng.choice((5.0, 30.0, 90.0, 400.0))
+    return entries, speak(*parts)
+
+
+def test_random_sermons_keep_every_guarantee() -> None:
+    rng = random.Random(514)
+    for case in range(60):
+        entries, words = random_case(rng)
+        detections = detections_in(words)
+        candidates = candidates_for(entries, words)
+        result = locate(entries, candidates, detections, CFG)
+
+        # Same input, same output; the order of the candidates and detections doesn't matter.
+        assert locate(entries, candidates, detections, CFG) == result, case
+        shuffled = [rng.sample(pool, len(pool)) for pool in candidates]
+        again = locate(entries, shuffled, rng.sample(detections, len(detections)), CFG)
+        assert again.cues == result.cues, case
+        assert sorted(again.consumed_detection_ids) == sorted(result.consumed_detection_ids)
+
+        placed = [c for c in result.cues if c.placement is not None]
+        unplaced = len(result.cues) - len(placed)
+        assert [c.kind == "unplaced" for c in result.cues] == [False] * len(placed) + [True] * (
+            unplaced
+        ), case
+        times = [c.placement.time_s for c in placed if c.placement is not None]
+        assert times == sorted(times), case
+        # One in-order, out-of-order or unplaced cue per entry.
+        entry_cues = [c for c in result.cues if c.kind in ("assigned", "out_of_order", "unplaced")]
+        assert sorted(c.entry_index for c in entry_cues) == [e.index for e in entries], case
+        # No two cues hold the same words, and no detection joins two cues.
+        spans = [span_of(c) for c in placed if c.placement and c.placement.text]
+        for a, b in itertools.combinations(spans, 2):
+            assert not (a[0] <= b[1] and b[0] <= a[1]), case
+        held = mention_ids(result)
+        assert len(held) == len(set(held)), case
+        assert set(held) <= set(result.consumed_detection_ids), case
 
 
 # --- performance -------------------------------------------------------------------------------
