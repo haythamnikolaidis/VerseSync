@@ -121,12 +121,6 @@
     return Math.round(Timemap.secondsToTicks(seconds) / frame);
   }
 
-  // The difference of two tick strings. Both are exact integers well inside 2^53 (docs/05 §1), as
-  // timemap.js itself relies on.
-  function diffTicks(later, earlier) {
-    return String(Number(later) - Number(earlier));
-  }
-
   // The recorded start of each part 1..n-1 in frames from the cue's start, null where the part has
   // no recorded time. Returns null altogether when a recorded time is unusable: not increasing or
   // not inside the cue (docs/15 §4).
@@ -195,11 +189,11 @@
 
     var starts = [atTicks];
     frames.forEach(function (f) {
-      starts.push(Timemap.snapToFrame(Timemap.shiftFrames(atTicks, f, frameTicks), frameTicks));
+      starts.push(Timemap.snapToFrameExact(Timemap.addTicks(atTicks, String(f * frame)), frameTicks));
     });
-    var end = String(Number(atTicks) + Number(durationTicks));
+    var end = Timemap.addTicks(atTicks, durationTicks);
     return starts.map(function (start, i) {
-      return { atTicks: start, durationTicks: diffTicks(i + 1 < starts.length ? starts[i + 1] : end, start) };
+      return { atTicks: start, durationTicks: Timemap.subTicks(i + 1 < starts.length ? starts[i + 1] : end, start) };
     });
   }
 

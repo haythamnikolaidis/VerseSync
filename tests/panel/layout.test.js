@@ -552,3 +552,34 @@ test('layoutCue and timeParts together keep the cue duration for a real split', 
   assert.strictEqual(timed.length, laid.length);
   assertBackToBack(timed, AT, DUR);
 });
+
+test('timeParts is exact on string ticks above 2^53', () => {
+  const frame = BigInt(FRAME_24);
+  // Neither the start nor the duration is a Number-safe value to add, and the start is off the frame grid.
+  const at = '9007199254740993000';
+  const duration = String(frame * 480n + 7n);
+  [{}, { verse_offsets_s: { '7': 6.4, '8': 12 } }].forEach((cue) => {
+    const timed = Layout.timeParts(parts(3, [6, 7, 8]), cue, at, duration, FRAME_24);
+    assert.strictEqual(timed.length, 3);
+    assert.strictEqual(sumTicks(timed), BigInt(duration));
+    assertBackToBack(timed, at, duration);
+    timed.slice(1).forEach((t) => assert.ok(frameAligned(t.atTicks, FRAME_24), t.atTicks));
+    assert.strictEqual(BigInt(timed[2].atTicks) + BigInt(timed[2].durationTicks), BigInt(at) + BigInt(duration));
+  });
+});
+
+test('timeParts above 2^53 matches the same cue placed lower, shifted by exactly the difference', () => {
+  const frame = BigInt(FRAME_2997);
+  const low = String(frame * 51235n);
+  const high = String(frame * 51235n + 9007199254740992000n - ((9007199254740992000n) % frame));
+  const duration = String(frame * 1013n);
+  const cue = { verse_offsets_s: { '7': 27.2 } };
+  const a = Layout.timeParts(parts(4, [6, 7, null, null], [5, 10, 30, 7]), cue, low, duration, FRAME_2997);
+  const b = Layout.timeParts(parts(4, [6, 7, null, null], [5, 10, 30, 7]), cue, high, duration, FRAME_2997);
+  const shift = BigInt(high) - BigInt(low);
+  b.forEach((t, i) => {
+    assert.strictEqual(BigInt(t.atTicks), BigInt(a[i].atTicks) + shift);
+    assert.strictEqual(t.durationTicks, a[i].durationTicks);
+  });
+  assertBackToBack(b, high, duration);
+});
