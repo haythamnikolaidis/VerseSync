@@ -21,11 +21,23 @@ from versesync.timing.align import Alignment
 from versesync.timing.anchor import Timing
 from versesync.types import Word
 
+# A document built without a scripture file stays 1.0, so it is byte-identical to a v1 one
+# (docs/14-scripture-file-import.md section 6, T-51.4). One built from a scripture file is 1.1.
 SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION_SCRIPTURE_FILE = "1.1"
 LOW_CONFIDENCE_THRESHOLD = 0.55
 # Sidecar-owned subset of the docs/09-ui-spec.md section 5.2 flags that start a cue disabled.
+# repeat_read and out_of_order are deliberately absent: those cues start enabled.
 DISABLED_BY_DEFAULT = frozenset(
-    {"text_unavailable", "passage_not_found", "chapter_only", "suppressed_duplicate"}
+    {
+        "text_unavailable",
+        "passage_not_found",
+        "chapter_only",
+        "suppressed_duplicate",
+        "not_in_export",
+        "not_found_in_audio",
+        "repeat_mention",
+    }
 )
 
 # Order of the schema's flag enum. The panel-owned flags (cut_from_edit, multiple_placements,
@@ -39,6 +51,11 @@ _FLAG_ORDER = (
     "passage_not_found",
     "chapter_only",
     "suppressed_duplicate",
+    "not_in_export",
+    "not_found_in_audio",
+    "repeat_mention",
+    "repeat_read",
+    "out_of_order",
 )
 
 

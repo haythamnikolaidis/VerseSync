@@ -103,6 +103,7 @@ Start an analysis. Returns immediately.
     "batch_size": 8,
     "language": "en",
     "use_cache": true,
+    "scripture_file": "D:/Sermons/2026-08-09/Scriptures.txt",
     "detection": { "context_window_s": 120, "duplicate_cooldown_s": 60 },
     "timing":    { "read_coverage_threshold": 0.55, "lead_in_s": 0.5, "tail_pad_s": 1.0 }
   }
@@ -119,6 +120,13 @@ Start an analysis. Returns immediately.
 `media_path` must be a file the sidecar can read; it is validated against the session's
 allowed roots (NFR-4). `cache_hit: true` means transcription will be skipped and the job will
 finish in seconds.
+
+`options.scripture_file` is optional: an absolute path to the EasyWorship scripture export for
+the sermon ([14](14-scripture-file-import.md)). It is validated like `media_path`, against the
+same allowed roots, and its failures are the three input errors in §3. It is applied after
+transcription and is not part of the transcript cache key (D17), so adding or changing it re-runs
+in seconds. Without it the job is the v1 pipeline, unchanged. With it the result is a version 1.1
+Cue Document (§5.2) whose `scripture_file` block records what the cues came from.
 
 ### `GET /jobs/{id}`
 
@@ -205,6 +213,12 @@ written for an editor, not a developer. `hint` gives the next action where one e
 `bad_request` · `unauthorized` · `media_not_found` · `media_unreadable` ·
 `model_load_failed` · `transcription_failed` · `provider_unavailable` ·
 `translation_not_licensed` · `job_not_found` · `job_not_finished` · `cancelled` · `internal`
+
+Three more are input errors about the scripture file ([14 §6](14-scripture-file-import.md)),
+like `media_not_found`: `scripture_file_not_found` (no such file, or outside the allowed roots) ·
+`scripture_file_unreadable` · `scripture_file_empty` (the file has no valid entry). A part of the
+file that is skipped on the way, such as a reference the canon rejects, is not an error: it is a
+warning in the Cue Document (§5.1).
 
 ---
 
@@ -303,9 +317,30 @@ The sidecar's output, the panel's input, and the save format. **Versioned.**
   a `confidence` of `1.0`, and their anchor supplied by the editor.
 - **`flags`** is the review list's colour source. Defined values:
   `low_confidence` · `overlap` · `truncated` · `long_passage` · `text_unavailable` ·
-  `passage_not_found` · `chapter_only` · `suppressed_duplicate` · `cut_from_edit` ·
+  `passage_not_found` · `chapter_only` · `suppressed_duplicate` · `not_in_export` ·
+  `not_found_in_audio` · `repeat_mention` · `repeat_read` · `out_of_order` · `cut_from_edit` ·
   `multiple_placements` · `speed_change_unsupported`.
-  The last three are added by the **panel** after mapping, not by the sidecar.
+  The last three are added by the **panel** after mapping, not by the sidecar. The five before
+  them were added in 1.1 and come only from a scripture file; what each means is in
+  [14 §5](14-scripture-file-import.md). A cue starts **disabled** with `not_in_export`,
+  `not_found_in_audio` or `repeat_mention`, like the existing disabled-by-default flags
+  ([09](09-ui-spec.md) §5.2). `repeat_read` and `out_of_order` leave it enabled.
+- **`text_source`** (1.1, optional) says where the cue's `body` came from:
+  `{ "kind": "export" | "provider", "translation": "NKJV", "entry_index": 3 }`. `export` is
+  the scripture file's own text, used verbatim, and carries the 0-based `entry_index` of its entry
+  in the file (several cues can share one, for a repeat). `provider` is text fetched from the Bible
+  text service and has no `entry_index`. A cue without `text_source` is provider text, as in 1.0.
+- **`verse_offsets_s`** (1.1, optional) is present on a READ cue of a multi-verse export entry:
+  an object from verse-number strings to seconds, each later verse's start minus
+  `source_anchor_s`, for example `{ "7": 27.2, "8": 33.6 }`. The first verse has no key, and a
+  verse with no matched word has none either ([14 §4.7](14-scripture-file-import.md)).
+- **`scripture_file`** (1.1, optional, on the document) is `{ "path", "sha256", "entry_count" }`:
+  the export the cues were built from, the lowercase hex SHA-256 of its bytes (no `sha256:` prefix,
+  unlike `media_hash`), and how many entries it parsed to. It is present exactly when the job had
+  a scripture file.
+- **`warnings`** are `{ "code", "message" }`. In 1.1 they may carry a `line` (1-based, in the
+  scripture file), which the codes `export_reference_invalid` and `export_block_unreferenced`
+  always do ([14 §3](14-scripture-file-import.md)).
 - **`alternatives`** holds competing readings from detection — the Psalms
   concatenation ambiguity ([04](04-reference-detection.md) §3.1) and multi-placement options
   ([05](05-timing-and-placement.md) §5.2) — so the review row can offer a one-click switch.
@@ -327,6 +362,18 @@ The sidecar's output, the panel's input, and the save format. **Versioned.**
 `schema_version` is `major.minor`. The panel accepts any matching major and warns on a newer
 minor. A major mismatch is refused with an explanation rather than a parse error — a Cue
 Document saved months ago should fail clearly, not silently place graphics wrongly.
+
+**1.1** adds the scripture-file fields in §5.1 and nothing else. They are all optional, so a 1.0
+reader can still read a 1.1 document. The schema accepts both `"1.0"` and `"1.1"`, and a writer
+states the version it needs:
+
+- A document built **without** a scripture file is `"1.0"`. It contains no 1.1 field, and is
+  byte-identical to what the v1 pipeline wrote.
+- A document built **from** a scripture file is `"1.1"`, whether or not every cue ended up using
+  it.
+
+The panel reads both without a warning, and warns only on a minor above 1.1. The API version stays
+`1.0`: `options.scripture_file` (§2) and the error codes (§3) are additive.
 
 ---
 

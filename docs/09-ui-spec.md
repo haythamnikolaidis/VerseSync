@@ -140,6 +140,11 @@ The core screen. Sorted by sequence timecode.
 | `passage_not_found` | red | Provider has no such passage | **disabled** |
 | `chapter_only` | amber | No verse specified, so no body text | **disabled** |
 | `suppressed_duplicate` | grey | Repeat of an earlier cue inside the cooldown | **disabled** |
+| `not_in_export` | grey | Detected in the audio but not in the scripture file; shows provider text | **disabled** |
+| `not_found_in_audio` | amber | A scripture-file entry the audio never reached; its time is a guess | **disabled** |
+| `repeat_mention` | grey | The pastor named an export scripture again with no new slide | **disabled** |
+| `repeat_read` | grey | The pastor read an export scripture again with no new slide | enabled |
+| `out_of_order` | amber | An export entry read earlier than the file's order puts it | enabled |
 | `cut_from_edit` | grey | This moment is not in the current edit | **disabled** |
 | `multiple_placements` | amber | The media appears more than once; anchored to the earliest | enabled |
 | `speed_change_unsupported` | red | Segment has a speed change; mapping is unreliable | **disabled** |

@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 import pytest
+from validate_cue_document import validate
 
 from versesync.detect.canon import load_canon
 from versesync.scripture_file import ScriptureFileEmpty, parse_scripture_file
@@ -95,3 +96,14 @@ def test_file_without_a_valid_entry_is_empty(tmp_path: Path, content: str) -> No
     with pytest.raises(ScriptureFileEmpty) as exc:
         parse_scripture_file(path, load_canon())
     assert exc.value.code == "scripture_file_empty"
+
+
+def test_warnings_serialise_into_a_valid_1_1_cue_document() -> None:
+    _, warnings = parse_scripture_file(SERVICE, load_canon())
+    document = json.loads(
+        (Path(__file__).parent / "fixtures" / "cue-documents" / "empty.json").read_text("utf-8")
+    )
+    document["schema_version"] = "1.1"
+    document["warnings"] = [w.to_json() for w in warnings]
+    assert [w["line"] for w in document["warnings"]] == [w.line for w in warnings]
+    assert validate(document) == []

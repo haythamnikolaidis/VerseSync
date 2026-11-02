@@ -44,7 +44,7 @@ class ExportWarning:
     line: int
 
     def to_json(self) -> dict[str, Any]:
-        return {"code": self.code, "message": self.message}
+        return {"code": self.code, "message": self.message, "line": self.line}
 
 
 class ScriptureFileEmpty(Exception):

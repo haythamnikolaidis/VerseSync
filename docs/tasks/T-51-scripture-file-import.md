@@ -51,7 +51,7 @@ Without a scripture file, nothing changes. Every v1 golden file must still pass 
 
 ### T-51.2 · Contract: Cue Document 1.1
 
-**Executor** agent · **Size** S · **Prereqs** T-51.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-51.1 · **Status** in-progress
 
 - **Read:** [14 §6](../14-scripture-file-import.md) · [07 §2, §3, §5.2](../07-sidecar-api.md)
 - **Touches:** `schemas/cue-document.schema.json` · `docs/07-sidecar-api.md` ·

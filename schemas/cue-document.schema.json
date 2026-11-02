@@ -9,8 +9,8 @@
   "properties": {
     "schema_version": {
       "type": "string",
-      "const": "1.0",
-      "description": "major.minor. Per docs/07-sidecar-api.md §5.2: a reader accepts any matching major and warns on a newer minor; a major mismatch is refused with an explanation rather than a parse error."
+      "enum": ["1.0", "1.1"],
+      "description": "major.minor. Per docs/07-sidecar-api.md §5.2: a reader accepts any matching major and warns on a newer minor; a major mismatch is refused with an explanation rather than a parse error. A writer emits 1.0 unless the document was built from a scripture file, which makes it 1.1 (docs/07-sidecar-api.md §5.2, docs/14-scripture-file-import.md §6). 1.1 only adds optional fields, flags and warning codes."
     },
     "generated_at": {
       "type": "string",
@@ -50,6 +50,25 @@
       "properties": {
         "word_count": { "type": "integer", "minimum": 0 },
         "words_ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "scripture_file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "entry_count"],
+      "description": "Added in 1.1. Present only when the cues were built from an EasyWorship export (docs/14-scripture-file-import.md §6), so Journey B and the review list can show what they came from.",
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Lowercase hex SHA-256 of the file's bytes, with no \"sha256:\" prefix."
+        },
+        "entry_count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Entries parsed from the file. An empty file is an input error (scripture_file_empty), so a document never has 0."
+        }
       }
     },
     "cues": {
@@ -141,11 +160,52 @@
         "passage_not_found",
         "chapter_only",
         "suppressed_duplicate",
+        "not_in_export",
+        "not_found_in_audio",
+        "repeat_mention",
+        "repeat_read",
+        "out_of_order",
         "cut_from_edit",
         "multiple_placements",
         "speed_change_unsupported"
       ],
-      "description": "The review list's colour source (docs/07-sidecar-api.md §5.1). cut_from_edit, multiple_placements and speed_change_unsupported are added by the panel after source->sequence mapping; the sidecar never emits them."
+      "description": "The review list's colour source (docs/07-sidecar-api.md §5.1). cut_from_edit, multiple_placements and speed_change_unsupported are added by the panel after source->sequence mapping; the sidecar never emits them. not_in_export, not_found_in_audio, repeat_mention, repeat_read and out_of_order were added in 1.1 and come only from a scripture file (docs/14-scripture-file-import.md §5)."
+    },
+    "text_source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "translation"],
+      "description": "Added in 1.1. Where the cue's body came from. Absent on a 1.0 cue, which is always provider text.",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["export", "provider"],
+          "description": "export: the scripture file's own text, used verbatim. provider: fetched from the Bible text service."
+        },
+        "translation": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Abbreviation of the translation the body is in, e.g. NIV."
+        },
+        "entry_index": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "0-based position of the entry in the scripture file, repeats counted. Several cues can share one. Present for export, absent for provider."
+        }
+      },
+      "if": {
+        "type": "object",
+        "required": ["kind"],
+        "properties": { "kind": { "const": "export" } }
+      },
+      "then": { "required": ["entry_index"] },
+      "else": { "properties": { "entry_index": false } }
+    },
+    "verse_offsets_s": {
+      "type": "object",
+      "description": "Added in 1.1. On a READ cue of a multi-verse export entry: the start of each later verse, in seconds after source_anchor_s, keyed by verse number. A verse with no matched word has no key.",
+      "propertyNames": { "pattern": "^[1-9][0-9]*$" },
+      "additionalProperties": { "type": "number", "minimum": 0 }
     },
     "cue": {
       "type": "object",
@@ -180,6 +240,8 @@
         "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
         "detection": { "$ref": "#/$defs/detection" },
         "snippet": { "type": "string" },
+        "text_source": { "$ref": "#/$defs/text_source" },
+        "verse_offsets_s": { "$ref": "#/$defs/verse_offsets_s" },
         "flags": {
           "type": "array",
           "items": { "$ref": "#/$defs/flag" }
@@ -196,8 +258,19 @@
       "required": ["code", "message"],
       "properties": {
         "code": { "type": "string", "minLength": 1 },
-        "message": { "type": "string", "minLength": 1 }
-      }
+        "message": { "type": "string", "minLength": 1 },
+        "line": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Added in 1.1. The 1-based line of the scripture file the warning is about. Required for export_reference_invalid and export_block_unreferenced."
+        }
+      },
+      "if": {
+        "type": "object",
+        "required": ["code"],
+        "properties": { "code": { "enum": ["export_reference_invalid", "export_block_unreferenced"] } }
+      },
+      "then": { "required": ["line"] }
     }
   }
 }
