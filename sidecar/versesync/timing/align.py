@@ -111,6 +111,8 @@ class _Run:
     matched: int
     first_match: int | None
     last_match: int | None
+    # For each match, in order, the verse token and the window token it matched (14 section 4.7).
+    matched_at: tuple[tuple[int, int], ...] = ()
 
 
 def align_from(
@@ -130,12 +132,14 @@ def align_from(
     misses = 0
     first_match: int | None = None
     last_match: int | None = None
+    matched_at: list[tuple[int, int]] = []
     while i < len(verse) and j < len(window):
         if tokens_equal(window[j].text, verse[i], cfg):
             if first_match is None:
                 first_match = j
             last_match = j
             matched += 1
+            matched_at.append((i, j))
             i += 1
             j += 1
             misses = 0
@@ -145,7 +149,7 @@ def align_from(
             if misses > cfg.max_skip:
                 i += 1
                 misses = 0
-    return _Run(matched, first_match, last_match)
+    return _Run(matched, first_match, last_match, tuple(matched_at))
 
 
 def _best_run(verse: Sequence[str], window: Sequence[AToken], cfg: AlignConfig) -> _Run | None:

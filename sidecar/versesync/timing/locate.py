@@ -1,10 +1,11 @@
-"""Locate scripture-file entries in the transcript (docs/14 sections 4.1 to 4.6).
+"""Locate scripture-file entries in the transcript (docs/14 sections 4.1 to 4.7).
 
 Each entry gets candidate placements from two sources, its text read aloud (``text_candidates``)
 and the references spoken near it (``mention_candidates``). ``merge`` joins the two for one entry,
 and ``assign`` picks at most one placement per entry across the whole file, in file order.
 ``locate`` runs ``assign`` and then the passes over what it left over: a strong reading out of
-order (section 4.5), and scriptures the pastor went back to with no new slide (section 4.6).
+order (section 4.5), and scriptures the pastor went back to with no new slide (section 4.6). It
+also finds when each verse of a multi-verse reading starts (section 4.7).
 
 Everything here is in source seconds and deterministic (05 section 10): no clock, no randomness,
 and no result depends on dict or set iteration order.
@@ -12,9 +13,11 @@ and no result depends on dict or set iteration order.
 
 from __future__ import annotations
 
+import re
 from bisect import bisect_left, bisect_right
 from collections.abc import Iterable, Sequence
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, fields, replace
+from itertools import accumulate
 from typing import Literal
 
 from versesync.config import Config
@@ -129,6 +132,11 @@ def _spans_overlap(a: tuple[int, int], b: tuple[int, int]) -> bool:
     return a[0] <= b[1] and b[0] <= a[1]
 
 
+def _run_span(verse_tokens: int) -> int:
+    """How many transcript tokens a run over a verse of ``verse_tokens`` tokens may use (14 4.1)."""
+    return 3 * verse_tokens + 30
+
+
 def text_candidates(
     entry: ExportEntry,
     tokens: Sequence[AToken],
@@ -155,7 +163,7 @@ def text_candidates(
     elif index.tokens is not tokens:
         raise ValueError("index was not built from these tokens")
 
-    cap = 3 * len(verse) + 30
+    cap = _run_span(len(verse))
     starts = sorted({pos for word in verse[:_OPENERS] for pos in index.positions_equal_to(word)})
     # (-matched, first token, last token, start): sorting these is coverage descending, then
     # earliest, because every run is scored against the same verse length.
@@ -405,11 +413,16 @@ class LocatedCue:
     ``out_of_order`` by the pass of section 4.5, ``repeat_read`` and ``repeat_mention`` by the
     pass of section 4.6, and ``unplaced`` when nothing was found. An entry can have several cues,
     but only one of them is ``assigned``, ``out_of_order`` or ``unplaced``.
+
+    ``verse_starts`` holds ``(verse number, source seconds)`` for each verse of a multi-verse
+    entry that the reading matched, in verse order, when the placement has a text candidate. It is
+    empty for a single-verse entry and for a mention-only placement (section 4.7).
     """
 
     entry_index: int
     placement: Placement | None
     kind: CueKind
+    verse_starts: tuple[tuple[int, float], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -578,6 +591,63 @@ def _find_repeats(
     return repeats, used
 
 
+_VERSE_NUMBER = re.compile(r"\s*([0-9]+)")
+
+
+def _verses(entry: ExportEntry) -> list[tuple[int, int]]:
+    """The verses of ``entry`` as ``(number, content tokens)``, in order.
+
+    A verse line starts with its number. A line that doesn't, or whose number isn't above the one
+    before, continues the verse before it, as a wrapped line does.
+    """
+    verses: list[list[int]] = []
+    for line in entry.lines:
+        count = len(normalise_verse([line]))
+        head = _VERSE_NUMBER.match(line)
+        number = int(head.group(1)) if head else None
+        if verses and (number is None or number <= verses[-1][0]):
+            verses[-1][1] += count
+        else:
+            first = entry.reference.verse
+            verses.append([number if number is not None else first or 1, count])
+    return [(number, count) for number, count in verses]
+
+
+def _verse_starts(
+    entry: ExportEntry, text: TextCandidate, tokens: Sequence[AToken], cfg: LocateConfig
+) -> tuple[tuple[int, float], ...]:
+    """When each verse of a reading starts: its first matched token (14 section 4.7).
+
+    The reading is found again with ``align_from`` from ``text.start_token``, which gives the run
+    that ``text_candidates`` scored, and ``matched_at`` says which transcript token matched each
+    verse token. A verse with no matched token gets no time.
+    """
+    verses = _verses(entry)
+    if len(verses) < 2:
+        return ()
+    verse = normalise_verse(entry.lines)
+    window = tokens[text.start_token : text.start_token + _run_span(len(verse))]
+    run = align_from(verse, window, 0, cfg.align)
+    if run.matched != text.matched:
+        raise ValueError("tokens are not the ones the candidates were found in")
+    # first[v] is the index of verse v's first token among the verse tokens.
+    first = [0, *accumulate(count for _, count in verses)]
+    starts: dict[int, float] = {}
+    for verse_token, window_token in run.matched_at:
+        number = verses[bisect_right(first, verse_token) - 1][0]
+        starts.setdefault(number, window[window_token].start)
+    return tuple(sorted(starts.items()))
+
+
+def _with_verse_starts(
+    cue: LocatedCue, entry: ExportEntry, tokens: Sequence[AToken], cfg: LocateConfig
+) -> LocatedCue:
+    placement = cue.placement
+    if placement is None or placement.text is None:
+        return cue
+    return replace(cue, verse_starts=_verse_starts(entry, placement.text, tokens, cfg))
+
+
 def _order_key(cue: LocatedCue) -> tuple[int, float, int, int, tuple[int, int]]:
     """Placed cues by time, then entry, kind and words; unplaced cues after them, by entry."""
     placement = cue.placement
@@ -590,12 +660,14 @@ def _order_key(cue: LocatedCue) -> tuple[int, float, int, int, tuple[int, int]]:
 def locate(
     entries: Sequence[ExportEntry],
     candidates: Sequence[Sequence[Placement]],
+    tokens: Sequence[AToken],
     detections: Sequence[Detection],
     cfg: LocateConfig = LocateConfig(),
 ) -> LocateResult:
-    """Every cue the scripture file gives, found in the transcript (14 sections 4.4 to 4.6).
+    """Every cue the scripture file gives, found in the transcript (14 sections 4.4 to 4.7).
 
-    ``candidates`` are the placements of each entry in file order, from ``build_candidates``.
+    ``candidates`` are the placements of each entry in file order, from ``build_candidates``, and
+    ``tokens`` are the alignment tokens they were found in.
     ``assign`` runs first and isn't changed: the passes after it only use what it left over. Then
     each entry that is unplaced or has no strong reading moves to one it has (section 4.5, with
     ``read_coverage_threshold`` from ``cfg.align``), and the readings and verse mentions still
@@ -616,4 +688,6 @@ def locate(
     ]
     cues.extend(repeats)
     cues.sort(key=_order_key)
+    by_index = {entry.index: entry for entry in entries}
+    cues = [_with_verse_starts(cue, by_index[cue.entry_index], tokens, cfg) for cue in cues]
     return LocateResult(cues, tuple(d.id for d in detections if d.id in consumed))

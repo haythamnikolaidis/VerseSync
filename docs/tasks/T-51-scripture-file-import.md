@@ -108,7 +108,8 @@ Without a scripture file, nothing changes. Every v1 golden file must still pass 
   mention, or a mention absorbed by a reading's merge window), in `detections` order. T-51.4 builds
   the `not_in_export` cues from the detections not in it. `LocatedCue` is `(entry_index, placement |
   None, kind, verse_starts)` and `kind` ∈ `assigned | out_of_order | repeat_read | repeat_mention |
-  unplaced`.
+  unplaced`. `verse_starts` is a tuple of `(verse number, source seconds)` for each matched verse of
+  a multi-verse reading, and `()` for a single-verse entry or a mention-only placement.
 - **Steps:**
   1. **Out-of-order pass** (14 §4.5). Tests: an unplaced entry with a strong earlier reading moves;
      a weak in-order placement gives way to a strong one elsewhere; a mention alone never moves an

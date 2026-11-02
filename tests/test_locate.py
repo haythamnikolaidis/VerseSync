@@ -21,7 +21,14 @@ from versesync.detect.canon import load_canon
 from versesync.detect.detector import Detection, detect
 from versesync.detect.parse import parse_reference
 from versesync.scripture_file import ExportEntry
-from versesync.timing.align import AToken, normalise_verse, tokens_equal, transcript_tokens
+from versesync.timing.align import (
+    AlignConfig,
+    AToken,
+    align_from,
+    normalise_verse,
+    tokens_equal,
+    transcript_tokens,
+)
 from versesync.timing.locate import (
     LocateConfig,
     LocatedCue,
@@ -595,7 +602,18 @@ def test_the_assignment_is_the_best_of_every_possible_one() -> None:
 def locate_in(
     entries: list[ExportEntry], words: list[Word], cfg: LocateConfig = CFG
 ) -> LocateResult:
-    return locate(entries, candidates_for(entries, words, cfg), detections_in(words), cfg)
+    candidates = candidates_for(entries, words, cfg)
+    return locate(entries, candidates, tokens_in(words), detections_in(words), cfg)
+
+
+def locate_pools(
+    entries: list[ExportEntry],
+    pools: list[list[Placement]],
+    detections: list[Detection],
+    cfg: LocateConfig = CFG,
+) -> LocateResult:
+    """``locate`` over hand-made candidates; they hold no multi-verse entry, so no tokens."""
+    return locate(entries, pools, [], detections, cfg)
 
 
 def kinds_of(result: LocateResult) -> list[tuple[int, str]]:
@@ -737,18 +755,21 @@ def test_of_two_placements_on_the_same_words_the_stronger_reading_keeps_them() -
     stronger = text_placement(1, 0.90, 130.0, (30, 50))
     candidates = [[weaker], [stronger]]
     assert assign(blank(2), candidates) == [weaker, stronger]
-    result = locate(blank(2), candidates, [], CFG)
+    result = locate_pools(blank(2), candidates, [], CFG)
     assert kinds_of(result) == [(1, "assigned"), (0, "unplaced")]
     # On equal coverage the lower entry index keeps them.
     a, b = text_placement(0, 0.80, 100.0, (10, 50)), text_placement(1, 0.80, 130.0, (30, 50))
-    assert kinds_of(locate(blank(2), [[a], [b]], [], CFG)) == [(0, "assigned"), (1, "unplaced")]
+    assert kinds_of(locate_pools(blank(2), [[a], [b]], [], CFG)) == [
+        (0, "assigned"),
+        (1, "unplaced"),
+    ]
 
 
 def test_the_placement_that_loses_its_words_keeps_its_mention() -> None:
     mention = mention_at(95.0, score=0.4)
     merged = text_placement(0, 0.40, 100.0, (10, 50), mention)
     stronger = text_placement(1, 0.90, 130.0, (30, 50))
-    result = locate(blank(2), [[merged], [stronger]], [DETECTION], CFG)
+    result = locate_pools(blank(2), [[merged], [stronger]], [DETECTION], CFG)
     assert kinds_of(result) == [(0, "assigned"), (1, "assigned")]
     assert result.cues[0].placement == Placement(0, 0.4, 95.0, mention=mention)  # still first
     assert result.consumed_detection_ids == (DETECTION.id,)
@@ -761,7 +782,7 @@ def test_a_moved_entry_leaves_out_a_mention_that_another_placement_holds() -> No
     holder = Placement(0, 1.2, 100.0, mention=shared)
     reading = text_placement(1, 0.80, 130.0, (30, 50), shared)
     assert reading.time_s == holder.time_s
-    result = locate(blank(2), [[holder], [reading]], [DETECTION], CFG)
+    result = locate_pools(blank(2), [[holder], [reading]], [DETECTION], CFG)
     assert kinds_of(result) == [(0, "assigned"), (1, "out_of_order")]
     assert result.cues[0].placement is holder
     assert result.cues[1].placement == Placement(1, 0.80, 130.0, text=reading.text)
@@ -788,7 +809,7 @@ def test_an_entry_gives_up_a_mention_to_move() -> None:
     held = Placement(0, 0.4, 50.0, mention=MentionCandidate(0, spoken, 0.4, 50.0))
     strong = text_placement(0, 0.90, 400.0, (30, 60))
     other = text_placement(1, 1.0, 200.0, (80, 100))
-    result = locate(blank(2), [[held, strong], [other]], [spoken], CFG)
+    result = locate_pools(blank(2), [[held, strong], [other]], [spoken], CFG)
     assert kinds_of(result) == [(0, "repeat_mention"), (1, "assigned"), (0, "out_of_order")]
     assert result.cues[2].placement is strong
     assert result.consumed_detection_ids == (spoken.id,)
@@ -803,14 +824,14 @@ def test_the_best_reading_wins_and_ties_go_to_the_earliest() -> None:
         text_placement(0, 0.70, 100.0, (110, 140)),
     )
     blocker = text_placement(1, 1.0, 50.0, (0, 5))
-    result = locate(entries, [[later, twin, best, same], [blocker]], [], CFG)
+    result = locate_pools(entries, [[later, twin, best, same], [blocker]], [], CFG)
     assert cue_of(result, 0, "out_of_order").placement is best
     # Without the best, the two of equal coverage tie and the earlier one is taken.
-    result = locate(entries, [[later, twin, same], [blocker]], [], CFG)
+    result = locate_pools(entries, [[later, twin, same], [blocker]], [], CFG)
     assert cue_of(result, 0, "out_of_order").placement is same
     # A reading another entry holds is skipped even when it is the best.
     taken = text_placement(1, 1.0, 50.0, (40, 70))
-    result = locate(entries, [[later, twin, best, same], [taken]], [], CFG)
+    result = locate_pools(entries, [[later, twin, best, same], [taken]], [], CFG)
     assert cue_of(result, 0, "out_of_order").placement is same
 
 
@@ -818,9 +839,9 @@ def test_the_threshold_is_the_configured_read_coverage() -> None:
     entries = blank(2)
     reading = text_placement(0, 0.60, 300.0, (30, 60))
     pool = [[reading], [text_placement(1, 1.0, 100.0, (80, 100))]]
-    assert kinds_of(locate(entries, pool, [], CFG)) == [(1, "assigned"), (0, "out_of_order")]
+    assert kinds_of(locate_pools(entries, pool, [], CFG)) == [(1, "assigned"), (0, "out_of_order")]
     strict = replace(CFG, align=replace(CFG.align, read_coverage_threshold=0.65))
-    assert kinds_of(locate(entries, pool, [], strict)) == [(1, "assigned"), (0, "unplaced")]
+    assert kinds_of(locate_pools(entries, pool, [], strict)) == [(1, "assigned"), (0, "unplaced")]
 
 
 def test_the_consumed_detections_are_those_the_cues_hold() -> None:
@@ -834,12 +855,12 @@ def test_the_consumed_detections_are_those_the_cues_hold() -> None:
     assert result.consumed_detection_ids == ("det_001", "det_003", "det_004")
     assert sorted(mention_ids(result)) == sorted(result.consumed_detection_ids)
     # With no entries there is nothing to consume.
-    assert locate([], [], detections, CFG) == LocateResult([], ())
+    assert locate_pools([], [], detections, CFG) == LocateResult([], ())
 
 
 def test_locate_needs_one_list_of_candidates_per_entry() -> None:
     with pytest.raises(ValueError):
-        locate(blank(2), [[]], [], CFG)
+        locate_pools(blank(2), [[]], [], CFG)
 
 
 # --- repeat pass (14 section 4.6) --------------------------------------------------------------
@@ -925,7 +946,7 @@ def test_the_merge_window_is_120_s_before_and_20_s_after_the_read() -> None:
     reading = text_placement(0, 0.90, 500.0, (10, 50))
     for start, absorbed in ((380.0, True), (379.5, False), (520.0, True), (520.5, False)):
         spoken = detection_at(start)
-        result = locate(entries, [[reading]], [spoken], CFG)
+        result = locate_pools(entries, [[reading]], [spoken], CFG)
         expected = [(0, "assigned")] if absorbed else [(0, "repeat_mention"), (0, "assigned")]
         if start > 500.0:
             expected.reverse()
@@ -944,7 +965,7 @@ def test_a_chapter_only_mention_is_never_a_repeat() -> None:
     # Not even inside a reading's merge window.
     reading = text_placement(0, 0.90, 500.0, (10, 50))
     near = detection_at(480.0, verse=None, flags=("chapter_only",))
-    result = locate(blank(1), [[reading]], [near], CFG)
+    result = locate_pools(blank(1), [[reading]], [near], CFG)
     assert kinds_of(result) == [(0, "assigned")] and result.consumed_detection_ids == ()
 
 
@@ -964,7 +985,7 @@ def test_a_suppressed_duplicate_is_never_a_repeat() -> None:
     reading = text_placement(0, 0.90, 500.0, (10, 50))
     window = detection_at(480.0, id="det_001", flags=("suppressed_duplicate",))
     outside = detection_at(700.0, id="det_002", flags=("suppressed_duplicate",))
-    result = locate(blank(1), [[reading]], [window, outside], CFG)
+    result = locate_pools(blank(1), [[reading]], [window, outside], CFG)
     assert kinds_of(result) == [(0, "assigned")]
     assert result.consumed_detection_ids == ("det_001",)
 
@@ -1015,16 +1036,16 @@ def test_with_two_entries_for_one_scripture_the_lower_one_gets_each_cue() -> Non
     )
     spoken = detection_at(700.0)
     # One detection matches both entries and becomes one repeat, for the first.
-    result = locate(entries, [[first], [second]], [spoken], CFG)
+    result = locate_pools(entries, [[first], [second]], [spoken], CFG)
     assert kinds_of(result) == [(0, "assigned"), (1, "assigned"), (0, "repeat_mention")]
     # It is absorbed instead by the entry whose reading it introduces, even if that is the second.
     introduces = detection_at(250.0)
-    result = locate(entries, [[first], [second]], [introduces], CFG)
+    result = locate_pools(entries, [[first], [second]], [introduces], CFG)
     assert kinds_of(result) == [(0, "assigned"), (1, "assigned")]
     assert result.consumed_detection_ids == (introduces.id,)
     # Both entries read the same words again: the first gets the re-read, the second none.
     again = [text_placement(0, 0.80, 500.0, (100, 140)), text_placement(1, 0.80, 500.0, (100, 140))]
-    result = locate(entries, [[first, again[0]], [second, again[1]]], [], CFG)
+    result = locate_pools(entries, [[first, again[0]], [second, again[1]]], [], CFG)
     assert [(c.entry_index, c.kind) for c in result.cues] == [
         (0, "assigned"),
         (1, "assigned"),
@@ -1032,12 +1053,12 @@ def test_with_two_entries_for_one_scripture_the_lower_one_gets_each_cue() -> Non
     ]
     # And words that overlap a re-read, without being the same, are held too.
     overlapping = text_placement(1, 0.80, 505.0, (130, 170))
-    result = locate(entries, [[first, again[0]], [second, overlapping]], [], CFG)
+    result = locate_pools(entries, [[first, again[0]], [second, overlapping]], [], CFG)
     assert [c.kind for c in result.cues].count("repeat_read") == 1
 
 
 def test_an_unplaced_entry_has_no_repeats() -> None:
-    result = locate(blank(1), [[]], [detection_at(600.0)], CFG)
+    result = locate_pools(blank(1), [[]], [detection_at(600.0)], CFG)
     assert kinds_of(result) == [(0, "unplaced")]
     assert result.consumed_detection_ids == ()
 
@@ -1049,7 +1070,7 @@ def test_a_detection_held_by_a_placement_is_not_used_again() -> None:
     spoken = detection_at(95.0)
     merged = text_placement(0, 0.90, 100.0, (10, 50), MentionCandidate(0, spoken, 0.4, 95.0))
     second = text_placement(1, 0.90, 300.0, (60, 80))
-    result = locate(entries, [[merged], [second]], [spoken], CFG)
+    result = locate_pools(entries, [[merged], [second]], [spoken], CFG)
     assert kinds_of(result) == [(0, "assigned"), (1, "assigned")]
     assert result.consumed_detection_ids == (spoken.id,)
 
@@ -1063,11 +1084,176 @@ def test_a_re_read_leaves_out_a_mention_that_another_placement_holds() -> None:
     first = text_placement(0, 0.90, 100.0, (10, 50))
     merged = text_placement(0, 0.80, 500.0, (100, 140), mention)
     holder = Placement(1, 1.2, 480.0, mention=replace(mention, entry_index=1))
-    result = locate(entries, [[first, merged], [holder]], [spoken], CFG)
+    result = locate_pools(entries, [[first, merged], [holder]], [spoken], CFG)
     assert kinds_of(result) == [(0, "assigned"), (1, "assigned"), (0, "repeat_read")]
     assert result.cues[2].placement == Placement(0, 0.80, 500.0, text=merged.text)
     assert mention_ids(result) == [spoken.id]
     assert result.consumed_detection_ids == (spoken.id,)
+
+
+# --- per-verse starts (14 section 4.7) ---------------------------------------------------------
+
+REJOICE_ALWAYS = (
+    "16 Rejoice evermore.",
+    "17 Pray without ceasing.",
+    "18 In every thing give thanks: for this is the will of God in Christ Jesus concerning you.",
+)
+REJOICE_TEXT = (
+    "Rejoice evermore. Pray without ceasing. "
+    "In every thing give thanks: for this is the will of God in Christ Jesus concerning you."
+)
+BEATITUDES = (
+    "3 Blessed are the poor in spirit: for theirs is the kingdom of heaven.",
+    "4 Blessed are they that mourn: for they shall be comforted.",
+    "5 Blessed are the meek: for they shall inherit the earth.",
+)
+
+
+def rejoice_always_entry(index: int = 0) -> ExportEntry:
+    return entry_of(index, "1 Thessalonians 5:16-18", REJOICE_ALWAYS)
+
+
+def starts_of(
+    result: LocateResult, kind: str, entry_index: int = 0
+) -> tuple[tuple[int, float], ...]:
+    return cue_of(result, entry_index, kind).verse_starts
+
+
+def reference_run(
+    verse: list[str], window: list[AToken], start_j: int, cfg: AlignConfig
+) -> tuple[int, int | None, int | None]:
+    """``align_from`` as it was before ``matched_at``: matched, first_match and last_match."""
+    i, j, matched, misses = 0, start_j, 0, 0
+    first = last = None
+    while i < len(verse) and j < len(window):
+        if tokens_equal(window[j].text, verse[i], cfg):
+            first = j if first is None else first
+            last = j
+            matched, i, j, misses = matched + 1, i + 1, j + 1, 0
+        else:
+            j, misses = j + 1, misses + 1
+            if misses > cfg.max_skip:
+                i, misses = i + 1, 0
+    return matched, first, last
+
+
+def test_matched_at_leaves_the_alignment_as_it_was() -> None:
+    rng = random.Random(47)
+    texts = [text for _, text, _, _ in SCRIPTURES]
+    for case in range(200):
+        _, words = random_case(rng)
+        # Spoken words one letter off, to take the loose matches too.
+        words = [replace(w, text=w.text[:-1] + "x") if rng.random() < 0.1 else w for w in words]
+        tokens = transcript_tokens(words)
+        verse = normalise_verse([rng.choice(texts)])
+        start = rng.randrange(len(tokens)) if tokens else 0
+        window = tokens[start : start + rng.choice((10, 40, 120))]
+        cfg = AlignConfig(max_skip=rng.choice((2, 6, 9)))
+        run = align_from(verse, window, 0, cfg)
+        assert (run.matched, run.first_match, run.last_match) == reference_run(
+            verse, window, 0, cfg
+        ), case
+        # And matched_at says where: one pair per match, in order, each a real match.
+        assert len(run.matched_at) == run.matched, case
+        for (i, j), (next_i, next_j) in itertools.pairwise(run.matched_at):
+            assert i < next_i and j < next_j, case
+        for i, j in run.matched_at:
+            assert tokens_equal(window[j].text, verse[i], cfg), case
+        if run.matched_at:
+            assert run.matched_at[0][1] == run.first_match, case
+            assert run.matched_at[-1][1] == run.last_match, case
+
+
+def test_each_verse_of_a_reading_has_its_first_matched_token() -> None:
+    words = speak((50.0, filler(10)), (100.0, REJOICE_TEXT), (150.0, filler(10)))
+    entries = [rejoice_always_entry()]
+    result = locate_in(entries, words)
+    assert kinds_of(result) == [(0, "assigned")]
+    # "In" is a stop word, so verse 18 starts at "every", the second word of its line.
+    first = words[10]
+    assert first.text == "Rejoice"
+    starts = starts_of(result, "assigned")
+    assert starts == (
+        (16, first.start),
+        (17, words[12].start),
+        (18, words[16].start),
+    )
+    assert words[12].text == "Pray" and words[16].text == "every"
+
+
+def test_single_verse_entries_and_mention_only_placements_have_no_verse_starts() -> None:
+    words = speak((100.0, JOHN_3_16))
+    result = locate_in([john_entry()], words)
+    assert starts_of(result, "assigned") == ()
+    # A multi-verse entry placed on a mention alone has no reading to time its verses by.
+    entry = rejoice_always_entry()
+    mention = Placement(0, 0.4, 50.0, mention=MentionCandidate(0, detection_at(50.0), 0.4, 50.0))
+    (cue,) = locate_pools([entry], [[mention]], [], CFG).cues
+    assert cue.kind == "assigned" and cue.verse_starts == ()
+    # Nor has an unplaced one.
+    (cue,) = locate_pools([entry], [[]], [], CFG).cues
+    assert cue.kind == "unplaced" and cue.verse_starts == ()
+
+
+def test_a_verse_with_no_matched_token_gets_no_time() -> None:
+    # Only the first two verses of Matthew 5:3-5 are read.
+    entry = entry_of(0, "Matthew 5:3-5", BEATITUDES)
+    spoken = " ".join(line.split(" ", 1)[1] for line in BEATITUDES[:2])
+    words = speak((100.0, spoken), (150.0, filler(30)))
+    result = locate_in([entry], words)
+    starts = starts_of(result, "assigned")
+    assert [number for number, _ in starts] == [3, 4]
+    assert starts[0][1] == words[0].start
+    assert starts[1][1] == words[spoken.split().index("Blessed", 3)].start
+    # A verse of nothing but stop words has no tokens to match, so it gets no time either.
+    quiet = entry_of(
+        0,
+        "1 Thessalonians 5:16-18",
+        ("16 Rejoice evermore.", "17 And of the", "18 Pray without ceasing."),
+    )
+    words = speak((100.0, "Rejoice evermore. Pray without ceasing."))
+    starts = starts_of(locate_in([quiet], words), "assigned")
+    assert starts == ((16, words[0].start), (18, words[2].start))
+
+
+def test_a_wrapped_line_belongs_to_the_verse_before_it() -> None:
+    entry = entry_of(
+        0, "1 Thessalonians 5:16-17", ("16 Rejoice", "evermore.", "17 Pray without", "ceasing.")
+    )
+    words = speak((100.0, "Rejoice evermore. Pray without ceasing."))
+    result = locate_in([entry], words)
+    assert starts_of(result, "assigned") == ((16, words[0].start), (17, words[2].start))
+    assert kinds_of(result) == [(0, "assigned")]
+    # A wrapped line that happens to start with a number below the verse's own is still wrapped.
+    wrapped = replace(entry, lines=("16 Rejoice", "3 evermore.", "17 Pray without ceasing."))
+    assert starts_of(locate_in([wrapped], words), "assigned") == starts_of(result, "assigned")
+
+
+def test_the_reading_that_is_found_in_the_wrong_tokens_is_an_error() -> None:
+    entries = [rejoice_always_entry()]
+    words = speak((100.0, REJOICE_TEXT))
+    candidates = candidates_for(entries, words)
+    elsewhere = tokens_in(speak((0.0, filler(60))))
+    with pytest.raises(ValueError):
+        locate(entries, candidates, elsewhere, [], CFG)
+
+
+def test_repeats_and_moved_readings_have_their_own_verse_starts() -> None:
+    entries = [rejoice_always_entry(0), psalm_entry(1)]
+    words = speak((100.0, REJOICE_TEXT), (200.0, PSALM_91_15), (300.0, "so " + filler(10)))
+    words += speak((330.0, REJOICE_TEXT))
+    result = locate_in(entries, words)
+    assert kinds_of(result) == [(0, "assigned"), (1, "assigned"), (0, "repeat_read")]
+    first, again = starts_of(result, "assigned"), starts_of(result, "repeat_read")
+    assert [number for number, _ in first] == [16, 17, 18] == [number for number, _ in again]
+    assert first[0][1] == words[0].start and again[0][1] == words[-len(REJOICE_TEXT.split())].start
+    assert all(a[1] < b[1] for a, b in itertools.pairwise(again))
+    # A reading that moves out of order has them too.
+    swapped = [psalm_entry(0), rejoice_always_entry(1)]
+    words = speak((100.0, REJOICE_TEXT), (300.0, PSALM_91_15))
+    result = locate_in(swapped, words)
+    assert kinds_of(result) == [(1, "assigned"), (0, "out_of_order")]
+    assert starts_of(result, "assigned", 1)[0] == (16, words[0].start)
 
 
 # --- all passes together -----------------------------------------------------------------------
@@ -1111,12 +1297,14 @@ def test_random_sermons_keep_every_guarantee() -> None:
         entries, words = random_case(rng)
         detections = detections_in(words)
         candidates = candidates_for(entries, words)
-        result = locate(entries, candidates, detections, CFG)
+        tokens = tokens_in(words)
+        result = locate(entries, candidates, tokens, detections, CFG)
 
         # Same input, same output; the order of the candidates and detections doesn't matter.
-        assert locate(entries, candidates, detections, CFG) == result, case
+        assert locate(entries, candidates, tokens, detections, CFG) == result, case
         shuffled = [rng.sample(pool, len(pool)) for pool in candidates]
-        again = locate(entries, shuffled, rng.sample(detections, len(detections)), CFG)
+        mixed = rng.sample(detections, len(detections))
+        again = locate(entries, shuffled, tokens, mixed, CFG)
         assert again.cues == result.cues, case
         assert sorted(again.consumed_detection_ids) == sorted(result.consumed_detection_ids)
 
@@ -1226,6 +1414,26 @@ def test_thirty_entries_are_located_in_a_long_sermon_within_a_second() -> None:
     assert john is not None and john.text is not None and john.text.coverage == 1.0
     times = [p.time_s for p in placed if p is not None]
     assert all(a < b for a, b in itertools.pairwise(times))
+
+
+@pytest.mark.perf
+def test_thirty_entries_are_located_with_every_pass_within_a_second() -> None:
+    # The same thirty passages, through locate: the passes after assign, and the verse starts of
+    # any multi-verse reading.
+    words = load_words(FIXTURES_DIR / "long-sermon-filler.words.json")
+    tokens = transcript_tokens(words)
+    detections = detect(words, CANON)
+    entries = [kjv_entry(i, reference) for i, reference in enumerate(PERF_REFERENCES)]
+
+    started = time.perf_counter()
+    candidates = build_candidates(entries, tokens, detections, CFG)
+    result = locate(entries, candidates, tokens, detections, CFG)
+    elapsed = time.perf_counter() - started
+
+    assert elapsed < LOCATE_BUDGET_S, f"locating 30 entries with every pass took {elapsed:.2f}s"
+    assert sorted(c.entry_index for c in result.cues if c.kind != "repeat_read") == list(range(30))
+    john = cue_of(result, 0, "assigned").placement
+    assert john is not None and john.text is not None and john.text.coverage == 1.0
 
 
 @pytest.mark.perf
