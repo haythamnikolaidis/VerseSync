@@ -137,16 +137,26 @@ skip them. `python tools/plan.py validate` checks this table against the cards.
 | 104 | [T-36.2](tasks/T-36-install-and-documentation.md) | Panel installer | agent | XS | T-22.1 | 5 |
 | 105 | [T-36.3](tasks/T-36-install-and-documentation.md) | README and INSTALL | agent | S | T-36.1, T-36.2, T-35.1, T-32.1 | 5 |
 | 106 | [T-36.H](tasks/T-36-install-and-documentation.md) | Clean-machine install | **human** | — | T-36.3, T-35.H | 5 |
-| 107 | [T-51.1](tasks/T-51-scripture-file-import.md) | Scripture file: export parser | agent | S | T-14.2, T-13.1 | 6 |
-| 108 | [T-51.2](tasks/T-51-scripture-file-import.md) | Contract: Cue Document 1.1 | agent | S | T-51.1 | 6 |
-| 109 | [T-51.3](tasks/T-51-scripture-file-import.md) | Entry locator | agent | S | T-51.1, T-17.2, T-13.3 | 6 |
-| 110 | [T-51.4](tasks/T-51-scripture-file-import.md) | Pipeline integration | agent | S | T-51.2, T-51.3, T-19.3 | 6 |
-| 111 | [T-51.5](tasks/T-51-scripture-file-import.md) | API and CLI | agent | XS | T-51.4 | 6 |
-| 112 | [T-51.6](tasks/T-51-scripture-file-import.md) | Panel: picker and review list | agent | S | T-51.5, T-29.3 | 6 |
-| 113 | [T-51.H](tasks/T-51-scripture-file-import.md) | Real sermon with its export | **human** | — | T-51.6 | 6 |
-| 114 | [T-52.1](tasks/T-52-media-from-sequence.md) | Host: `VS.listSequenceMedia` | agent | S | T-24 | 7 |
-| 115 | [T-52.2](tasks/T-52-media-from-sequence.md) | Panel: the Media dropdown | agent | S | T-52.1, T-27.1 | 7 |
-| 116 | [T-52.H](tasks/T-52-media-from-sequence.md) | Media dropdown on the real sermon project | **human** | — | T-52.2 | 7 |
+| 107 | [T-53.1](tasks/T-53-bible-api-wiring.md) | Choose the provider from config | agent | S | T-15.2, T-20.5 | 6 |
+| 108 | [T-53.H](tasks/T-53-bible-api-wiring.md) | Real key, real translations | **human** | — | T-53.1 | 6 |
+| 109 | [T-53.2](tasks/T-53-bible-api-wiring.md) | NKJV default and the cleared translations | agent | S | T-53.1 | 6 |
+| 110 | [T-53.3](tasks/T-53-bible-api-wiring.md) | Verse cache expires after 14 days | agent | XS | T-53.1 | 6 |
+| 111 | [T-51.1](tasks/T-51-scripture-file-import.md) | Scripture file: export parser | agent | S | T-14.2, T-13.1 | 6 |
+| 112 | [T-51.2](tasks/T-51-scripture-file-import.md) | Contract: Cue Document 1.1 | agent | S | T-51.1 | 6 |
+| 113 | [T-51.3](tasks/T-51-scripture-file-import.md) | Entry locator | agent | S | T-51.1, T-17.2, T-13.3 | 6 |
+| 114 | [T-51.7](tasks/T-51-scripture-file-import.md) | Out-of-order and repeat passes | agent | S | T-51.3 | 6 |
+| 115 | [T-51.4](tasks/T-51-scripture-file-import.md) | Pipeline integration | agent | S | T-51.2, T-51.7, T-19.3 | 6 |
+| 116 | [T-51.5](tasks/T-51-scripture-file-import.md) | API and CLI | agent | XS | T-51.4 | 6 |
+| 117 | [T-51.6](tasks/T-51-scripture-file-import.md) | Panel: picker and review list | agent | S | T-51.5, T-29.3 | 6 |
+| 118 | [T-53.4](tasks/T-53-bible-api-wiring.md) | Hand edits keep the cue's translation | agent | XS | T-51.2, T-53.2 | 6 |
+| 119 | [T-54.1](tasks/T-54-graphic-text-layout.md) | Layout functions | agent | S | T-29.3 | 6 |
+| 120 | [T-54.2](tasks/T-54-graphic-text-layout.md) | Setup controls | agent | XS | T-54.1 | 6 |
+| 121 | [T-54.3](tasks/T-54-graphic-text-layout.md) | Insert and review list | agent | S | T-54.2, T-51.2 | 6 |
+| 122 | [T-51.H](tasks/T-51-scripture-file-import.md) | Real sermon with its export | **human** | — | T-51.6 | 6 |
+| 123 | [T-54.H](tasks/T-54-graphic-text-layout.md) | Real graphics on real Premiere | **human** | — | T-54.3 | 6 |
+| 124 | [T-52.1](tasks/T-52-media-from-sequence.md) | Host: `VS.listSequenceMedia` | agent | S | T-24 | 7 |
+| 125 | [T-52.2](tasks/T-52-media-from-sequence.md) | Panel: the Media dropdown | agent | S | T-52.1, T-27.1 | 7 |
+| 126 | [T-52.H](tasks/T-52-media-from-sequence.md) | Media dropdown on the real sermon project | **human** | — | T-52.2 | 7 |
 
 **Phases.**
 
@@ -158,7 +168,7 @@ skip them. `python tools/plan.py validate` checks this table against the cards.
 | **3** | `VerseSync.jsx`, tested under Node against the fake DOM. |
 | **4** | The CEP panel, built against the mock sidecar and the host stub, and finally integrated with the real `VerseSync.jsx` on the fake DOM. |
 | **5** | Journey B, error surfaces, golden files, performance budgets, installers and documentation. |
-| **6** | Scripture file import (D26): the EasyWorship export as the first source of cues and verse text. See [14](14-scripture-file-import.md). |
+| **6** | Ready for the editor to test. Scripture file import (D26): the EasyWorship export as the first source of cues and verse text, see [14](14-scripture-file-import.md). The Bible API with NKJV as the fallback (D27). Wrapping and splitting text on graphics (D28), see [15](15-graphic-text-layout.md). |
 | **7** | Post-v1 improvements raised during human verification: picking the media from the sequence (raised in Journey A, step 30). |
 
 ## Human tasks
@@ -179,6 +189,9 @@ They verify agent work on real hardware, and **together they are the release gat
 | [T-32.H](tasks/T-32-error-surface-pass.md) | Failure modes on real Premiere | release |
 | [T-35.H](tasks/T-35-performance-pass.md) | NFR-2 numbers on the reference workstation | release |
 | [T-36.H](tasks/T-36-install-and-documentation.md) | Clean-machine install from the README | release |
+| [T-53.H](tasks/T-53-bible-api-wiring.md) | Real key: translation ids, NKJV default, no-API behaviour | T-53.2, editor testing |
+| [T-51.H](tasks/T-51-scripture-file-import.md) | Real sermon with its export; start counting repeats and out-of-order cues (Q-G) | editor testing |
+| [T-54.H](tasks/T-54-graphic-text-layout.md) | Text stays on screen on real Premiere; confirm the layout defaults | editor testing |
 
 ## Deferred past v1 (D24, 2026-10-15)
 

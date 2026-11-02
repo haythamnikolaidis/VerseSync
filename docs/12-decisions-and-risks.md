@@ -36,6 +36,8 @@ rediscovered.
 | D24 | Accuracy measurement and threshold tuning | **Deferred past v1.** No labelled corpus beyond T-41's bootstrap fixtures, no accuracy harness, no tuning pass (T-33.2, T-33.H and T-34 are deferred). Spec-default constants ship as specified. M1–M3 are targets, not release gates. T-33.1 golden files stay, as the regression guard. | Stakeholder schedule pressure, and no annotator capacity. The largest known accuracy gap is narrative paraphrase with no lexical overlap, about 31% of mentions in T-02 (D19). No amount of tuning reaches it; the review list (D4) and manual add are the backstop. **Accepted risk:** v1 ships with recall, precision and anchor accuracy unmeasured. | Low technically: the constants are named, the CLI and golden files exist, and reinstating the deferred tasks needs no redesign. The cost is the annotation effort itself. |
 | D25 | One-Ctrl+Z batch undo (FR-7.4, G5) | **Not delivered in v1.** Premiere 26.5 has no `app.beginUndoGroup`/`endUndoGroup` (`typeof` is `undefined`, T-25.H), so an insert is N separate undo steps. The host keeps its try-wrapped calls, which are no-ops there. We ship with N presses of Ctrl+Z and decide the fix from user feedback. | The API the design relied on does not exist in the target Premiere. The candidate fixes (a panel-side *Undo last insert* that removes the clips from the insert result, or a UXP re-platform, R-3) are real scope, and users may find N presses acceptable. **Accepted risk:** G5 "one Ctrl+Z" is not met. | Low to defer. The insert result already returns every placed clip's id, so *Undo last insert* can be added later without a contract change. |
 | D26 | Scripture file import (EasyWorship export) | **When the editor supplies the export, its entries are the cues.** Each is located by its own text, and its reference, translation and verse text are used verbatim. Detection and the Bible API become the fallback; detections not in the file are kept, disabled, as `not_in_export`. Entries not found in the audio are kept, disabled, at an interpolated time (`not_found_in_audio`). Export text is used only in that sermon's Cue Document: never cached, and never added to `bible.translations`. | On 2026-10-25 the v1 pipeline produced 34 cues, 33 in the wrong translation, and missed two readings; the export's text located 9 of 12 readings at coverage ≥ 0.69 ([14 §1](14-scripture-file-import.md)). The text is what the congregation saw, displayed under the church's EasyWorship licence (client statement, 2026-10-31), so R-1's written-permission rule doesn't apply to it. | Low. Optional input; without a file the pipeline is v1 unchanged. Cue Document 1.1 is additive. **T-51.** |
+| D27 | Fallback translation and the Bible API | **The sidecar uses API.Bible, with NKJV as the default; NIV, AMP and NKJV are cleared.** Only configured translations are offered. If the API can't supply text, the cue is flagged `text_unavailable`, and KJV is never substituted. Cached text expires after 14 days. On-screen attribution is the translation in the reference; the full copyright text goes in the video description by hand on upload. A hand edit to an export cue keeps its translation if cleared, otherwise NKJV. | Product owner, 2026-11-02: permission rests on the API.Bible terms and EasyWorship, and the terms allow caching for up to a month. A wrong translation on a graphic is worse than a flagged gap. T-53. | Low: config and one factory |
+| D28 | Text on graphics | **Wrap at a set number of characters per line, and split across graphics when a passage needs more than a set number of lines, between verses where it can.** Applied in the panel at insert; `body` and the host don't change. Later parts start at the verse's real read time where known, otherwise by word share. | VerseFlow has the wrap setting (upstream `e586b3d`), and splitting is the editor's normal practice. In 33 real graphics, 80 characters and 4 lines leaves none over the limit; word-share timing alone would be about 6 s off on 2 Corinthians 4:6-9. See [15](15-graphic-text-layout.md). T-54. | Low: panel only |
 
 ---
 
@@ -82,6 +84,9 @@ is promised. A late "no" would strand the product's core data source.
 - **Action:** open question **Q-A**, needed before M2 completes. **Do not build against NKJV or
   TPT until access is confirmed in writing.**
 - **Owner:** product, not engineering.
+- **Update (2026-11-02, D27):** the product owner confirmed permission for **NIV, AMP and NKJV**,
+  under the API.Bible terms and EasyWorship. **TPT stays uncleared** for API use, so its text only
+  ever comes from the export (D26).
 
 ### R-2 — Detection quality on real sermon audio 🔴 High / technical
 
@@ -254,9 +259,13 @@ Drives risk R-1 and the whole of [06](06-bible-text-service.md). Needs:
 **KJV, ASV and WEB** are configured in `bible.translations` with each one's own copyright text
 and `cache_allowed=True`. No written permission is needed for these three.
 
-**Still open for licensed translations (NKJV, TPT, …):** the key returns NKJV text, but that is
-API read access, not the written distribution permission R-1 requires. Until that permission is
-in writing, don't add NKJV or TPT to `bible.translations`. No engineering work is blocked.
+**Answered for NIV, AMP and NKJV (2026-11-02, D27):** the product owner confirmed permission under
+the API.Bible terms and EasyWorship. Their ids go in `bible.translations` once read with the real
+key (T-53.H).
+
+**Still open for anything else (TPT, TLB, …):** don't add a translation to `bible.translations`
+until its permission is confirmed. The export can still show them (D26). No engineering work is
+blocked.
 
 ### Q-B — Project-default translation, or honour a spoken one? 🟡 Non-blocking
 
@@ -293,6 +302,10 @@ as specified**. Revisit it if editors find the amber flag too noisy or too quiet
 ### Q-F — Does EasyWorship ever export a block without a reference line? 🟡 Non-blocking
 
 The client said the export can include paraphrased scriptures with no reference. The 2026-10-25 file has none: every block has a reference line. Until a real example turns up, such blocks are skipped with the warning `export_block_unreferenced`, as VerseFlow does ([14 §3](14-scripture-file-import.md)). If they exist, they could still be located by text (14 §4.1) and shown with no reference. That needs a decision on what the reference field of the graphic shows.
+
+### Q-G — Does the export's order always match when scriptures were read? 🟡 Non-blocking
+
+[14](14-scripture-file-import.md) assumes file order is the order shown, from one real file, and treats that as correct for now (product owner, 2026-11-02). A reading that breaks it is still placed if its text matches well, and is flagged `out_of_order`. **Answered by measuring:** T-51.H and the editor's testing count `out_of_order` cues per sermon. If they're common, the in-order assignment (14 §4.4) needs rethinking.
 
 ## Deferred to post-v1
 

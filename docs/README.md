@@ -87,6 +87,7 @@ few sections you need.
 | [12-decisions-and-risks.md](12-decisions-and-risks.md) | Decision log, risk register, and open questions still needing an answer. |
 | [13-technical-plan.md](13-technical-plan.md) | **The build order.** Workstreams, waves, what unblocks whom, staffing, and working agreements. |
 | [14-scripture-file-import.md](14-scripture-file-import.md) | *(post-v1, D26)* The EasyWorship export as the first source of cues and verse text: parsing, locating entries by text, contract changes. |
+| [15-graphic-text-layout.md](15-graphic-text-layout.md) | *(post-v1, D28)* Keeping scripture on screen: wrapping text, and splitting long passages across graphics. |
 
 ---
 

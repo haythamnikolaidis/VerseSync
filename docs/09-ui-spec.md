@@ -79,7 +79,8 @@ so a weekly run is: pick media, click Analyse.
 | **Media file** | `window.cep.fs.showOpenDialog` filtered to audio/video extensions — **not** ExtendScript `File.openDialog`, which fails in Premiere 2026 (VerseFlow's finding). Shows basename, full path on hover. |
 | **Template** | `.mogrt` picker. On selection, calls `VS.getMogrtFields` with a *Reading template…* busy state. Zero fields → the VerseFlow warning about After Effects–authored templates (FR-1.4). |
 | **Reference / Scripture dropdowns** | Populated with group-qualified labels (`Description > Text`), values are field **indices**. VerseFlow's smart defaults apply: reference ← group matching `/descr\|caption\|sub\|credit\|author/i`, body ← `/title\|main\|quote\|body/i`. Same field for both is a validation error. Persisted per MOGRT path. |
-| **Translation** | From `GET /translations`. Shows the licence attribution beneath it in small type (FR-4.7). Disabled while the sidecar is unreachable. |
+| **Translation** | From `GET /translations`. Shows the licence attribution beneath it in small type, if the translation has any (FR-4.7). Disabled while the sidecar is unreachable. |
+| **Text layout** | *(T-54)* **Auto-wrap scripture text**, **Max chars / line** (default 80, 20–120) and **Max lines / graphic** (default 4, 1–12). Applied at insert, so they never gate Analyse. See [15](15-graphic-text-layout.md). |
 | **Target track** | From `VS.getSequenceInfo`, listed V-high to V-low, defaulting to topmost. **Refresh** re-reads. |
 | **Duration** | Auto (per-cue, from classification) or Fixed. Auto is the default and the point of the product. |
 | **Lead-in** | Seconds, default 0.5, range 0–3. The one timing constant editors will actually want to touch. |

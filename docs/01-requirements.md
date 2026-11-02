@@ -87,11 +87,19 @@ requirement they carry over; they still apply and still need testing, but no new
   **long passage**; its body text is truncated at the limit with an ellipsis and the row warns
   the editor.
 - **FR-4.7** Any attribution text the provider's licence requires is stored with the
-  translation and surfaced in the panel.
+  translation and surfaced in the panel. *(D27: for NIV, AMP and NKJV the on-screen attribution is
+  the translation in the reference, for example `(NKJV)`. The full copyright text goes in the video
+  description by hand when it's uploaded.)*
 - **FR-4.8** *(post-v1, D26)* The editor may supply the EasyWorship export for the sermon. Its
   entries then become the cues, in file order: each is located in the transcript by its text,
   and its reference line, translation and verse text are used verbatim, ahead of the Bible
   API. See [14](14-scripture-file-import.md).
+- **FR-4.9** *(post-v1, D27)* NKJV is the default translation for text the export doesn't supply. If
+  the API can't supply it, the cue is flagged **text unavailable**; another translation is never
+  substituted.
+- **FR-4.10** *(post-v1, D28)* Scripture text stays on screen. The editor sets the maximum characters
+  per line and lines per graphic, and a passage that doesn't fit is split across graphics, between
+  verses where it can be. See [15](15-graphic-text-layout.md).
 
 ### FR-5 — Timing and placement
 

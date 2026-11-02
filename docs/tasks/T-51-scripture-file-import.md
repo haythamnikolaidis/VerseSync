@@ -17,8 +17,10 @@ used **verbatim**. Detection and the Bible API become the fallback.
 The v1 pipeline finds scripture by its spoken reference and fetches the job's translation.
 On 2026-10-25 that gave 34 cues, 33 of them PARAPHRASE in the wrong translation, while the
 export's text located 9 of 12 readings at coverage ≥ 0.69 (14 §1). The algorithm reuses
-`align_from`, `normalise_verse` and `tokens_equal` from `timing/align.py` unchanged; what is new
-is searching the whole transcript, and one in-order assignment over the file.
+`align_from`, `normalise_verse` and `tokens_equal` from `timing/align.py`, whose matching doesn't
+change; what is new is searching the whole transcript, one in-order assignment over the file, and
+two passes over what's left: readings out of order, and scriptures the pastor went back to with no
+new slide. Splitting a passage across graphics is T-54, which reads this task's `verse_offsets_s`.
 
 Without a scripture file, nothing changes. Every v1 golden file must still pass byte for byte.
 
@@ -53,9 +55,10 @@ Without a scripture file, nothing changes. Every v1 golden file must still pass 
   `sidecar/versesync/cues.py` · `tools/mock_sidecar.py` · `panel/js/cues.js` ·
   `tests/fixtures/cue-documents/` · contract tests
 - **Steps:**
-  1. Schema 1.1: optional cue `text_source`, the two new flags, optional document
-     `scripture_file`, and the two warning codes. Update 07 to match. Add both flags to
-     `DISABLED_BY_DEFAULT`. Commit.
+  1. Schema 1.1: optional cue `text_source` and `verse_offsets_s`, the five new flags, optional
+     document `scripture_file`, and the two warning codes. Update 07 to match. Add
+     `not_in_export`, `not_found_in_audio` and `repeat_mention` to `DISABLED_BY_DEFAULT`; `repeat_read`
+     and `out_of_order` stay out of it. Commit.
   2. Add a mock-sidecar scenario `export` and a golden document using every new field. Check
      that the panel reader accepts 1.1, and still accepts 1.0. Commit.
 - **Verify:** `pytest -q` · `npm test`
@@ -67,13 +70,14 @@ Without a scripture file, nothing changes. Every v1 golden file must still pass 
 
 **Executor** agent · **Size** S · **Prereqs** T-51.1, T-17.2, T-13.3 · **Status** todo
 
-- **Read:** [14 §4, §10](../14-scripture-file-import.md) · [05 §4.1, §10](../05-timing-and-placement.md)
+- **Read:** [14 §4.1–§4.4, §10](../14-scripture-file-import.md) · [05 §4.1, §10](../05-timing-and-placement.md)
 - **Touches:** `sidecar/versesync/timing/locate.py` (new) · `sidecar/versesync/config.py` ·
   `tests/test_locate.py` (new)
 - **Steps:**
-  1. `text_candidates(entry, tokens, cfg)`: the span-capped search of 14 §4.1, keeping the best
-     per neighbourhood. `mention_candidates(entry, detections)`: 14 §4.2, including chapter-only
-     detections. `merge(...)`: 14 §4.3. Add the `scripture_file` config section. Commit.
+  1. `text_candidates(entry, tokens, cfg)`: the span-capped search of 14 §4.1, keeping runs whose
+     word spans don't overlap. `mention_candidates(entry, detections)`: 14 §4.2, including
+     chapter-only detections. `merge(...)`: 14 §4.3. Add the `scripture_file` config section. Test
+     that two readings 21 seconds apart stay two candidates. Commit.
   2. `assign(entries, candidates) -> list[Placement | None]`: the DP of 14 §4.4. Tests:
      - a clean read at coverage 1.0;
      - a repeat that has to take its later mention;
@@ -85,21 +89,49 @@ Without a scripture file, nothing changes. Every v1 golden file must still pass 
   3. **Performance.** 30 entries against `long-sermon-filler` in under 1 s. Commit.
 - **Verify:** `pytest tests/test_locate.py -q`
 - **Done when:**
-  - [ ] Placement times are strictly increasing in file order.
+  - [ ] `assign` output is strictly increasing in file order.
   - [ ] The performance bound holds.
+
+### T-51.7 · Out-of-order and repeat passes
+
+**Executor** agent · **Size** S · **Prereqs** T-51.3 · **Status** todo
+
+- **Read:** [14 §4.5–§4.7](../14-scripture-file-import.md)
+- **Touches:** `sidecar/versesync/timing/locate.py` · `sidecar/versesync/timing/align.py` ·
+  `sidecar/versesync/config.py` · `tests/test_locate.py`
+- **Interface:** `locate(entries, candidates, tokens, detections, cfg) -> list[LocatedCue]`, where
+  `LocatedCue` is `(entry_index, placement | None, kind, verse_starts)` and `kind` ∈
+  `assigned | out_of_order | repeat_read | repeat_mention | unplaced`, sorted by time, unplaced last.
+- **Steps:**
+  1. **Out-of-order pass** (14 §4.5). Tests: an unplaced entry with a strong earlier reading moves;
+     a weak in-order placement gives way to a strong one elsewhere; a mention alone never moves an
+     entry; a reading already used by another entry is never taken, so the repeated James 1:4 still
+     takes its later mention. Commit.
+  2. **Repeat pass** (14 §4.6). Tests: a re-read with no slide gives `repeat_read`; a repeated
+     reference gives `repeat_mention`; a mention inside the merge window gives no cue; a chapter-only
+     mention and a `suppressed_duplicate` give no repeat; a re-read under 5 matched tokens gives no
+     cue. Commit.
+  3. **Per-verse starts** (14 §4.7). Add `matched_at` to `_Run`. Test that `align()` results are
+     unchanged, and that a verse with no match gets no time. Commit.
+- **Verify:** `pytest tests/test_locate.py tests/test_golden.py -q`
+- **Done when:**
+  - [ ] No two located cues overlap in word span.
+  - [ ] Identical input gives identical output.
+  - [ ] Every v1 golden file is unchanged.
 
 ### T-51.4 · Pipeline integration
 
-**Executor** agent · **Size** S · **Prereqs** T-51.2, T-51.3, T-19.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-51.2, T-51.7, T-19.3 · **Status** todo
 
 - **Read:** [14 §5](../14-scripture-file-import.md) · [05 §3](../05-timing-and-placement.md)
 - **Touches:** `sidecar/versesync/pipeline.py` · `sidecar/versesync/cues.py` ·
   `tests/test_pipeline_export.py` (new) · `tests/golden/`
 - **Steps:**
   1. `run_pipeline(..., scripture_file: list[ExportEntry] | None = None)`. With entries: detect,
-     locate, build one cue per entry by the table in 14 §5, interpolate the anchors of unplaced
-     entries, then build the leftover detections as v1 cues with `not_in_export`. Entry text is
-     never fetched, and never written to the Bible cache. Commit.
+     locate, build one cue per `LocatedCue` by the table in 14 §5, including `verse_offsets_s` and
+     the uncapped duration of a multi-verse READ cue. Interpolate the anchors of unplaced entries,
+     then build the leftover detections as v1 cues with `not_in_export`. Entry text is never
+     fetched, and never written to the Bible cache. Commit.
   2. A golden file for the synthetic fixture from T-51.1. Check that every v1 golden file is
      unchanged. Commit.
 - **Verify:** `pytest tests/test_pipeline_export.py tests/test_golden.py -q`
@@ -132,9 +164,9 @@ Without a scripture file, nothing changes. Every v1 golden file must still pass 
 - **Steps:**
   1. Setup: the optional picker, defaulting to the media's folder. Remember the last folder the
      way the media picker does. Send `options.scripture_file`. Commit.
-  2. Review list: the **EW** badge with its translation, the unplaced-row prompt, and the
-     collapsed *Other mentions (N)* group. Update 09. Test against the mock `export` scenario.
-     Commit.
+  2. Review list: the **EW** badge with its translation, the **Repeat** and **Out of order** badges,
+     the unplaced-row prompt, and the collapsed *Other mentions (N)* group. Update 09. Test against
+     the mock `export` scenario. Commit.
 - **Verify:** `npm test`
 - **Done when:**
   - [ ] Without a file, the panel behaves exactly as v1.
@@ -154,7 +186,9 @@ On the reference workstation, run Analyse on the 2026-10-25 *Lacking Nothing* la
 3. Ezekiel 36:26 is either placed or shown as *Not found in audio*. It is never silently
    dropped.
 4. No `not_in_export` cue is enabled, and the graphics show NIV, NKJV and TPT text exactly as
-   in the export.
+   in the export, repeats and out-of-order cues included.
+5. Write down the count of `out_of_order`, `repeat_read` and `repeat_mention` cues, and how many of
+   each were right. Keep doing this during the editor's testing: it's the measure that answers Q-G.
 
 ## Traps
 
@@ -162,5 +196,8 @@ On the reference workstation, run Analyse on the 2026-10-25 *Lacking Nothing* la
   verse collects scattered matches across an hour of speech and scores falsely high.
 - **Repeats are separate entries,** not duplicates to suppress. The congregation saw the slide
   twice.
+- **Run the in-order assignment first.** Choosing the best reading per entry on its own would send
+  both James 1:4 entries to the same reading. The later passes only use what's left.
+- **Chapter-only mentions never become repeats.** "Psalm 91" comes up nine times in one sermon.
 - **Never truncate export text** (`long_passage` flags only). It is what was on screen.
 - **Never put export text in the Bible cache** (D26).
