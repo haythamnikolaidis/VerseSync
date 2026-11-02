@@ -63,6 +63,7 @@ Each fixture is a pair of files in `tests/fixtures/transcripts/`:
 | `context-and-ambiguity` | A context-carried verse (book/chapter established earlier, later mention gives only "verse twelve"), the Psalms concatenation ambiguity (Psalm 122 / Psalm 12:2, both canon-valid), the spoken number "twenty eight", two negatives ("mark", "faith/works/acts/dead"). |
 | `read-vs-paraphrase` | The same passage (1 Corinthians 13:4-7) quoted verbatim, then paraphrased — the READ/PARAPHRASE classification boundary (T-17) — plus one more verse-range read (Joshua 1:9). |
 | `long-sermon-filler` | ~7,000 words of scripture-free filler (explicitly allowed — see T-41 step 4) padding a realistic sermon length, with one mention repeated inside the 60s `duplicate_cooldown_s` (expect suppression) and again well outside it (expect a fresh, un-suppressed cue) — performance and duplicate-suppression. |
+| `service-export` | A short service with a scripture file: `tests/fixtures/scripture_files/service-export.txt` (KJV and WEB, public domain) is read beside it, so `tools/regen_golden.py` writes a 1.1 golden document. It has a read with a mention, a read found by its text, a weak reading, a mention alone, an entry not in the audio, a reading out of file order, a re-read, a repeat mention, and two mentions the file does not list. It has no `.labels.json`: its golden file is the check. |
 
 **Do not add sermon audio, real recordings, or anything with personal/pastoral content to this
 directory** (risk R-12). Every fixture here is hand-authored text; there is nothing to

@@ -809,3 +809,35 @@ def test_phases_run_in_order_and_cancelling_stops_the_run(tmp_path: Path) -> Non
             on_phase=lambda p, f, m: timing_started.append(p == "timing"),
             is_cancelled=lambda: any(timing_started),
         )
+
+
+def test_the_golden_export_document_has_a_cue_for_every_row_of_the_table() -> None:
+    golden = REPO_ROOT / "tests" / "golden" / "service-export.cues.json"
+    doc = json.loads(golden.read_text(encoding="utf-8"))
+    validate_document(doc)
+    assert doc["schema_version"] == "1.1"
+    assert doc["scripture_file"]["entry_count"] == 8
+    assert [w["code"] for w in doc["warnings"]] == [
+        "export_block_unreferenced",
+        "export_reference_invalid",
+    ]
+
+    cues = doc["cues"]
+    flags = {flag for cue in cues for flag in cue["flags"]}
+    assert flags == {
+        "low_confidence",
+        "not_found_in_audio",
+        "out_of_order",
+        "repeat_read",
+        "repeat_mention",
+        "not_in_export",
+        "chapter_only",
+    }
+    export_cues = [c for c in cues if c["text_source"]["kind"] == "export"]
+    assert {c["classification"] for c in export_cues} == {"read", "paraphrase"}
+    assert any("detection" in c and c["classification"] == "read" for c in export_cues)
+    assert any("detection" not in c and c["classification"] == "read" for c in export_cues)
+    assert any("detection" in c and c["classification"] == "paraphrase" for c in export_cues)
+    assert any("verse_offsets_s" in c for c in export_cues)
+    assert all(not c["enabled"] for c in cues if "not_in_export" in c["flags"])
+    assert {c["text_source"]["entry_index"] for c in export_cues} == set(range(8))
