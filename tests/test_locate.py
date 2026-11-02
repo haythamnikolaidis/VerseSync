@@ -768,15 +768,30 @@ def test_a_moved_entry_leaves_out_a_mention_that_another_placement_holds() -> No
     assert result.consumed_detection_ids == (DETECTION.id,)
 
 
+def detection_at(
+    start_s: float, id: str = "det_001", verse: int | None = 4, flags: tuple[str, ...] = ()
+) -> Detection:
+    """A mention of James 1:4 (or "James 1" with ``verse=None``) that starts at ``start_s``."""
+    return replace(
+        DETECTION,
+        id=id,
+        candidate=replace(DETECTION.candidate, source_start=start_s, source_end=start_s + 2.0),
+        reference=replace(DETECTION.reference, verse=verse),
+        flags=flags,
+    )
+
+
 def test_an_entry_gives_up_a_mention_to_move() -> None:
-    mention = mention_at(50.0, score=0.4)
-    held = Placement(0, 0.4, 50.0, mention=mention)
+    # Entry 0 holds a mention at 50 until it moves to its reading at 400. The mention is free then,
+    # and a mention with a verse that no reading introduces is a repeat (section 4.6).
+    spoken = detection_at(50.0)
+    held = Placement(0, 0.4, 50.0, mention=MentionCandidate(0, spoken, 0.4, 50.0))
     strong = text_placement(0, 0.90, 400.0, (30, 60))
     other = text_placement(1, 1.0, 200.0, (80, 100))
-    result = locate(blank(2), [[held, strong], [other]], [DETECTION], CFG)
-    assert kinds_of(result) == [(1, "assigned"), (0, "out_of_order")]
-    assert result.cues[1].placement is strong
-    assert result.consumed_detection_ids == ()  # the mention is free for the later passes
+    result = locate(blank(2), [[held, strong], [other]], [spoken], CFG)
+    assert kinds_of(result) == [(0, "repeat_mention"), (1, "assigned"), (0, "out_of_order")]
+    assert result.cues[2].placement is strong
+    assert result.consumed_detection_ids == (spoken.id,)
 
 
 def test_the_best_reading_wins_and_ties_go_to_the_earliest() -> None:
@@ -789,8 +804,7 @@ def test_the_best_reading_wins_and_ties_go_to_the_earliest() -> None:
     )
     blocker = text_placement(1, 1.0, 50.0, (0, 5))
     result = locate(entries, [[later, twin, best, same], [blocker]], [], CFG)
-    assert kinds_of(result) == [(1, "assigned"), (0, "out_of_order")]
-    assert result.cues[1].placement is best
+    assert cue_of(result, 0, "out_of_order").placement is best
     # Without the best, the two of equal coverage tie and the earlier one is taken.
     result = locate(entries, [[later, twin, same], [blocker]], [], CFG)
     assert cue_of(result, 0, "out_of_order").placement is same
@@ -827,6 +841,236 @@ def test_locate_needs_one_list_of_candidates_per_entry() -> None:
     with pytest.raises(ValueError):
         locate(blank(2), [[]], [], CFG)
 
+
+# --- repeat pass (14 section 4.6) --------------------------------------------------------------
+
+JOHN_INTRO = "turn to John chapter 3 verse 16"
+REJOICE = ("16 Rejoice evermore.", "17 Pray without ceasing.")  # 1 Thessalonians 5:16-17, 5 tokens
+
+
+def entry_of(index: int, reference: str, lines: tuple[str, ...]) -> ExportEntry:
+    body = " ".join(lines)
+    return ExportEntry(
+        index=index,
+        reference_line=f"{reference} (KJV)",
+        reference=parse_reference(reference, CANON),
+        translation="KJV",
+        lines=lines,
+        body=body,
+        word_count=len(body.split()),
+    )
+
+
+def rejoice_entry(index: int = 0) -> ExportEntry:
+    return entry_of(index, "1 Thessalonians 5:16-17", REJOICE)
+
+
+def test_a_re_read_with_no_slide_is_a_repeat_read() -> None:
+    entries = [john_entry()]
+    words = speak((40.0, JOHN_INTRO), (46.0, JOHN_3_16), (300.0, "so " + filler(10)))
+    words += speak((320.0, JOHN_3_16))
+    result = locate_in(entries, words)
+    assert kinds_of(result) == [(0, "assigned"), (0, "repeat_read")]
+    first = cue_of(result, 0, "assigned").placement
+    assert first is not None and first.text is not None and first.mention is not None
+    again = cue_of(result, 0, "repeat_read").placement
+    assert again is not None and again.text is not None and again.mention is None
+    assert again.text.coverage == 1.0
+    assert again.time_s == again.text.read_start_s == 320.0
+    assert not _overlap(span_of(result.cues[0]), span_of(result.cues[1]))
+    assert result.consumed_detection_ids == (first.mention.detection.id,)
+
+
+def _overlap(a: tuple[int, int], b: tuple[int, int]) -> bool:
+    return a[0] <= b[1] and b[0] <= a[1]
+
+
+def test_a_re_read_that_a_mention_introduces_keeps_the_mention() -> None:
+    entries = [john_entry()]
+    words = speak((40.0, JOHN_INTRO), (46.0, JOHN_3_16), (300.0, "back to John chapter 3 verse 16"))
+    words += speak((306.0, JOHN_3_16))
+    result = locate_in(entries, words)
+    assert kinds_of(result) == [(0, "assigned"), (0, "repeat_read")]
+    again = cue_of(result, 0, "repeat_read").placement
+    assert again is not None and again.text is not None and again.mention is not None
+    assert 300.0 < again.mention.mention_start_s < again.text.read_start_s
+    assert result.consumed_detection_ids == ("det_001", "det_002")
+
+
+def test_a_repeated_reference_is_a_repeat_mention() -> None:
+    entries = [john_entry()]
+    words = speak((40.0, JOHN_INTRO), (46.0, JOHN_3_16), (600.0, "John chapter 3 verse 16"))
+    result = locate_in(entries, words)
+    assert kinds_of(result) == [(0, "assigned"), (0, "repeat_mention")]
+    again = cue_of(result, 0, "repeat_mention").placement
+    assert again is not None and again.text is None and again.mention is not None
+    assert again.time_s == again.mention.mention_start_s == 600.0
+    assert again.score == again.mention.score == 0.5 * again.mention.detection.confidence
+    assert result.consumed_detection_ids == ("det_001", "det_002")
+
+
+def test_a_mention_inside_the_merge_window_gives_no_cue() -> None:
+    # Two mentions 70 s apart introduce one reading; the nearer joins it and the other is absorbed.
+    entries = [john_entry()]
+    words = speak((0.0, "John chapter 3 verse 16"), (70.0, "John chapter 3 verse 16"))
+    words += speak((100.0, JOHN_3_16))
+    result = locate_in(entries, words)
+    assert kinds_of(result) == [(0, "assigned")]
+    assert result.consumed_detection_ids == ("det_001", "det_002")
+    assert mention_ids(result) == ["det_002"]  # the absorbed one belongs to no placement
+
+
+def test_the_merge_window_is_120_s_before_and_20_s_after_the_read() -> None:
+    entries = blank(1)
+    reading = text_placement(0, 0.90, 500.0, (10, 50))
+    for start, absorbed in ((380.0, True), (379.5, False), (520.0, True), (520.5, False)):
+        spoken = detection_at(start)
+        result = locate(entries, [[reading]], [spoken], CFG)
+        expected = [(0, "assigned")] if absorbed else [(0, "repeat_mention"), (0, "assigned")]
+        if start > 500.0:
+            expected.reverse()
+        assert kinds_of(result) == expected, start
+        assert result.consumed_detection_ids == (spoken.id,), start
+
+
+def test_a_chapter_only_mention_is_never_a_repeat() -> None:
+    entries = [john_entry()]
+    words = speak((40.0, JOHN_INTRO), (46.0, JOHN_3_16), (600.0, "back in John chapter 3"))
+    detections = detections_in(words)
+    assert "chapter_only" in detections[1].flags
+    result = locate_in(entries, words)
+    assert kinds_of(result) == [(0, "assigned")]
+    assert detections[1].id not in result.consumed_detection_ids
+    # Not even inside a reading's merge window.
+    reading = text_placement(0, 0.90, 500.0, (10, 50))
+    near = detection_at(480.0, verse=None, flags=("chapter_only",))
+    result = locate(blank(1), [[reading]], [near], CFG)
+    assert kinds_of(result) == [(0, "assigned")] and result.consumed_detection_ids == ()
+
+
+def test_a_suppressed_duplicate_is_never_a_repeat() -> None:
+    entries = [john_entry()]
+    words = speak((40.0, JOHN_INTRO), (46.0, JOHN_3_16), (600.0, "John chapter 3 verse 16"))
+    words += speak((620.0, "again John chapter 3 verse 16"))
+    detections = detections_in(words)
+    assert "suppressed_duplicate" in detections[2].flags
+    result = locate_in(entries, words)
+    assert kinds_of(result) == [(0, "assigned"), (0, "repeat_mention")]
+    repeat = cue_of(result, 0, "repeat_mention").placement
+    assert repeat is not None and repeat.mention is not None
+    assert repeat.mention.detection.id == detections[1].id
+    assert detections[2].id not in result.consumed_detection_ids
+    # Inside a reading's merge window it is the same mention heard again, so it is absorbed.
+    reading = text_placement(0, 0.90, 500.0, (10, 50))
+    window = detection_at(480.0, id="det_001", flags=("suppressed_duplicate",))
+    outside = detection_at(700.0, id="det_002", flags=("suppressed_duplicate",))
+    result = locate(blank(1), [[reading]], [window, outside], CFG)
+    assert kinds_of(result) == [(0, "assigned")]
+    assert result.consumed_detection_ids == ("det_001",)
+
+
+def test_a_re_read_under_five_matched_tokens_gives_no_cue() -> None:
+    entries = [rejoice_entry()]
+    full = speak((100.0, "Rejoice evermore. Pray without ceasing."))
+    four_of_five = speak((300.0, "rejoice evermore pray without"))
+    short = locate_in(entries, full + four_of_five)
+    assert kinds_of(short) == [(0, "assigned")]
+    found = text_candidates(entries[0], tokens_in(full + four_of_five), CFG)
+    assert [(c.matched, c.coverage) for c in found] == [(5, 1.0), (4, 0.8)]  # coverage is enough
+    # Five matched tokens is enough, and the minimum is the configured one.
+    five = speak((300.0, "rejoice evermore pray without ceasing"))
+    assert kinds_of(locate_in(entries, full + five)) == [(0, "assigned"), (0, "repeat_read")]
+    lenient = replace(CFG, repeat_min_matched_tokens=4)
+    assert kinds_of(locate_in(entries, full + four_of_five, lenient)) == [
+        (0, "assigned"),
+        (0, "repeat_read"),
+    ]
+
+
+def test_a_weak_re_read_gives_no_cue() -> None:
+    entries = [john_entry()]
+    seven_of_twenty_one = "For God so loved the world he gave"
+    words = speak((100.0, JOHN_3_16), (400.0, seven_of_twenty_one))
+    assert len(text_candidates(entries[0], tokens_in(words), CFG)) == 2
+    assert kinds_of(locate_in(entries, words)) == [(0, "assigned")]
+
+
+def test_a_mention_an_entry_gives_up_becomes_a_repeat_mention() -> None:
+    # John is named at 50 and the psalm read at 200, so the assignment puts John on its mention.
+    # John's reading at 400 is stronger evidence, so John moves there and the mention is left.
+    entries = [john_entry(0), psalm_entry(1)]
+    words = speak((50.0, JOHN_INTRO), (200.0, PSALM_91_15), (400.0, JOHN_3_16))
+    assigned = assign(entries, candidates_for(entries, words))[0]
+    assert assigned is not None and assigned.text is None and assigned.mention is not None
+    result = locate_in(entries, words)
+    assert kinds_of(result) == [(0, "repeat_mention"), (1, "assigned"), (0, "out_of_order")]
+    assert result.consumed_detection_ids == ("det_001",)
+
+
+def test_with_two_entries_for_one_scripture_the_lower_one_gets_each_cue() -> None:
+    entries = blank(2)
+    first, second = (
+        text_placement(0, 0.90, 100.0, (10, 50)),
+        text_placement(1, 0.90, 300.0, (60, 80)),
+    )
+    spoken = detection_at(700.0)
+    # One detection matches both entries and becomes one repeat, for the first.
+    result = locate(entries, [[first], [second]], [spoken], CFG)
+    assert kinds_of(result) == [(0, "assigned"), (1, "assigned"), (0, "repeat_mention")]
+    # It is absorbed instead by the entry whose reading it introduces, even if that is the second.
+    introduces = detection_at(250.0)
+    result = locate(entries, [[first], [second]], [introduces], CFG)
+    assert kinds_of(result) == [(0, "assigned"), (1, "assigned")]
+    assert result.consumed_detection_ids == (introduces.id,)
+    # Both entries read the same words again: the first gets the re-read, the second none.
+    again = [text_placement(0, 0.80, 500.0, (100, 140)), text_placement(1, 0.80, 500.0, (100, 140))]
+    result = locate(entries, [[first, again[0]], [second, again[1]]], [], CFG)
+    assert [(c.entry_index, c.kind) for c in result.cues] == [
+        (0, "assigned"),
+        (1, "assigned"),
+        (0, "repeat_read"),
+    ]
+    # And words that overlap a re-read, without being the same, are held too.
+    overlapping = text_placement(1, 0.80, 505.0, (130, 170))
+    result = locate(entries, [[first, again[0]], [second, overlapping]], [], CFG)
+    assert [c.kind for c in result.cues].count("repeat_read") == 1
+
+
+def test_an_unplaced_entry_has_no_repeats() -> None:
+    result = locate(blank(1), [[]], [detection_at(600.0)], CFG)
+    assert kinds_of(result) == [(0, "unplaced")]
+    assert result.consumed_detection_ids == ()
+
+
+def test_a_detection_held_by_a_placement_is_not_used_again() -> None:
+    # The mention merged into entry 0's reading is also a mention of entry 1, which is placed
+    # elsewhere; it joins no second cue.
+    entries = blank(2)
+    spoken = detection_at(95.0)
+    merged = text_placement(0, 0.90, 100.0, (10, 50), MentionCandidate(0, spoken, 0.4, 95.0))
+    second = text_placement(1, 0.90, 300.0, (60, 80))
+    result = locate(entries, [[merged], [second]], [spoken], CFG)
+    assert kinds_of(result) == [(0, "assigned"), (1, "assigned")]
+    assert result.consumed_detection_ids == (spoken.id,)
+
+
+def test_a_re_read_leaves_out_a_mention_that_another_placement_holds() -> None:
+    # Entry 0's second reading was merged with a mention that entry 1 holds. It is still a re-read,
+    # without the mention, which joins one cue only.
+    entries = blank(2)
+    spoken = detection_at(480.0)
+    mention = MentionCandidate(0, spoken, 0.4, 480.0)
+    first = text_placement(0, 0.90, 100.0, (10, 50))
+    merged = text_placement(0, 0.80, 500.0, (100, 140), mention)
+    holder = Placement(1, 1.2, 480.0, mention=replace(mention, entry_index=1))
+    result = locate(entries, [[first, merged], [holder]], [spoken], CFG)
+    assert kinds_of(result) == [(0, "assigned"), (1, "assigned"), (0, "repeat_read")]
+    assert result.cues[2].placement == Placement(0, 0.80, 500.0, text=merged.text)
+    assert mention_ids(result) == [spoken.id]
+    assert result.consumed_detection_ids == (spoken.id,)
+
+
+# --- all passes together -----------------------------------------------------------------------
 
 # A random sermon: scriptures introduced, read in full or in part, named again, in any order.
 SCRIPTURES = (
@@ -893,6 +1137,18 @@ def test_random_sermons_keep_every_guarantee() -> None:
         held = mention_ids(result)
         assert len(held) == len(set(held)), case
         assert set(held) <= set(result.consumed_detection_ids), case
+        for cue in result.cues:
+            placement = cue.placement
+            if cue.kind == "repeat_read":
+                assert placement is not None and placement.text is not None, case
+                assert placement.text.coverage >= CFG.align.read_coverage_threshold, case
+                assert placement.text.matched >= CFG.repeat_min_matched_tokens, case
+            if cue.kind == "repeat_mention":
+                assert placement is not None and placement.mention is not None, case
+                assert placement.text is None, case
+                spoken = placement.mention.detection
+                assert spoken.reference.verse is not None, case
+                assert "suppressed_duplicate" not in spoken.flags, case
 
 
 # --- performance -------------------------------------------------------------------------------

@@ -18,7 +18,7 @@ from dataclasses import dataclass, fields
 from typing import Literal
 
 from versesync.config import Config
-from versesync.detect.detector import Detection
+from versesync.detect.detector import FLAG_SUPPRESSED, Detection
 from versesync.scripture_file import ExportEntry
 from versesync.timing.align import AlignConfig, AToken, align_from, normalise_verse, tokens_equal
 from versesync.types import Reference
@@ -201,6 +201,15 @@ def _reference_matches(entry: Reference, spoken: Reference) -> bool:
     return spoken.verse <= entry_last and entry.verse <= spoken_last
 
 
+def _mention(entry_index: int, detection: Detection, cfg: LocateConfig) -> MentionCandidate:
+    return MentionCandidate(
+        entry_index=entry_index,
+        detection=detection,
+        score=cfg.mention_weight * detection.confidence,
+        mention_start_s=detection.candidate.source_start,
+    )
+
+
 def mention_candidates(
     entry: ExportEntry,
     detections: Sequence[Detection],
@@ -212,17 +221,19 @@ def mention_candidates(
     detection is a candidate here, including a ``suppressed_duplicate`` one.
     """
     found = [
-        MentionCandidate(
-            entry_index=entry.index,
-            detection=d,
-            score=cfg.mention_weight * d.confidence,
-            mention_start_s=d.candidate.source_start,
-        )
+        _mention(entry.index, d, cfg)
         for d in detections
         if _reference_matches(entry.reference, d.reference)
     ]
     found.sort(key=lambda m: (m.mention_start_s, m.detection.id))
     return found
+
+
+def _in_merge_window(start_s: float, text: TextCandidate, cfg: LocateConfig) -> bool:
+    """Whether a mention starting at ``start_s`` merges with the reading ``text`` (14 4.3)."""
+    return (
+        text.read_start_s - cfg.merge_before_s <= start_s <= text.read_start_s + cfg.merge_after_s
+    )
 
 
 def merge(
@@ -245,13 +256,7 @@ def merge(
     free = list(mentions)
     placements: list[Placement] = []
     for candidate in text:
-        window = [
-            m
-            for m in free
-            if candidate.read_start_s - cfg.merge_before_s
-            <= m.mention_start_s
-            <= candidate.read_start_s + cfg.merge_after_s
-        ]
+        window = [m for m in free if _in_merge_window(m.mention_start_s, candidate, cfg)]
         if not window:
             placements.append(
                 Placement(
@@ -499,6 +504,80 @@ def _move_out_of_order(
         kinds[k] = "out_of_order"
 
 
+def _find_repeats(
+    entries: Sequence[ExportEntry],
+    candidates: Sequence[Sequence[Placement]],
+    chosen: Sequence[Placement | None],
+    detections: Sequence[Detection],
+    cfg: LocateConfig,
+) -> tuple[list[LocatedCue], set[str]]:
+    """Section 4.6: the cues for a scripture the pastor went back to with no new slide.
+
+    Only an entry with a placement has repeats. Returns the new cues and the ids of every
+    detection that is now held: by ``chosen``, by a repeat, or absorbed because it introduces a
+    reading. All entries are served in file order, so when two entries match the same words or
+    the same detection (two slides of one scripture), the lower entry index gets the cue.
+
+    A re-read is an unused text candidate with coverage of at least ``read_coverage_threshold``
+    and ``repeat_min_matched_tokens`` matched tokens, on words no cue holds yet. A repeat mention
+    is an unused detection with a verse that matches the entry. The spec leaves some cases open:
+
+    - A detection in the merge window of any reading of an entry that matches it (the entry's
+      first reading, or a re-read) introduces that reading, so it is absorbed: no cue, and it
+      counts as consumed. This comes before the other tests, so the entry whose reading it
+      introduces gets it, not a lower entry that also matches. A ``suppressed_duplicate`` one in
+      a window is absorbed too, since it is the same mention heard again.
+    - Outside a window, a ``suppressed_duplicate`` or chapter-only detection is not a repeat and
+      is not consumed. A mention is never a repeat for an entry with no placement.
+    - Which of an entry's readings is the re-read follows ``assign`` (the better score), not the
+      clock.
+    """
+    threshold = cfg.align.read_coverage_threshold
+    placed = [k for k, p in enumerate(chosen) if p is not None]
+    taken = [p.word_span for p in chosen if p is not None and p.word_span is not None]
+    used = _detection_ids(chosen)
+    readings: dict[int, list[TextCandidate]] = {
+        k: [p.text] for k, p in enumerate(chosen) if p is not None and p.text is not None
+    }
+    repeats: list[LocatedCue] = []
+
+    for k in placed:
+        pool = [(c.text, c) for c in candidates[k] if c.text is not None]
+        for text, reading in sorted(pool, key=lambda r: (r[0].read_start_s, r[0].word_span)):
+            if text.coverage < threshold or text.matched < cfg.repeat_min_matched_tokens:
+                continue
+            if any(_spans_overlap(text.word_span, span) for span in taken):
+                continue
+            placement = _without_used_mention(reading, used)
+            taken.append(text.word_span)
+            used |= _detection_ids([placement])
+            readings.setdefault(k, []).append(text)
+            repeats.append(LocatedCue(entries[k].index, placement, "repeat_read"))
+
+    for detection in sorted(detections, key=lambda d: (d.candidate.source_start, d.id)):
+        if detection.id in used or detection.reference.verse is None:
+            continue
+        matching = [
+            k for k in placed if _reference_matches(entries[k].reference, detection.reference)
+        ]
+        if not matching:
+            continue
+        start = detection.candidate.source_start
+        if any(
+            _in_merge_window(start, text, cfg) for k in matching for text in readings.get(k, ())
+        ):
+            used.add(detection.id)
+            continue
+        if FLAG_SUPPRESSED in detection.flags:
+            continue
+        entry = entries[matching[0]]
+        mention = _mention(entry.index, detection, cfg)
+        placement = Placement(entry.index, mention.score, mention.mention_start_s, mention=mention)
+        repeats.append(LocatedCue(entry.index, placement, "repeat_mention"))
+        used.add(detection.id)
+    return repeats, used
+
+
 def _order_key(cue: LocatedCue) -> tuple[int, float, int, int, tuple[int, int]]:
     """Placed cues by time, then entry, kind and words; unplaced cues after them, by entry."""
     placement = cue.placement
@@ -514,13 +593,14 @@ def locate(
     detections: Sequence[Detection],
     cfg: LocateConfig = LocateConfig(),
 ) -> LocateResult:
-    """Every cue the scripture file gives, found in the transcript (14 sections 4.4 and 4.5).
+    """Every cue the scripture file gives, found in the transcript (14 sections 4.4 to 4.6).
 
     ``candidates`` are the placements of each entry in file order, from ``build_candidates``.
     ``assign`` runs first and isn't changed: the passes after it only use what it left over. Then
     each entry that is unplaced or has no strong reading moves to one it has (section 4.5, with
-    ``read_coverage_threshold`` from ``cfg.align``). No two cues hold the same words, and no
-    detection joins more than one cue.
+    ``read_coverage_threshold`` from ``cfg.align``), and the readings and verse mentions still
+    unused become repeats (section 4.6). No two cues hold the same words, and no detection joins
+    more than one cue.
 
     The cues are sorted by time, unplaced last, so the result is the same for the same input.
     """
@@ -528,11 +608,12 @@ def locate(
     _release_shared_readings(chosen)
     kinds: list[CueKind] = ["unplaced" if p is None else "assigned" for p in chosen]
     _move_out_of_order(candidates, chosen, kinds, cfg.align.read_coverage_threshold)
+    repeats, consumed = _find_repeats(entries, candidates, chosen, detections, cfg)
 
     cues = [
         LocatedCue(entry.index, placement, kind)
         for entry, placement, kind in zip(entries, chosen, kinds, strict=True)
     ]
+    cues.extend(repeats)
     cues.sort(key=_order_key)
-    consumed = _detection_ids(chosen)
     return LocateResult(cues, tuple(d.id for d in detections if d.id in consumed))
