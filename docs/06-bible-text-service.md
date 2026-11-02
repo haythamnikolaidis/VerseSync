@@ -167,7 +167,8 @@ implications. These are requirements, not notes:
 - **Caching permission.** Some licences restrict storing verse text. The verse cache is
   therefore per-translation switchable (`cache_allowed: bool` on the `Translation` record), and
   a translation marked `cache_allowed: false` is fetched every run. Default is the conservative
-  reading of the provider's terms; confirm per translation before enabling.
+  reading of the provider's terms; confirm per translation before enabling. Cached text expires
+  after `cache_max_age_days` (**14**; the terms allow up to a month, D27).
 - **Quantity limits.** Providers commonly cap verses per request and the proportion of a single
   book that may be served. The resolver enforces `max_verses_per_passage` (FR-4.6, default 6)
   and reports a job-level warning if a single job's fetches approach a provider's documented
@@ -194,7 +195,8 @@ VerseFlow's own sample data uses **NKJV** and **TPT**. Neither is a given:
 
 **What must happen before M2 completes** — this is open question **Q-A** in
 [00-prd.md](00-prd.md) §11 and [12](12-decisions-and-risks.md). *(Status: done for the
-public-domain KJV, ASV and WEB in T-15.H. Still open for licensed translations.)*
+public-domain KJV, ASV and WEB in T-15.H, and for NIV, AMP and NKJV by D27. Still open for any
+other translation.)*
 
 1. Confirm which translations the church actually needs on screen. If it is one, this gets much
    simpler.
@@ -244,9 +246,10 @@ bible:
     max_retries: 2
   local:
     store_path: "%APPDATA%/VerseSync/bibles"
-  default_translation: kjv
+  default_translation: nkjv      # D27, set by T-53.2
   max_verses_per_passage: 6
   cache_enabled: true
+  cache_max_age_days: 14         # D27, set by T-53.3
 ```
 
 Credentials are read from the environment or the OS credential store, **never** written to
