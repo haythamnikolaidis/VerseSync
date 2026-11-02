@@ -6,7 +6,7 @@ import json
 import sqlite3
 from collections.abc import Callable
 from contextlib import closing
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from versesync.bible.base import BibleProvider, RawPassage, RawVerse, Translation
@@ -37,19 +37,26 @@ def _utc_now() -> str:
 
 
 class CachingProvider:
-    """Wraps any ``BibleProvider``; entries never expire and only cacheable translations persist."""
+    """Wraps any ``BibleProvider``; only cacheable translations persist, and entries older than
+    ``max_age_days`` (or with an unreadable fetch time) are misses and are deleted at creation."""
 
     def __init__(
         self,
         inner: BibleProvider,
         db_path: Path | None = None,
         now: Callable[[], str] = _utc_now,
+        max_age_days: int = 14,
     ) -> None:
         self._inner = inner
         self.id = inner.id
         self._path = Path(db_path) if db_path is not None else cache_dir() / "verses.sqlite3"
         self._now = now  # injected so the fetch timestamp never touches the key path
+        self._max_age = timedelta(days=max_age_days)
         self._cacheable: dict[str, bool] = {}
+        self._purge_expired()
+
+    def check(self) -> None:
+        self._inner.check()
 
     def list_translations(self) -> list[Translation]:
         translations = self._inner.list_translations()
@@ -82,6 +89,30 @@ class CachingProvider:
             db.execute(_SCHEMA)
             db.execute("DELETE FROM verses")
 
+    def _fresh(self, fetched_at: object) -> bool:
+        try:
+            stamp = datetime.fromisoformat(str(fetched_at))
+            return stamp.tzinfo is not None and (
+                datetime.fromisoformat(self._now()) - stamp <= self._max_age
+            )
+        except ValueError:
+            return False
+
+    def _purge_expired(self) -> None:
+        """Drop rows past the age limit so verse text never stays on disk beyond it."""
+        if not self._path.exists():
+            return
+        try:
+            with closing(sqlite3.connect(self._path)) as db, db:
+                stale = [
+                    (rowid,)
+                    for rowid, fetched_at in db.execute("SELECT rowid, fetched_at FROM verses")
+                    if not self._fresh(fetched_at)
+                ]
+                db.executemany("DELETE FROM verses WHERE rowid=?", stale)
+        except sqlite3.Error:
+            return
+
     def _allowed(self, translation_id: str) -> bool:
         if translation_id not in self._cacheable:
             self.list_translations()
@@ -110,13 +141,14 @@ class CachingProvider:
         with closing(sqlite3.connect(self._path)) as db:
             try:
                 row = db.execute(
-                    "SELECT payload, verses FROM verses WHERE provider_id=? AND translation_id=? "
-                    "AND osis_book=? AND chapter=? AND verse_start=? AND verse_end=?",
+                    "SELECT payload, verses, fetched_at FROM verses "
+                    "WHERE provider_id=? AND translation_id=? AND osis_book=? AND chapter=? "
+                    "AND verse_start=? AND verse_end=?",
                     key,
                 ).fetchone()
             except sqlite3.OperationalError:
                 return None
-        if row is None:
+        if row is None or not self._fresh(row[2]):
             return None
         provider_id, translation_id, osis, chapter, _, _ = key
         verses = tuple(RawVerse(int(v["verse"]), str(v["text"])) for v in json.loads(row[1]))

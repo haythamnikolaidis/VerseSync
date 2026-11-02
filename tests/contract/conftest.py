@@ -197,7 +197,7 @@ def _launch_mock(home: Path) -> Sidecar:
 
 def _launch_real(home: Path) -> Sidecar:
     # The fixture backend replays a recorded transcript (T-07), so no model or GPU is needed;
-    # the bundled local Bible provider is the only provider the sidecar wires up.
+    # bible.provider: local selects the bundled KJV, so the suite needs no network or API key.
     transcript = REPO_ROOT / "tests" / "fixtures" / "transcripts" / REAL_TRANSCRIPT
     config_path = home / "contract-config.yaml"
     config_path.write_text(
@@ -215,6 +215,7 @@ def _launch_real(home: Path) -> Sidecar:
         VERSESYNC_CONTRACT_JOB_HOLD_S=str(REAL_JOB_HOLD_S),
     )
     env.pop("APPDATA", None)
+    env.pop("VERSESYNC_API_BIBLE_KEY", None)
     proc = subprocess.Popen(
         [sys.executable, str(PACED_SIDECAR_SCRIPT), "--config", str(config_path)],
         stdout=subprocess.PIPE,

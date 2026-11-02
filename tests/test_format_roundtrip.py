@@ -114,3 +114,37 @@ def test_ranges_use_hyphen_never_en_dash() -> None:
     assert "-" in p.reference_display
     assert "\u2013" not in p.reference_display
     assert "\u2013" not in to_verseflow_block(p)
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ('L<span class="sc">ord</span> is', "Lord is"),
+        ('<span class="sc">L</span>ORD is', "LORD is"),
+        ('<span class="nd">L<span class="sc">or</span>d</span> is', "Lord is"),
+        ("the <span>word</span> here", "the word here"),
+        ("<p>end.</p><p>Next</p>", "end. Next"),
+        ("one<br>two<br/>three", "one two three"),
+        ("<p>runs on</p><p>into more</p>", "runs on into more"),
+        ("<ul><li>a</li><li>b</li></ul><h2>c</h2>d", "a b c d"),
+    ],
+)
+def test_strip_markup_inline_vs_block(raw: str, expected: str) -> None:
+    assert strip_markup(raw) == expected
+
+
+def test_small_caps_word_stays_whole_through_api_parse() -> None:
+    from versesync.bible.api_bible import parse_verses
+
+    content = (
+        '<p class="p"><span data-number="1" class="v">1</span>'
+        'The L<span class="sc">ord</span> is my light and my salvation;</p>'
+        '<p class="p"><span data-number="2" class="v">2</span>'
+        'whom shall I fear? The <span class="sc">L</span>ORD is the strength.</p>'
+    )
+    ref = Reference("Psalms", "Ps", 27, 1, 2)
+    raw = RawPassage("api", "kjv", ref, parse_verses(content), "{}")
+    p = format_passage(raw, KJV, load_canon(), source="api")
+    assert p.body == (
+        "1 The Lord is my light and my salvation; 2 whom shall I fear? The LORD is the strength."
+    )

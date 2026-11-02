@@ -1,4 +1,5 @@
 import json
+import socket
 from pathlib import Path
 from queue import Empty, Queue
 from typing import Any
@@ -7,9 +8,10 @@ import pytest
 from transcript_fixtures import FIXTURES_DIR
 
 from versesync.bible.base import ProviderUnavailable, RawPassage, Translation
+from versesync.bible.factory import build_provider
 from versesync.bible.local import LocalProvider
 from versesync.cache import TranscriptCache, hash_media
-from versesync.config import Config
+from versesync.config import Config, load_config
 from versesync.cues import validate_document
 from versesync.jobs import Job, JobRegistry, run_job
 from versesync.transcribe import FakeBackend, TranscribeOptions, TranscriptionError
@@ -37,6 +39,9 @@ class DownProvider:
     """Lists translations like the local store, but every fetch fails."""
 
     id = "down"
+
+    def check(self) -> None:
+        return None
 
     def list_translations(self) -> list[Translation]:
         return PROVIDER.list_translations()
@@ -217,6 +222,42 @@ def test_provider_outage_is_a_successful_job(app_home: Path, media: Path) -> Non
     unavailable = [c for c in doc["cues"] if "text_unavailable" in c["flags"]]
     assert unavailable
     assert all("chapter_only" in c["flags"] for c in doc["cues"] if c not in unavailable)
+    assert [w["code"] for w in doc["warnings"]] == ["provider_partial"]
+    assert [n for n, _ in run.drain()].count("done") == 1
+
+
+def test_api_bible_job_with_no_key_finishes_with_every_cue_flagged(
+    app_home: Path, media: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """FR-4.5: no key means flagged cues, never a failed job and never another translation."""
+    monkeypatch.delenv("VERSESYNC_API_BIBLE_KEY", raising=False)
+    (app_home / "config.yaml").write_text("bible:\n  provider: api_bible\n", encoding="utf-8")
+
+    def refuse(*_args: Any, **_kwargs: Any) -> None:
+        raise AssertionError("network access attempted")
+
+    monkeypatch.setattr(socket, "socket", refuse)
+    monkeypatch.setattr(socket, "create_connection", refuse)
+    config = load_config()
+    assert config.bible["default_translation"] == "nkjv"
+    provider = build_provider(config)
+    assert provider.id == "api_bible"
+    nkjv = next(t for t in provider.list_translations() if t.abbreviation == "NKJV")
+
+    run = start(media, provider=provider, translation_id=nkjv.id)
+
+    assert run.job.status == "done"
+    assert run.job.error is None
+    doc = read_doc(run.job)
+    validate_document(doc)
+    verse_cues = [c for c in doc["cues"] if "chapter_only" not in c["flags"]]
+    assert verse_cues
+    for cue in verse_cues:
+        assert "text_unavailable" in cue["flags"]
+        assert cue["body"] == ""
+        assert cue["body_word_count"] == 0
+        assert cue["reference_display"].endswith("(NKJV)")
+    assert all(c["body"] == "" for c in doc["cues"])
     assert [w["code"] for w in doc["warnings"]] == ["provider_partial"]
     assert [n for n, _ in run.drain()].count("done") == 1
 

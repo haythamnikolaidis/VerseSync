@@ -6,7 +6,7 @@ it belongs to, except ``TranslationNotLicensed``, which is a job-level failure a
 
 from __future__ import annotations
 
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -58,18 +58,23 @@ def _fetch_batch(
 ) -> list[_Outcome]:
     """Fetch every ref, one outcome each. ``fetch_many`` is optional on a provider.
 
-    ``fetch_many(refs, translation_id)`` returns one ``RawPassage`` or ``BibleError`` per ref.
+    ``fetch_many(refs, translation_id)`` returns one ``RawPassage`` or ``BibleError`` per ref,
+    either as a sequence in the order of ``refs`` or, as the API.Bible adapter does, as a
+    mapping from each ref to its outcome.
+
     If it raises for the whole batch, every ref gets that error. A ``RateLimited`` batch is
     retried once, immediately: detection and resolving read no clock (AGENT.md section 6).
     """
-    many: Callable[[Sequence[Reference], str], Sequence[_Outcome]] | None = getattr(
-        provider, "fetch_many", None
-    )
+    many: (
+        Callable[[Sequence[Reference], str], Sequence[_Outcome] | Mapping[Reference, _Outcome]]
+        | None
+    ) = getattr(provider, "fetch_many", None)
     if many is None:
         return _fetch_each(provider, refs, translation_id)
     for attempt in (1, 2):
         try:
-            results = list(many(refs, translation_id))
+            batch = many(refs, translation_id)
+            results = [batch[ref] for ref in refs] if isinstance(batch, Mapping) else list(batch)
         except TranslationNotLicensed:
             raise
         except RateLimited as err:

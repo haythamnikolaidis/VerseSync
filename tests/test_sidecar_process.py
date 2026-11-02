@@ -111,6 +111,19 @@ def test_idle_exit(home: Path, procs: list[subprocess.Popen[str]]) -> None:
     assert not lock_path().exists()
 
 
+def test_unknown_bible_provider_stops_start_up(
+    home: Path, procs: list[subprocess.Popen[str]]
+) -> None:
+    config = home / "bad-provider.yaml"
+    config.write_text("bible:\n  provider: esv\n", encoding="utf-8")
+    proc = _launch(home, "--config", str(config))
+    procs.append(proc)
+    _, stderr = proc.communicate(timeout=10)
+    assert proc.returncode == 2
+    assert "Unknown bible.provider: esv" in stderr
+    assert not lock_path().exists()
+
+
 def test_second_instance_refused(home: Path, procs: list[subprocess.Popen[str]]) -> None:
     first = _launch(home)
     procs.append(first)

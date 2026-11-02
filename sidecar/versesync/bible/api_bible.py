@@ -81,7 +81,8 @@ class ApiBibleProvider:
         self.__api_key = api_key
         self._base_url = base_url.rstrip("/")
         self._fetch_json = fetch_json
-        # Keyed by API.Bible bible id: {"attribution": str, "cache_allowed": bool}.
+        # Keyed by API.Bible bible id, in the order Setup lists them:
+        # {"abbreviation": str, "name": str, "attribution": str, "cache_allowed": bool}.
         self._config = dict(translations_config or {})
         self._timeout_s = timeout_s
         self._sleep = sleep
@@ -91,30 +92,32 @@ class ApiBibleProvider:
         return f"ApiBibleProvider(base_url={self._base_url!r})"
 
     def list_translations(self) -> list[Translation]:
-        body = self._get("/bibles")
-        out: list[Translation] = []
-        for item in body.get("data", []):
-            bible_id = str(item["id"])
-            conf = self._config.get(bible_id, {})
-            out.append(
-                Translation(
-                    id=bible_id,
-                    # abbreviationLocal is the short form ("KJV"); plain abbreviation is
-                    # language-prefixed ("engKJV") for some bibles and not what 06 section 5's
-                    # display format wants.
-                    abbreviation=str(
-                        item.get("abbreviationLocal")
-                        or item.get("abbreviation")
-                        or item.get("name", bible_id)
-                    ),
-                    name=str(item.get("name", bible_id)),
-                    # Never inferred: attribution and caching come from configuration only,
-                    # and caching is off without an explicit entry (06 section 5).
-                    attribution=str(conf.get("attribution", "")),
-                    cache_allowed=bool(conf.get("cache_allowed", False)),
-                )
+        """The configured translations, in config order, with no request of any kind.
+
+        Setup offers only these (D27), so a Bible the key can see but config omits is never
+        listed. This works with no key and no network. ``attribution`` and ``cache_allowed``
+        come from configuration only, never from the provider.
+        """
+        return [
+            Translation(
+                id=bible_id,
+                abbreviation=str(conf.get("abbreviation") or bible_id),
+                name=str(conf.get("name") or bible_id),
+                attribution=str(conf.get("attribution", "")),
+                cache_allowed=bool(conf.get("cache_allowed", False)),
             )
-        return out
+            for bible_id, conf in self._config.items()
+        ]
+
+    def check(self) -> None:
+        """Make the ``GET /bibles`` call and raise a ``BibleError`` if it fails.
+
+        With no key this raises ``ProviderUnavailable`` without any request. A 401 or 403 (a bad
+        key) raises ``TranslationNotLicensed`` through the usual error mapping.
+        """
+        if not self.__api_key:
+            raise ProviderUnavailable("No Bible API key is configured.")
+        self._get("/bibles")
 
     def fetch(self, ref: Reference, translation_id: str) -> RawPassage:
         if ref.verse is None:

@@ -32,6 +32,9 @@ class FakeProvider:
         self.errors = errors or {}
         self.calls: list[Reference] = []
 
+    def check(self) -> None:
+        return None
+
     def list_translations(self) -> list[Translation]:
         return [TRANSLATION]
 
@@ -135,6 +138,20 @@ def test_fetch_many_per_ref_errors(canon: Canon) -> None:
     results, warnings = resolve_detections(refs, TRANSLATION, provider, canon)
     assert results[1].flags == ("passage_not_found",)
     assert warnings == []
+
+
+def test_fetch_many_may_return_a_mapping_from_ref_to_outcome(canon: Canon) -> None:
+    refs = [_ref(canon, "Rom", 8, 28), _ref(canon, "Rom", 8, 29)]
+    raw = FakeProvider().fetch(refs[0], "t1")
+
+    class MappingProvider(FakeProvider):
+        def fetch_many(self, refs, translation_id):  # type: ignore[no-untyped-def]
+            return {refs[0]: raw, refs[1]: ProviderUnavailable()}
+
+    results, warnings = resolve_detections(refs, TRANSLATION, MappingProvider(), canon)
+    assert results[0].passage is not None
+    assert results[1].flags == ("text_unavailable",)
+    assert warnings[0]["message"] == "1 passages could not be fetched."
 
 
 def test_fetch_many_batch_failure_flags_every_ref(canon: Canon) -> None:

@@ -43,6 +43,9 @@ Reply = tuple[int, bytes]
 class DownProvider(LocalProvider):
     """A provider whose service cannot be reached."""
 
+    def check(self) -> None:
+        raise ProviderUnavailable()
+
     def list_translations(self) -> Any:
         raise ProviderUnavailable()
 

@@ -11,9 +11,10 @@ from typing import Any
 
 import pytest
 
+from versesync.bible.api_bible import ApiBibleProvider
 from versesync.bible.base import ProviderUnavailable, Translation
 from versesync.bible.local import LocalProvider
-from versesync.config import load_config
+from versesync.config import _BIBLE_DEFAULTS, load_config
 from versesync.jobs import JobService
 from versesync.server import PROVIDER_CHECK_TTL_S, SidecarServer
 from versesync.transcribe import Backend, FakeBackend
@@ -39,7 +40,7 @@ def call(
 
 
 class FlakyProvider:
-    """A LocalProvider whose list_translations can be switched to fail."""
+    """A LocalProvider whose check can be switched to fail."""
 
     id = "flaky"
 
@@ -48,16 +49,22 @@ class FlakyProvider:
         self.down = False
         self.calls = 0
 
-    def list_translations(self) -> list[Translation]:
+    def check(self) -> None:
         self.calls += 1
         if self.down:
             raise ProviderUnavailable()
+
+    def list_translations(self) -> list[Translation]:
         return self.inner.list_translations()
 
     def fetch(self, *args: Any) -> Any:
+        if self.down:
+            raise ProviderUnavailable()
         return self.inner.fetch(*args)
 
     def fetch_chapter(self, *args: Any) -> Any:
+        if self.down:
+            raise ProviderUnavailable()
         return self.inner.fetch_chapter(*args)
 
 
@@ -80,10 +87,10 @@ class Env:
 def make_env(app_home: Path) -> Iterator[Any]:
     servers: list[tuple[SidecarServer, threading.Thread]] = []
 
-    def build(device: str = "cuda", backend: Backend | None = None) -> Env:
+    def build(device: str = "cuda", backend: Backend | None = None, provider: Any = None) -> Env:
         base = load_config()
         config = replace(base, transcription={**base.transcription, "device": device})
-        provider = FlakyProvider()
+        provider = provider or FlakyProvider()
         server = SidecarServer(config, TOKEN)
         server.clock = Clock()
         server.attach_jobs(
@@ -176,6 +183,53 @@ def test_translations_lists_provider(make_env: Any) -> None:
     }
 
 
+class RecordingTransport:
+    """An API.Bible transport that records every call; its /bibles lists a Bible config omits."""
+
+    def __init__(self) -> None:
+        self.calls: list[str] = []
+
+    def __call__(self, url: str, headers: Any, timeout: float) -> tuple[int, dict[str, Any]]:
+        self.calls.append(url)
+        return 200, {"data": [{"id": "ffffffffffffffff-01", "name": "Not In Config"}]}
+
+
+def _api_env(make_env: Any, api_key: str) -> tuple[Env, RecordingTransport]:
+    transport = RecordingTransport()
+    provider = ApiBibleProvider(
+        api_key, "https://api.example.test/v1", transport, _BIBLE_DEFAULTS["translations"]
+    )
+    return make_env(provider=provider), transport
+
+
+def test_translations_with_the_api_provider_is_exactly_the_configured_list(
+    make_env: Any,
+) -> None:
+    env, transport = _api_env(make_env, "sk-test-not-a-real-key")
+    status, body = call(env.server, "/translations")
+    assert status == 200
+    assert body["provider"] == "api_bible"
+    assert [t["abbreviation"] for t in body["translations"]] == [
+        "NKJV",
+        "NIV",
+        "AMP",
+        "KJV",
+        "ASV",
+        "WEB",
+    ]
+    assert [t["id"] for t in body["translations"]] == list(_BIBLE_DEFAULTS["translations"])
+    assert "ffffffffffffffff-01" not in {t["id"] for t in body["translations"]}
+    assert transport.calls == []
+
+
+def test_translations_with_the_api_provider_works_with_no_key(make_env: Any) -> None:
+    env, transport = _api_env(make_env, "")
+    status, body = call(env.server, "/translations")
+    assert status == 200
+    assert body["translations"][0]["abbreviation"] == "NKJV"
+    assert transport.calls == []
+
+
 def test_models_table(make_env: Any) -> None:
     env = make_env()
     env.server.model_downloaded = lambda name: name == "distil-large-v3"
@@ -266,3 +320,67 @@ def test_health_degraded_on_cpu(make_env: Any) -> None:
     _, health = call(env.server, "/health", auth=False)
     assert health["status"] == "degraded"
     assert health["device"] == "cpu"
+
+
+def _api_provider(status: int, fail: bool = False) -> tuple[ApiBibleProvider, list[str]]:
+    urls: list[str] = []
+
+    def transport(url: str, headers: Any, timeout: float) -> tuple[int, dict[str, Any]]:
+        urls.append(url)
+        if fail:
+            raise ConnectionError("no route")
+        return status, {"data": []}
+
+    conf = {"kjv-id": {"abbreviation": "KJV", "name": "KJV", "cache_allowed": True}}
+    return ApiBibleProvider("test-key", "https://api.example.test/v1", transport, conf), urls
+
+
+@pytest.mark.parametrize(("status", "fail"), [(0, True), (401, False), (403, False), (500, False)])
+def test_health_degraded_when_get_bibles_fails(make_env: Any, status: int, fail: bool) -> None:
+    provider, urls = _api_provider(status, fail)
+    env = make_env(provider=provider)
+    _, health = call(env.server, "/health", auth=False)
+    assert health["status"] == "degraded"
+    assert health["provider"] == {"id": "api_bible", "reachable": False}
+    assert urls == ["https://api.example.test/v1/bibles"]
+
+
+def test_health_degraded_with_no_key(make_env: Any) -> None:
+    urls: list[str] = []
+
+    def transport(url: str, headers: Any, timeout: float) -> tuple[int, dict[str, Any]]:
+        urls.append(url)
+        return 200, {}
+
+    env = make_env(provider=ApiBibleProvider("", "https://api.example.test/v1", transport))
+    _, health = call(env.server, "/health", auth=False)
+    assert health["status"] == "degraded"
+    assert urls == []
+
+
+def test_health_ready_when_get_bibles_succeeds(make_env: Any) -> None:
+    provider, urls = _api_provider(200)
+    env = make_env(provider=provider)
+    _, health = call(env.server, "/health", auth=False)
+    assert health["status"] == "ready"
+    assert health["provider"] == {"id": "api_bible", "reachable": True}
+    for _ in range(4):
+        call(env.server, "/health", auth=False)
+    assert len(urls) == 1  # the TTL throttle limits the check to one call in the window
+    env.clock.now += PROVIDER_CHECK_TTL_S + 1
+    call(env.server, "/health", auth=False)
+    assert len(urls) == 2
+
+
+def test_health_ready_with_local_provider(make_env: Any) -> None:
+    env = make_env(provider=LocalProvider())
+    _, health = call(env.server, "/health", auth=False)
+    assert (health["status"], health["provider"]) == ("ready", {"id": "local", "reachable": True})
+
+
+def test_translations_endpoint_makes_no_network_call(make_env: Any) -> None:
+    provider, urls = _api_provider(200)
+    env = make_env(provider=provider)
+    status, body = call(env.server, "/translations")
+    assert status == 200 and body
+    assert urls == []

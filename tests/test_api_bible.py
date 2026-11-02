@@ -27,7 +27,21 @@ FIXTURES = Path(__file__).parent / "fixtures" / "api_bible"
 KEY = "sk-test-0123456789-secret"
 KJV_ID = "de4e12af7f28f599-01"
 BASE = "https://api.example.test/v1"
-CONFIG = {KJV_ID: {"attribution": "Public domain.", "cache_allowed": True}}
+ASV_ID = "06125adad2d5898a-01"
+CONFIG = {
+    KJV_ID: {
+        "abbreviation": "KJV",
+        "name": "King James (Authorised) Version",
+        "attribution": "Public domain.",
+        "cache_allowed": True,
+    },
+    "63097d2a0a2f7db3-01": {
+        "abbreviation": "NKJV",
+        "name": "New King James Version",
+        "attribution": "",
+        "cache_allowed": False,
+    },
+}
 
 
 @pytest.fixture(autouse=True)
@@ -77,16 +91,83 @@ def test_osis_to_usfm_covers_the_canon() -> None:
     assert len(set(OSIS_TO_USFM.values())) == 66
 
 
-def test_list_translations_uses_config_for_attribution_and_caching() -> None:
+def test_list_translations_is_built_from_config_in_config_order() -> None:
+    provider, _ = _provider({})
+    translations = provider.list_translations()
+    assert [t.to_json() for t in translations] == [
+        {
+            "id": KJV_ID,
+            "abbreviation": "KJV",
+            "name": "King James (Authorised) Version",
+            "attribution": "Public domain.",
+            "cache_allowed": True,
+        },
+        {
+            "id": "63097d2a0a2f7db3-01",
+            "abbreviation": "NKJV",
+            "name": "New King James Version",
+            "attribution": "",
+            "cache_allowed": False,
+        },
+    ]
+
+
+def test_a_bible_the_key_can_see_but_config_omits_is_not_listed() -> None:
+    # The fixture is what GET /bibles returns for the key: KJV, ASV and WEB. Config lists KJV
+    # and NKJV only, so ASV and WEB never appear, and the response is never even requested.
     provider, transport = _provider({"/bibles": (200, "bibles.json")})
-    by_abbr = {t.abbreviation: t for t in provider.list_translations()}
-    assert set(by_abbr) == {"KJV", "ASV", "WEB"}
-    kjv = by_abbr["KJV"]
-    assert (kjv.id, kjv.attribution, kjv.cache_allowed) == (KJV_ID, "Public domain.", True)
-    # No config entry: nothing is inferred and caching is off.
-    assert (by_abbr["ASV"].attribution, by_abbr["ASV"].cache_allowed) == ("", False)
-    assert transport.calls[0][0] == f"{BASE}/bibles"
+    ids = [t.id for t in provider.list_translations()]
+    assert ASV_ID in {b["id"] for b in _load("bibles.json")["data"]}
+    assert ASV_ID not in ids
+    assert ids == [KJV_ID, "63097d2a0a2f7db3-01"]
+    assert transport.calls == []
+
+
+def test_list_translations_makes_no_transport_call() -> None:
+    provider, transport = _provider({"/bibles": (200, "bibles.json")})
+    provider.list_translations()
+    provider.list_translations()
+    assert transport.calls == []
+
+
+def test_list_translations_works_with_no_key() -> None:
+    def refuse(url: str, headers: Mapping[str, str], timeout: float) -> Any:
+        raise AssertionError("transport called")
+
+    provider = ApiBibleProvider("", BASE, refuse, CONFIG)
+    assert [t.abbreviation for t in provider.list_translations()] == ["KJV", "NKJV"]
+
+
+def test_check_calls_get_bibles_once_with_the_key() -> None:
+    provider, transport = _provider({"/bibles": (200, "bibles.json")})
+    provider.check()
+    assert [c[0] for c in transport.calls] == [BASE + "/bibles"]
     assert transport.calls[0][1]["api-key"] == KEY
+
+
+@pytest.mark.parametrize(
+    ("status", "error"),
+    [(401, TranslationNotLicensed), (403, TranslationNotLicensed), (500, ProviderUnavailable)],
+)
+def test_check_raises_a_typed_error_on_http_failure(status: int, error: type) -> None:
+    provider, _ = _provider({"/bibles": (status, "error_404.json")})
+    with pytest.raises(error):
+        provider.check()
+
+
+def test_check_with_no_key_raises_without_a_request() -> None:
+    def refuse(url: str, headers: Mapping[str, str], timeout: float) -> Any:
+        raise AssertionError("transport called")
+
+    with pytest.raises(ProviderUnavailable):
+        ApiBibleProvider("", BASE, refuse, CONFIG).check()
+
+
+def test_list_translations_takes_attribution_and_caching_only_from_config() -> None:
+    bare = {KJV_ID: {"abbreviation": "KJV", "name": "King James"}}
+    (kjv,) = ApiBibleProvider(KEY, BASE, FakeTransport({}), bare).list_translations()
+    # Nothing is inferred: no attribution, and caching is off without an explicit entry.
+    assert (kjv.attribution, kjv.cache_allowed) == ("", False)
 
 
 def test_fetch_builds_osis_passage_id() -> None:
@@ -146,7 +227,7 @@ def test_output_is_identical_to_local_provider(fixture: str, ref: Reference) -> 
     provider = ApiBibleProvider(
         KEY,
         BASE,
-        FakeTransport({"/bibles": (200, "bibles.json"), "/passages/" + _pid(ref): (200, fixture)}),
+        FakeTransport({"/passages/" + _pid(ref): (200, fixture)}),
         CONFIG,
     )
     api_t = next(t for t in provider.list_translations() if t.abbreviation == "KJV")
@@ -187,7 +268,6 @@ def test_key_never_appears_in_logs_or_repr(caplog: pytest.LogCaptureFixture) -> 
     caplog.set_level(logging.DEBUG)
     provider, _ = _provider(
         {
-            "/bibles": (200, "bibles.json"),
             "JHN.3.16": (200, "passage_single.json"),
             "1CO.6.19-1CO.6.20": (503, "error_503.json"),
         }
