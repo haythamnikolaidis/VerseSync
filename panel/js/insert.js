@@ -27,9 +27,13 @@
   var NO_ENABLED = 'Enable at least one scripture to insert.';
   var FLAGGED_PREFIX = 'Resolve the flagged cues before inserting: ';
 
-  // Flags an enabled cue cannot be inserted with: three come from the sidecar and sit on the
+  // Flags an enabled cue cannot be inserted with: four come from the sidecar and sit on the
   // cue, two are added by the panel after mapping and sit on the placement (docs/07 §5.1).
-  var BLOCKING_CUE_FLAGS = ['text_unavailable', 'passage_not_found', 'chapter_only'];
+  // not_found_in_audio is a scripture-file entry whose time is only a guess (docs/14 §7). The
+  // review list never lets it be ticked until the editor sets a time, which clears the flag, so
+  // only a document edited by hand can reach this.
+  var BLOCKING_CUE_FLAGS = ['text_unavailable', 'passage_not_found', 'chapter_only',
+    'not_found_in_audio'];
   var BLOCKING_PLACEMENT_FLAGS = ['cut_from_edit', 'speed_change_unsupported'];
 
   function hasAny(list, wanted) {

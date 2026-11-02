@@ -16,8 +16,26 @@
     suppressed_duplicate: { color: 'grey', label: 'duplicate' },
     cut_from_edit: { color: 'grey', label: 'cut from edit' },
     multiple_placements: { color: 'amber', label: 'multiple placements' },
-    speed_change_unsupported: { color: 'red', label: 'speed change' }
+    speed_change_unsupported: { color: 'red', label: 'speed change' },
+    // The scripture-file flags (docs/09 §5.2, docs/14). Their colours are the table's.
+    not_in_export: { color: 'grey', label: 'not in export' },
+    not_found_in_audio: { color: 'amber', label: 'not found in audio' },
+    repeat_mention: { color: 'grey', label: 'repeat mention' },
+    repeat_read: { color: 'grey', label: 'repeat read' },
+    out_of_order: { color: 'amber', label: 'out of order' }
   };
+
+  // An export entry the audio never reached has only a guessed time. Until the editor sets one it
+  // cannot be enabled or inserted (docs/14 §7), so the flag is what the row, "select all" and the
+  // insert check look at.
+  var NOT_FOUND_FLAG = 'not_found_in_audio';
+  var NOT_FOUND_TEXT = 'Not found in audio \u2014 set the time';
+  var NOT_FOUND_PLACEHOLDER = 'HH:MM:SS:FF';
+  // Detected in the audio but absent from the scripture file: listed apart, collapsed.
+  var OTHER_FLAG = 'not_in_export';
+  var OTHER_TITLE = 'Other mentions';
+  var OTHER_HINT = 'Named in the sermon but not in the scripture file. Tick one to insert it with ' +
+    'the Bible text.';
 
   var NO_TIMECODE = '--:--:--:--';
 
@@ -80,6 +98,42 @@
     return out;
   }
 
+  function hasFlag(cue, flag) {
+    return (cue.flags || []).indexOf(flag) !== -1;
+  }
+
+  function needsTime(cue) { return hasFlag(cue, NOT_FOUND_FLAG); }
+
+  function isOtherMention(cue) { return hasFlag(cue, OTHER_FLAG); }
+
+  // The badges of a row (docs/09 §5.1): EW with the export's translation for a cue whose text came
+  // from the scripture file, Repeat for a scripture shown again with no new slide, and Out of order
+  // for one read earlier than the file lists it. They come from the cue alone, never the placement.
+  function badgesOf(cue) {
+    var out = [];
+    var source = cue.text_source;
+    if (source && source.kind === 'export') {
+      out.push({
+        key: 'ew',
+        text: 'EW ' + source.translation,
+        title: 'Text from the scripture file (' + source.translation + ')'
+      });
+    }
+    if (hasFlag(cue, 'repeat_read')) {
+      out.push({ key: 'repeat', text: 'Repeat', title: 'Read again with no new slide' });
+    } else if (hasFlag(cue, 'repeat_mention')) {
+      out.push({ key: 'repeat', text: 'Repeat', title: 'Named again with no new slide' });
+    }
+    if (hasFlag(cue, 'out_of_order')) {
+      out.push({
+        key: 'out-of-order',
+        text: 'Out of order',
+        title: 'Read earlier than the scripture file lists it'
+      });
+    }
+    return out;
+  }
+
   // cue: a Cue Document cue; placement: one VSTimemap.mapCueDocument placement (or undefined);
   // threshold: the confidence threshold (0.55 by default, docs/09 §5.1).
   function rowViewModel(cue, placement, threshold) {
@@ -102,7 +156,10 @@
       },
       duration: cue.source_duration_s.toFixed(1) + 's',
       snippet: splitSnippet(cue.snippet, cue),
-      flags: flags
+      flags: flags,
+      badges: badgesOf(cue),
+      needsTime: needsTime(cue),
+      other: isOtherMention(cue)
     };
   }
 
@@ -357,10 +414,13 @@
   // sequence, which leaves the anchor controls disabled.
   function buildTiming(doc, cue, editor) {
     var box = el(doc, 'div', 'vf-detail-timing');
+    // An entry the audio never reached has only a guessed anchor: nudging a guess means nothing, so
+    // its time is set by typing it or taking the playhead, and the guess is labelled as one.
+    var unset = needsTime(cue);
     var anchorLine = el(doc, 'div', 'vf-detail-anchor');
     anchorLine.appendChild(el(doc, 'span', 'vf-detail-label', 'Timing '));
     anchorLine.appendChild(el(doc, 'span', 'vf-detail-anchor-value',
-      'anchor ' + (editor.timecode || NO_TIMECODE) + ' '));
+      'anchor ' + (editor.timecode || NO_TIMECODE) + (unset ? ' (a guess) ' : ' ')));
     var live = !!editor.timing && !!editor.timecode;
     function timingButton(cls, text, label, run) {
       var b = el(doc, 'button', 'vf-btn vf-btn--small ' + cls, text);
@@ -391,9 +451,29 @@
       function () { done(editor.timing.nudge(1)); });
     var head = timingButton('vf-detail-playhead', '\u2316', 'Set the anchor to the playhead',
       function () { done(editor.timing.toPlayhead()); });
-    back.disabled = !live;
-    fwd.disabled = !live;
+    back.disabled = !live || unset;
+    fwd.disabled = !live || unset;
     head.disabled = !editor.timing;
+    if (unset) {
+      var timeLine = el(doc, 'div', 'vf-detail-time');
+      timeLine.appendChild(el(doc, 'span', 'vf-detail-label', 'Time '));
+      var timeInput = el(doc, 'input', 'vf-input-text vf-detail-time-input');
+      timeInput.type = 'text';
+      timeInput.placeholder = NOT_FOUND_PLACEHOLDER;
+      timeInput.setAttribute('aria-label', 'Time in the sequence, as a timecode');
+      var timeSet = el(doc, 'button', 'vf-btn vf-btn--small vf-detail-time-set', 'Set');
+      timeSet.type = 'button';
+      timeInput.disabled = !editor.timing;
+      timeSet.disabled = !editor.timing;
+      var setTime = function () { done(editor.timing.setTimecode(timeInput.value)); };
+      timeSet.addEventListener('click', setTime);
+      timeInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); setTime(); }
+      });
+      timeLine.appendChild(timeInput);
+      timeLine.appendChild(timeSet);
+      box.appendChild(timeLine);
+    }
     box.appendChild(anchorLine);
 
     var durLine = el(doc, 'div', 'vf-detail-duration');
@@ -421,13 +501,52 @@
     return box;
   }
 
+  // The badges and the set-the-time prompt exist only on rows that have them, so a cue from a
+  // document with no scripture file gets exactly the elements it always had.
+  function syncBadges(doc, row, vm) {
+    var meta = row.querySelector('.vf-row-meta');
+    var old = meta.querySelector('.vf-row-badges');
+    if (old) { meta.removeChild(old); }
+    if (vm.badges.length === 0) { return; }
+    var holder = el(doc, 'span', 'vf-row-badges');
+    vm.badges.forEach(function (b) {
+      holder.appendChild(doc.createTextNode(' '));
+      var badge = el(doc, 'span', 'vf-badge vf-badge--' + b.key, b.text);
+      badge.title = b.title;
+      holder.appendChild(badge);
+    });
+    meta.appendChild(holder);
+  }
+
+  function syncPrompt(doc, row, vm) {
+    var prompt = row.querySelector('.vf-row-prompt');
+    if (!vm.needsTime) {
+      if (prompt) { row.removeChild(prompt); }
+      return;
+    }
+    if (prompt) { return; }
+    prompt = el(doc, 'div', 'vf-row-prompt vf-flag--amber', NOT_FOUND_TEXT);
+    row.insertBefore(prompt, row.querySelector('.vf-row-snippet'));
+  }
+
   // Applies the parts of a view model that change when a cue is toggled or re-flagged.
   function updateRow(doc, row, vm) {
     row.className = 'row' + (vm.enabled ? '' : ' vf-row--disabled') +
+      (vm.needsTime ? ' vf-row--needs-time' : '') +
       (row.querySelector('.vf-row-detail') ? ' vf-row--expanded' : '');
     row.querySelector('.vf-row-timecode').textContent = vm.timecode;
     row.querySelector('.vf-row-timecode').disabled = !vm.placed;
-    row.querySelector('.vf-row-check').checked = vm.enabled;
+    var box = row.querySelector('.vf-row-check');
+    box.checked = vm.enabled;
+    // A cue with no real time cannot be ticked, and the reason is the prompt shown on the row.
+    box.disabled = vm.needsTime;
+    if (vm.needsTime) {
+      box.title = NOT_FOUND_TEXT;
+    } else if (box.hasAttribute('title')) {
+      box.removeAttribute('title');
+    }
+    syncBadges(doc, row, vm);
+    syncPrompt(doc, row, vm);
     var holder = row.querySelector('.vf-row-flags');
     while (holder.firstChild) { holder.removeChild(holder.firstChild); }
     vm.flags.forEach(function (f) {
@@ -571,8 +690,12 @@
       message.hidden = !text;
     }
 
+    // "All" skips the cues that have no time yet; they are ticked only by setting one.
     function setAll(enabled) {
-      model.cues().forEach(function (cue) { model.setEnabled(cue.id, enabled); });
+      model.cues().forEach(function (cue) {
+        if (enabled && needsTime(cue)) { return; }
+        model.setEnabled(cue.id, enabled);
+      });
       Object.keys(rows).forEach(refreshRow);
       updateHeader();
     }
@@ -638,6 +761,9 @@
       }
       row.appendChild(buildDetail(doc, model.get(id), opts.getTranscript, editorFor(id)));
       row.classList.add('vf-row--expanded');
+      // An entry with no time opens on the field that sets it.
+      var timeField = row.querySelector('.vf-detail-time-input');
+      if (timeField && !timeField.disabled) { timeField.focus(); }
     }
 
     // Why reference editing is off, or null. Once a call finds the sidecar unreachable the
@@ -803,11 +929,19 @@
       toggleExpanded(id);
     }
 
-    // Stores a new anchor, in source seconds. Yields '' on success or the message to show.
+    // Stores a new anchor, in source seconds. Yields '' on success or the message to show. For an
+    // entry the audio never reached this is the time being set: the flag goes and the cue is
+    // enabled, in the same edit, so a saved document keeps both.
     function setAnchor(id, seconds) {
       if (seconds === null || seconds === undefined) { return null; }
+      var patch = { source_anchor_s: seconds };
+      var current = model.get(id);
+      if (needsTime(current)) {
+        patch.flags = current.flags.filter(function (f) { return f !== NOT_FOUND_FLAG; });
+        patch.enabled = true;
+      }
       try {
-        model.edit(id, { source_anchor_s: seconds });
+        model.edit(id, patch);
       } catch (e) {
         return e.message;
       }
@@ -817,10 +951,12 @@
 
     var OFF_MEDIA = 'That frame is outside the media.';
     var NO_PLAYHEAD = 'The playhead isn\'t over this media.';
+    var NO_TYPED_TIME = 'A time can\'t be typed here; use the playhead.';
 
     // The timing actions of a row; null when the panel has no sequence to measure against.
     // opts.timing: { nudgedSource(atTicks, frames) -> seconds|null,
-    // playheadSource() -> Promise<seconds|null> }; seconds are source seconds.
+    // playheadSource() -> Promise<seconds|null>, timecodeSource(text) -> { seconds } | { error } };
+    // seconds are source seconds, and text is a sequence timecode as the panel shows them.
     function timingFor(id) {
       var t = opts.timing;
       if (!t) { return null; }
@@ -836,6 +972,13 @@
             var result = setAnchor(id, seconds);
             return result === null ? NO_PLAYHEAD : result;
           }, function () { return NO_PLAYHEAD; });
+        },
+        setTimecode: function (text) {
+          if (!t.timecodeSource) { return Promise.resolve(NO_TYPED_TIME); }
+          var typed = t.timecodeSource(text);
+          if (typed.error) { return Promise.resolve(typed.error); }
+          var result = setAnchor(id, typed.seconds);
+          return Promise.resolve(result === null ? OFF_MEDIA : result);
         }
       };
     }
@@ -896,34 +1039,80 @@
     }
 
     function onToggle(id, checked) {
+      // The checkbox is disabled for a cue with no time; this keeps any other route out as well.
+      if (checked && needsTime(model.get(id))) {
+        refreshRow(id);
+        return;
+      }
       model.setEnabled(id, checked);
       refreshRow(id);
       updateHeader();
     }
 
-    // Full render: rebuilds every row, sorted by sequence timecode, cut cues last.
+    // The Other mentions group stays as the editor left it across redraws; collapsed at first.
+    var otherOpen = false;
+
+    function addRow(item, parent) {
+      var vm = rowViewModel(item.cue, placementOf(item.cue.id), threshold);
+      var row = buildRow(doc, vm);
+      row.querySelector('.vf-row-check').addEventListener('change', function (e) {
+        onToggle(item.cue.id, e.target.checked);
+      });
+      row.querySelector('.vf-row-timecode').addEventListener('click', function () {
+        movePlayhead(item.cue.id);
+      });
+      row.addEventListener('click', function (e) {
+        var t = e.target;
+        if (t.closest && (t.closest('.vf-row-check') || t.closest('.vf-row-timecode') ||
+            t.closest('.vf-row-detail'))) { return; }
+        toggleExpanded(item.cue.id);
+      });
+      rows[item.cue.id] = row;
+      updateRow(doc, row, vm);
+      parent.appendChild(row);
+    }
+
+    // The cues detected in the audio but not in the scripture file, collapsed under one heading
+    // and left out altogether when there are none (docs/14 §7). The rows are ordinary rows: ticking
+    // one enables it like any other cue.
+    function addOtherMentions(items) {
+      if (items.length === 0) { return; }
+      var group = el(doc, 'div', 'vf-review-group');
+      var toggle = el(doc, 'button', 'vf-review-group-toggle',
+        OTHER_TITLE + ' (' + items.length + ')');
+      toggle.type = 'button';
+      var body = el(doc, 'div', 'vf-review-group-list');
+      body.appendChild(el(doc, 'div', 'vf-hint vf-review-group-hint', OTHER_HINT));
+      function show() {
+        body.hidden = !otherOpen;
+        toggle.setAttribute('aria-expanded', otherOpen ? 'true' : 'false');
+        toggle.classList.toggle('vf-review-group-toggle--open', otherOpen);
+      }
+      toggle.addEventListener('click', function () {
+        otherOpen = !otherOpen;
+        show();
+      });
+      show();
+      group.appendChild(toggle);
+      group.appendChild(body);
+      items.forEach(function (item) { addRow(item, body); });
+      list.appendChild(group);
+    }
+
+    // Full render: rebuilds every row, sorted by sequence timecode, cut cues last, with the
+    // other mentions in their group after them.
     function render() {
       while (list.firstChild) { list.removeChild(list.firstChild); }
       rows = {};
+      var others = [];
       sorted(model.cues()).forEach(function (item) {
-        var vm = rowViewModel(item.cue, placementOf(item.cue.id), threshold);
-        var row = buildRow(doc, vm);
-        row.querySelector('.vf-row-check').addEventListener('change', function (e) {
-          onToggle(item.cue.id, e.target.checked);
-        });
-        row.querySelector('.vf-row-timecode').addEventListener('click', function () {
-          movePlayhead(item.cue.id);
-        });
-        row.addEventListener('click', function (e) {
-          var t = e.target;
-          if (t.closest && (t.closest('.vf-row-check') || t.closest('.vf-row-timecode') ||
-              t.closest('.vf-row-detail'))) { return; }
-          toggleExpanded(item.cue.id);
-        });
-        rows[item.cue.id] = row;
-        updateRow(doc, row, vm);
-        list.appendChild(row);
+        if (isOtherMention(item.cue)) {
+          others.push(item);
+        } else {
+          addRow(item, list);
+        }
       });
+      addOtherMentions(others);
       applyFilter();
       updateHeader();
     }

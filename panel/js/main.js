@@ -213,6 +213,14 @@
             if (!res || !res.ok || !res.data || !res.data.hasActiveSequence) { return null; }
             return sourceAt(s, res.data.playheadTicks);
           });
+        },
+        // A timecode typed as the panel shows them: { seconds } of source, or { error } to show.
+        timecodeSource: function (text) {
+          var parsed = parseTimecode(text, s.seqInfo);
+          if (parsed.error) { return { error: parsed.error }; }
+          var seconds = sourceAt(s, parsed.ticks);
+          if (seconds === null) { return { error: 'That timecode is outside the media.' }; }
+          return { seconds: seconds };
         }
       };
     }
