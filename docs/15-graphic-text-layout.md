@@ -1,6 +1,6 @@
 # 15 — Graphic text layout (wrapping and splitting)
 
-> **Status:** Specified 2026-11-02, not built. Decision **D28**, task **[T-54](tasks/T-54-graphic-text-layout.md)**.
+> **Status:** Specified and built 2026-11-02. Decision **D28**, task **[T-54](tasks/T-54-graphic-text-layout.md)**. The check on real Premiere, T-54.H, is still to do.
 
 VerseSync writes a cue's whole body into the template's text field as one line, so the text runs
 off the screen. VerseFlow solved half of this with a *Max chars / line* setting (upstream commit
