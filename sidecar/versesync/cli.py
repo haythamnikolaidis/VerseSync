@@ -96,7 +96,16 @@ def cmd_resolve(args: argparse.Namespace) -> int:
 
 
 # 07 section 3 codes that mean the editor's input was wrong rather than VerseSync.
-_INPUT_ERROR_CODES = frozenset({"media_not_found", "media_unreadable", "translation_not_licensed"})
+_INPUT_ERROR_CODES = frozenset(
+    {
+        "media_not_found",
+        "media_unreadable",
+        "translation_not_licensed",
+        "scripture_file_not_found",
+        "scripture_file_unreadable",
+        "scripture_file_empty",
+    }
+)
 
 
 def _epoch(generated_at: str) -> float:
@@ -127,7 +136,10 @@ def cmd_analyse(args: argparse.Namespace) -> int:
     now = _epoch(args.generated_at) if args.generated_at else datetime.now(timezone.utc).timestamp()
     registry = JobRegistry(id_factory=lambda: job_id, clock=lambda: now)
     job: Job = registry.create()
-    request = {"media_path": str(args.input), "translation_id": translation.id, "options": {}}
+    options: dict[str, Any] = {}
+    if args.scripture_file is not None:
+        options["scripture_file"] = str(args.scripture_file.resolve())
+    request = {"media_path": str(args.input), "translation_id": translation.id, "options": options}
     run_job(
         job,
         request,
@@ -177,6 +189,12 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--translation", default=None)
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--config", type=Path, default=None)
+    p.add_argument(
+        "--scripture-file",
+        type=Path,
+        default=None,
+        help="an EasyWorship scripture export; its entries become the cues (docs/14)",
+    )
     p.add_argument("--job-id", default=None)
     p.add_argument("--generated-at", default=None)
     p.set_defaults(run=cmd_analyse)

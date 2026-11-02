@@ -149,7 +149,7 @@ Without a scripture file, nothing changes. Every v1 golden file must still pass 
 
 ### T-51.5 · API and CLI
 
-**Executor** agent · **Size** XS · **Prereqs** T-51.4 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-51.4 · **Status** in-progress
 
 - **Read:** [14 §6](../14-scripture-file-import.md)
 - **Touches:** `sidecar/versesync/jobs.py` · `sidecar/versesync/cli.py` ·
