@@ -5,7 +5,9 @@
   // ticks: placements come from VSTimemap and are recomputed by the caller after every edit.
 
   var SUPPORTED_MAJOR = '1';
-  var KNOWN_MINOR = 0;
+  // 1.1 adds the scripture-file fields (docs/07 §5.1, §5.2). They are all optional, so 1.0 and 1.1
+  // both load silently; only a newer minor warns.
+  var KNOWN_MINOR = 1;
 
   // Flags the panel adds after mapping (docs/07 §5.1). A cue that gets one of the first two for
   // the first time is switched off once, because it cannot be placed as detected.
@@ -13,6 +15,7 @@
 
   var ORIGINS = ['detected', 'manual', 'edited'];
   var CLASSIFICATIONS = ['read', 'paraphrase'];
+  var TEXT_SOURCE_KINDS = ['export', 'provider'];
 
   function clone(value) {
     return JSON.parse(JSON.stringify(value));
@@ -24,6 +27,48 @@
 
   function isNonNegative(v) {
     return isNumber(v) && v >= 0;
+  }
+
+  function isNonNegativeInteger(v) {
+    return isNonNegative(v) && v % 1 === 0;
+  }
+
+  // The optional 1.1 cue fields, as the schema has them: text_source needs a kind and a
+  // translation, and an entry_index exactly when the text is an export's; verse_offsets_s maps
+  // verse numbers to seconds.
+  function optionalFieldProblems(cue) {
+    var problems = [];
+    var source = cue.text_source;
+    if (source !== undefined) {
+      if (!source || typeof source !== 'object') {
+        problems.push('text_source must be an object');
+      } else {
+        if (TEXT_SOURCE_KINDS.indexOf(source.kind) === -1) {
+          problems.push('text_source.kind must be export or provider');
+        }
+        if (typeof source.translation !== 'string' || source.translation.length === 0) {
+          problems.push('text_source.translation must be a non-empty string');
+        }
+        if (source.kind === 'export' && !isNonNegativeInteger(source.entry_index)) {
+          problems.push('text_source.entry_index must be a non-negative integer');
+        }
+        if (source.kind !== 'export' && source.entry_index !== undefined) {
+          problems.push('text_source.entry_index is only for an export');
+        }
+      }
+    }
+    var offsets = cue.verse_offsets_s;
+    if (offsets !== undefined) {
+      if (!offsets || typeof offsets !== 'object' || Array.isArray(offsets)) {
+        problems.push('verse_offsets_s must be an object');
+      } else {
+        var bad = Object.keys(offsets).some(function (verse) {
+          return !/^[1-9][0-9]*$/.test(verse) || !isNonNegative(offsets[verse]);
+        });
+        if (bad) { problems.push('verse_offsets_s must map verse numbers to seconds >= 0'); }
+      }
+    }
+    return problems;
   }
 
   // Mirrors the cue rules in schemas/cue-document.schema.json. Returns a list of problems.
@@ -55,7 +100,7 @@
     need(typeof cue.snippet === 'string', 'snippet must be a string');
     need(Array.isArray(cue.flags), 'flags must be an array');
     need(Array.isArray(cue.alternatives), 'alternatives must be an array');
-    return errors;
+    return errors.concat(optionalFieldProblems(cue));
   }
 
   // Canonical books with their OSIS ids, for turning a resolved Passage back into the cue's

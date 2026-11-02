@@ -1,4 +1,5 @@
 import copy
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -6,13 +7,22 @@ from typing import Any
 import pytest
 from validate_cue_document import validate, validate_file
 
+from versesync.cues import DISABLED_BY_DEFAULT
+from versesync.detect.canon import load_canon
+from versesync.scripture_file import parse_scripture_file
+
 FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures" / "cue-documents"
+SERVICE_EXPORT = (
+    Path(__file__).resolve().parent / "fixtures" / "scripture_files" / "service-export.txt"
+)
 FIXTURES = [
     "happy-18-cues.json",
     "flagged.json",
     "alternatives.json",
     "empty.json",
+    "export.json",
 ]
+V1_FIXTURES = [name for name in FIXTURES if name != "export.json"]
 
 
 @pytest.mark.parametrize("name", FIXTURES)
@@ -111,3 +121,70 @@ SCHEMA_1_1_CASES: list[tuple[str, dict[str, Any], bool]] = [
 )
 def test_schema_1_1_rules(changes: dict[str, Any], valid: bool) -> None:
     assert (validate(_document(changes)) == []) is valid
+
+
+# ---- the export golden document ----------------------------------------------------------------
+
+
+def _export() -> dict[str, Any]:
+    with (FIXTURES_DIR / "export.json").open("r", encoding="utf-8") as f:
+        document: dict[str, Any] = json.load(f)
+    return document
+
+
+def test_export_fixture_uses_every_1_1_field() -> None:
+    document = _export()
+    cues = document["cues"]
+    assert document["schema_version"] == "1.1"
+    assert set(document["scripture_file"]) == {"path", "sha256", "entry_count"}
+    assert {c["text_source"]["kind"] for c in cues if "text_source" in c} == {"export", "provider"}
+    assert any("entry_index" in c["text_source"] for c in cues)
+    assert any("verse_offsets_s" in c for c in cues)
+    assert {f for c in cues for f in c["flags"]} == set(NEW_FLAGS)
+    assert {w["code"] for w in document["warnings"]} == {INVALID, UNREFERENCED}
+    assert all(isinstance(w["line"], int) for w in document["warnings"])
+
+
+def test_export_fixture_cues_start_enabled_or_disabled_by_their_flags() -> None:
+    for cue in _export()["cues"]:
+        assert cue["enabled"] is not any(f in DISABLED_BY_DEFAULT for f in cue["flags"]), cue["id"]
+
+
+def test_export_fixture_matches_the_service_export_it_names() -> None:
+    document = _export()
+    entries, warnings = parse_scripture_file(SERVICE_EXPORT, load_canon())
+    digest = hashlib.sha256(SERVICE_EXPORT.read_bytes()).hexdigest()
+    assert document["scripture_file"]["sha256"] == digest
+    assert document["scripture_file"]["entry_count"] == len(entries)
+    assert document["warnings"] == [w.to_json() for w in warnings]
+    exported = [c for c in document["cues"] if c["text_source"]["kind"] == "export"]
+    for cue in exported:
+        entry = entries[cue["text_source"]["entry_index"]]
+        assert cue["reference_display"] == entry.reference_line, cue["id"]
+        assert cue["text_source"]["translation"] == entry.translation, cue["id"]
+        assert cue["body"] == entry.body, cue["id"]
+        assert cue["body_word_count"] == entry.word_count, cue["id"]
+        assert cue["reference"] == entry.reference.to_json(), cue["id"]
+    # Every entry is placed at least once, whether or not the audio had it.
+    assert {c["text_source"]["entry_index"] for c in exported} == {e.index for e in entries}
+
+
+def test_export_fixture_verse_offsets_sit_inside_the_reading() -> None:
+    for cue in _export()["cues"]:
+        offsets = cue.get("verse_offsets_s", {})
+        for verse, offset in offsets.items():
+            start = cue["source_anchor_s"] + offset
+            assert cue["read_start_s"] <= start <= cue["read_end_s"], (cue["id"], verse)
+            assert cue["reference"]["verse"] < int(verse) <= cue["reference"]["verse_end"]
+
+
+@pytest.mark.parametrize("name", V1_FIXTURES)
+def test_1_0_fixtures_hold_no_1_1_field(name: str) -> None:
+    with (FIXTURES_DIR / name).open("r", encoding="utf-8") as f:
+        document = json.load(f)
+    assert document["schema_version"] == "1.0"
+    assert "scripture_file" not in document
+    for cue in document["cues"]:
+        assert not {"text_source", "verse_offsets_s"} & set(cue)
+        assert not set(NEW_FLAGS) & set(cue["flags"])
+    assert not any("line" in w for w in document["warnings"])

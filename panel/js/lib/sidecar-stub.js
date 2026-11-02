@@ -11,7 +11,8 @@
     happy: 'happy-18-cues.json',
     flagged: 'flagged.json',
     alternatives: 'alternatives.json',
-    empty: 'empty.json'
+    empty: 'empty.json',
+    export: 'export.json'
   };
   var DEFAULT_SCENARIO = 'happy';
 

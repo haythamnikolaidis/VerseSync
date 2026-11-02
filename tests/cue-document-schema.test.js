@@ -8,7 +8,7 @@ var path = require('node:path');
 var validateCueDocument = require('./lib/validate-cue-document');
 
 var FIXTURES_DIR = path.join(__dirname, 'fixtures', 'cue-documents');
-var FIXTURES = ['happy-18-cues.json', 'flagged.json', 'alternatives.json', 'empty.json'];
+var FIXTURES = ['happy-18-cues.json', 'flagged.json', 'alternatives.json', 'empty.json', 'export.json'];
 
 FIXTURES.forEach(function (name) {
   test('fixture validates: ' + name, function () {

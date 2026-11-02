@@ -50,6 +50,7 @@ function make(scenario) {
 
 test('scenarioFromSearch picks a known scenario and defaults to happy', () => {
   assert.strictEqual(Stub.scenarioFromSearch('?stub=1&scenario=flagged'), 'flagged');
+  assert.strictEqual(Stub.scenarioFromSearch('?stub=1&scenario=export'), 'export');
   assert.strictEqual(Stub.scenarioFromSearch('?stub=1'), 'happy');
   assert.strictEqual(Stub.scenarioFromSearch('?scenario=nope'), 'happy');
 });
@@ -110,4 +111,18 @@ test('unknown jobs and routes are error envelopes, never rejections', async () =
   const { client } = make('happy');
   assert.strictEqual((await client.job('job_nope')).error.code, 'job_not_found');
   assert.strictEqual((await client.startJob({})).error.code, 'bad_request');
+});
+
+test('every scenario the stub serves loads in the panel without a warning', async () => {
+  const VSCues = require(path.join(__dirname, '..', '..', 'panel', 'js', 'cues.js'));
+  assert.deepStrictEqual(Object.keys(Stub.SCENARIOS).sort(),
+    ['alternatives', 'empty', 'export', 'flagged', 'happy']);
+  for (const scenario of Object.keys(Stub.SCENARIOS)) {
+    const { clock, client } = make(scenario);
+    const id = (await client.startJob({ media_path: 'x.mxf', translation_id: 'kjv' })).data.job_id;
+    await clock.advance(2000);
+    const loaded = VSCues.load(JSON.stringify((await client.result(id)).data));
+    assert.strictEqual(loaded.ok, true, scenario);
+    assert.strictEqual(loaded.warning, undefined, scenario);
+  }
 });

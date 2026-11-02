@@ -8,7 +8,7 @@ var path = require('node:path');
 var VSCues = require('../../panel/js/cues.js');
 
 var FIXTURE_DIR = path.join(__dirname, '..', 'fixtures', 'cue-documents');
-var FIXTURES = ['alternatives.json', 'empty.json', 'flagged.json', 'happy-18-cues.json'];
+var FIXTURES = ['alternatives.json', 'empty.json', 'export.json', 'flagged.json', 'happy-18-cues.json'];
 
 // Copied from reference/verseflow/js/scripture-parser.js (REFERENCE_RE).
 var REFERENCE_RE = /^((?:\d+\s+)?[A-Za-z][A-Za-z ]*?\s+\d+:\d+(?:-\d+)?)\s*\(([A-Za-z0-9]+)\)\s*$/;

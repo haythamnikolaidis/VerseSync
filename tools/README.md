@@ -28,7 +28,7 @@ prints the assigned port and bearer token, then blocks serving requests until Ct
 | Flag | Effect |
 |------|--------|
 | `--port N` | Fixed port instead of an OS-assigned ephemeral one. |
-| `--scenario {happy,flagged,alternatives,empty}` | Which T-37 fixture a successful job resolves to (default `happy`). |
+| `--scenario {happy,flagged,alternatives,empty,export}` | Which fixture a successful job resolves to (default `happy`). `export` is a Cue Document 1.1 built from a scripture file ([14](../docs/14-scripture-file-import.md)): export-sourced cues, every new flag, `verse_offsets_s`, the document's `scripture_file` and its two warnings. |
 | `--duration N` | Wall-clock seconds for a job to run (default `20`). |
 | `--fail model_load_failed` | The job fails immediately with the OOM example from [07 §3](../docs/07-sidecar-api.md). |
 | `--fail provider_unavailable` | **Not a job failure.** Per [11-testing.md §5](../docs/11-testing.md), a provider outage still produces a successful job — this overrides `--scenario` and serves the `flagged` fixture's outcome (`text_unavailable` cues + a `provider_partial` warning). |
@@ -107,10 +107,12 @@ curl -X POST -H "Authorization: Bearer <token>" -H "Origin: http://localhost" \
 
 - `media_path` is never checked against the filesystem — `media_not_found` isn't one of T-38's
   required `--fail` scenarios, and the fixtures replace the whole pipeline anyway.
-- `POST /resolve` only knows the references already present in the four T-37 fixtures (including
-  their `alternatives[]`). Anything else is `bad_request`. It also does not do real per-verse
-  decomposition — `verses[]` always carries a single entry covering the whole resolved body,
-  even for a range; true per-verse splitting belongs to T-06/T-14.
+- `POST /resolve` only knows the references already present in the fixtures (including their
+  `alternatives[]`), except the cues of the `export` scenario whose text comes from the scripture
+  file: that text isn't what the Bible text service answers (D26). Anything else is
+  `bad_request`. It also does not do real per-verse decomposition — `verses[]` always carries a
+  single entry covering the whole resolved body, even for a range; true per-verse splitting
+  belongs to T-06/T-14.
 - `GET /jobs/{id}/transcript` ([07](../docs/07-sidecar-api.md) §2, D22) serves a synthetic word
   array, not the fixture's real words: `{"text":"word<i>","start":0.4*i,"end":0.4*(i+1),
   "probability":0.95}`, as many words as needed to cover the highest `word_span` index in the

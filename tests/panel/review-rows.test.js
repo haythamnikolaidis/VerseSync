@@ -78,7 +78,8 @@ test('rowViewModel: all 11 flags have the 09 §5.2 colour and a text label', () 
 });
 
 test('fixtures: every cue yields a view model', () => {
-  ['alternatives.json', 'empty.json', 'flagged.json', 'happy-18-cues.json'].forEach((name) => {
+  const names = ['alternatives.json', 'empty.json', 'export.json', 'flagged.json', 'happy-18-cues.json'];
+  names.forEach((name) => {
     loadModel(name).cues().forEach((cue) => {
       const vm = VSReview.rowViewModel(cue, undefined, 0.55);
       assert.equal(vm.id, cue.id);
@@ -108,12 +109,28 @@ function mount(name) {
   return { model, rootEl, placements: mapped.placements, doc };
 }
 
-test('all four fixtures render one row per cue', () => {
-  const counts = { 'alternatives.json': 2, 'empty.json': 0, 'flagged.json': 12, 'happy-18-cues.json': 18 };
+test('all the fixtures render one row per cue', () => {
+  const counts = {
+    'alternatives.json': 2, 'empty.json': 0, 'export.json': 11, 'flagged.json': 12,
+    'happy-18-cues.json': 18
+  };
   Object.keys(counts).forEach((name) => {
     const m = mount(name);
     assert.equal(m.rootEl.querySelectorAll('.row').length, counts[name], name);
     assert.ok(m.rootEl.querySelector('.vf-review-header').textContent.indexOf(counts[name] + ' found') >= 0);
+  });
+});
+
+test('the export fixture renders a text label for each 1.1 flag', () => {
+  const m = mount('export.json');
+  const expected = {
+    not_in_export: 'not in export', not_found_in_audio: 'not found in audio',
+    repeat_mention: 'repeat mention', repeat_read: 'repeat read', out_of_order: 'out of order'
+  };
+  Object.keys(expected).forEach((flag) => {
+    const badge = m.rootEl.querySelector('.vf-flag-' + flag);
+    assert.ok(badge, flag);
+    assert.ok(badge.textContent.indexOf(expected[flag]) >= 0, flag);
   });
 });
 
