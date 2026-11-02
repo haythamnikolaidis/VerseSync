@@ -138,8 +138,10 @@ Two caches, both on disk under `%APPDATA%\VerseSync\cache\`:
 
 **Verse cache** — SQLite, keyed `(provider_id, translation_id, osis_book, chapter, verse_start,
 verse_end)`, storing the raw provider response and the formatted `Passage`, with a fetch
-timestamp. Entries do not expire; scripture does not change, and a provider's formatting
-changing mid-project would break determinism ([05](05-timing-and-placement.md) §10). A manual
+timestamp. Entries expire after `cache_max_age_days` (default 14; the provider's terms limit how
+long text may be kept, D27): an older entry is a miss, and expired rows are deleted at start-up.
+Within that window a provider's formatting cannot change mid-project, which keeps runs
+deterministic ([05](05-timing-and-placement.md) §10). A manual
 **Clear verse cache** action exists for when a provider genuinely corrects something.
 
 **Transcript cache** — keyed by media **content hash** (SHA-256 over the first and last 8 MB

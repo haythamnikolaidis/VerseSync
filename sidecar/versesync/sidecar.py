@@ -87,7 +87,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 2
 
     try:
-        provider = CachingProvider(build_provider(config))
+        provider = CachingProvider(
+            build_provider(config), max_age_days=int(config.bible.get("cache_max_age_days", 14))
+        )
     except ValueError as exc:
         _log.error("cannot set up the Bible provider: %s", exc)
         print(f"VerseSync sidecar: {exc} (log: {log_file})", file=sys.stderr)

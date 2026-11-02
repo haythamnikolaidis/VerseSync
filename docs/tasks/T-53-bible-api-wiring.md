@@ -80,7 +80,7 @@ hand-added cues, and sermons with no export.
 
 ### T-53.3 · Verse cache expires after 14 days
 
-**Executor** agent · **Size** XS · **Prereqs** T-53.1 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-53.1 · **Status** in-progress
 
 - **Read:** `sidecar/versesync/bible/cache.py`
 - **Touches:** `sidecar/versesync/bible/cache.py` · `sidecar/versesync/config.py` ·

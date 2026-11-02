@@ -44,6 +44,9 @@ _BIBLE_DEFAULTS: dict[str, Any] = {
     "default_translation": "nkjv",
     "max_verses_per_passage": 6,
     "cache_enabled": True,
+    # Cached verse text is dropped after this many days. The provider's terms allow up to a month;
+    # 14 days was chosen (D27, docs/12-decisions-and-risks.md).
+    "cache_max_age_days": 14,
     # The translations Setup offers, keyed by API.Bible bible id, in the order Setup lists them
     # (NKJV first, so it reads as the default). Each entry is {abbreviation, name, attribution,
     # cache_allowed}. Only the ids listed here are ever offered; a Bible the key can see but this

@@ -159,6 +159,7 @@ cover) and `duplicate_cooldown_s` (default `60`, also settable under `timing`).
 | `api_bible.max_retries` | `2` | Retries per request. Not read yet. |
 | `local.store_path` | `%APPDATA%/VerseSync/bibles` | Folder for imported Bible stores. Not read yet. |
 | `cache_enabled` | `true` | Verse cache switch. Not read yet: the verse cache is always on. |
+| `cache_max_age_days` | `14` | Days cached verse text is kept. Older entries are refetched and deleted at start-up. The provider's terms allow up to a month; 14 days was chosen. |
 
 ### `server`
 
