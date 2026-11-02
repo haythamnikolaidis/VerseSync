@@ -6,6 +6,8 @@ repo is public, so no real sermon text is used.
 
 from __future__ import annotations
 
+import itertools
+import random
 from dataclasses import replace
 from pathlib import Path
 
@@ -20,8 +22,10 @@ from versesync.timing.align import AToken, normalise_verse, tokens_equal, transc
 from versesync.timing.locate import (
     LocateConfig,
     MentionCandidate,
+    Placement,
     TextCandidate,
     TokenIndex,
+    assign,
     mention_candidates,
     merge,
     text_candidates,
@@ -41,6 +45,10 @@ JAMES_1_4 = (
 ROMANS_8_28 = (
     "And we know that all things work together for good to them that love God, to them who "
     "are the called according to his purpose."
+)
+PSALM_91_15 = (
+    "He shall call upon me, and I will answer him: I will be with him in trouble; "
+    "I will deliver him, and honour him."
 )
 PSALM_27_1 = (
     "The LORD is my light and my salvation; whom shall I fear? the LORD is the strength "
@@ -396,3 +404,189 @@ def test_each_mention_joins_at_most_one_text_candidate() -> None:
 
 def test_merge_with_nothing_gives_nothing() -> None:
     assert merge([], [], CFG) == []
+
+
+# --- assignment (14 section 4.4) ---------------------------------------------------------------
+
+
+def candidates_for(
+    entries: list[ExportEntry], words: list[Word], cfg: LocateConfig = CFG
+) -> list[list[Placement]]:
+    tokens = tokens_in(words)
+    detections = detections_in(words)
+    index = TokenIndex(tokens, cfg.align)
+    return [
+        merge(
+            text_candidates(entry, tokens, cfg, index),
+            mention_candidates(entry, detections, cfg),
+            cfg,
+        )
+        for entry in entries
+    ]
+
+
+def psalm_entry(index: int = 0) -> ExportEntry:
+    return make_entry(index, "Psalm 91:15", "KJV", PSALM_91_15)
+
+
+def romans_entry(index: int = 0) -> ExportEntry:
+    return make_entry(index, "Romans 8:28", "KJV", ROMANS_8_28)
+
+
+def repeat_sermon() -> list[Word]:
+    """James 1:4 introduced and read, Psalm 91:15 introduced and read, then "James 1" again."""
+    return speak(
+        (100.0, "turn to James chapter 1 verse 4"),
+        (106.0, JAMES_1_4),
+        (300.0, "Psalm 91 verse 15"),
+        (306.0, PSALM_91_15),
+        (600.0, "back to James chapter 1"),
+    )
+
+
+def test_a_clean_read_is_placed_at_full_coverage_with_its_mention() -> None:
+    words = speak((0.0, filler(20)), (40.0, "turn to John chapter 3 verse 16"))
+    words += speak((46.0, JOHN_3_16), (80.0, filler(20)))
+    entries = [john_entry()]
+    (placed,) = assign(entries, candidates_for(entries, words))
+    assert placed is not None
+    assert placed.text is not None and placed.mention is not None
+    assert placed.text.coverage == 1.0
+    assert placed.score == pytest.approx(1.25)
+    assert placed.time_s == placed.mention.mention_start_s
+    assert placed.text.read_start_s == 46.0
+
+
+def test_a_repeat_takes_its_later_mention() -> None:
+    # James 1:4 is shown twice with Psalm 91:15 between. The reading sits before the psalm, so
+    # the second slide can't use it and takes the later mention of "James 1".
+    entries = [james_entry(0), psalm_entry(1), james_entry(2)]
+    first, middle, repeat = assign(entries, candidates_for(entries, repeat_sermon()))
+    assert first is not None and middle is not None and repeat is not None
+    assert first.text is not None and first.text.coverage == 1.0
+    assert middle.text is not None and middle.text.coverage == 1.0
+    assert repeat.text is None and repeat.mention is not None
+    assert repeat.mention.detection.reference.verse is None  # "James 1", chapter-only
+    assert first.time_s < middle.time_s < repeat.time_s
+    assert repeat.time_s == repeat.mention.mention_start_s > 600.0
+
+
+def test_with_two_entries_out_of_order_the_larger_total_is_kept() -> None:
+    entries = [psalm_entry(0), romans_entry(1)]
+    # File order is the psalm, then Romans. Romans is read in full early, the psalm only in part
+    # and later, so the two can't both be placed in order, and the full reading wins.
+    words = speak((100.0, ROMANS_8_28), (300.0, " ".join(PSALM_91_15.split()[:14])))
+    candidates = candidates_for(entries, words)
+    assert candidates[0][0].score < candidates[1][0].score
+    placed = assign(entries, candidates)
+    assert placed[0] is None
+    assert placed[1] is not None and placed[1].text is not None
+    assert placed[1].text.coverage == 1.0
+    # The other way round, the psalm is read in full and Romans in part: now Romans loses.
+    words = speak((100.0, " ".join(ROMANS_8_28.split()[:14])), (300.0, PSALM_91_15))
+    placed = assign(entries, candidates_for(entries, words))
+    assert placed[1] is None
+    assert placed[0] is not None and placed[0].text is not None
+    assert placed[0].text.coverage == 1.0
+
+
+def test_an_entry_with_no_candidate_is_left_unplaced() -> None:
+    words = speak((100.0, JOHN_3_16), (200.0, filler(20)))
+    entries = [john_entry(0), james_entry(1), romans_entry(2)]
+    candidates = candidates_for(entries, words)
+    assert candidates[1] == [] and candidates[2] == []
+    placed = assign(entries, candidates)
+    assert placed[0] is not None
+    assert placed[1:] == [None, None]
+
+
+def test_identical_input_gives_identical_output() -> None:
+    entries = [james_entry(0), psalm_entry(1), james_entry(2)]
+    first = assign(entries, candidates_for(entries, repeat_sermon()))
+    assert assign(entries, candidates_for(entries, repeat_sermon())) == first
+    # Neither the order of an entry's candidates nor of the detections changes the answer.
+    candidates = candidates_for(entries, repeat_sermon())
+    assert assign(entries, [list(reversed(options)) for options in candidates]) == first
+    tokens = tokens_in(repeat_sermon())
+    detections = list(reversed(detections_in(repeat_sermon())))
+    again = [
+        merge(text_candidates(e, tokens, CFG), mention_candidates(e, detections, CFG), CFG)
+        for e in entries
+    ]
+    assert assign(entries, again) == first
+
+
+def test_placements_are_strictly_increasing_in_file_order() -> None:
+    entries = [james_entry(0), psalm_entry(1), james_entry(2), john_entry(3)]
+    placed = assign(entries, candidates_for(entries, repeat_sermon()))
+    times = [p.time_s for p in placed if p is not None]
+    assert placed[3] is None and len(times) == 3
+    assert all(a < b for a, b in itertools.pairwise(times))
+
+
+def option(entry_index: int, time_s: float, score: float) -> Placement:
+    return Placement(entry_index, score, time_s, mention=mention_at(time_s, score))
+
+
+def blank(count: int) -> list[ExportEntry]:
+    return [james_entry(i) for i in range(count)]
+
+
+def test_ties_go_to_the_earlier_placement() -> None:
+    # Either entry alone scores 0.8; the one that places earlier in the sermon wins.
+    candidates = [[option(0, 10.0, 0.8)], [option(1, 5.0, 0.8)]]
+    assert assign(blank(2), candidates) == [None, candidates[1][0]]
+    # At the same time, the earlier entry wins.
+    candidates = [[option(0, 10.0, 0.8)], [option(1, 10.0, 0.8)]]
+    assert assign(blank(2), candidates) == [candidates[0][0], None]
+    # Within one entry, equal totals go to the earlier time.
+    candidates = [[option(0, 30.0, 0.8), option(0, 20.0, 0.8)]]
+    assert assign(blank(1), candidates) == [candidates[0][1]]
+
+
+def test_two_entries_cannot_share_a_time() -> None:
+    candidates = [[option(0, 10.0, 0.5)], [option(1, 10.0, 0.7)]]
+    assert assign(blank(2), candidates) == [None, candidates[1][0]]
+
+
+def test_the_best_chain_beats_the_best_single_candidate() -> None:
+    late, early, second = option(0, 50.0, 0.5), option(0, 10.0, 0.4), option(1, 20.0, 0.45)
+    assert assign(blank(2), [[late, early], [second]]) == [early, second]
+
+
+def test_an_entry_can_be_skipped_to_keep_a_longer_chain() -> None:
+    # The middle entry's only candidate sits before the first's, so it can't follow it. Placing
+    # it instead of the first scores less.
+    a, b, c = option(0, 100.0, 0.6), option(1, 50.0, 0.5), option(2, 200.0, 0.6)
+    assert assign(blank(3), [[a], [b], [c]]) == [a, None, c]
+
+
+def test_a_candidate_scoring_zero_is_not_placed() -> None:
+    assert assign(blank(1), [[option(0, 10.0, 0.0)]]) == [None]
+    assert assign([], []) == []
+
+
+def test_one_list_of_candidates_per_entry_is_required() -> None:
+    with pytest.raises(ValueError):
+        assign(blank(2), [[option(0, 10.0, 0.5)]])
+
+
+def test_the_assignment_is_the_best_of_every_possible_one() -> None:
+    rng = random.Random(51)
+    for _ in range(200):
+        count = rng.randint(1, 5)
+        candidates = [
+            [
+                option(k, float(rng.randint(0, 12)), rng.randint(1, 10) / 10)
+                for _ in range(rng.randint(0, 3))
+            ]
+            for k in range(count)
+        ]
+        best = 0.0
+        for pick in itertools.product(*[[None, *options] for options in candidates]):
+            chosen = [p for p in pick if p is not None]
+            if all(a.time_s < b.time_s for a, b in itertools.pairwise(chosen)):
+                best = max(best, sum(p.score for p in chosen))
+        placed = [p for p in assign(blank(count), candidates) if p is not None]
+        assert all(a.time_s < b.time_s for a, b in itertools.pairwise(placed))
+        assert sum(p.score for p in placed) == pytest.approx(best)

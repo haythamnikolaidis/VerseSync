@@ -275,3 +275,71 @@ def merge(
     placements.extend(Placement(m.entry_index, m.score, m.mention_start_s, mention=m) for m in free)
     placements.sort(key=lambda p: p.time_s)
     return placements
+
+
+# Scores are added as whole numbers of these, so equal totals compare equal whatever order their
+# parts were added in. Float sums of the same scores can differ in the last bit.
+_TICKS_PER_POINT = 10**9
+
+
+@dataclass(frozen=True)
+class _State:
+    """The best chain of placements that ends in ``placement`` (an entry's candidate)."""
+
+    total: int  # ticks
+    placement: Placement
+    position: int  # the entry's place in file order
+    option: int  # the candidate's place in the entry's list
+    previous: _State | None
+
+    @property
+    def rank(self) -> tuple[int, float, int, int]:
+        """Larger is better: the larger total, then the earlier time, entry and candidate."""
+        return (self.total, -self.placement.time_s, -self.position, -self.option)
+
+
+def assign(
+    entries: Sequence[ExportEntry], candidates: Sequence[Sequence[Placement]]
+) -> list[Placement | None]:
+    """At most one placement per entry, in file order, with the largest total score (14 4.4).
+
+    ``candidates[k]`` holds the placements of ``entries[k]``, for example from ``merge``. The
+    placements chosen have times strictly increasing in file order, which is what separates the
+    second of two identical entries from the first: it can't reuse a reading that sits before the
+    entry placed in between, so it takes a later mention. An entry may be left unplaced (``None``)
+    at a score of 0.
+
+    Dynamic programming over the entries in file order: the best chain ending in a candidate is
+    its score plus the best chain of an earlier entry that ends before it. Ties go to the earlier
+    placement, then the earlier entry, then the earlier candidate in the list, so the result
+    doesn't depend on anything but the input.
+    """
+    if len(entries) != len(candidates):
+        raise ValueError("candidates must hold one list of placements per entry")
+
+    states: list[_State] = []
+    for position, options in enumerate(candidates):
+        # Only states of earlier entries are looked at, so an entry never chains to itself.
+        reached: list[_State] = []
+        for option, placement in sorted(
+            enumerate(options), key=lambda item: (item[1].time_s, item[0])
+        ):
+            gain = round(placement.score * _TICKS_PER_POINT)
+            if gain <= 0:
+                continue
+            previous: _State | None = None
+            for state in states:
+                if state.placement.time_s < placement.time_s and (
+                    previous is None or state.rank > previous.rank
+                ):
+                    previous = state
+            total = gain + (0 if previous is None else previous.total)
+            reached.append(_State(total, placement, position, option, previous))
+        states.extend(reached)
+
+    chosen: list[Placement | None] = [None] * len(entries)
+    link = max(states, key=lambda state: state.rank, default=None)
+    while link is not None:
+        chosen[link.position] = link.placement
+        link = link.previous
+    return chosen
