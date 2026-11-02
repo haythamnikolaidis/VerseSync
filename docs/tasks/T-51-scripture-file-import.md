@@ -28,7 +28,7 @@ Without a scripture file, nothing changes. Every v1 golden file must still pass 
 
 ### T-51.1 · Export parser
 
-**Executor** agent · **Size** S · **Prereqs** T-14.2, T-13.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-14.2, T-13.1 · **Status** done
 
 - **Read:** [14 §2, §3](../14-scripture-file-import.md) · `reference/verseflow/js/scripture-parser.js`
 - **Touches:** `sidecar/versesync/scripture_file.py` (new) · `tests/test_scripture_file.py` (new) ·
@@ -46,12 +46,12 @@ Without a scripture file, nothing changes. Every v1 golden file must still pass 
      kept as separate entries; each warning carries its line number. Commit.
 - **Verify:** `pytest tests/test_scripture_file.py -q`
 - **Done when:**
-  - [ ] `body` is byte-identical to VerseFlow's parser output on the sample fixture, as recorded in the expected file.
-  - [ ] BOM and CRLF make no difference.
+  - [x] `body` is byte-identical to VerseFlow's parser output on the sample fixture, as recorded in the expected file.
+  - [x] BOM and CRLF make no difference.
 
 ### T-51.2 · Contract: Cue Document 1.1
 
-**Executor** agent · **Size** S · **Prereqs** T-51.1 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-51.1 · **Status** done
 
 - **Read:** [14 §6](../14-scripture-file-import.md) · [07 §2, §3, §5.2](../07-sidecar-api.md)
 - **Touches:** `schemas/cue-document.schema.json` · `docs/07-sidecar-api.md` ·
@@ -66,12 +66,12 @@ Without a scripture file, nothing changes. Every v1 golden file must still pass 
      that the panel reader accepts 1.1, and still accepts 1.0. Commit.
 - **Verify:** `pytest -q` · `npm test`
 - **Done when:**
-  - [ ] Every 1.0 fixture still validates.
-  - [ ] The panel reads the `export` scenario without warnings.
+  - [x] Every 1.0 fixture still validates.
+  - [x] The panel reads the `export` scenario without warnings.
 
 ### T-51.3 · Entry locator
 
-**Executor** agent · **Size** S · **Prereqs** T-51.1, T-17.2, T-13.3 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-51.1, T-17.2, T-13.3 · **Status** done
 
 - **Read:** [14 §4.1–§4.4, §10](../14-scripture-file-import.md) · [05 §4.1, §10](../05-timing-and-placement.md)
 - **Touches:** `sidecar/versesync/timing/locate.py` (new) · `sidecar/versesync/config.py` ·
@@ -92,12 +92,12 @@ Without a scripture file, nothing changes. Every v1 golden file must still pass 
   3. **Performance.** 30 entries against `long-sermon-filler` in under 1 s. Commit.
 - **Verify:** `pytest tests/test_locate.py -q`
 - **Done when:**
-  - [ ] `assign` output is strictly increasing in file order.
-  - [ ] The performance bound holds.
+  - [x] `assign` output is strictly increasing in file order.
+  - [x] The performance bound holds.
 
 ### T-51.7 · Out-of-order and repeat passes
 
-**Executor** agent · **Size** S · **Prereqs** T-51.3 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-51.3 · **Status** done
 
 - **Read:** [14 §4.5–§4.7](../14-scripture-file-import.md)
 - **Touches:** `sidecar/versesync/timing/locate.py` · `sidecar/versesync/timing/align.py` ·
@@ -123,13 +123,13 @@ Without a scripture file, nothing changes. Every v1 golden file must still pass 
      unchanged, and that a verse with no match gets no time. Commit.
 - **Verify:** `pytest tests/test_locate.py tests/test_golden.py -q`
 - **Done when:**
-  - [ ] No two located cues overlap in word span.
-  - [ ] Identical input gives identical output.
-  - [ ] Every v1 golden file is unchanged.
+  - [x] No two located cues overlap in word span.
+  - [x] Identical input gives identical output.
+  - [x] Every v1 golden file is unchanged.
 
 ### T-51.4 · Pipeline integration
 
-**Executor** agent · **Size** S · **Prereqs** T-51.2, T-51.7, T-19.3 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-51.2, T-51.7, T-19.3 · **Status** done
 
 - **Read:** [14 §5](../14-scripture-file-import.md) · [05 §3](../05-timing-and-placement.md)
 - **Touches:** `sidecar/versesync/pipeline.py` · `sidecar/versesync/cues.py` ·
@@ -144,12 +144,12 @@ Without a scripture file, nothing changes. Every v1 golden file must still pass 
      unchanged. Commit.
 - **Verify:** `pytest tests/test_pipeline_export.py tests/test_golden.py -q`
 - **Done when:**
-  - [ ] Without a scripture file, the output is byte-identical to v1.
-  - [ ] A test proves the provider is not called for entries.
+  - [x] Without a scripture file, the output is byte-identical to v1.
+  - [x] A test proves the provider is not called for entries.
 
 ### T-51.5 · API and CLI
 
-**Executor** agent · **Size** XS · **Prereqs** T-51.4 · **Status** in-progress
+**Executor** agent · **Size** XS · **Prereqs** T-51.4 · **Status** done
 
 - **Read:** [14 §6](../14-scripture-file-import.md)
 - **Touches:** `sidecar/versesync/jobs.py` · `sidecar/versesync/cli.py` ·
@@ -160,11 +160,11 @@ Without a scripture file, nothing changes. Every v1 golden file must still pass 
      Add `analyse --scripture-file`, with these codes as input errors. Commit.
 - **Verify:** `pytest tests/test_job_endpoints.py tests/test_cli.py -q`
 - **Done when:**
-  - [ ] Each of the three errors has a test over HTTP and over the CLI.
+  - [x] Each of the three errors has a test over HTTP and over the CLI.
 
 ### T-51.6 · Panel: picker and review list
 
-**Executor** agent · **Size** S · **Prereqs** T-51.5, T-29.3 · **Status** in-progress
+**Executor** agent · **Size** S · **Prereqs** T-51.5, T-29.3 · **Status** done
 
 - **Read:** [14 §7](../14-scripture-file-import.md) · [09](../09-ui-spec.md)
 - **Touches:** `panel/js/setup.js` · `panel/js/review.js` · `panel/js/state.js` ·
@@ -177,8 +177,8 @@ Without a scripture file, nothing changes. Every v1 golden file must still pass 
      the mock `export` scenario. Commit.
 - **Verify:** `npm test`
 - **Done when:**
-  - [ ] Without a file, the panel behaves exactly as v1.
-  - [ ] An unplaced cue can't be inserted until it has a time.
+  - [x] Without a file, the panel behaves exactly as v1.
+  - [x] An unplaced cue can't be inserted until it has a time.
 
 ### T-51.H · Real sermon with its export
 

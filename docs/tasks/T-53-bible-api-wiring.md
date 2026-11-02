@@ -98,7 +98,7 @@ hand-added cues, and sermons with no export.
 
 ### T-53.4 · Hand edits keep the cue's translation
 
-**Executor** agent · **Size** XS · **Prereqs** T-51.2, T-53.2 · **Status** in-progress
+**Executor** agent · **Size** XS · **Prereqs** T-51.2, T-53.2 · **Status** done
 
 - **Read:** [14 §7](../14-scripture-file-import.md) · `panel/js/review.js` (`resolveCue`)
 - **Touches:** `panel/js/review.js` · `panel/js/main.js` · `tests/panel/review-reference.test.js`
