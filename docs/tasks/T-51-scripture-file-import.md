@@ -71,7 +71,7 @@ Without a scripture file, nothing changes. Every v1 golden file must still pass 
 
 ### T-51.3 · Entry locator
 
-**Executor** agent · **Size** S · **Prereqs** T-51.1, T-17.2, T-13.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-51.1, T-17.2, T-13.3 · **Status** in-progress
 
 - **Read:** [14 §4.1–§4.4, §10](../14-scripture-file-import.md) · [05 §4.1, §10](../05-timing-and-placement.md)
 - **Touches:** `sidecar/versesync/timing/locate.py` (new) · `sidecar/versesync/config.py` ·

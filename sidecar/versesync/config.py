@@ -125,7 +125,19 @@ _TRANSCRIPTION_DEFAULTS: dict[str, Any] = {
     "temperature": 0.0,
 }
 
-_SECTIONS = ("transcription", "detection", "timing", "bible", "server")
+# docs/14-scripture-file-import.md section 10. These are spec defaults chosen from one sermon;
+# they ship untuned, like the rest (D24).
+_SCRIPTURE_FILE_DEFAULTS: dict[str, Any] = {
+    "text_min_coverage": 0.30,
+    "candidates_per_entry": 5,
+    "merge_before_s": 120,
+    "merge_after_s": 20,
+    "merge_bonus": 0.25,
+    "mention_weight": 0.5,
+    "repeat_min_matched_tokens": 5,
+}
+
+_SECTIONS = ("transcription", "detection", "timing", "bible", "server", "scripture_file")
 
 
 def _defaults() -> dict[str, dict[str, Any]]:
@@ -135,6 +147,7 @@ def _defaults() -> dict[str, dict[str, Any]]:
         "timing": copy.deepcopy(_TIMING_DEFAULTS),
         "bible": copy.deepcopy(_BIBLE_DEFAULTS),
         "server": copy.deepcopy(_SERVER_DEFAULTS),
+        "scripture_file": copy.deepcopy(_SCRIPTURE_FILE_DEFAULTS),
     }
 
 
@@ -157,6 +170,7 @@ class Config:
     timing: dict[str, Any] = field(default_factory=dict)
     bible: dict[str, Any] = field(default_factory=dict)
     server: dict[str, Any] = field(default_factory=dict)
+    scripture_file: dict[str, Any] = field(default_factory=dict)
 
     def secret(self, env_name_key: str) -> str | None:
         """Return the value of the env var named by config key ``env_name_key``.
