@@ -11,9 +11,10 @@ from typing import Any
 
 import pytest
 
+from versesync.bible.api_bible import ApiBibleProvider
 from versesync.bible.base import ProviderUnavailable, Translation
 from versesync.bible.local import LocalProvider
-from versesync.config import load_config
+from versesync.config import _BIBLE_DEFAULTS, load_config
 from versesync.jobs import JobService
 from versesync.server import PROVIDER_CHECK_TTL_S, SidecarServer
 from versesync.transcribe import Backend, FakeBackend
@@ -80,10 +81,10 @@ class Env:
 def make_env(app_home: Path) -> Iterator[Any]:
     servers: list[tuple[SidecarServer, threading.Thread]] = []
 
-    def build(device: str = "cuda", backend: Backend | None = None) -> Env:
+    def build(device: str = "cuda", backend: Backend | None = None, provider: Any = None) -> Env:
         base = load_config()
         config = replace(base, transcription={**base.transcription, "device": device})
-        provider = FlakyProvider()
+        provider = provider or FlakyProvider()
         server = SidecarServer(config, TOKEN)
         server.clock = Clock()
         server.attach_jobs(
@@ -174,6 +175,53 @@ def test_translations_lists_provider(make_env: Any) -> None:
         "attribution",
         "cache_allowed",
     }
+
+
+class RecordingTransport:
+    """An API.Bible transport that records every call; its /bibles lists a Bible config omits."""
+
+    def __init__(self) -> None:
+        self.calls: list[str] = []
+
+    def __call__(self, url: str, headers: Any, timeout: float) -> tuple[int, dict[str, Any]]:
+        self.calls.append(url)
+        return 200, {"data": [{"id": "ffffffffffffffff-01", "name": "Not In Config"}]}
+
+
+def _api_env(make_env: Any, api_key: str) -> tuple[Env, RecordingTransport]:
+    transport = RecordingTransport()
+    provider = ApiBibleProvider(
+        api_key, "https://api.example.test/v1", transport, _BIBLE_DEFAULTS["translations"]
+    )
+    return make_env(provider=provider), transport
+
+
+def test_translations_with_the_api_provider_is_exactly_the_configured_list(
+    make_env: Any,
+) -> None:
+    env, transport = _api_env(make_env, "sk-test-not-a-real-key")
+    status, body = call(env.server, "/translations")
+    assert status == 200
+    assert body["provider"] == "api_bible"
+    assert [t["abbreviation"] for t in body["translations"]] == [
+        "NKJV",
+        "NIV",
+        "AMP",
+        "KJV",
+        "ASV",
+        "WEB",
+    ]
+    assert [t["id"] for t in body["translations"]] == list(_BIBLE_DEFAULTS["translations"])
+    assert "ffffffffffffffff-01" not in {t["id"] for t in body["translations"]}
+    assert transport.calls == []
+
+
+def test_translations_with_the_api_provider_works_with_no_key(make_env: Any) -> None:
+    env, transport = _api_env(make_env, "")
+    status, body = call(env.server, "/translations")
+    assert status == 200
+    assert body["translations"][0]["abbreviation"] == "NKJV"
+    assert transport.calls == []
 
 
 def test_models_table(make_env: Any) -> None:

@@ -1,4 +1,5 @@
 import json
+import socket
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
@@ -61,6 +62,46 @@ def test_resolve_with_the_api_provider_marks_the_text_as_from_a_provider(
     passage = json.loads(capsys.readouterr().out)
     assert passage["source"] == "provider"
     assert passage["reference"]["verse"] == 16
+
+
+def _api_bible_config_without_a_key(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    monkeypatch.delenv("VERSESYNC_API_BIBLE_KEY", raising=False)
+
+    def refuse(*_args: Any, **_kwargs: Any) -> None:
+        raise AssertionError("network access attempted")
+
+    monkeypatch.setattr(socket, "socket", refuse)
+    monkeypatch.setattr(socket, "create_connection", refuse)
+    config = tmp_path / "api.yaml"
+    text = "bible:\n  provider: api_bible\n  default_translation: nkjv\n"
+    config.write_text(text, encoding="utf-8")
+    return config
+
+
+def test_resolve_with_the_api_provider_and_no_key_is_an_input_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    config = _api_bible_config_without_a_key(tmp_path, monkeypatch)
+    assert main(["resolve", "John 3:16", "--config", str(config)]) == 2
+    captured = capsys.readouterr()
+    assert "No API.Bible key" in captured.err
+    assert captured.out == ""
+
+
+def test_analyse_with_the_api_provider_and_no_key_flags_every_cue(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    config = _api_bible_config_without_a_key(tmp_path, monkeypatch)
+    out = tmp_path / "cues.json"
+    assert main(["analyse", str(FIXTURE), "--out", str(out), "--config", str(config)]) == 0
+    doc = json.loads(out.read_text(encoding="utf-8"))
+    validate_document(doc)
+    verse_cues = [c for c in doc["cues"] if "chapter_only" not in c["flags"]]
+    assert verse_cues
+    for cue in verse_cues:
+        assert "text_unavailable" in cue["flags"]
+    assert all(c["body"] == "" for c in doc["cues"])
+    assert all(c["reference_display"].endswith("(NKJV)") for c in verse_cues)
 
 
 def test_resolve_invalid_reference_exits_2(capsys: pytest.CaptureFixture[str]) -> None:

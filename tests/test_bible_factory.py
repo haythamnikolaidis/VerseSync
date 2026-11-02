@@ -31,6 +31,9 @@ KEY = "sk-test-0123456789-secret"
 EXPECTED_NO_KEY = "No API.Bible key: set VERSESYNC_API_BIBLE_KEY and restart Premiere."
 
 
+NO_VERSES: dict[str, Any] = {"data": {"content": ""}}  # a 200 passage reply with no verses
+
+
 class Recorder:
     """A fake transport that records its calls."""
 
@@ -81,9 +84,16 @@ def test_api_bible_gives_adapter_with_config_and_real_transport(
     config: Config, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setenv(KEY_ENV, KEY)
-    marker = Recorder()
+    marker = Recorder(body=NO_VERSES)
     monkeypatch.setattr(factory, "urllib_fetch_json", marker)
-    translations = {"abc-01": {"attribution": "Test.", "cache_allowed": True}}
+    translations = {
+        "abc-01": {
+            "abbreviation": "TST",
+            "name": "Test Version",
+            "attribution": "Test.",
+            "cache_allowed": True,
+        }
+    }
     custom = _with_bible(
         config,
         translations=translations,
@@ -97,10 +107,14 @@ def test_api_bible_gives_adapter_with_config_and_real_transport(
     assert isinstance(provider, ApiBibleProvider)
     # The default transport is the module's own urllib_fetch_json, resolved when called.
     marker.calls.clear()
-    provider.list_translations()
-    assert marker.calls == [
-        ("https://api.example.test/v1/bibles", {"api-key": KEY, "accept": "application/json"}, 7.0)
-    ]
+    assert [t.abbreviation for t in provider.list_translations()] == ["TST"]
+    assert marker.calls == []  # the list comes from config, not from the API
+    with pytest.raises(PassageNotFound):  # the marker's reply has no verses
+        provider.fetch_chapter("John", 3, "abc-01")
+    assert len(marker.calls) == 1
+    url, headers, timeout = marker.calls[0]
+    assert url.startswith("https://api.example.test/v1/bibles/abc-01/passages/JHN.3?")
+    assert (headers, timeout) == ({"api-key": KEY, "accept": "application/json"}, 7.0)
 
 
 def test_default_transport_is_urllib_fetch_json(
@@ -116,8 +130,9 @@ def test_injected_transport_is_used_when_a_key_is_set(
     config: Config, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setenv(KEY_ENV, KEY)
-    fake = Recorder()
-    build_provider(config, fetch_json=fake).list_translations()
+    fake = Recorder(body=NO_VERSES)
+    with pytest.raises(PassageNotFound):  # the recorder's reply has no verses
+        build_provider(config, fetch_json=fake).fetch_chapter("John", 3, "abc-01")
     assert len(fake.calls) == 1
 
 
@@ -150,7 +165,6 @@ def test_no_key_refuses_every_request_without_a_transport_call(
     provider = build_provider(config, fetch_json=injected)
     assert isinstance(provider, ApiBibleProvider)
     calls: list[Callable[[], object]] = [
-        provider.list_translations,
         lambda: provider.fetch(_ref(), "abc-01"),
         lambda: provider.fetch_chapter("John", 3, "abc-01"),
     ]
@@ -167,11 +181,23 @@ def test_no_key_refuses_every_request_without_a_transport_call(
     assert injected.calls == []
 
 
+@pytest.mark.parametrize("key", [None, ""])
+def test_no_key_still_lists_the_configured_translations(
+    config: Config, no_network: Recorder, monkeypatch: pytest.MonkeyPatch, key: str | None
+) -> None:
+    if key is not None:
+        monkeypatch.setenv(KEY_ENV, key)
+    injected = Recorder()
+    translations = build_provider(config, fetch_json=injected).list_translations()
+    assert [t.abbreviation for t in translations] == ["NKJV", "NIV", "AMP", "KJV", "ASV", "WEB"]
+    assert no_network.calls == [] and injected.calls == []
+
+
 def test_no_key_makes_no_real_socket_use(config: Config, no_network: Recorder) -> None:
     # no_network turns any socket use into AssertionError, which ProviderUnavailable would not
     # mask: an attempt would surface as a different exception type.
     with pytest.raises(ProviderUnavailable):
-        build_provider(config).list_translations()
+        build_provider(config).fetch_chapter("John", 3, "abc-01")
 
 
 # --- the key stays private ------------------------------------------------------------------
@@ -186,7 +212,7 @@ def test_key_is_not_in_repr_log_or_error(
     assert KEY not in repr(provider)
     assert KEY not in repr(config)
     with pytest.raises(ProviderUnavailable) as info:
-        provider.list_translations()
+        provider.fetch_chapter("John", 3, "abc-01")
     with pytest.raises(PassageNotFound) as not_found:
         build_provider(config, fetch_json=Recorder(status=404)).fetch(_ref(), "abc-01")
     assert KEY not in str(info.value) and KEY not in str(not_found.value)
@@ -199,7 +225,7 @@ def test_key_stays_out_of_the_sidecar_log_and_reprs_through_start_up(
     """The real start-up path, ``sidecar.main``, builds the provider from the default config."""
     monkeypatch.setenv(KEY_ENV, KEY)
     # Requests go to a loopback server that only ever fails, never to API.Bible.
-    api = serve(lambda path: _json(500 if path.endswith("/bibles") else 404, {"message": "no"}))
+    api = serve(lambda path: _json(500 if "/passages/JHN.3?" in path else 404, {"message": "no"}))
     bare_home.mkdir(parents=True)
     (bare_home / "config.yaml").write_text(
         f"bible:\n  api_bible:\n    base_url: {api.url}\n", encoding="utf-8"
@@ -224,7 +250,7 @@ def test_key_stays_out_of_the_sidecar_log_and_reprs_through_start_up(
         ((cfg, provider),) = built
         log.setLevel(logging.DEBUG)  # include the per-request debug line
         with pytest.raises(ProviderUnavailable) as failure:
-            provider.list_translations()
+            provider.fetch_chapter("John", 3, "abc-01")
         with pytest.raises(PassageNotFound) as missing:
             provider.fetch_chapter("John", 99, "abc-01")
     finally:
@@ -413,4 +439,4 @@ def test_adapter_maps_the_transport_failures(
         config, api_bible={**config.bible["api_bible"], "base_url": f"http://127.0.0.1:{port}"}
     )
     with pytest.raises(ProviderUnavailable):
-        build_provider(dead).list_translations()
+        build_provider(dead).fetch_chapter("John", 3, "abc-01")
