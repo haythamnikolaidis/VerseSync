@@ -28,7 +28,7 @@ Without a scripture file, nothing changes. Every v1 golden file must still pass 
 
 ### T-51.1 · Export parser
 
-**Executor** agent · **Size** S · **Prereqs** T-14.2, T-13.1 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-14.2, T-13.1 · **Status** in-progress
 
 - **Read:** [14 §2, §3](../14-scripture-file-import.md) · `reference/verseflow/js/scripture-parser.js`
 - **Touches:** `sidecar/versesync/scripture_file.py` (new) · `tests/test_scripture_file.py` (new) ·
