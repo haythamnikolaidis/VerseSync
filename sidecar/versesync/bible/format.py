@@ -20,6 +20,8 @@ _HTML_NOTE = re.compile(
 )
 # A lone superscript callout such as <sup>a</sup> or <sup>[12]</sup>.
 _HTML_CALLOUT = re.compile(r"<sup\b[^>]*>\s*\[?[A-Za-z0-9*\u2020\u2021]{1,3}\]?\s*</sup>", re.I)
+# Block and line-break tags separate words; every other tag is inline and leaves no gap.
+_HTML_BLOCK_TAG = re.compile(r"</?(?:p|div|br|li|h[1-6])(?![A-Za-z0-9])[^>]*>", re.IGNORECASE)
 _HTML_TAG = re.compile(r"<[^>]*>")
 _WHITESPACE = re.compile(r"\s+")
 # Pilcrow paragraph marks and the stray bracketed callouts some providers leave behind.
@@ -31,7 +33,8 @@ def strip_markup(text: str) -> str:
     text = _USFM_NOTE.sub(" ", text)
     text = _HTML_NOTE.sub(" ", text)
     text = _HTML_CALLOUT.sub("", text)
-    text = _HTML_TAG.sub(" ", text)
+    text = _HTML_BLOCK_TAG.sub(" ", text)
+    text = _HTML_TAG.sub("", text)
     text = _USFM_MARKER.sub(" ", text)
     text = html.unescape(text)
     text = _PILCROW.sub(" ", text)
