@@ -48,8 +48,12 @@ function fixture(name) {
     path.join(root, 'tests', 'fixtures', 'cue-documents', name), 'utf8'));
 }
 
-function memoryStorage() {
+// settings seeds the panel's stored Setup values, as an earlier session would have left them.
+function memoryStorage(settings) {
   var m = {};
+  if (settings) {
+    m['versesync.state'] = JSON.stringify({ version: 1, settings: settings, mappings: {} });
+  }
   return {
     getItem: function (k) { return Object.prototype.hasOwnProperty.call(m, k) ? m[k] : null; },
     setItem: function (k, v) { m[k] = String(v); },
@@ -218,7 +222,8 @@ async function build(o) {
     bridge: guard.wrap(o.bridge || stubBridge(), 'bridge'),
     client: inner === null ? null : guard.wrap(inner, 'client'),
     transport: o.transport || null,
-    storage: memoryStorage(),
+    // These tests are about failures, and count one graphic per cue, so the text layout is off.
+    storage: memoryStorage({ autoWrap: false }),
     fs: files,
     confirm: function () { return true; },
     sleep: function () { return tick(); },

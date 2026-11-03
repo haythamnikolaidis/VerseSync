@@ -70,6 +70,19 @@
         <input type="number" id="setup-leadin" class="vf-input-num" min="0" max="3" step="0.1">
       </div>
       <div class="vf-mapping-row">
+        <input type="checkbox" id="setup-autowrap">
+        <label for="setup-autowrap">Auto-wrap scripture text</label>
+      </div>
+      <div class="vf-mapping-row">
+        <label class="vf-label" for="setup-maxchars">Max chars / line</label>
+        <input type="number" id="setup-maxchars" class="vf-input-num" min="20" max="120" step="1">
+      </div>
+      <div class="vf-mapping-row">
+        <label class="vf-label" for="setup-maxlines">Max lines / graphic</label>
+        <input type="number" id="setup-maxlines" class="vf-input-num" min="1" max="12" step="1">
+      </div>
+      <div class="vf-hint">Adjust to fit your template's text box.</div>
+      <div class="vf-mapping-row">
         <button id="setup-analyse" class="vf-btn vf-btn--accent" type="button" disabled>Analyse</button>
         <div id="setup-analyse-reason" class="vf-hint" role="status"></div>
       </div>
@@ -95,6 +108,7 @@
   <script src="js/timemap.js"></script>
   <script src="js/cues.js"></script>
   <script src="js/duration.js"></script>
+  <script src="js/layout.js"></script>
   <script src="js/review.js"></script>
   <script src="js/insert.js"></script>
   <script src="js/main.js"></script>

@@ -22,7 +22,7 @@ Its `_wrapText` is quoted in 15 §3. Layout happens at insert time in the panel:
 
 ### T-54.1 · Layout functions
 
-**Executor** agent · **Size** S · **Prereqs** T-29.3 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-29.3 · **Status** done
 
 - **Read:** [15 §3, §4, §6](../15-graphic-text-layout.md)
 - **Touches:** `panel/js/layout.js` (new) · `panel/index.html` · `tests/panel/layout.test.js` (new) ·
@@ -39,13 +39,13 @@ Its `_wrapText` is quoted in 15 §3. Layout happens at insert time in the panel:
      panel's existing string-tick helpers, never floats (R-11). Commit.
 - **Verify:** `npm test -- layout`
 - **Done when:**
-  - [ ] No part exceeds `maxLines`, on any input.
-  - [ ] Joining the parts' words gives back the body's words exactly.
-  - [ ] Part durations add up to the cue's duration, exactly in ticks.
+  - [x] No part exceeds `maxLines`, on any input.
+  - [x] Joining the parts' words gives back the body's words exactly.
+  - [x] Part durations add up to the cue's duration, exactly in ticks.
 
 ### T-54.2 · Setup controls
 
-**Executor** agent · **Size** XS · **Prereqs** T-54.1 · **Status** todo
+**Executor** agent · **Size** XS · **Prereqs** T-54.1 · **Status** done
 
 - **Read:** [15 §2](../15-graphic-text-layout.md) · [09 §3](../09-ui-spec.md)
 - **Touches:** `panel/js/setup.js` · `panel/js/state.js` · `panel/index.html` · `docs/09-ui-spec.md` ·
@@ -56,11 +56,11 @@ Its `_wrapText` is quoted in 15 §3. Layout happens at insert time in the panel:
      with the other settings and never gate Analyse. Commit.
 - **Verify:** `npm test -- setup`
 - **Done when:**
-  - [ ] Settings survive a reload, using the T-30.H write-through to `panel-state.json`.
+  - [x] Settings survive a reload, using the T-30.H write-through to `panel-state.json`.
 
 ### T-54.3 · Insert and review list
 
-**Executor** agent · **Size** S · **Prereqs** T-54.2, T-51.2 · **Status** todo
+**Executor** agent · **Size** S · **Prereqs** T-54.2, T-51.2 · **Status** done
 
 - **Read:** [15 §4, §5](../15-graphic-text-layout.md) · `panel/js/insert.js`
 - **Touches:** `panel/js/insert.js` · `panel/js/review.js` · `panel/js/main.js` · `docs/09-ui-spec.md` ·
@@ -74,9 +74,9 @@ Its `_wrapText` is quoted in 15 §3. Layout happens at insert time in the panel:
      2 s*. Changing a setting updates them. Commit.
 - **Verify:** `npm test`
 - **Done when:**
-  - [ ] An unsplit cue's payload differs from today only by the line breaks in `body`.
-  - [ ] `panel/jsx/VerseSync.jsx` is unchanged.
-  - [ ] The Cue Document saved after an insert has the same `body` as before it.
+  - [x] An unsplit cue's payload differs from today only by the line breaks in `body`.
+  - [x] `panel/jsx/VerseSync.jsx` is unchanged.
+  - [x] The Cue Document saved after an insert has the same `body` as before it.
 
 ### T-54.H · Real graphics on real Premiere
 

@@ -24,6 +24,10 @@ for a narrow column that grows usefully when widened.
 │   Target track    [ V3 ▾ ]      [Refresh]  │
 │   Duration        (•) Auto  ( ) Fixed [ ]s │
 │   Lead-in         [ 0.5 ] s                │
+│   [x] Auto-wrap scripture text             │
+│   Max chars / line      [ 80 ]             │
+│   Max lines / graphic   [ 4 ]              │
+│   Adjust to fit your template's text box.  │
 │                                            │
 │        [        Analyse        ]           │
 ├────────────────────────────────────────────┤
@@ -82,7 +86,7 @@ sessions (FR-1.7), so a weekly run is: pick media, click Analyse.
 | **Template** | `.mogrt` picker. On selection, calls `VS.getMogrtFields` with a *Reading template…* busy state. Zero fields → the VerseFlow warning about After Effects–authored templates (FR-1.4). |
 | **Reference / Scripture dropdowns** | Populated with group-qualified labels (`Description > Text`), values are field **indices**. VerseFlow's smart defaults apply: reference ← group matching `/descr\|caption\|sub\|credit\|author/i`, body ← `/title\|main\|quote\|body/i`. Same field for both is a validation error. Persisted per MOGRT path. |
 | **Translation** | From `GET /translations`. Shows the licence attribution beneath it in small type, if the translation has any (FR-4.7). Disabled while the sidecar is unreachable. |
-| **Text layout** | *(T-54)* **Auto-wrap scripture text**, **Max chars / line** (default 80, 20–120) and **Max lines / graphic** (default 4, 1–12). Applied at insert, so they never gate Analyse. See [15](15-graphic-text-layout.md). |
+| **Text layout** | *(T-54)* **Auto-wrap scripture text** (default on), **Max chars / line** (default 80, 20–120) and **Max lines / graphic** (default 4, 1–12), with the hint *Adjust to fit your template's text box.* Out-of-range values clamp, as Lead-in does. Unticking the checkbox disables both numbers. They persist with the other settings and are not sent in the job request or stored in the Cue Document. Applied at insert, so they never gate Analyse, and changing one updates the review rows (§5.1, §5.3) at once, with no new analysis. See [15](15-graphic-text-layout.md). |
 | **Target track** | From `VS.getSequenceInfo`, listed V-high to V-low, defaulting to topmost. **Refresh** re-reads. |
 | **Duration** | Auto (per-cue, from classification) or Fixed. Auto is the default and the point of the product. |
 | **Lead-in** | Seconds, default 0.5, range 0–3. The one timing constant editors will actually want to touch. |
@@ -136,6 +140,13 @@ as described in §5.1–§5.4 and shows none of them.
 - **Snippet** — the transcript around the mention, with the matched span emphasised. This is the
   evidence for the detection, and it is what an editor actually skims.
 - **Flag badges** — colour-coded, on the right.
+- **Layout** — only on a cue that will split into several graphics ([15](15-graphic-text-layout.md)
+  §3), on a line of its own under the badge line: *Inserts as 3 graphics*. If any part would be
+  visible for less than `min_visible_s` (2.0 s) the line adds an amber *⚑ Part under 2 s*; the part
+  still inserts. This is a warning on the line, not a flag: it is not in the flagged count and
+  **Flagged only** ignores it. A cue that fits one graphic has no such line, so its row is exactly
+  as above. A split cue is still one row, ticked, edited and nudged as a whole. The line follows the
+  Setup text-layout controls (§3), the cue's timing and its text, and appears or goes as they change.
 
 ### 5.2 Flags
 
@@ -192,6 +203,15 @@ Clicking the row body expands it:
   and recomputing the paraphrase duration. Invalid references show the canon-validation error
   inline.
 - **Verse text** is read-only, and shows the truncation point when `long_passage` is set.
+- **Parts** — only on a cue that will split (§5.1): *Inserts as N graphics*, then one block per graphic
+  in the order they will play, headed *Part n · HH:MM:SS:FF* with the sequence timecode the part
+  starts at, and its text on separate lines as they will break on the graphic. A part under
+  `min_visible_s` carries the amber *⚑ Part under 2 s*. The first part starts at the cue's
+  timecode; a cue the media does not reach (*cut from edit*) lists its parts without times. The
+  block sits under the verse text, which still shows the stored text once. When a Setup layout
+  control changes the block is redrawn in place and the row stays open; a nudge or a duration edit
+  redraws the list as it always has, with the row still open, and the parts' times move with the
+  cue's.
 - **Transcript context** shows ~15 words either side with the matched span marked. When a read
   span was found, its extent is underlined — so the editor can see exactly what the classifier
   matched, which is the honest way to present a 78% coverage number.
@@ -242,8 +262,16 @@ row, and every row of a v1 document, is exactly as described above.
 
 ## 6. Insert
 
-**Insert N scriptures** carries the enabled count (FR-6.7). Before running, the panel calls
-`VS.validateTrack`; if existing clips would be overwritten it confirms first:
+**Insert N scriptures** carries the enabled count (FR-6.7), which counts cues, not graphics. Each
+enabled cue goes in as one graphic or, when it will split (§5.1), as several, laid back to back
+across the cue's time ([15](15-graphic-text-layout.md) §4). The first keeps the cue's id and a later
+part is `<cue id>#<n>`, so the second graphic of `cue_003` is `cue_003#2`. Every part keeps the full
+reference. The Cue Document is not changed: its `body` stays as it was and the line breaks exist only
+in what is sent to the template.
+
+Before running, the panel calls `VS.validateTrack` with a range for every graphic; if existing clips
+would be overwritten it confirms first. The sentence counts cues, so a cue whose parts land on two
+clips counts once:
 
 > *3 of your cues will overwrite existing clips on V3. Continue?*
 
@@ -251,8 +279,11 @@ During insert: progress from the `com.versesync.progress` CSXS events, setup and
 controls disabled, the button showing `Inserting… 7 / 16`.
 
 After: a summary line — `Placed 16 of 16.` or `Placed 14 of 16 — 2 failed, see details.` — with
-failures expandable per cue. Review state is retained, so a partial failure can be fixed and
-re-run on only the affected cues.
+failures expandable per cue. The numbers and the progress count are **graphics**. When any cue was
+split the line says so — `Placed 18 of 18 graphics.` — so 18 is not read as a count of cues, and a
+failed graphic is named by its cue and part: *Psalm 23:1-4 (KJV), part 2 of 2 — <host message>*.
+Review state is retained, so a partial failure can be fixed and re-run on only the affected cues
+(**Retry failed** sends just the failed graphics).
 
 **One Ctrl+Z reverts the whole batch.** *Not available in v1: Premiere 26.5 has no undo-group
 API, so Ctrl+Z removes one inserted graphic per press (D25). Do not claim one-press undo in the
@@ -282,7 +313,8 @@ control styling rather than inventing a second look inside the same application.
   greys, and distinguishable without relying on colour alone (every flag also has a text label).
 - The classification badge is text, not colour-only.
 - Confidence is a number, not a bar. Editors want to compare rows quickly.
-- Row height stays under ~64 px collapsed so a dozen cues fit in a docked panel.
+- Row height stays under ~64 px collapsed so a dozen cues fit in a docked panel. A split cue's row
+  adds its layout line (§5.1).
 
 ---
 

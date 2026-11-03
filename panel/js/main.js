@@ -247,6 +247,13 @@
         },
         timing: timingFor(s),
         timecodeOf: function (ticks) { return Timemap.timecode(ticks, s.seqInfo); },
+        // The graphics a cue will insert as at the current Setup values (docs/15 §5). A cue the
+        // media does not reach has no place in the sequence, so its parts have no times.
+        getGraphics: function (cue) {
+          var placement = s.mapping.placements[cue.id];
+          return Insert.graphicsFor(cue, placement && placement.timecode ? placement : null,
+            setupState.get(), s.seqInfo.timebase);
+        },
         onChoosePlacement: function (id, ticks) {
           s.placementChoice[id] = ticks;
           remap();
@@ -316,7 +323,7 @@
     function renderSummary(run, firstUndo) {
       var s = app.session;
       var placed = Insert.placedCount(run);
-      var text = Insert.summaryText(placed, run.order.length);
+      var text = Insert.summaryText(placed, run.order.length, Insert.cueCount(run, s.model));
       if (firstUndo) { text += ' ' + Insert.UNDO_NOTE; }
       var nodes = [el(doc, 'div', 'vf-insert-summary', text)];
       nodes[0].setAttribute('role', 'status');
@@ -326,9 +333,8 @@
         details.appendChild(el(doc, 'summary', 'vf-insert-details-title', 'Details'));
         var list = el(doc, 'ul', 'vf-insert-failures');
         failed.forEach(function (id) {
-          var cue = s.model.get(id);
           list.appendChild(el(doc, 'li', 'vf-insert-failure',
-            (cue ? cue.reference_display : id) + ' — ' + run.failures[id]));
+            Insert.graphicName(run, s.model, id) + ' — ' + run.failures[id]));
         });
         details.appendChild(list);
         nodes.push(details);
@@ -349,7 +355,8 @@
         settings: setupState.get(),
         sequenceId: s.sequenceId,
         model: s.model,
-        placements: s.mapping.placements
+        placements: s.mapping.placements,
+        frameTicks: s.seqInfo.timebase
       };
       var stop = Insert.blockers(ctx);
       if (stop.length > 0) { insertError(stop); return Promise.resolve(); }
@@ -365,7 +372,9 @@
       var unlock = lockControls();
       showInsert([]);
       showProgress(0, insertTotal);
-      return Insert.execute({ bridge: bridge, payload: payload, confirm: confirmFn }).then(function (out) {
+      return Insert.execute({
+        bridge: bridge, payload: payload, model: s.model, confirm: confirmFn
+      }).then(function (out) {
         inserting = false;
         unlock();
         if (out.state === 'error') { insertError([out.error]); return; }
@@ -640,6 +649,16 @@
       onAnalyse: function (request) { app.analyse(request); }
     });
     app.ready = app.setup.ready;
+
+    // Text layout is applied at insert, so a change to its Setup controls only has to refresh the
+    // layout the review rows promise. The control's own handler has stored the value by the time
+    // the event reaches the section.
+    var LAYOUT_CONTROLS = ['setup-autowrap', 'setup-maxchars', 'setup-maxlines'];
+    setupEl.addEventListener('change', function (e) {
+      if (e.target && LAYOUT_CONTROLS.indexOf(e.target.id) !== -1 && app.session && app.session.review) {
+        app.session.review.refreshLayout();
+      }
+    });
 
     app.start = function () {
       return bridge.init().then(function () {

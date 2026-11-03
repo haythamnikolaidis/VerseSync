@@ -27,6 +27,80 @@
     return String(Number(ticks) + frames * Number(timebase));
   }
 
+  // Exact tick arithmetic on digit strings, for tick values that may outgrow a double (docs/08 §1).
+  // Inputs are non-negative whole numbers as strings (or Numbers); results are strings with no
+  // leading zeros.
+  function digitsOf(ticks) {
+    var digits = String(ticks).replace(/^0+/, '');
+    return digits === '' ? '0' : digits;
+  }
+
+  function addTicks(a, b) {
+    var x = digitsOf(a);
+    var y = digitsOf(b);
+    var out = '';
+    var carry = 0;
+    var i = x.length - 1;
+    var j = y.length - 1;
+    while (i >= 0 || j >= 0 || carry) {
+      var sum = carry + (i >= 0 ? x.charCodeAt(i) - 48 : 0) + (j >= 0 ? y.charCodeAt(j) - 48 : 0);
+      out = String(sum % 10) + out;
+      carry = sum >= 10 ? 1 : 0;
+      i--;
+      j--;
+    }
+    return out === '' ? '0' : out;
+  }
+
+  // -1, 0 or 1 as a is below, equal to or above b.
+  function compareTicks(a, b) {
+    var x = digitsOf(a);
+    var y = digitsOf(b);
+    if (x.length !== y.length) { return x.length < y.length ? -1 : 1; }
+    if (x === y) { return 0; }
+    return x < y ? -1 : 1;
+  }
+
+  // a - b, for a >= b; a smaller a gives '0'.
+  function subTicks(a, b) {
+    var x = digitsOf(a);
+    var y = digitsOf(b);
+    if (compareTicks(x, y) <= 0) { return '0'; }
+    var out = '';
+    var borrow = 0;
+    var i = x.length - 1;
+    var j = y.length - 1;
+    while (i >= 0) {
+      var d = x.charCodeAt(i) - 48 - borrow - (j >= 0 ? y.charCodeAt(j) - 48 : 0);
+      borrow = d < 0 ? 1 : 0;
+      out = String(d < 0 ? d + 10 : d) + out;
+      i--;
+      j--;
+    }
+    return digitsOf(out);
+  }
+
+  // The remainder of ticks divided by a whole number of ticks (a frame), by long division.
+  function remainderTicks(ticks, divisor) {
+    var n = Number(divisor);
+    var digits = digitsOf(ticks);
+    var rest = 0;
+    for (var i = 0; i < digits.length; i++) {
+      rest = (rest * 10 + digits.charCodeAt(i) - 48) % n;
+    }
+    return rest;
+  }
+
+  // snapToFrame without the 2^53 limit: the nearest whole frame, halves rounding up. Exact on any
+  // length of digit string.
+  function snapToFrameExact(ticks, timebase) {
+    var ticksPerFrame = Number(timebase);
+    var rest = remainderTicks(ticks, ticksPerFrame);
+    return rest * 2 >= ticksPerFrame
+      ? addTicks(ticks, String(ticksPerFrame - rest))
+      : subTicks(ticks, String(rest));
+  }
+
   function pad2(n) {
     return (n < 10 ? '0' : '') + n;
   }
@@ -273,6 +347,10 @@
     ticksToSeconds: ticksToSeconds,
     snapToFrame: snapToFrame,
     shiftFrames: shiftFrames,
+    addTicks: addTicks,
+    subTicks: subTicks,
+    compareTicks: compareTicks,
+    snapToFrameExact: snapToFrameExact,
     timecode: timecode,
     buildMap: buildMap,
     toSequence: toSequence,

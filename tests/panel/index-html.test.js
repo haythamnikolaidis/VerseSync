@@ -30,6 +30,7 @@ test('scripts load in the required order', () => {
     'js/timemap.js',
     'js/cues.js',
     'js/duration.js',
+    'js/layout.js',
     'js/review.js',
     'js/insert.js',
     'js/main.js'

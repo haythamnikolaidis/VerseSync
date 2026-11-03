@@ -38,8 +38,12 @@ function cueDocument() {
   return doc;
 }
 
-function memoryStorage() {
+// settings seeds the panel's stored Setup values, as an earlier session would have left them.
+function memoryStorage(settings) {
   var m = {};
+  if (settings) {
+    m['versesync.state'] = JSON.stringify({ version: 1, settings: settings, mappings: {} });
+  }
   return {
     getItem: function (k) { return Object.prototype.hasOwnProperty.call(m, k) ? m[k] : null; },
     setItem: function (k, v) { m[k] = String(v); },
@@ -127,7 +131,8 @@ async function build(o) {
     bridge: bridge,
     client: fakeClient(cueDocument()),
     transport: null,
-    storage: memoryStorage(),
+    // The original tests count one graphic per cue; o.settings turns the text layout on.
+    storage: memoryStorage(o.settings || { autoWrap: false }),
     confirm: function (text) { confirms.push(text); return answer.value; },
     fs: {
       showOpenDialog: function (multiple, directory, title, initial, extensions) {
@@ -344,4 +349,186 @@ test('summary wording, exact tick sums and the retry bookkeeping', function () {
   Insert.recordResults(run, [{ id: 'b', ok: true }, { id: 'c', ok: true }]);
   assert.strictEqual(Insert.placedCount(run), 3);
   assert.deepStrictEqual(Insert.failedIds(run), []);
+});
+
+// ---- text layout on: a passage that does not fit goes in as several graphics (docs/15) ---------
+
+var LAYOUT_ON = { autoWrap: true, maxCharsPerLine: 80, maxLinesPerGraphic: 4 };
+
+// The batch the panel would send for the current session and settings.
+function previewPayload(t, settings) {
+  var s = t.app.session;
+  var withValues = Object.assign({}, settings, {
+    mogrtPath: TEMPLATE, targetTrack: TARGET_TRACK, referenceIndex: 3, bodyIndex: 11
+  });
+  return Insert.buildPayload(s.model, s.mapping.placements, {
+    settings: withValues, sequenceId: SEQUENCE_ID, model: s.model, frameTicks: s.seqInfo.timebase
+  });
+}
+
+// What the fake stored in a clip's text field: { textEditValue, fontTextRunLength }.
+function clipText(clip, index) {
+  return JSON.parse(clip.getMGTComponent().properties[index].getValue());
+}
+
+test('with the layout on, a long passage goes in as several graphics, in one call', async function () {
+  var t = await build({ settings: LAYOUT_ON });
+  var before = JSON.stringify(t.app.session.model.toJSON());
+  var seen = [];
+  t.bridge.onEvent('com.versesync.progress', function () { seen.push(t.insertBtn().textContent); });
+  var expected = previewPayload(t, LAYOUT_ON);
+  // 16 enabled cues; Psalm 23:1-4 and 1 Corinthians 13:4-7 do not fit 4 lines of 80 and take two each.
+  assert.strictEqual(expected.cues.length, 18);
+
+  t.insertBtn().click();
+  await waitFor(function () { return t.summary(); });
+
+  var sent = t.calls('insertCues');
+  assert.strictEqual(sent.length, 1);
+  assert.deepStrictEqual(sent[0].args.cues, expected.cues);
+  var ids = sent[0].args.cues.map(function (c) { return c.id; });
+  assert.ok(ids.indexOf('cue_003') !== -1 && ids.indexOf('cue_003#2') !== -1);
+  assert.ok(ids.indexOf('cue_004#2') !== -1 && ids.indexOf('cue_003#3') === -1);
+  sent[0].args.cues.forEach(function (c) {
+    if (c.id.indexOf('cue_003') === 0) { assert.strictEqual(c.reference, 'Psalm 23:1-4 (KJV)'); }
+  });
+
+  assert.strictEqual(t.track().length, 18);
+  assert.strictEqual(t.summary().textContent,
+    'Placed 18 of 18 graphics. Ctrl+Z removes the graphics one at a time.');
+  assert.strictEqual(seen.length, 18);
+  assert.strictEqual(seen[17], 'Inserting… 18 / 18');
+  assert.strictEqual(t.insertBtn().textContent, 'Insert 16 scriptures');
+
+  // The line breaks reached the template, and the run length counts them (fontTextRunLength is the
+  // length of the text the host was given, "\n" included).
+  var bodyIndex = sent[0].args.mapping.bodyIndex;
+  var texts = t.track().map(function (clip) { return clipText(clip, bodyIndex); });
+  assert.strictEqual(texts.length, 18);
+  sent[0].args.cues.forEach(function (c) {
+    var onClip = texts.filter(function (x) { return x.textEditValue === c.body; });
+    assert.ok(onClip.length >= 1, 'no clip holds the text of ' + c.id);
+    assert.deepStrictEqual(onClip[0].fontTextRunLength, [c.body.length]);
+  });
+  assert.ok(texts.some(function (x) { return x.textEditValue.indexOf('\n') !== -1; }));
+
+  // The Cue Document is what it was: wrapped text is never stored.
+  assert.strictEqual(JSON.stringify(t.app.session.model.toJSON()), before);
+  t.app.session.model.cues().forEach(function (cue, i) {
+    assert.strictEqual(cue.body, cueDocument().cues[i].body);
+  });
+});
+
+test('a failed part is named by its cue, and Retry failed inserts only that part', async function () {
+  var t = await build({ settings: LAYOUT_ON });
+  var order = previewPayload(t, LAYOUT_ON).cues.map(function (c) { return c.id; });
+  var imports = t.watchImports([order.indexOf('cue_003#2') + 1]);
+
+  t.insertBtn().click();
+  await waitFor(function () { return t.summary(); });
+  assert.strictEqual(t.summary().textContent,
+    'Placed 17 of 18 graphics — 1 failed, see details. Ctrl+Z removes the graphics one at a time.');
+  var items = t.doc.querySelectorAll('#insert .vf-insert-failure');
+  assert.strictEqual(items.length, 1);
+  assert.strictEqual(items[0].textContent.indexOf('Psalm 23:1-4 (KJV), part 2 of 2 — '), 0);
+  assert.strictEqual(t.track().length, 17);
+
+  t.doc.querySelector('#insert .vf-insert-retry').click();
+  await waitFor(function () {
+    return t.summary() && t.summary().textContent.indexOf('Placed 18 of 18 graphics.') === 0;
+  });
+  assert.strictEqual(t.calls('insertCues').length, 2);
+  assert.deepStrictEqual(t.calls('insertCues')[1].args.cues.map(function (c) { return c.id; }),
+    ['cue_003#2']);
+  assert.strictEqual(imports.n, 19);
+  assert.strictEqual(t.track().length, 18);
+  assert.strictEqual(t.doc.querySelector('#insert .vf-insert-retry'), null);
+});
+
+test('overwriting a clip with two parts of one cue asks about one cue', async function () {
+  var t = await build({ settings: LAYOUT_ON });
+  var cue = previewPayload(t, LAYOUT_ON).cues.filter(function (c) { return c.id.indexOf('cue_003') === 0; });
+  assert.strictEqual(cue.length, 2);
+  // One clip spanning the whole of the cue, so both of its parts land on it.
+  var start = BigInt(cue[0].atTicks);
+  var end = BigInt(cue[1].atTicks) + BigInt(cue[1].durationTicks);
+  t.fake.addClip(t.seq, 'video', TARGET_TRACK, {
+    name: 'Lower Third', startTicks: String(start), endTicks: String(end), projectItem: false
+  });
+  t.answer.value = false;
+
+  t.insertBtn().click();
+  await waitFor(function () { return t.confirms.length === 1; });
+  await tick();
+
+  var ranges = t.calls('validateTrack')[0].args.ranges;
+  assert.strictEqual(ranges.length, 18);
+  assert.strictEqual(t.confirms[0], '1 of your cues will overwrite an existing clip on V4. Continue?');
+  assert.strictEqual(t.calls('insertCues').length, 0);
+});
+
+test('a Setup change applies to the next Insert without analysing again', async function () {
+  var t = await build({ settings: LAYOUT_ON });
+  var started = t.app.session.jobId;
+
+  // Narrower lines: more cues need two graphics.
+  t.$('setup-maxchars').value = '40';
+  t.$('setup-maxchars').dispatchEvent(new t.doc.defaultView.Event('change'));
+  t.insertBtn().click();
+  await waitFor(function () { return t.summary(); });
+  var narrow = t.calls('insertCues')[0].args.cues;
+  assert.ok(narrow.length > 18);
+  narrow.forEach(function (c) {
+    assert.ok(c.body.split('\n').every(function (line) { return line.length <= 40; }));
+    assert.ok(c.body.split('\n').length <= 4);
+  });
+
+  // Unticking the box puts the body in unchanged, as one graphic per cue.
+  t.$('setup-autowrap').checked = false;
+  t.$('setup-autowrap').dispatchEvent(new t.doc.defaultView.Event('change'));
+  t.insertBtn().click();
+  await waitFor(function () {
+    return t.summary() && t.summary().textContent.indexOf('Placed 16 of 16.') === 0;
+  });
+  var off = t.calls('insertCues')[1].args.cues;
+  assert.strictEqual(off.length, 16);
+  off.forEach(function (c) {
+    assert.strictEqual(c.body, t.app.session.model.get(c.id).body);
+  });
+  assert.strictEqual(t.app.session.jobId, started);
+});
+
+test('summary wording for graphics, the bookkeeping for part ids, and how a graphic is named', function () {
+  assert.strictEqual(Insert.summaryText(18, 18, 16), 'Placed 18 of 18 graphics.');
+  assert.strictEqual(Insert.summaryText(17, 18, 16),
+    'Placed 17 of 18 graphics — 1 failed, see details.');
+  // Unsplit, or with no cue count, the line is the one it always was.
+  assert.strictEqual(Insert.summaryText(16, 16, 16), 'Placed 16 of 16.');
+  assert.strictEqual(Insert.summaryText(14, 16), 'Placed 14 of 16 — 2 failed, see details.');
+
+  var model = {
+    cues: {
+      a: { id: 'a', reference_display: 'John 3:16 (KJV)' },
+      b: { id: 'b', reference_display: 'Psalm 23:1-4 (KJV)' }
+    },
+    get: function (id) { return this.cues[id] || null; }
+  };
+  var payload = { sequenceId: 's', cues: [{ id: 'a' }, { id: 'b' }, { id: 'b#2' }, { id: 'b#3' }] };
+  var run = Insert.newRun(payload);
+  assert.strictEqual(Insert.cueCount(run, model), 2);
+  Insert.recordResults(run, [
+    { id: 'a', ok: true }, { id: 'b', ok: true }, { id: 'b#2', ok: false, error: 'boom' }
+  ]);
+  // b#3 was never reported, so it failed too.
+  assert.deepStrictEqual(Insert.failedIds(run), ['b#2', 'b#3']);
+  assert.strictEqual(Insert.placedCount(run), 2);
+  assert.deepStrictEqual(Insert.onlyCues(payload, Insert.failedIds(run)).cues, [{ id: 'b#2' }, { id: 'b#3' }]);
+  assert.strictEqual(Insert.graphicName(run, model, 'a'), 'John 3:16 (KJV)');
+  assert.strictEqual(Insert.graphicName(run, model, 'b#2'), 'Psalm 23:1-4 (KJV), part 2 of 3');
+  assert.strictEqual(Insert.graphicName(run, model, 'b'), 'Psalm 23:1-4 (KJV), part 1 of 3');
+  // A cue deleted since the insert is named by its id.
+  assert.strictEqual(Insert.graphicName(run, model, 'gone#2'), 'gone#2');
+  Insert.recordResults(run, [{ id: 'b#2', ok: true }, { id: 'b#3', ok: true }]);
+  assert.deepStrictEqual(Insert.failedIds(run), []);
+  assert.strictEqual(Insert.placedCount(run), 4);
 });
